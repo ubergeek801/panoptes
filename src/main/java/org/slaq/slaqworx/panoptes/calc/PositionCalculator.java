@@ -19,7 +19,7 @@ public abstract class PositionCalculator<T> {
     /**
      * Creates a new PositionCalculator which operates on the given SecurityAttribute. This may be
      * null if the concrete implementation does not use a calculation attribute.
-     * 
+     *
      * @param calculationAttribute the (possibly null) SecurityAttriute type on which to calculate
      */
     protected PositionCalculator(SecurityAttribute<T> calculationAttribute) {
@@ -28,7 +28,7 @@ public abstract class PositionCalculator<T> {
 
     /**
      * Performs a calculation against the given Portfolio, using no filter.
-     * 
+     *
      * @param portfolio the Portfolio on which to perform a calculation
      * @return the result of the calculation
      */
@@ -39,7 +39,7 @@ public abstract class PositionCalculator<T> {
     /**
      * Performs a calculation against the given Portfolio, first applying the given filter on its
      * Positions.
-     * 
+     *
      * @param portfolio      the Portfolio on which to perform a calculation
      * @param positionFilter the (possibly null) filter to be applied
      * @return the result of the calculation
@@ -51,7 +51,7 @@ public abstract class PositionCalculator<T> {
     /**
      * Performs a calculation against the given Portfolio, first applying the given filter on its
      * Positions. Public calculate() methods ultimately delegate to this method.
-     * 
+     *
      * @param portfolio      the Portfolio on which to perform a calculation
      * @param positionFilter the (never null) filter to be applied
      * @return the result of the calculation
@@ -60,7 +60,7 @@ public abstract class PositionCalculator<T> {
 
     /**
      * Obtains the SecurityAttribute type to be used in calculations.
-     * 
+     *
      * @return a (possibly null) SecurityAttribute
      */
     protected SecurityAttribute<T> getCalculationAttribute() {

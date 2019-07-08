@@ -14,7 +14,7 @@ public class Position {
 
     /**
      * Creates a new Position with a generated ID and the given amount and Security.
-     * 
+     *
      * @param amount   the amount of the Security held in this Position
      * @param security the held Security
      */
@@ -59,7 +59,7 @@ public class Position {
 
     /**
      * Obtains the amount of this Position.
-     * 
+     *
      * @return the amount
      */
     public double getAmount() {
@@ -68,7 +68,7 @@ public class Position {
 
     /**
      * Obtains the unique ID of this Position.
-     * 
+     *
      * @return the ID
      */
     public String getId() {
@@ -77,7 +77,7 @@ public class Position {
 
     /**
      * Obtains the Security held by this Position.
-     * 
+     *
      * @return the Security
      */
     public Security getSecurity() {

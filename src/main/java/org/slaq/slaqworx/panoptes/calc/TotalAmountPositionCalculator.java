@@ -16,13 +16,13 @@ public class TotalAmountPositionCalculator extends PositionCalculator<Double> {
     /**
      * Creates a new TotalAmountPositionCalculator.
      */
-	public TotalAmountPositionCalculator() {
-		super(null);
-	}
+    public TotalAmountPositionCalculator() {
+        super(null);
+    }
 
-	@Override
-	public double calc(Portfolio portfolio, Predicate<? super Position> positionFilter) {
-		return portfolio.getPositions().filter(positionFilter)
-				.collect(Collectors.summingDouble(p -> p.getAmount()));
-	}
+    @Override
+    public double calc(Portfolio portfolio, Predicate<? super Position> positionFilter) {
+        return portfolio.getPositions().filter(positionFilter)
+                .collect(Collectors.summingDouble(p -> p.getAmount()));
+    }
 }

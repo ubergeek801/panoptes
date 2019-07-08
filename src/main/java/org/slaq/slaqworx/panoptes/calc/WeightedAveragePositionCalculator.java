@@ -29,7 +29,7 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     /**
      * WeightedAveragePositionCollector is a Collector that operates on a Stream<Position> to
      * calculate a weighted average of the given attribute.
-     * 
+     *
      * @author jeremy
      *
      */
@@ -77,7 +77,7 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
 
     /**
      * Creates a new WeightedAveragePositionCalculator which calculates on the given attribute.
-     * 
+     *
      * @param calculationAttribute the attribute on which to calculate
      */
     public WeightedAveragePositionCalculator(SecurityAttribute<Double> calculationAttribute) {

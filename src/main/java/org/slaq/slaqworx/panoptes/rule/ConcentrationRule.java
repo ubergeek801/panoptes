@@ -29,7 +29,7 @@ public class ConcentrationRule extends Rule {
     /**
      * Creates a new ConcentrationRule with the given ID, description, filter, lower and upper
      * limit.
-     * 
+     *
      * @param id             the unique ID of this rule
      * @param description    the rule description
      * @param positionFilter the (possibly null) filter to be applied to Positions

@@ -19,7 +19,7 @@ public abstract class Rule {
 
     /**
      * Creates a new Rule with a generated ID and the given description.
-     * 
+     *
      * @param description the description of the Rule
      */
     public Rule(String description) {
@@ -30,7 +30,7 @@ public abstract class Rule {
      * Creates a new Rule with a generated ID and the given description, lower and upper limit.
      * <p>
      * FIXME refactor this into a ConcentrationRule/ValueRule parent
-     * 
+     *
      * @param description the description of the Rule
      * @param lowerLimit  the lower limit of acceptable values
      * @param upperLimit  the upper limit of acceptable values
@@ -43,7 +43,7 @@ public abstract class Rule {
      * Creates a new Rule with the given ID, description, lower and upper limit.
      * <p>
      * FIXME refactor this into a ConcentrationRule/ValueRule parent
-     * 
+     *
      * @param description the description of the Rule
      * @param lowerLimit  the lower limit of acceptable values
      * @param upperLimit  the upper limit of acceptable values
@@ -79,7 +79,7 @@ public abstract class Rule {
 
     /**
      * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark.
-     * 
+     *
      * @param portfolio the Portfolio on which to evaluate the Rule
      * @param benchmark the (possibly null) benchmark to evaluate relative to
      * @return true if the Rule passes, false if it fails
@@ -105,7 +105,7 @@ public abstract class Rule {
 
     /**
      * Obtains the description of this Rule.
-     * 
+     *
      * @return the Rule description
      */
     public String getDescription() {
@@ -114,7 +114,7 @@ public abstract class Rule {
 
     /**
      * Obtains this Rule's unique ID.
-     * 
+     *
      * @return the Rule ID
      */
     public String getId() {
@@ -132,7 +132,7 @@ public abstract class Rule {
     /**
      * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark. The
      * public evaluate() methods ultimately delegate to this one.
-     * 
+     *
      * @param portfolio the Portfolio on which to evaluate the Rule
      * @param benchmark the (possibly null) benchmark to evaluate relative to
      * @return the calculation result of evaluating the rule

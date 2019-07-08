@@ -43,7 +43,7 @@ public class SecurityAttribute<T> {
     /**
      * Creates a new SecurityAttribute with the given name. Restricted to enforce use of the of()
      * factory method.
-     * 
+     *
      * @param name the unique name of the SecurityAttribute
      */
     private SecurityAttribute(String name) {
@@ -52,7 +52,7 @@ public class SecurityAttribute<T> {
 
     /**
      * Creates a new SecurityAttribute with the given name value type.
-     * 
+     *
      * @param <T>   the value type of the SecurityAttribute
      * @param name  the unique name of the SecurityAttribute
      * @param clazz the Class of the value type
@@ -89,7 +89,7 @@ public class SecurityAttribute<T> {
 
     /**
      * Obtains the name of this SecurityAttribute.
-     * 
+     *
      * @return the attribute name
      */
     public String getName() {

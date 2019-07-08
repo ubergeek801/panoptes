@@ -10,13 +10,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 public class Panoptes {
-	/**
-	 * The entry point for the Panoptes application. Currently the app doesn't do anything.
-	 *
-	 * @param args
-	 *            the program arguments
-	 */
-	public static void main(String[] args) {
-		SpringApplication.run(Panoptes.class, args);
-	}
+    /**
+     * The entry point for the Panoptes application. Currently the app doesn't do anything.
+     *
+     * @param args
+     *            the program arguments
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(Panoptes.class, args);
+    }
 }

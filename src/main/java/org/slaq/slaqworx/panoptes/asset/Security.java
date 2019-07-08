@@ -14,7 +14,7 @@ public class Security {
 
     /**
      * Creates a new Security with the given asset ID and SecurityAttribute values.
-     * 
+     *
      * @param assetId    the unique ID identifying the Security
      * @param attributes a (possibly empty) Map of SecurityAttribute to attribute value
      */
@@ -47,7 +47,7 @@ public class Security {
 
     /**
      * Obtains the unique asset ID identifying this Security.
-     * 
+     *
      * @return the asset ID
      */
     public String getAssetId() {
@@ -56,7 +56,7 @@ public class Security {
 
     /**
      * Obtains the value of the specified attribute.
-     * 
+     *
      * @param <T>       the expected type of the attribute value
      * @param attribute the SecurityAttribute identifying the attribute
      * @return the value of the given attribute, or null if not assigned

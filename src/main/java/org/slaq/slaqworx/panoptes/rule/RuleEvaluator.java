@@ -21,7 +21,7 @@ public class RuleEvaluator {
 
     /**
      * Evaluates the given Portfolio using its associated Rules and benchmark (if any).
-     * 
+     *
      * @param portfolio the Portfolio to be evaluated
      * @return a Map associating each evaluated Rule with its result
      */
@@ -32,7 +32,7 @@ public class RuleEvaluator {
     /**
      * Evaluates the given Portfolio using its associated Rules but overriding its associated
      * benchmark (if any) with the specified benchmark.
-     * 
+     *
      * @param portfolio the Portfolio to be evaluated
      * @param benchmark the (possibly null) benchmark to use in place of the Portfolio's associated
      *                  benchmark
@@ -58,7 +58,7 @@ public class RuleEvaluator {
      * Evaluates the given Portfolio against the given Rules (instead of the Portfolio's associated
      * Rules), and overriding the Portfolio's associated benchmark (if any) with the specified
      * benchmark.
-     * 
+     *
      * @param rules     the Rules to evaluate against the given Portfolio
      * @param portfolio the Portfolio to be evaluated
      * @param benchmark the (possibly null) benchmark to use in place of the Portfolio's associated

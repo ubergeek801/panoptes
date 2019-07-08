@@ -26,7 +26,7 @@ public class Portfolio {
     /**
      * Creates a new Portfolio with the given ID and Positions, with no associated Benchmark or
      * Rules.
-     * 
+     *
      * @param id        the unique Portfolio ID
      * @param positions the Positions comprising the Portfolio
      */
@@ -36,7 +36,7 @@ public class Portfolio {
 
     /**
      * Creates a new Portfolio with the given ID, Positions, Benchmark and Rules.
-     * 
+     *
      * @param id        the unique Portfolio ID
      * @param positions the Positions comprising the Portfolio
      * @param benchmark the (possibly null) Portfolio that acts a benchmark for the Portfolio
@@ -75,7 +75,7 @@ public class Portfolio {
 
     /**
      * Obtains this Portfolio's benchmark.
-     * 
+     *
      * @return this Portfolio's benchmark, or null if one is not associated
      */
     public Portfolio getBenchmark() {
@@ -84,7 +84,7 @@ public class Portfolio {
 
     /**
      * Obtains this Portfolio's unique ID.
-     * 
+     *
      * @return this Portfolio's ID
      */
     public String getId() {
@@ -93,7 +93,7 @@ public class Portfolio {
 
     /**
      * Obtains this Portfolio's Positions as a Stream.
-     * 
+     *
      * @return a Stream of Positions
      */
     public Stream<Position> getPositions() {
@@ -111,7 +111,7 @@ public class Portfolio {
 
     /**
      * Obtains the sum of the Position amounts of this Portfolio.
-     * 
+     *
      * @return the sum of Position amounts
      */
     public double getTotalAmount() {

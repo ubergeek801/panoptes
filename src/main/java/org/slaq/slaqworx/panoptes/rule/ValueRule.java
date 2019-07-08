@@ -27,7 +27,7 @@ public class ValueRule extends Rule {
     /**
      * Creates a new ValueRule with the given ID, description, filter, calculation attribute, lower
      * and upper limit.
-     * 
+     *
      * @param id                   the unique ID of this rule
      * @param description          the rule description
      * @param positionFilter       the (possibly null) filter to be applied to Positions
