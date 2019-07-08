@@ -13,6 +13,9 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * @author jeremy
  */
 public class TotalAmountPositionCalculator extends PositionCalculator<Double> {
+    /**
+     * Creates a new TotalAmountPositionCalculator.
+     */
 	public TotalAmountPositionCalculator() {
 		super(null);
 	}

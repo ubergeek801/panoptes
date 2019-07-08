@@ -11,27 +11,59 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  *
  * @author jeremy
  *
- * @param <T>
- *            the type on which the calculator can operate
+ * @param <T> the type on which the calculator can operate
  */
 public abstract class PositionCalculator<T> {
-	private final SecurityAttribute<T> compareAttribute;
+    private final SecurityAttribute<T> calculationAttribute;
 
-	protected PositionCalculator(SecurityAttribute<T> compareAttribute) {
-		this.compareAttribute = compareAttribute;
-	}
+    /**
+     * Creates a new PositionCalculator which operates on the given SecurityAttribute. This may be
+     * null if the concrete implementation does not use a calculation attribute.
+     * 
+     * @param calculationAttribute the (possibly null) SecurityAttriute type on which to calculate
+     */
+    protected PositionCalculator(SecurityAttribute<T> calculationAttribute) {
+        this.calculationAttribute = calculationAttribute;
+    }
 
-	public final double calculate(Portfolio portfolio) {
-		return calculate(portfolio, null);
-	}
+    /**
+     * Performs a calculation against the given Portfolio, using no filter.
+     * 
+     * @param portfolio the Portfolio on which to perform a calculation
+     * @return the result of the calculation
+     */
+    public final double calculate(Portfolio portfolio) {
+        return calculate(portfolio, null);
+    }
 
-	public final double calculate(Portfolio portfolio, Predicate<? super Position> positionFilter) {
-		return calc(portfolio, positionFilter == null ? p -> true : positionFilter);
-	}
+    /**
+     * Performs a calculation against the given Portfolio, first applying the given filter on its
+     * Positions.
+     * 
+     * @param portfolio      the Portfolio on which to perform a calculation
+     * @param positionFilter the (possibly null) filter to be applied
+     * @return the result of the calculation
+     */
+    public final double calculate(Portfolio portfolio, Predicate<? super Position> positionFilter) {
+        return calc(portfolio, positionFilter == null ? p -> true : positionFilter);
+    }
 
-	protected abstract double calc(Portfolio portfolio, Predicate<? super Position> positionFilter);
+    /**
+     * Performs a calculation against the given Portfolio, first applying the given filter on its
+     * Positions. Public calculate() methods ultimately delegate to this method.
+     * 
+     * @param portfolio      the Portfolio on which to perform a calculation
+     * @param positionFilter the (never null) filter to be applied
+     * @return the result of the calculation
+     */
+    protected abstract double calc(Portfolio portfolio, Predicate<? super Position> positionFilter);
 
-	protected SecurityAttribute<T> getCompareAttribute() {
-		return compareAttribute;
-	}
+    /**
+     * Obtains the SecurityAttribute type to be used in calculations.
+     * 
+     * @return a (possibly null) SecurityAttribute
+     */
+    protected SecurityAttribute<T> getCalculationAttribute() {
+        return calculationAttribute;
+    }
 }
