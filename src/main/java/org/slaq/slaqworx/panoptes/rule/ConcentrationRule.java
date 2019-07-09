@@ -20,7 +20,7 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
  * benchmark
  * <li>portfolio holdings in Securities with duration < 5.0 must be less than 80% of the benchmark
  * </ul>
- * 
+ *
  * @author jeremy
  */
 public class ConcentrationRule extends ValueRule {
@@ -28,15 +28,22 @@ public class ConcentrationRule extends ValueRule {
      * Creates a new ConcentrationRule with the given ID, description, filter, lower and upper
      * limit.
      *
-     * @param id             the unique ID of this rule
-     * @param description    the rule description
-     * @param positionFilter the filter to be applied to Positions to determine concentration
-     * @param lowerLimit     the lower limit of acceptable concentration values
-     * @param upperLimit     the upper limit of acceptable concentration values
+     * @param id
+     *            the unique ID of this rule
+     * @param description
+     *            the rule description
+     * @param positionFilter
+     *            the filter to be applied to Positions to determine concentration
+     * @param lowerLimit
+     *            the lower limit of acceptable concentration values
+     * @param upperLimit
+     *            the upper limit of acceptable concentration values
+     * @param evaluationGroup
+     *            the (possibly null) EvaluationGroup to use
      */
     public ConcentrationRule(String id, String description, Predicate<Position> positionFilter,
-            Double lowerLimit, Double upperLimit) {
-        super(id, description, positionFilter, null, lowerLimit, upperLimit);
+            Double lowerLimit, Double upperLimit, EvaluationGroup evaluationGroup) {
+        super(id, description, positionFilter, null, lowerLimit, upperLimit, evaluationGroup);
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.junit.Test;
+
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 
 /**

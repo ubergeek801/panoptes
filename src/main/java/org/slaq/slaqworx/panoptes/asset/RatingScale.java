@@ -20,8 +20,10 @@ public class RatingScale {
     /**
      * Creates a new RatingScale of the given notches and the given maximum scale value.
      *
-     * @param ratings the RatingNotches (in no particular order) comprising this RatingScale
-     * @param max     the maximum value of the RatingScale
+     * @param ratings
+     *            the RatingNotches (in no particular order) comprising this RatingScale
+     * @param max
+     *            the maximum value of the RatingScale
      */
     public RatingScale(Collection<RatingNotch> ratings, double max) {
         notches = new ArrayList<>(ratings);
@@ -51,7 +53,8 @@ public class RatingScale {
      * minimum or maximum value of the scale, the lowest or highest RatingNotch, respectively, is
      * returned.
      *
-     * @param value the value for which to find the corresponding RatingNotch
+     * @param value
+     *            the value for which to find the corresponding RatingNotch
      * @return the RatingNotch corresponding to the given value
      */
     public RatingNotch getRatingNotch(double value) {
@@ -75,7 +78,8 @@ public class RatingScale {
     /**
      * Obtains the RatingNotch corresponding to the given symbol.
      *
-     * @param symbol the symbol for which to find the RatingNotch
+     * @param symbol
+     *            the symbol for which to find the RatingNotch
      * @return the RatingNotch corresponding to the given symbol, or null if it does not exist
      */
     public RatingNotch getRatingNotch(String symbol) {

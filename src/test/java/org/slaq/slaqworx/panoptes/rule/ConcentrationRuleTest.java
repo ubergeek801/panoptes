@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.junit.Test;
+
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -27,7 +28,7 @@ public class ConcentrationRuleTest {
         ConcentrationRule rule = new ConcentrationRule(null, "test rule",
                 p -> "Emerging Markets"
                         .equals(p.getSecurity().getAttributeValue(SecurityAttribute.region)),
-                null, 0.1);
+                null, 0.1, null);
 
         Security emergingMarketSecurity =
                 new Security("s1", Map.of(SecurityAttribute.region, "Emerging Markets"));
@@ -70,7 +71,7 @@ public class ConcentrationRuleTest {
         // benchmark
         ConcentrationRule rule = new ConcentrationRule(null, "test rule",
                 p -> "BRL".equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
-                .95, 1.05);
+                .95, 1.05, null);
 
         Security brlSecurity = new Security("s1", Map.of(SecurityAttribute.currency, "BRL"));
         Security nzdSecurity = new Security("s2", Map.of(SecurityAttribute.currency, "NZD"));
@@ -130,7 +131,7 @@ public class ConcentrationRuleTest {
         // benchmark
         rule = new ConcentrationRule(null, "test rule",
                 p -> "BRL".equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
-                .95, null);
+                .95, null, null);
 
         // create a portfolio with 0% concentration in BRL
         positions = new HashSet<>();
@@ -155,7 +156,7 @@ public class ConcentrationRuleTest {
         // benchmark
         rule = new ConcentrationRule(null, "test rule",
                 p -> "BRL".equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
-                null, 1.05);
+                null, 1.05, null);
 
         // any concentration is infinitely higher than the benchmark, so should fail
         assertFalse("portfolio with any concentration should have failed",

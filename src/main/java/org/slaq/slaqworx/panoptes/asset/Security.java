@@ -15,8 +15,10 @@ public class Security {
     /**
      * Creates a new Security with the given asset ID and SecurityAttribute values.
      *
-     * @param assetId    the unique ID identifying the Security
-     * @param attributes a (possibly empty) Map of SecurityAttribute to attribute value
+     * @param assetId
+     *            the unique ID identifying the Security
+     * @param attributes
+     *            a (possibly empty) Map of SecurityAttribute to attribute value
      */
     public Security(String assetId, Map<SecurityAttribute<?>, ? super Object> attributes) {
         this.assetId = assetId;
@@ -34,7 +36,7 @@ public class Security {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Security other = (Security) obj;
+        Security other = (Security)obj;
         if (assetId == null) {
             if (other.assetId != null) {
                 return false;
@@ -57,13 +59,15 @@ public class Security {
     /**
      * Obtains the value of the specified attribute.
      *
-     * @param <T>       the expected type of the attribute value
-     * @param attribute the SecurityAttribute identifying the attribute
+     * @param <T>
+     *            the expected type of the attribute value
+     * @param attribute
+     *            the SecurityAttribute identifying the attribute
      * @return the value of the given attribute, or null if not assigned
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
         @SuppressWarnings("unchecked")
-        T attributeValue = (T) attributes.get(attribute);
+        T attributeValue = (T)attributes.get(attribute);
 
         return attributeValue;
     }

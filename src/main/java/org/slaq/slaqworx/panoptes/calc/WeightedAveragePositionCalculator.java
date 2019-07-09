@@ -39,7 +39,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
         public BiConsumer<AmountAccumulator, Position> accumulator() {
             // accumulate the Position's amount and weighted amount
             return (a, p) -> {
-                Double attributeValue = p.getSecurity().getAttributeValue(getCalculationAttribute());
+                Double attributeValue =
+                        p.getSecurity().getAttributeValue(getCalculationAttribute());
                 if (attributeValue == null) {
                     return;
                 }
@@ -78,7 +79,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     /**
      * Creates a new WeightedAveragePositionCalculator which calculates on the given attribute.
      *
-     * @param calculationAttribute the attribute on which to calculate
+     * @param calculationAttribute
+     *            the attribute on which to calculate
      */
     public WeightedAveragePositionCalculator(SecurityAttribute<Double> calculationAttribute) {
         super(calculationAttribute);

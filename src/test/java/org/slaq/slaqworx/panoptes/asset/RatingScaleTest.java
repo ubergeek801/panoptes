@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 
 import org.junit.Test;
+
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**

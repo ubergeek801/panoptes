@@ -22,7 +22,8 @@ public class RuleEvaluator {
     /**
      * Evaluates the given Portfolio using its associated Rules and benchmark (if any).
      *
-     * @param portfolio the Portfolio to be evaluated
+     * @param portfolio
+     *            the Portfolio to be evaluated
      * @return a Map associating each evaluated Rule with its result
      */
     public Map<Rule, Boolean> evaluate(Portfolio portfolio) {
@@ -33,9 +34,11 @@ public class RuleEvaluator {
      * Evaluates the given Portfolio using its associated Rules but overriding its associated
      * benchmark (if any) with the specified benchmark.
      *
-     * @param portfolio the Portfolio to be evaluated
-     * @param benchmark the (possibly null) benchmark to use in place of the Portfolio's associated
-     *                  benchmark
+     * @param portfolio
+     *            the Portfolio to be evaluated
+     * @param benchmark
+     *            the (possibly null) benchmark to use in place of the Portfolio's associated
+     *            benchmark
      * @return a Map associating each evaluated Rule with its result
      */
     public Map<Rule, Boolean> evaluate(Portfolio portfolio, Portfolio benchmark) {
@@ -46,8 +49,10 @@ public class RuleEvaluator {
      * Evaluates the given Portfolio against the given Rules (instead of the Portfolio's associated
      * Rules), using the Portfolio's associated benchmark (if any).
      *
-     * @param rules     the Rules to evaluate against the given Portfolio
-     * @param portfolio the Portfolio to be evaluated
+     * @param rules
+     *            the Rules to evaluate against the given Portfolio
+     * @param portfolio
+     *            the Portfolio to be evaluated
      * @return a Map associating each evaluated Rule with its result
      */
     public Map<Rule, Boolean> evaluate(Stream<Rule> rules, Portfolio portfolio) {
@@ -59,10 +64,13 @@ public class RuleEvaluator {
      * Rules), and overriding the Portfolio's associated benchmark (if any) with the specified
      * benchmark.
      *
-     * @param rules     the Rules to evaluate against the given Portfolio
-     * @param portfolio the Portfolio to be evaluated
-     * @param benchmark the (possibly null) benchmark to use in place of the Portfolio's associated
-     *                  benchmark
+     * @param rules
+     *            the Rules to evaluate against the given Portfolio
+     * @param portfolio
+     *            the Portfolio to be evaluated
+     * @param benchmark
+     *            the (possibly null) benchmark to use in place of the Portfolio's associated
+     *            benchmark
      * @return a Map associating each evaluated Rule with its result
      */
     public Map<Rule, Boolean> evaluate(Stream<Rule> rules, Portfolio portfolio,

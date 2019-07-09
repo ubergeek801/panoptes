@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.calc;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**

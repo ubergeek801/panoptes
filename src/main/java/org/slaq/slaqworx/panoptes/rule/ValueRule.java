@@ -10,7 +10,7 @@ import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 /**
  * A LimitRule stipulates limits on values that can be calculated on a portfolio's composition,
  * either in absolute terms or relative to a benchmark.
- * 
+ *
  * @author jeremy
  */
 public class ValueRule extends Rule {
@@ -20,36 +20,27 @@ public class ValueRule extends Rule {
     private final Double upperLimit;
 
     /**
-     * Obtains this rule's position filter.
-     * 
-     * @return the Predicate encoding the position filter
-     */
-    protected Predicate<Position> getPositionFilter() {
-        return positionFilter;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    protected SecurityAttribute<Double> getCalculationAttribute() {
-        return calculationAttribute;
-    }
-
-    /**
-     * Creates a new ValueRule with the given ID, description, filter, calculation attribute, lower
-     * and upper limit.
+     * Creates a new ValueRule with the given parameters.
      *
-     * @param id                   the unique ID of this rule
-     * @param description          the rule description
-     * @param positionFilter       the (possibly null) filter to be applied to Positions
-     * @param calculationAttribute the attribute on which to calculate
-     * @param lowerLimit           the lower limit of acceptable concentration values
-     * @param upperLimit           the upper limit of acceptable concentration values
+     * @param id
+     *            the unique ID of this rule
+     * @param description
+     *            the rule description
+     * @param positionFilter
+     *            the (possibly null) filter to be applied to Positions
+     * @param calculationAttribute
+     *            the attribute on which to calculate
+     * @param lowerLimit
+     *            the lower limit of acceptable concentration values
+     * @param upperLimit
+     *            the upper limit of acceptable concentration values
+     * @param evaluationGroup
+     *            the (possibly null) EvaluationGroup to use
      */
     public ValueRule(String id, String description, Predicate<Position> positionFilter,
-            SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit) {
-        super(id, description);
+            SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
+            EvaluationGroup evaluationGroup) {
+        super(id, description, evaluationGroup);
         this.positionFilter = positionFilter;
         this.calculationAttribute = calculationAttribute;
         this.lowerLimit = lowerLimit;
@@ -59,10 +50,13 @@ public class ValueRule extends Rule {
     /**
      * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark.
      *
-     * @param portfolio the Portfolio on which to evaluate the Rule
-     * @param benchmark the (possibly null) benchmark to evaluate relative to
+     * @param portfolio
+     *            the Portfolio on which to evaluate the Rule
+     * @param benchmark
+     *            the (possibly null) benchmark to evaluate relative to
      * @return true if the Rule passes, false if it fails
      */
+    @Override
     protected final boolean eval(Portfolio portfolio, Portfolio benchmark) {
         double value = getValue(portfolio);
         if (benchmark != null) {
@@ -84,15 +78,34 @@ public class ValueRule extends Rule {
     }
 
     /**
+     * Obtains this rule's (possibly null) calculation attribute.
+     * 
+     * @return the SecurityAttribute on which to perform calculations
+     */
+    protected SecurityAttribute<Double> getCalculationAttribute() {
+        return calculationAttribute;
+    }
+
+    /**
+     * Obtains this rule's (possibly null) position filter.
+     * 
+     * @return the Predicate encoding the position filter
+     */
+    protected Predicate<Position> getPositionFilter() {
+        return positionFilter;
+    }
+
+    /**
      * Evaluates the Rule calculation on the given Portfolio (which may be the Portfolio being
      * evaluated, or its related benchmark).
      * 
-     * @param portfolio the Portfolio on which to perform the appropriate calculations
+     * @param portfolio
+     *            the Portfolio on which to perform the appropriate calculations
      * @return the calculation result
      */
     protected double getValue(Portfolio portfolio) {
-        WeightedAveragePositionCalculator calculator = new WeightedAveragePositionCalculator(
-                getCalculationAttribute());
+        WeightedAveragePositionCalculator calculator =
+                new WeightedAveragePositionCalculator(getCalculationAttribute());
 
         return calculator.calculate(portfolio, getPositionFilter());
     }

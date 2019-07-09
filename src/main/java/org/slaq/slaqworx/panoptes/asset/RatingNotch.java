@@ -13,8 +13,10 @@ public class RatingNotch implements Comparable<RatingNotch> {
     /**
      * Creates a new RatingNotch with the given symbol and lower bound.
      *
-     * @param symbol the rating symbol (e.g. AAA, Baa2)
-     * @param lower  the lower bound of the notch
+     * @param symbol
+     *            the rating symbol (e.g. AAA, Baa2)
+     * @param lower
+     *            the lower bound of the notch
      */
     public RatingNotch(String symbol, double lower) {
         this.symbol = symbol;
@@ -58,7 +60,8 @@ public class RatingNotch implements Comparable<RatingNotch> {
      * Sets the (calculated) middle value of this notch. Normally should be set only by RatingScale
      * during creation.
      *
-     * @param middle the middle value of the notch
+     * @param middle
+     *            the middle value of the notch
      */
     protected void setMiddle(double middle) {
         this.middle = middle;

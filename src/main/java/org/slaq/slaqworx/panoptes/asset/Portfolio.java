@@ -27,8 +27,10 @@ public class Portfolio {
      * Creates a new Portfolio with the given ID and Positions, with no associated Benchmark or
      * Rules.
      *
-     * @param id        the unique Portfolio ID
-     * @param positions the Positions comprising the Portfolio
+     * @param id
+     *            the unique Portfolio ID
+     * @param positions
+     *            the Positions comprising the Portfolio
      */
     public Portfolio(String id, Set<Position> positions) {
         this(id, positions, null, Collections.emptySet());
@@ -37,10 +39,14 @@ public class Portfolio {
     /**
      * Creates a new Portfolio with the given ID, Positions, Benchmark and Rules.
      *
-     * @param id        the unique Portfolio ID
-     * @param positions the Positions comprising the Portfolio
-     * @param benchmark the (possibly null) Portfolio that acts a benchmark for the Portfolio
-     * @param rules     the (possibly empty) Rules associated with the Portfolio
+     * @param id
+     *            the unique Portfolio ID
+     * @param positions
+     *            the Positions comprising the Portfolio
+     * @param benchmark
+     *            the (possibly null) Portfolio that acts a benchmark for the Portfolio
+     * @param rules
+     *            the (possibly empty) Rules associated with the Portfolio
      */
     public Portfolio(String id, Set<Position> positions, Portfolio benchmark, Set<Rule> rules) {
         this.id = id;
@@ -62,7 +68,7 @@ public class Portfolio {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Portfolio other = (Portfolio) obj;
+        Portfolio other = (Portfolio)obj;
         if (id == null) {
             if (other.id != null) {
                 return false;

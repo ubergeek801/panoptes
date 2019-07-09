@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**

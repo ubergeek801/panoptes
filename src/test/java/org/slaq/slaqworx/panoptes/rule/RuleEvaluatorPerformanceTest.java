@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.RatingNotch;
@@ -26,8 +29,6 @@ import org.slaq.slaqworx.panoptes.asset.RatingScale;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * RuleEvaluatorPerformanceTest performs randomized rule evaluation tests and captures some
@@ -153,10 +154,10 @@ public class RuleEvaluatorPerformanceTest {
 
             if (filter != null) {
                 rules.add(new ConcentrationRule(null, "randomly generated rule " + i, filter, 0.8,
-                        1.2));
+                        1.2, null));
             } else if (compareAttribute != null) {
                 rules.add(new ValueRule(null, "randomly generated rule " + i, null,
-                        compareAttribute, 0.8, 1.2));
+                        compareAttribute, 0.8, 1.2, null));
             }
         }
 

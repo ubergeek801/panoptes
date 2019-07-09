@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import org.junit.Test;
+
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
