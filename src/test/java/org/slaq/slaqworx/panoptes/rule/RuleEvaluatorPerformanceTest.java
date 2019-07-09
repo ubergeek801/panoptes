@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -76,6 +77,7 @@ public class RuleEvaluatorPerformanceTest {
     private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
 
     @Test
+    @Ignore
     public void evaluateRules() throws Exception {
         HashMap<String, Security> cusipSecurityMap = new HashMap<>();
 

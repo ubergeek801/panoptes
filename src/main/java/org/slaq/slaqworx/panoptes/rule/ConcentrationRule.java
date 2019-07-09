@@ -7,8 +7,8 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
 
 /**
- * A ConcentrationRule stipulates limits on portfolio concentration in Securities with a particular
- * attribute, either in absolute terms or relative to a benchmark. Examples of absolute rules
+ * A ConcentrationRule stipulates limits on portfolio concentration in Securities matched by a given
+ * Position filter, either in absolute terms or relative to a benchmark. Examples of absolute rules
  * include:
  * <ul>
  * <li>portfolio holdings in Securities from the Emerging Markets region may not exceed 10%
@@ -20,45 +20,35 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
  * benchmark
  * <li>portfolio holdings in Securities with duration < 5.0 must be less than 80% of the benchmark
  * </ul>
- *
+ * 
  * @author jeremy
  */
-public class ConcentrationRule extends Rule {
-    private final Predicate<Position> positionFilter;
-
+public class ConcentrationRule extends ValueRule {
     /**
      * Creates a new ConcentrationRule with the given ID, description, filter, lower and upper
      * limit.
      *
      * @param id             the unique ID of this rule
      * @param description    the rule description
-     * @param positionFilter the (possibly null) filter to be applied to Positions
+     * @param positionFilter the filter to be applied to Positions to determine concentration
      * @param lowerLimit     the lower limit of acceptable concentration values
      * @param upperLimit     the upper limit of acceptable concentration values
      */
     public ConcentrationRule(String id, String description, Predicate<Position> positionFilter,
             Double lowerLimit, Double upperLimit) {
-        super(id, description, lowerLimit, upperLimit);
-        this.positionFilter = positionFilter;
+        super(id, description, positionFilter, null, lowerLimit, upperLimit);
     }
 
     @Override
-    protected double eval(Portfolio portfolio, Portfolio benchmark) {
+    protected double getValue(Portfolio portfolio) {
+        // ConcentrationRule works like a ValueRule in which the calculated value is scaled by the
+        // total amount of the Portfolio. (Eventually this could support scaling by other aggregate
+        // Portfolio attributes.)
+
         TotalAmountPositionCalculator calculator = new TotalAmountPositionCalculator();
 
-        double subtotalAmount = calculator.calculate(portfolio, positionFilter);
+        double subtotalAmount = calculator.calculate(portfolio, getPositionFilter());
         double totalAmount = portfolio.getTotalAmount();
-        double concentration = subtotalAmount / totalAmount;
-
-        if (benchmark != null) {
-            // rescale concentration to the benchmark
-            double subtotalBenchmark = calculator.calculate(benchmark, positionFilter);
-            double benchmarkConcentration = subtotalBenchmark / benchmark.getTotalAmount();
-            // this may result in NaN, which means that the portfolio concentration is infinitely
-            // greater than the benchmark
-            concentration /= benchmarkConcentration;
-        }
-
-        return concentration;
+        return subtotalAmount / totalAmount;
     }
 }

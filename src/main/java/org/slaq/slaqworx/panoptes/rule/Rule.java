@@ -14,45 +14,25 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 public abstract class Rule {
     private final String id;
     private final String description;
-    private final Double lowerLimit;
-    private final Double upperLimit;
 
     /**
      * Creates a new Rule with a generated ID and the given description.
      *
      * @param description the description of the Rule
      */
-    public Rule(String description) {
-        this(null, description, null, null);
-    }
-
-    /**
-     * Creates a new Rule with a generated ID and the given description, lower and upper limit.
-     * <p>
-     * FIXME refactor this into a ConcentrationRule/ValueRule parent
-     *
-     * @param description the description of the Rule
-     * @param lowerLimit  the lower limit of acceptable values
-     * @param upperLimit  the upper limit of acceptable values
-     */
-    public Rule(String description, Double lowerLimit, Double upperLimit) {
-        this(null, description, lowerLimit, upperLimit);
+    protected Rule(String description) {
+        this(null, description);
     }
 
     /**
      * Creates a new Rule with the given ID, description, lower and upper limit.
-     * <p>
-     * FIXME refactor this into a ConcentrationRule/ValueRule parent
      *
+     * @param id          the unique ID to assign to the Rule, or null to generate one
      * @param description the description of the Rule
-     * @param lowerLimit  the lower limit of acceptable values
-     * @param upperLimit  the upper limit of acceptable values
      */
-    public Rule(String id, String description, Double lowerLimit, Double upperLimit) {
+    protected Rule(String id, String description) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.description = description;
-        this.lowerLimit = lowerLimit;
-        this.upperLimit = upperLimit;
     }
 
     @Override
@@ -86,17 +66,7 @@ public abstract class Rule {
      */
     public boolean evaluate(Portfolio portfolio, Portfolio benchmark) {
         try {
-            double value = eval(portfolio, benchmark);
-
-            if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
-                return false;
-            }
-
-            if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
-                return false;
-            }
-
-            return true;
+            return eval(portfolio, benchmark);
         } catch (Exception e) {
             // for now, any unexpected exception results in failure
             return false;
@@ -135,7 +105,7 @@ public abstract class Rule {
      *
      * @param portfolio the Portfolio on which to evaluate the Rule
      * @param benchmark the (possibly null) benchmark to evaluate relative to
-     * @return the calculation result of evaluating the rule
+     * @return true if the Rule passes, false if it fails
      */
-    protected abstract double eval(Portfolio portfolio, Portfolio benchmark);
+    protected abstract boolean eval(Portfolio portfolio, Portfolio benchmark);
 }

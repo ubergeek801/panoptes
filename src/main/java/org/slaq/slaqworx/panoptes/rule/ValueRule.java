@@ -8,21 +8,33 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 
 /**
- * A ValueRule stipulates limits on values that can be calculated on a portfolio's composition,
- * either in absolute terms or relative to a benchmark. Examples of absolute rules include:
- * <ul>
- * <li>the weighted average of a portfolio's duration may not exceed 5.0
- * </ul>
- * Examples of benchmark-relative rules include:
- * <ul>
- * <li>the (weighted) average quality of a portfolio must be at least 90% of the benchmark
- * </ul>
- *
+ * A LimitRule stipulates limits on values that can be calculated on a portfolio's composition,
+ * either in absolute terms or relative to a benchmark.
+ * 
  * @author jeremy
  */
 public class ValueRule extends Rule {
     private final Predicate<Position> positionFilter;
     private final SecurityAttribute<Double> calculationAttribute;
+    private final Double lowerLimit;
+    private final Double upperLimit;
+
+    /**
+     * Obtains this rule's position filter.
+     * 
+     * @return the Predicate encoding the position filter
+     */
+    protected Predicate<Position> getPositionFilter() {
+        return positionFilter;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    protected SecurityAttribute<Double> getCalculationAttribute() {
+        return calculationAttribute;
+    }
 
     /**
      * Creates a new ValueRule with the given ID, description, filter, calculation attribute, lower
@@ -37,24 +49,51 @@ public class ValueRule extends Rule {
      */
     public ValueRule(String id, String description, Predicate<Position> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit) {
-        super(id, description, lowerLimit, upperLimit);
+        super(id, description);
         this.positionFilter = positionFilter;
         this.calculationAttribute = calculationAttribute;
+        this.lowerLimit = lowerLimit;
+        this.upperLimit = upperLimit;
     }
 
-    @Override
-    protected double eval(Portfolio portfolio, Portfolio benchmark) {
-        WeightedAveragePositionCalculator calculator = new WeightedAveragePositionCalculator(
-                calculationAttribute);
-
-        double attributeValue = calculator.calculate(portfolio, positionFilter);
+    /**
+     * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark.
+     *
+     * @param portfolio the Portfolio on which to evaluate the Rule
+     * @param benchmark the (possibly null) benchmark to evaluate relative to
+     * @return true if the Rule passes, false if it fails
+     */
+    protected final boolean eval(Portfolio portfolio, Portfolio benchmark) {
+        double value = getValue(portfolio);
         if (benchmark != null) {
-            double benchmarkValue = calculator.calculate(benchmark);
+            double benchmarkValue = getValue(benchmark);
             // rescale the value to the benchmark; this may result in NaN, which means that the
             // portfolio concentration is infinitely greater than the benchmark
-            attributeValue /= benchmarkValue;
+            value /= benchmarkValue;
         }
 
-        return attributeValue;
+        if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
+            return false;
+        }
+
+        if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Evaluates the Rule calculation on the given Portfolio (which may be the Portfolio being
+     * evaluated, or its related benchmark).
+     * 
+     * @param portfolio the Portfolio on which to perform the appropriate calculations
+     * @return the calculation result
+     */
+    protected double getValue(Portfolio portfolio) {
+        WeightedAveragePositionCalculator calculator = new WeightedAveragePositionCalculator(
+                getCalculationAttribute());
+
+        return calculator.calculate(portfolio, getPositionFilter());
     }
 }

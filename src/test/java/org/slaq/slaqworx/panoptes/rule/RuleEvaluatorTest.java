@@ -26,14 +26,8 @@ public class RuleEvaluatorTest {
         }
 
         @Override
-        public boolean evaluate(Portfolio portfolio, Portfolio benchmark) {
+        public boolean eval(Portfolio portfolio, Portfolio benchmark) {
             return this.benchmark.equals(benchmark);
-        }
-
-        @Override
-        protected double eval(Portfolio portfolio, Portfolio benchmark) {
-            // value is not used
-            return 0;
         }
     }
 
@@ -46,14 +40,8 @@ public class RuleEvaluatorTest {
         }
 
         @Override
-        public boolean evaluate(Portfolio portfolio, Portfolio benchmark) {
+        public boolean eval(Portfolio portfolio, Portfolio benchmark) {
             return isPass;
-        }
-
-        @Override
-        protected double eval(Portfolio portfolio, Portfolio benchmark) {
-            // value is not used
-            return 0;
         }
     }
 
@@ -63,7 +51,7 @@ public class RuleEvaluatorTest {
         }
 
         @Override
-        protected double eval(Portfolio portfolio, Portfolio benchmark) {
+        protected boolean eval(Portfolio portfolio, Portfolio benchmark) {
             throw new RuntimeException("exception test");
         }
     }
