@@ -95,7 +95,7 @@ public class RuleEvaluatorPerformanceTest {
         Portfolio[] benchmarks =
                 new Portfolio[] { emadBenchmark, gladBenchmark, iladBenchmark, pgovBenchmark };
 
-        HashSet<Portfolio> portfolios = new HashSet<>(1000);
+        HashSet<Portfolio> portfolios = new HashSet<>(2000);
         for (int i = 1; i <= 1000; i++) {
             Set<Position> positions = generatePositions(gladBenchmark);
             Set<Rule> rules = generateRules();
@@ -172,6 +172,7 @@ public class RuleEvaluatorPerformanceTest {
             case 3:
                 groupClassifier = (p -> EvaluationGroup
                         .of(p.getSecurity().getAttributeValue(SecurityAttribute.country)));
+                break;
             default:
                 groupClassifier = null;
             }
