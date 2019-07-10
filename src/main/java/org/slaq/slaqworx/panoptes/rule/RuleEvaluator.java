@@ -120,9 +120,23 @@ public class RuleEvaluator {
                                 Set<Position> ppos = e.getValue();
                                 // create PositionSets for the grouped Positions, being careful to
                                 // relate to the original Portfolios as some Rules will require it
-                                PositionSet bpos = (classifiedBenchmarkPositions == null ? null
-                                        : new PositionSet(classifiedBenchmarkPositions.get(group),
-                                                benchmarkPositions.getPortfolio()));
+                                PositionSet bpos;
+                                if (classifiedBenchmarkPositions == null) {
+                                    // no benchmark is provided
+                                    bpos = null;
+                                } else {
+                                    Set<Position> bposSet = classifiedBenchmarkPositions.get(group);
+                                    if (bposSet == null) {
+                                        // a benchmark was provided, but has no Positions in the
+                                        // group
+                                        bpos = null;
+                                    } else {
+                                        bpos = new PositionSet(
+                                                classifiedBenchmarkPositions.get(group),
+                                                benchmarkPositions.getPortfolio());
+                                    }
+                                }
+
                                 boolean singleResult = rule.evaluate(
                                         new PositionSet(ppos, portfolioPositions.getPortfolio()),
                                         bpos);

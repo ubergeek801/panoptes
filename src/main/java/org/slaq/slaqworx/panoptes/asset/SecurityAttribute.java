@@ -14,7 +14,7 @@ import java.util.Map;
  *            the type which values of this attribute implement
  */
 public class SecurityAttribute<T> {
-    private static final Map<String, SecurityAttribute<?>> attributes = new HashMap<>();
+    private static final Map<String, SecurityAttribute<?>> attributes = new HashMap<>(100, 0.5f);
 
     // some well-known attributes follow, but security attributes are not limited to these
 
@@ -83,14 +83,8 @@ public class SecurityAttribute<T> {
             return false;
         }
         SecurityAttribute<?> other = (SecurityAttribute<?>)obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+
+        return name.equals(other.name);
     }
 
     /**
@@ -104,10 +98,7 @@ public class SecurityAttribute<T> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+        return name.hashCode();
     }
 
     @Override

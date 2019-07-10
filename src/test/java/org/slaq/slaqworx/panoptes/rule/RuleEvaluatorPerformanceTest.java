@@ -146,18 +146,42 @@ public class RuleEvaluatorPerformanceTest {
             case 3:
                 filter = p -> "Emerging Markets"
                         .equals(p.getSecurity().getAttributeValue(SecurityAttribute.region));
+                break;
             case 4:
                 compareAttribute = SecurityAttribute.ratingValue;
+                break;
             default:
                 compareAttribute = SecurityAttribute.duration;
             }
 
+            EvaluationGroupClassifier groupClassifier;
+            switch (random.nextInt(5)) {
+            case 0:
+                groupClassifier = (p -> EvaluationGroup
+                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.currency)));
+                break;
+            case 1:
+                // description is a proxy for issuer
+                groupClassifier = (p -> EvaluationGroup
+                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.description)));
+                break;
+            case 2:
+                groupClassifier = (p -> EvaluationGroup
+                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.region)));
+                break;
+            case 3:
+                groupClassifier = (p -> EvaluationGroup
+                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.country)));
+            default:
+                groupClassifier = null;
+            }
+
             if (filter != null) {
                 rules.add(new ConcentrationRule(null, "randomly generated rule " + i, filter, 0.8,
-                        1.2, null));
+                        1.2, groupClassifier));
             } else if (compareAttribute != null) {
                 rules.add(new WeightedAverageRule(null, "randomly generated rule " + i, null,
-                        compareAttribute, 0.8, 1.2, null));
+                        compareAttribute, 0.8, 1.2, groupClassifier));
             }
         }
 

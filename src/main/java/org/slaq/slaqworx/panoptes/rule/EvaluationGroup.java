@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * EvaluationGroup is a value type used as a key when classifying rule evaluation results.
@@ -9,7 +9,7 @@ import java.util.Map;
  * @author jeremy
  */
 public class EvaluationGroup {
-    private static final Map<String, EvaluationGroup> groups = new HashMap<>();
+    private static final Map<String, EvaluationGroup> groups = new ConcurrentHashMap<>();
 
     public static final String DEFAULT_EVALUATION_GROUP_ID = "portfolio";
 
