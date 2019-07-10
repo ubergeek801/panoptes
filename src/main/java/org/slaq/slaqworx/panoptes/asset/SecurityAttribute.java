@@ -38,9 +38,10 @@ public class SecurityAttribute<T> {
             SecurityAttribute.of("yield", BigDecimal.class);
     public static SecurityAttribute<Double> duration =
             SecurityAttribute.of("duration", Double.class);
+    public static SecurityAttribute<String> issuer = SecurityAttribute.of("issuer", String.class);
 
     /**
-     * Creates a new SecurityAttribute with the given name value type.
+     * Obtains (or creates) a SecurityAttribute with the given name and value type.
      *
      * @param <T>
      *            the value type of the SecurityAttribute
@@ -107,5 +108,10 @@ public class SecurityAttribute<T> {
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "SecurityAttribute[\"" + name + "\"]";
     }
 }

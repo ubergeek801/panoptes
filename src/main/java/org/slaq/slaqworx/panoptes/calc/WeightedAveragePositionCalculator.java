@@ -9,14 +9,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
  * WeightedAveragePositionCalculator is a PositionCalculator that determines the weighted average of
- * a Position collection. It relies on the Positions already having had their weighted amounts
- * pre-calculated (by the associated Portfolio or some other means).
+ * a Position collection.
  *
  * @author jeremy
  */
@@ -87,8 +86,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     }
 
     @Override
-    public double calc(Portfolio portfolio, Predicate<? super Position> positionFilter) {
-        return portfolio.getPositions().filter(positionFilter)
+    public double calc(PositionSupplier positions, Predicate<? super Position> positionFilter) {
+        return positions.getPositions().filter(positionFilter)
                 .collect(new WeightedAveragePositionCollector());
     }
 }

@@ -1,12 +1,10 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
@@ -15,13 +13,11 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  *
  * @author jeremy
  */
-public class Portfolio {
+public class Portfolio implements PositionSupplier {
     private final String id;
     private final Portfolio benchmark;
-    // keeping positions in contiguous memory improves calculation performance by 20%
-    private final ArrayList<Position> positions;
     private final HashSet<Rule> rules;
-    private final double totalAmount;
+    private final PositionSet positionSet;
 
     /**
      * Creates a new Portfolio with the given ID and Positions, with no associated Benchmark or
@@ -51,10 +47,8 @@ public class Portfolio {
     public Portfolio(String id, Set<Position> positions, Portfolio benchmark, Set<Rule> rules) {
         this.id = id;
         this.benchmark = benchmark;
-        this.positions = new ArrayList<>(positions);
         this.rules = new HashSet<>(rules);
-
-        totalAmount = new TotalAmountPositionCalculator().calculate(this);
+        positionSet = new PositionSet(positions, this);
     }
 
     @Override
@@ -97,17 +91,27 @@ public class Portfolio {
         return id;
     }
 
-    /**
-     * Obtains this Portfolio's Positions as a Stream.
-     *
-     * @return a Stream of Positions
-     */
+    @Override
+    public Portfolio getPortfolio() {
+        return this;
+    }
+
+    @Override
     public Stream<Position> getPositions() {
-        return positions.stream();
+        return positionSet.getPositions();
     }
 
     /**
-     * Obtains this Portfolio's Rules as a STream.
+     * Obtains this Portfolio's Positions as a PositionSet.
+     *
+     * @return a PositionSet
+     */
+    public PositionSet getPositionSet() {
+        return positionSet;
+    }
+
+    /**
+     * Obtains this Portfolio's Rules as a Stream.
      *
      * @return a Stream of Rules
      */
@@ -115,13 +119,9 @@ public class Portfolio {
         return rules.stream();
     }
 
-    /**
-     * Obtains the sum of the Position amounts of this Portfolio.
-     *
-     * @return the sum of Position amounts
-     */
+    @Override
     public double getTotalAmount() {
-        return totalAmount;
+        return positionSet.getTotalAmount();
     }
 
     @Override
@@ -130,5 +130,15 @@ public class Portfolio {
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
+    }
+
+    @Override
+    public int size() {
+        return positionSet.size();
+    }
+
+    @Override
+    public String toString() {
+        return "Portfolio[id=\"" + id + "\"]";
     }
 }

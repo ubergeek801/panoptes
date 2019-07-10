@@ -2,8 +2,8 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Predicate;
 
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
 
 /**
@@ -38,24 +38,25 @@ public class ConcentrationRule extends ValueRule {
      *            the lower limit of acceptable concentration values
      * @param upperLimit
      *            the upper limit of acceptable concentration values
-     * @param evaluationGroup
-     *            the (possibly null) EvaluationGroup to use
+     * @param groupClassifier
+     *            the (possibly null) EvaluationGroupClassifier to use
      */
     public ConcentrationRule(String id, String description, Predicate<Position> positionFilter,
-            Double lowerLimit, Double upperLimit, EvaluationGroup evaluationGroup) {
-        super(id, description, positionFilter, null, lowerLimit, upperLimit, evaluationGroup);
+            Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+        super(id, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier);
     }
 
     @Override
-    protected double getValue(Portfolio portfolio) {
+    protected double getValue(PositionSupplier positions) {
         // ConcentrationRule works like a ValueRule in which the calculated value is scaled by the
-        // total amount of the Portfolio. (Eventually this could support scaling by other aggregate
-        // Portfolio attributes.)
+        // total amount of the portfolio. (Eventually this could support scaling by other aggregate
+        // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
+        // have a related Portfolio.
 
         TotalAmountPositionCalculator calculator = new TotalAmountPositionCalculator();
 
-        double subtotalAmount = calculator.calculate(portfolio, getPositionFilter());
-        double totalAmount = portfolio.getTotalAmount();
+        double subtotalAmount = calculator.calculate(positions, getPositionFilter());
+        double totalAmount = positions.getPortfolio().getTotalAmount();
         return subtotalAmount / totalAmount;
     }
 }
