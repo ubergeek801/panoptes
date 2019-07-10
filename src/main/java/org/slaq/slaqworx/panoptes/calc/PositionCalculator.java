@@ -9,6 +9,11 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 /**
  * PositionCalculator is the parent of classes which perform calculations on Positions, typically to
  * be employed in the implementation of Rules.
+ * <p>
+ * Note that a PositionCalculator may employ a Position filters, for example to compute a
+ * concentration of Positions matching the filter with respect to an entire Portfolio. This should
+ * not be confused with a Rule-level Position filter which, while employing an identical mechanism,
+ * serves the purpose of limiting Rule evaluations to a subset of a Portfolio's Positions.
  *
  * @author jeremy
  *
@@ -43,7 +48,7 @@ public abstract class PositionCalculator<T> {
             Predicate<? super Position> positionFilter);
 
     /**
-     * Performs a calculation against the given Portfolio, using no filter.
+     * Performs a calculation against the given Positions, using no filter.
      *
      * @param positions
      *            the Positions on which to perform a calculation
