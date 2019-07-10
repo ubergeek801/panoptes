@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +77,6 @@ public class RuleEvaluatorPerformanceTest {
     private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
 
     @Test
-    @Ignore
     public void evaluateRules() throws Exception {
         HashMap<String, Security> cusipSecurityMap = new HashMap<>();
 
@@ -126,7 +124,7 @@ public class RuleEvaluatorPerformanceTest {
     }
 
     protected Set<Rule> generateRules() {
-        HashSet<Rule> rules = new HashSet<>(200);
+        HashSet<Rule> rules = new HashSet<>(400);
 
         for (int i = 1; i <= 200; i++) {
             Predicate<Position> filter = null;

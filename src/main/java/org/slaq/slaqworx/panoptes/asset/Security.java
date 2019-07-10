@@ -1,6 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -10,7 +10,9 @@ import java.util.Map;
  */
 public class Security {
     private final String assetId;
-    private final Map<SecurityAttribute<?>, ? super Object> attributes = new HashMap<>();
+    // while a HashMap would be more convenient, attribute lookups are a very hot piece of code
+    // during Rule evaluation, and an array lookup speeds things up by ~13%, so ArrayList it is
+    private final ArrayList<? super Object> attributes = new ArrayList<>();
 
     /**
      * Creates a new Security with the given asset ID and SecurityAttribute values.
@@ -22,7 +24,13 @@ public class Security {
      */
     public Security(String assetId, Map<SecurityAttribute<?>, ? super Object> attributes) {
         this.assetId = assetId;
-        this.attributes.putAll(attributes);
+        attributes.forEach((a, v) -> {
+            this.attributes.ensureCapacity(a.getIndex() + 1);
+            while (this.attributes.size() < a.getIndex() + 1) {
+                this.attributes.add(null);
+            }
+            this.attributes.set(a.getIndex(), v);
+        });
     }
 
     @Override
@@ -59,10 +67,19 @@ public class Security {
      * @return the value of the given attribute, or null if not assigned
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
-        @SuppressWarnings("unchecked")
-        T attributeValue = (T)attributes.get(attribute);
+        try {
+            @SuppressWarnings("unchecked")
+            T attributeValue = (T)attributes.get(attribute.getIndex());
 
-        return attributeValue;
+            return attributeValue;
+        } catch (IndexOutOfBoundsException e) {
+            // this attribute must not exist; prevent future IndexOutOfBoundsExceptions
+            attributes.ensureCapacity(attribute.getIndex() + 1);
+            while (attributes.size() < attribute.getIndex() + 1) {
+                attributes.add(null);
+            }
+            return null;
+        }
     }
 
     @Override

@@ -17,11 +17,11 @@ public class TestUtil {
     public static final double EPSILON = 0.00001;
 
     public static final SecurityAttribute<Double> moovyRating =
-            SecurityAttribute.of("Moovy", Double.class);
+            SecurityAttribute.of("Moovy", 13, Double.class);
     public static final SecurityAttribute<Double> npRating =
-            SecurityAttribute.of("N&P", Double.class);
+            SecurityAttribute.of("N&P", 14, Double.class);
     public static final SecurityAttribute<Double> fetchRating =
-            SecurityAttribute.of("Fetch", Double.class);
+            SecurityAttribute.of("Fetch", 15, Double.class);
 
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = Map.of(moovyRating,
             90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration, 4d);

@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
@@ -11,6 +11,10 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
  * parent is specified, it should not be assumed that the members of this PositionSet are also
  * members of the Portfolio's Positions; rather, the relationship exists only so that Position
  * processing logic may access Portfolio-level data if necessary.
+ * <p>
+ * Note that the Positions within a PositionSet should generally be unique, but for performance
+ * reasons, this is not enforced by PositionSet. While this class does not depend on uniqueness, any
+ * calculations based on the Positions will be skewed if duplicate Positions are present.
  *
  * @author jeremy
  */
@@ -27,7 +31,7 @@ public class PositionSet implements PositionSupplier {
      * @param positions
      *            the Positions that will comprise this PositionSet
      */
-    public PositionSet(Set<Position> positions) {
+    public PositionSet(Collection<Position> positions) {
         this(positions, null);
     }
 
@@ -39,7 +43,7 @@ public class PositionSet implements PositionSupplier {
      * @param portfolio
      *            the (possibly null) Portfolio associated with this PositionSet
      */
-    public PositionSet(Set<Position> positions, Portfolio portfolio) {
+    public PositionSet(Collection<Position> positions, Portfolio portfolio) {
         this.positions = new ArrayList<>(positions);
         this.portfolio = portfolio;
         totalAmount = new TotalAmountPositionCalculator().calculate(this);

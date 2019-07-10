@@ -1,7 +1,8 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,21 +96,21 @@ public class RuleEvaluator {
 
                     // group the Positions of the portfolio into classifications according to the
                     // Rule's GroupClassifier
-                    Map<EvaluationGroup, Set<Position>> classifiedPortfolioPositions =
+                    Map<EvaluationGroup, List<Position>> classifiedPortfolioPositions =
                             portfolioPositions.getPositions()
                                     .collect(Collectors.groupingBy(
                                             p -> rule.getGroupClassifier().classify(p),
-                                            Collectors.toSet()));
+                                            Collectors.toList()));
 
                     // do the same for the benchmark, if specified
-                    Map<EvaluationGroup, Set<Position>> classifiedBenchmarkPositions;
+                    Map<EvaluationGroup, List<Position>> classifiedBenchmarkPositions;
                     if (benchmarkPositions == null) {
                         classifiedBenchmarkPositions = null;
                     } else {
                         classifiedBenchmarkPositions = benchmarkPositions.getPositions()
                                 .collect(Collectors.groupingBy(
                                         p -> rule.getGroupClassifier().classify(p),
-                                        Collectors.toSet()));
+                                        Collectors.toList()));
                     }
 
                     // for each group of Positions, evaluate the Rule against the group, for both
@@ -117,7 +118,7 @@ public class RuleEvaluator {
                     Map<EvaluationGroup, Boolean> ruleResults = classifiedPortfolioPositions
                             .entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
                                 EvaluationGroup group = e.getKey();
-                                Set<Position> ppos = e.getValue();
+                                Collection<Position> ppos = e.getValue();
                                 // create PositionSets for the grouped Positions, being careful to
                                 // relate to the original Portfolios as some Rules will require it
                                 PositionSet bpos;
@@ -125,7 +126,8 @@ public class RuleEvaluator {
                                     // no benchmark is provided
                                     bpos = null;
                                 } else {
-                                    Set<Position> bposSet = classifiedBenchmarkPositions.get(group);
+                                    Collection<Position> bposSet =
+                                            classifiedBenchmarkPositions.get(group);
                                     if (bposSet == null) {
                                         // a benchmark was provided, but has no Positions in the
                                         // group
