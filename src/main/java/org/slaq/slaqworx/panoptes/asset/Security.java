@@ -37,14 +37,7 @@ public class Security {
             return false;
         }
         Security other = (Security)obj;
-        if (assetId == null) {
-            if (other.assetId != null) {
-                return false;
-            }
-        } else if (!assetId.equals(other.assetId)) {
-            return false;
-        }
-        return true;
+        return assetId.equals(other.assetId);
     }
 
     /**
@@ -74,9 +67,6 @@ public class Security {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((assetId == null) ? 0 : assetId.hashCode());
-        return result;
+        return assetId.hashCode();
     }
 }
