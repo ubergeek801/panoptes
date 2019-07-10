@@ -81,22 +81,27 @@ public class RuleEvaluator {
      *            the portfolio Positions to be evaluated
      * @param benchmarkPositions
      *            the (possibly null) benchmark Positions to be evaluated against
-     * @return a Map associating each evaluated Rule with its result
+     * @return a Map associating each evaluated Rule with its (grouped) result
      */
     public Map<Rule, Map<EvaluationGroup, Boolean>> evaluate(Stream<Rule> rules,
             PositionSupplier portfolioPositions, PositionSupplier benchmarkPositions) {
+        // multiple levels of mapping going on: the first level iterates (in parallel) over Rules
+        // and evaluates each one
         Map<Rule, Map<EvaluationGroup, Boolean>> allResults =
                 rules.parallel().collect(Collectors.toMap(r -> r, rule -> {
                     LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}",
                             rule.getId(), rule.getDescription(), portfolioPositions.size(),
                             portfolioPositions);
 
+                    // group the Positions of the portfolio into classifications according to the
+                    // Rule's GroupClassifier
                     Map<EvaluationGroup, Set<Position>> classifiedPortfolioPositions =
                             portfolioPositions.getPositions()
                                     .collect(Collectors.groupingBy(
                                             p -> rule.getGroupClassifier().classify(p),
                                             Collectors.toSet()));
 
+                    // do the same for the benchmark, if specified
                     Map<EvaluationGroup, Set<Position>> classifiedBenchmarkPositions;
                     if (benchmarkPositions == null) {
                         classifiedBenchmarkPositions = null;
@@ -107,21 +112,23 @@ public class RuleEvaluator {
                                         Collectors.toSet()));
                     }
 
+                    // for each group of Positions, evaluate the Rule against the group, for both
+                    // the Portfolio and the Benchmark (if specified)
                     Map<EvaluationGroup, Boolean> ruleResults = classifiedPortfolioPositions
                             .entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
                                 EvaluationGroup group = e.getKey();
                                 Set<Position> ppos = e.getValue();
-                                // create a PositionSet for the grouped Positions, being careful to
-                                // relate
-                                // to the original Portfolio as some Rules will require it
+                                // create PositionSets for the grouped Positions, being careful to
+                                // relate to the original Portfolios as some Rules will require it
                                 PositionSet bpos = (classifiedBenchmarkPositions == null ? null
                                         : new PositionSet(classifiedBenchmarkPositions.get(group),
                                                 benchmarkPositions.getPortfolio()));
-                                boolean result = rule.evaluate(
+                                boolean singleResult = rule.evaluate(
                                         new PositionSet(ppos, portfolioPositions.getPortfolio()),
                                         bpos);
 
-                                return result;
+                                // wasn't that easy?
+                                return singleResult;
                             }));
 
                     return ruleResults;
