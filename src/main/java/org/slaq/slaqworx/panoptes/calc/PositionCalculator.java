@@ -59,7 +59,7 @@ public abstract class PositionCalculator<T> {
     }
 
     /**
-     * Performs a calculation against the given Positions, first applying the given filter .
+     * Performs a calculation against the given Positions, first applying the given filter.
      *
      * @param positions
      *            the Positions on which to perform a calculation
