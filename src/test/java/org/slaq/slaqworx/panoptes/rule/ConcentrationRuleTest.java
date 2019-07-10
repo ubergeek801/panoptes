@@ -71,7 +71,7 @@ public class ConcentrationRuleTest {
         // benchmark
         ConcentrationRule rule = new ConcentrationRule(null, "test rule",
                 p -> "BRL".equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
-                .95, 1.05, null, null);
+                0.95, 1.05, null, null);
 
         Security brlSecurity = new Security("s1", Map.of(SecurityAttribute.currency, "BRL"));
         Security nzdSecurity = new Security("s2", Map.of(SecurityAttribute.currency, "NZD"));
@@ -131,7 +131,7 @@ public class ConcentrationRuleTest {
         // benchmark
         rule = new ConcentrationRule(null, "test rule",
                 p -> "BRL".equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
-                .95, null, null, null);
+                0.95, null, null, null);
 
         // create a portfolio with 0% concentration in BRL
         positions = new HashSet<>();
