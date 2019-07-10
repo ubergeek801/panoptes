@@ -177,10 +177,10 @@ public class RuleEvaluatorPerformanceTest {
 
             if (filter != null) {
                 rules.add(new ConcentrationRule(null, "randomly generated rule " + i, filter, 0.8,
-                        1.2, groupClassifier));
+                        1.2, groupClassifier, null));
             } else if (compareAttribute != null) {
                 rules.add(new WeightedAverageRule(null, "randomly generated rule " + i, null,
-                        compareAttribute, 0.8, 1.2, groupClassifier));
+                        compareAttribute, 0.8, 1.2, groupClassifier, null));
             }
         }
 

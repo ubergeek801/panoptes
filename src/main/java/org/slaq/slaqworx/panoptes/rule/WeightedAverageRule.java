@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -39,12 +40,15 @@ public class WeightedAverageRule extends ValueRule {
      *            the upper limit of acceptable concentration values
      * @param groupClassifier
      *            the (possibly null) EvaluationGroupClassifier to use
+     * @param groupAggregators
+     *            the (possibly empty or null) GroupAggregators to use
      */
     protected WeightedAverageRule(String id, String description, Predicate<Position> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
-            EvaluationGroupClassifier groupClassifier) {
+            EvaluationGroupClassifier groupClassifier,
+            Collection<GroupAggregator> groupAggregators) {
         super(id, description, positionFilter, calculationAttribute, lowerLimit, upperLimit,
-                groupClassifier);
+                groupClassifier, groupAggregators);
     }
 
     @Override

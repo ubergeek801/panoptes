@@ -150,16 +150,21 @@ public class RuleEvaluatorTest {
         positions.add(cadPosition2);
 
         HashSet<Rule> rules = new HashSet<>();
-        Rule durationRule = new WeightedAverageRule(null, "currency-grouped duration rule", null,
-                SecurityAttribute.duration, null, 4d, p -> EvaluationGroup
-                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.currency)));
+        Rule durationRule =
+                new WeightedAverageRule(null, "currency-grouped duration rule", null,
+                        SecurityAttribute.duration, null, 4d,
+                        p -> EvaluationGroup
+                                .of(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
+                        null);
         rules.add(durationRule);
         Rule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
-                SecurityAttribute.ratingValue, 80d, null, null);
+                SecurityAttribute.ratingValue, 80d, null, null, null);
         rules.add(qualityRule);
-        Rule issuerRule = new ConcentrationRule(null, "issuer-grouped concentration rule", null,
-                null, 0.5, p -> EvaluationGroup
-                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.issuer)));
+        Rule issuerRule =
+                new ConcentrationRule(null, "issuer-grouped concentration rule", null, null, 0.5,
+                        p -> EvaluationGroup
+                                .of(p.getSecurity().getAttributeValue(SecurityAttribute.issuer)),
+                        null);
         rules.add(issuerRule);
 
         // total value = 2_100, weighted rating = 165_500, weighted duration = 9_200,

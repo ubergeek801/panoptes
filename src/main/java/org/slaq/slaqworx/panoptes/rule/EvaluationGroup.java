@@ -74,5 +74,4 @@ public class EvaluationGroup {
     public int hashCode() {
         return id.hashCode();
     }
-
 }

@@ -1,6 +1,9 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ public abstract class Rule {
     private final String id;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
+    private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();
 
     /**
      * Creates a new Rule with a generated ID and the given description.
@@ -51,21 +55,42 @@ public abstract class Rule {
     }
 
     /**
-     * Creates a new Rule with the given ID, description and evaluation group.
+     * Creates a new Rule with the given ID, description and evaluation group classifier.
      *
      * @param id
      *            the unique ID to assign to the Rule, or null to generate one
      * @param description
      *            the description of the Rule
-     * @param EvaluationGroupClassifier
+     * @param groupClassifier
      *            the (possibly null) EvaluationGroupClassifier to use
      */
     protected Rule(String id, String description, EvaluationGroupClassifier groupClassifier) {
+        this(id, description, groupClassifier, null);
+    }
+
+    /**
+     * Creates a new Rule with the given ID, description, evaluation group classifier and group
+     * aggregators.
+     *
+     * @param id
+     *            the unique ID to assign to the Rule, or null to generate one
+     * @param description
+     *            the description of the Rule
+     * @param groupClassifier
+     *            the (possibly null) EvaluationGroupClassifier to use
+     * @param groupAggregators
+     *            the (possibly empty or null) GroupAggregators to use
+     */
+    protected Rule(String id, String description, EvaluationGroupClassifier groupClassifier,
+            Collection<GroupAggregator> groupAggregators) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.description = description;
         this.groupClassifier =
                 (groupClassifier == null ? EvaluationGroupClassifier.defaultClassifier()
                         : groupClassifier);
+        if (groupAggregators != null) {
+            this.groupAggregators.addAll(groupAggregators);
+        }
     }
 
     @Override
@@ -123,6 +148,15 @@ public abstract class Rule {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Obtains this Rule's GroupAggregators (if any) as a Stream.
+     *
+     * @return a (possibly empty) Stream of GroupAggregators
+     */
+    public Stream<GroupAggregator> getGroupAggregators() {
+        return groupAggregators.stream();
     }
 
     /**

@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -96,22 +96,34 @@ public class RuleEvaluator {
 
                     // group the Positions of the portfolio into classifications according to the
                     // Rule's GroupClassifier
-                    Map<EvaluationGroup, List<Position>> classifiedPortfolioPositions =
+                    Map<EvaluationGroup, Collection<Position>> classifiedPortfolioPositions =
                             portfolioPositions.getPositions()
                                     .collect(Collectors.groupingBy(
                                             p -> rule.getGroupClassifier().classify(p),
-                                            Collectors.toList()));
+                                            Collectors.toCollection(ArrayList::new)));
 
                     // do the same for the benchmark, if specified
-                    Map<EvaluationGroup, List<Position>> classifiedBenchmarkPositions;
+                    Map<EvaluationGroup, Collection<Position>> classifiedBenchmarkPositions;
                     if (benchmarkPositions == null) {
                         classifiedBenchmarkPositions = null;
                     } else {
                         classifiedBenchmarkPositions = benchmarkPositions.getPositions()
                                 .collect(Collectors.groupingBy(
                                         p -> rule.getGroupClassifier().classify(p),
-                                        Collectors.toList()));
+                                        Collectors.toCollection(ArrayList::new)));
                     }
+
+                    // Execute the Rule's GroupAggregators (if any) to create additional
+                    // EvaluationGroups. For example, a Rule may include the Positions holding the
+                    // top five issuers in the Portfolio.
+                    rule.getGroupAggregators().forEach(a -> {
+                        classifiedPortfolioPositions
+                                .putAll(a.aggregate(classifiedPortfolioPositions));
+                        if (classifiedBenchmarkPositions != null) {
+                            classifiedBenchmarkPositions
+                                    .putAll(a.aggregate(classifiedBenchmarkPositions));
+                        }
+                    });
 
                     // for each group of Positions, evaluate the Rule against the group, for both
                     // the Portfolio and the Benchmark (if specified)
