@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -21,6 +20,9 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  * EvaluationGroupClassifier is not specified, is to calculate for an entire Portfolio. Note that a
  * Rule only specifies how its results should be grouped; the actual tabulation is performed by
  * RuleEvaluator.
+ * <p>
+ * Currently, a Rule may have at most one EvaluationGroupClassifier, which may also act as a
+ * GroupAggregator.
  *
  * @author jeremy
  */
@@ -30,7 +32,7 @@ public abstract class Rule {
     private final String id;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
-    private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();
+    private final ArrayList<GroupAggregator<?>> groupAggregators = new ArrayList<>();
 
     /**
      * Creates a new Rule with a generated ID and the given description.
@@ -62,34 +64,19 @@ public abstract class Rule {
      * @param description
      *            the description of the Rule
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use
+     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
+     *            GroupAggregator
      */
     protected Rule(String id, String description, EvaluationGroupClassifier groupClassifier) {
-        this(id, description, groupClassifier, null);
-    }
-
-    /**
-     * Creates a new Rule with the given ID, description, evaluation group classifier and group
-     * aggregators.
-     *
-     * @param id
-     *            the unique ID to assign to the Rule, or null to generate one
-     * @param description
-     *            the description of the Rule
-     * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use
-     * @param groupAggregators
-     *            the (possibly empty or null) GroupAggregators to use
-     */
-    protected Rule(String id, String description, EvaluationGroupClassifier groupClassifier,
-            Collection<GroupAggregator> groupAggregators) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.description = description;
-        this.groupClassifier =
-                (groupClassifier == null ? EvaluationGroupClassifier.defaultClassifier()
-                        : groupClassifier);
-        if (groupAggregators != null) {
-            this.groupAggregators.addAll(groupAggregators);
+        if (groupClassifier == null) {
+            this.groupClassifier = EvaluationGroupClassifier.defaultClassifier();
+        } else {
+            this.groupClassifier = groupClassifier;
+            if (groupClassifier instanceof GroupAggregator) {
+                groupAggregators.add((GroupAggregator<?>)groupClassifier);
+            }
         }
     }
 
@@ -155,7 +142,7 @@ public abstract class Rule {
      *
      * @return a (possibly empty) Stream of GroupAggregators
      */
-    public Stream<GroupAggregator> getGroupAggregators() {
+    public Stream<GroupAggregator<?>> getGroupAggregators() {
         return groupAggregators.stream();
     }
 

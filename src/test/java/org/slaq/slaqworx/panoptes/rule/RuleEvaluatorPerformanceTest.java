@@ -155,21 +155,18 @@ public class RuleEvaluatorPerformanceTest {
             EvaluationGroupClassifier groupClassifier;
             switch (random.nextInt(5)) {
             case 0:
-                groupClassifier = (p -> EvaluationGroup
-                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.currency)));
+                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.currency);
                 break;
             case 1:
                 // description is a proxy for issuer
-                groupClassifier = (p -> EvaluationGroup
-                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.description)));
+                groupClassifier =
+                        new SecurityAttributeGroupClassifier(SecurityAttribute.description);
                 break;
             case 2:
-                groupClassifier = (p -> EvaluationGroup
-                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.region)));
+                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.region);
                 break;
             case 3:
-                groupClassifier = (p -> EvaluationGroup
-                        .of(p.getSecurity().getAttributeValue(SecurityAttribute.country)));
+                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.country);
                 break;
             default:
                 groupClassifier = null;
@@ -177,10 +174,10 @@ public class RuleEvaluatorPerformanceTest {
 
             if (filter != null) {
                 rules.add(new ConcentrationRule(null, "randomly generated rule " + i, filter, 0.8,
-                        1.2, groupClassifier, null));
+                        1.2, groupClassifier));
             } else if (compareAttribute != null) {
                 rules.add(new WeightedAverageRule(null, "randomly generated rule " + i, null,
-                        compareAttribute, 0.8, 1.2, groupClassifier, null));
+                        compareAttribute, 0.8, 1.2, groupClassifier));
             }
         }
 

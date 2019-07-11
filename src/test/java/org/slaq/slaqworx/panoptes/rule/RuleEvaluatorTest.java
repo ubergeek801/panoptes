@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
@@ -77,6 +78,140 @@ public class RuleEvaluatorTest {
     }
 
     /**
+     * Tests that evaluate() behaves as expected with GroupAggregators (also implicitly tests
+     * TopNSecurityAttributeAggregator).
+     */
+    @Test
+    public void testEvaluateAggregation() {
+        Security iss1Sec1 = new Security("issuer1Sec1", Map.of(SecurityAttribute.issuer, "ISSFOO"));
+        Security iss1Sec2 = new Security("issuer1Sec2", Map.of(SecurityAttribute.issuer, "ISSFOO"));
+        Security iss1Sec3 = new Security("issuer1Sec3", Map.of(SecurityAttribute.issuer, "ISSFOO"));
+        Security iss2Sec1 = new Security("issuer2Sec1", Map.of(SecurityAttribute.issuer, "ISSBAR"));
+        Security iss2Sec2 = new Security("issuer2Sec2", Map.of(SecurityAttribute.issuer, "ISSBAR"));
+        Security iss3Sec1 = new Security("issuer3Sec1", Map.of(SecurityAttribute.issuer, "ISSBAZ"));
+        Security iss4Sec1 = new Security("issuer4Sec1", Map.of(SecurityAttribute.issuer, "ISSABC"));
+        Security iss4Sec2 = new Security("issuer4Sec2", Map.of(SecurityAttribute.issuer, "ISSABC"));
+        Security iss5Sec1 = new Security("issuer5Sec1", Map.of(SecurityAttribute.issuer, "ISSDEF"));
+        Security iss6Sec1 = new Security("issuer6Sec1", Map.of(SecurityAttribute.issuer, "ISSGHI"));
+
+        // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
+        // total of 70% concentration; the top 2 are 50% concentration
+        HashSet<Position> positions = new HashSet<>();
+        Position iss1Sec1Pos = new Position(100, iss1Sec1);
+        positions.add(iss1Sec1Pos);
+        Position iss1Sec2Pos = new Position(100, iss1Sec2);
+        positions.add(iss1Sec2Pos);
+        Position iss1Sec3Pos = new Position(100, iss1Sec3);
+        positions.add(iss1Sec3Pos);
+        Position iss2Sec1Pos = new Position(100, iss2Sec1);
+        positions.add(iss2Sec1Pos);
+        Position iss2Sec2Pos = new Position(100, iss2Sec2);
+        positions.add(iss2Sec2Pos);
+        Position iss3Sec1Pos = new Position(100, iss3Sec1);
+        positions.add(iss3Sec1Pos);
+        Position iss4Sec1Pos = new Position(100, iss4Sec1);
+        positions.add(iss4Sec1Pos);
+        Position iss4Sec2Pos = new Position(100, iss4Sec2);
+        positions.add(iss4Sec2Pos);
+        Position iss5Sec1Pos = new Position(100, iss5Sec1);
+        positions.add(iss5Sec1Pos);
+        Position iss6Sec1Pos = new Position(100, iss6Sec1);
+        positions.add(iss6Sec1Pos);
+
+        HashSet<Rule> rules = new HashSet<>();
+        ConcentrationRule top2issuerRule =
+                new ConcentrationRule("top2", "top 2 issuer concentration", null, null, 0.25,
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
+        rules.add(top2issuerRule);
+        ConcentrationRule top3issuerRule =
+                new ConcentrationRule("top3", "top 3 issuer concentration", null, null, 0.75,
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
+        rules.add(top3issuerRule);
+        ConcentrationRule top10issuerRule =
+                new ConcentrationRule("top10", "top 10 issuer concentration", null, null, 0.999,
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 10));
+        rules.add(top10issuerRule);
+
+        Portfolio portfolio = new Portfolio(null, positions, null, rules);
+
+        RuleEvaluator evaluator = new RuleEvaluator();
+        Map<Rule, Map<EvaluationGroup<?>, Boolean>> allResults = evaluator.evaluate(portfolio);
+
+        assertEquals("number of results should equal number of Rules", rules.size(),
+                allResults.size());
+
+        Map<EvaluationGroup<?>, Boolean> top2IssuerResults = allResults.get(top2issuerRule);
+        Map<EvaluationGroup<?>, Boolean> top3IssuerResults = allResults.get(top3issuerRule);
+        Map<EvaluationGroup<?>, Boolean> top10IssuerResults = allResults.get(top10issuerRule);
+
+        assertNotNull("should have found results for top 2 issuer rule", top2IssuerResults);
+        assertNotNull("should have found results for top 3 issuer rule", top3IssuerResults);
+        assertNotNull("should have found results for top 10 issuer rule", top10IssuerResults);
+
+        // all Rules should create one group for each issuer (6) plus one for the aggregate
+        assertEquals("unexpected number of groups for top 2 issuer rule", 7,
+                top2IssuerResults.size());
+        assertEquals("unexpected number of groups for top 3 issuer rule", 7,
+                top3IssuerResults.size());
+        assertEquals("unexpected number of groups for top 10 issuer rule", 7,
+                top10IssuerResults.size());
+
+        top2IssuerResults.forEach((group, result) -> {
+            switch (group.getId()) {
+            case "ISSFOO":
+                // this concentration alone (30%) is enough to exceed the rule limit (25%)
+                assertFalse("top 2 issuer rule should have failed for ISSFOO", result);
+                break;
+            case "ISSBAR":
+            case "ISSBAZ":
+            case "ISSABC":
+            case "ISSDEF":
+            case "ISSGHI":
+                // these concentrations are 20% or less so should pass
+                assertTrue("top 2 issuer rule should have passed for " + group.getId(), result);
+                break;
+            default:
+                // the aggregate is 50% so should fail
+                assertFalse("top 2 issuer rule should have failed for aggregate", result);
+            }
+        });
+
+        top3IssuerResults.forEach((group, result) -> {
+            switch (group.getId()) {
+            case "ISSFOO":
+            case "ISSBAR":
+            case "ISSBAZ":
+            case "ISSABC":
+            case "ISSDEF":
+            case "ISSGHI":
+                // none of the concentrations are above 30% so should pass the 75% limit
+                assertTrue("top 3 issuer rule should have passed for " + group.getId(), result);
+                break;
+            default:
+                // the aggregate is 70% so should pass
+                assertTrue("top 3 issuer rule should have passed for aggregate", result);
+            }
+        });
+
+        top10IssuerResults.forEach((group, result) -> {
+            switch (group.getId()) {
+            case "ISSFOO":
+            case "ISSBAR":
+            case "ISSBAZ":
+            case "ISSABC":
+            case "ISSDEF":
+            case "ISSGHI":
+                // none of the concentrations are above 30% so should pass the 99.9% limit
+                assertTrue("top 3 issuer rule should have passed for " + group.getId(), result);
+                break;
+            default:
+                // since there are fewer than 10 issuers, the aggregate is 100% so should fail
+                assertFalse("top 10 issuer rule should have failed for aggregate", result);
+            }
+        });
+    }
+
+    /**
      * Tests that evaluate() behaves as expected when an unexpected exception is thrown (expect the
      * unexpected!).
      */
@@ -94,7 +229,7 @@ public class RuleEvaluatorTest {
         Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        Map<Rule, Map<EvaluationGroup, Boolean>> results = new RuleEvaluator()
+        Map<Rule, Map<EvaluationGroup<?>, Boolean>> results = new RuleEvaluator()
                 .evaluate(rules.stream(), new Portfolio("testPortfolio", dummyPositions));
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
@@ -150,28 +285,22 @@ public class RuleEvaluatorTest {
         positions.add(cadPosition2);
 
         HashSet<Rule> rules = new HashSet<>();
-        Rule durationRule =
-                new WeightedAverageRule(null, "currency-grouped duration rule", null,
-                        SecurityAttribute.duration, null, 4d,
-                        p -> EvaluationGroup
-                                .of(p.getSecurity().getAttributeValue(SecurityAttribute.currency)),
-                        null);
+        Rule durationRule = new WeightedAverageRule(null, "currency-grouped duration rule", null,
+                SecurityAttribute.duration, null, 4d,
+                new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
         rules.add(durationRule);
         Rule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
-                SecurityAttribute.ratingValue, 80d, null, null, null);
+                SecurityAttribute.ratingValue, 80d, null, null);
         rules.add(qualityRule);
-        Rule issuerRule =
-                new ConcentrationRule(null, "issuer-grouped concentration rule", null, null, 0.5,
-                        p -> EvaluationGroup
-                                .of(p.getSecurity().getAttributeValue(SecurityAttribute.issuer)),
-                        null);
+        Rule issuerRule = new ConcentrationRule(null, "issuer-grouped concentration rule", null,
+                null, 0.5, new SecurityAttributeGroupClassifier(SecurityAttribute.issuer));
         rules.add(issuerRule);
 
         // total value = 2_100, weighted rating = 165_500, weighted duration = 9_200,
         // weighted average rating = 78.80952381, weighted average duration = 4.380952381
         Portfolio portfolio = new Portfolio("test", positions, null, rules);
 
-        Map<Rule, Map<EvaluationGroup, Boolean>> results = evaluator.evaluate(portfolio);
+        Map<Rule, Map<EvaluationGroup<?>, Boolean>> results = evaluator.evaluate(portfolio);
 
         // all rules should have entries
         assertEquals("number of evaluated rules should match number of portfolio rules",
@@ -179,25 +308,25 @@ public class RuleEvaluatorTest {
 
         // each rule's entry should have a number of results equal to the number of distinct groups
         // for that rule
-        Map<EvaluationGroup, Boolean> durationResults = results.get(durationRule);
+        Map<EvaluationGroup<?>, Boolean> durationResults = results.get(durationRule);
         assertEquals("number of duration rule results should match number of currencies", 3,
                 durationResults.size());
-        Map<EvaluationGroup, Boolean> qualityResults = results.get(qualityRule);
+        Map<EvaluationGroup<?>, Boolean> qualityResults = results.get(qualityRule);
         assertEquals("quality rule results should have a single group", 1, qualityResults.size());
-        Map<EvaluationGroup, Boolean> issuerResults = results.get(issuerRule);
+        Map<EvaluationGroup<?>, Boolean> issuerResults = results.get(issuerRule);
         assertEquals("number of issuer rule results should match number of issuers", 2,
                 issuerResults.size());
 
         // the duration rule is grouped by currency, so we should find results for USD, NZD, CAD;
         // USD duration = (300 + 600) / (100 + 200) = 3 which should pass
         assertTrue("duration rule should have passed for USD",
-                durationResults.get(EvaluationGroup.of("USD")));
+                durationResults.get(new EvaluationGroup<>("USD", null)));
         // NZD duration = (1_200 + 1_600) / (300 + 400) = 4 which should pass
         assertTrue("duration rule should have passed for NZD",
-                durationResults.get(EvaluationGroup.of("NZD")));
+                durationResults.get(new EvaluationGroup<>("NZD", null)));
         // CAD duration = (2_500 + 3_000) / (500 + 600) = 5 which should fail
         assertFalse("duration rule should have faled for CAD",
-                durationResults.get(EvaluationGroup.of("CAD")));
+                durationResults.get(new EvaluationGroup<>("CAD", null)));
 
         // the quality rule is not grouped, so should have a single result for the default group
         assertFalse("quality rule should have failed",
@@ -206,10 +335,10 @@ public class RuleEvaluatorTest {
         // the issuer rule is grouped by issuer, so we should find results for ISSFOO, ISSBAR;
         // ISSFOO concentration = (100 + 200 + 300 + 400) / 2_100 = 0.476190476 which should pass
         assertTrue("issuer rule should have passed for ISSFOO",
-                issuerResults.get(EvaluationGroup.of("ISSFOO")));
+                issuerResults.get(new EvaluationGroup<>("ISSFOO", null)));
         // ISSBAR concentration = (500 + 600) / 2_100 = 0.523809524 which should fail
         assertFalse("issuer rule should have failed for ISSBAR",
-                issuerResults.get(EvaluationGroup.of("ISSBAR")));
+                issuerResults.get(new EvaluationGroup<>("ISSBAR", null)));
     }
 
     /**
@@ -242,7 +371,7 @@ public class RuleEvaluatorTest {
                 new Portfolio("test", dummyPositions, portfolioBenchmark, portfolioRules);
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<Rule, Map<EvaluationGroup, Boolean>> results = evaluator.evaluate(portfolio);
+        Map<Rule, Map<EvaluationGroup<?>, Boolean>> results = evaluator.evaluate(portfolio);
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());

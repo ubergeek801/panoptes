@@ -26,5 +26,5 @@ public interface EvaluationGroupClassifier {
      *            the Position to be classified
      * @return the EvaluationGroup to be applied to the Position
      */
-    public EvaluationGroup classify(Position position);
+    public EvaluationGroup<?> classify(Position position);
 }

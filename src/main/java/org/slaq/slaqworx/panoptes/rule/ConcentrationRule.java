@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -40,15 +39,12 @@ public class ConcentrationRule extends ValueRule {
      * @param upperLimit
      *            the upper limit of acceptable concentration values
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use
-     * @param groupAggregators
-     *            the (possibly empty or null) GroupAggregators to use
+     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
+     *            GroupAggregator
      */
     public ConcentrationRule(String id, String description, Predicate<Position> positionFilter,
-            Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier,
-            Collection<GroupAggregator> groupAggregators) {
-        super(id, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier,
-                groupAggregators);
+            Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+        super(id, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier);
     }
 
     @Override
