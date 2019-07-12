@@ -13,7 +13,8 @@ public class Position {
     private final Security security;
 
     /**
-     * Creates a new Position with a generated ID and the given amount and Security.
+     * Creates a new Position with a generated ID and the given amount and Security, and a generated
+     * ID.
      *
      * @param amount
      *            the amount of the Security held in this Position
@@ -21,21 +22,21 @@ public class Position {
      *            the held Security
      */
     public Position(double amount, Security security) {
-        this(UUID.randomUUID().toString(), amount, security);
+        this(null, amount, security);
     }
 
     /**
      * Creates a new Position with the given ID, amount and Security.
      *
      * @param id
-     *            the unique ID to assign to this Position
+     *            the unique ID to assign to this Position, or null to generate one
      * @param amount
      *            the amount of the Security held in this Position
      * @param security
      *            the held Security
      */
     public Position(String id, double amount, Security security) {
-        this.id = id;
+        this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.amount = amount;
         this.security = security;
     }

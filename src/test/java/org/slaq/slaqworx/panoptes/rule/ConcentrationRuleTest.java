@@ -41,7 +41,7 @@ public class ConcentrationRuleTest {
         Portfolio portfolio = new Portfolio("test", positions);
 
         assertFalse("portfolio with > 10% concentration should have failed",
-                rule.evaluate(portfolio, null));
+                rule.evaluate(portfolio, null, new EvaluationContext()).isPassed());
 
         // create a portfolio with 10% concentration
         positions = new HashSet<>();
@@ -50,7 +50,7 @@ public class ConcentrationRuleTest {
         portfolio = new Portfolio("test", positions);
 
         assertTrue("portfolio with == 10% concentration should have passed",
-                rule.evaluate(portfolio, null));
+                rule.evaluate(portfolio, null, new EvaluationContext()).isPassed());
 
         // create a portfolio with 5% concentration
         positions = new HashSet<>();
@@ -59,7 +59,7 @@ public class ConcentrationRuleTest {
         portfolio = new Portfolio("test", positions);
 
         assertTrue("portfolio with == 5% concentration should have passed",
-                rule.evaluate(portfolio, null));
+                rule.evaluate(portfolio, null, new EvaluationContext()).isPassed());
     }
 
     /**
@@ -89,7 +89,7 @@ public class ConcentrationRuleTest {
         Portfolio portfolio = new Portfolio("test", positions);
 
         assertFalse("portfolio with == 56% concentration should have failed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // create a portfolio with 44% concentration in BRL
         positions = new HashSet<>();
@@ -98,7 +98,7 @@ public class ConcentrationRuleTest {
         portfolio = new Portfolio("test", positions);
 
         assertFalse("portfolio with == 44% concentration should have failed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // create a portfolio with 52.5% (50% * 105%) concentration in BRL
         positions = new HashSet<>();
@@ -107,7 +107,7 @@ public class ConcentrationRuleTest {
         portfolio = new Portfolio("test", positions);
 
         assertTrue("portfolio with == 52.5% concentration should have passed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // create a portfolio with 47.5% (50% * 95%) concentration in BRL
         positions = new HashSet<>();
@@ -116,7 +116,7 @@ public class ConcentrationRuleTest {
         portfolio = new Portfolio("test", positions);
 
         assertTrue("portfolio with == 52.5% concentration should have passed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // create a benchmark with 0% concentration in BRL
         benchmarkPositions = new HashSet<>();
@@ -125,7 +125,7 @@ public class ConcentrationRuleTest {
 
         // any concentration is infinitely higher than the benchmark, so should fail
         assertFalse("portfolio with any concentration should have failed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // the rule tests that the concentration of currency = BRL is at least 95% of the
         // benchmark
@@ -140,7 +140,7 @@ public class ConcentrationRuleTest {
 
         // zero concentration is at least zero, so should pass
         assertTrue("portfolio with any concentration should have passed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // create a portfolio with 1% concentration in BRL
         positions = new HashSet<>();
@@ -150,7 +150,7 @@ public class ConcentrationRuleTest {
 
         // any concentration is at least zero, so should pass
         assertTrue("portfolio with any concentration should have passed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
 
         // the rule tests that the concentration of currency = BRL is at most 105% of the
         // benchmark
@@ -160,6 +160,6 @@ public class ConcentrationRuleTest {
 
         // any concentration is infinitely higher than the benchmark, so should fail
         assertFalse("portfolio with any concentration should have failed",
-                rule.evaluate(portfolio, benchmark));
+                rule.evaluate(portfolio, benchmark, new EvaluationContext()).isPassed());
     }
 }

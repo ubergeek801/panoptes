@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,8 +16,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -28,6 +30,8 @@ import org.slaq.slaqworx.panoptes.asset.RatingScale;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * RuleEvaluatorPerformanceTest performs randomized rule evaluation tests and captures some
@@ -39,7 +43,7 @@ import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 public class RuleEvaluatorPerformanceTest {
     private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluatorPerformanceTest.class);
 
-    private static final Random random = new Random();
+    private static final Random random = new Random(0);
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
     private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
     private static final RatingScale pimcoRatingScale;
@@ -78,6 +82,15 @@ public class RuleEvaluatorPerformanceTest {
 
     @Test
     public void evaluateRules() throws Exception {
+        // Allow a few more threads than processors for the ForkJoinPool common pool, which seems to
+        // help throughput a bit. Doing this at runtime instead of through a -D parameter allows us
+        // to set this dynamically, hopefully before the common pool initializes.
+        int parallelism = (int)(Runtime.getRuntime().availableProcessors() * 1.5);
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
+                String.valueOf(parallelism));
+        assertEquals("attempt to set parallelism failed", parallelism,
+                ForkJoinPool.commonPool().getParallelism());
+
         HashMap<String, Security> cusipSecurityMap = new HashMap<>();
 
         Portfolio emadBenchmark =
@@ -90,37 +103,69 @@ public class RuleEvaluatorPerformanceTest {
                 loadPimcoBenchmark("PGOV", PGOV_CONSTITUENTS_FILE, cusipSecurityMap);
         LOG.info("loaded {} distinct securities", cusipSecurityMap.size());
 
-        Portfolio[] benchmarks =
-                new Portfolio[] { emadBenchmark, gladBenchmark, iladBenchmark, pgovBenchmark };
+        Portfolio[] benchmarks = new Portfolio[] { null, emadBenchmark, gladBenchmark,
+                iladBenchmark, pgovBenchmark };
 
+        ArrayList<Security> securityList = new ArrayList<>(cusipSecurityMap.values());
         HashSet<Portfolio> portfolios = new HashSet<>(2000);
+        int totalNumPositions = 0;
         for (int i = 1; i <= 1000; i++) {
-            Set<Position> positions = generatePositions(gladBenchmark);
+            Set<Position> positions = generatePositions(securityList);
             Set<Rule> rules = generateRules();
             Portfolio portfolio =
-                    new Portfolio("test" + i, positions, benchmarks[random.nextInt(4)], rules);
+                    new Portfolio("test" + i, positions, benchmarks[random.nextInt(5)], rules);
             portfolios.add(portfolio);
+            totalNumPositions += portfolio.size();
         }
-        LOG.info("created {} test portfolios", portfolios.size());
+        LOG.info("created {} test portfolios averaging {} positions", portfolios.size(),
+                totalNumPositions / portfolios.size());
 
         RuleEvaluator evaluator = new RuleEvaluator();
         long startTime = System.currentTimeMillis();
-        portfolios.forEach(p -> evaluator.evaluate(p));
-        LOG.info("processed portfolios in {} ms", System.currentTimeMillis() - startTime);
+        portfolios.forEach(p -> evaluator.evaluate(p, new EvaluationContext()));
+        LOG.info("processed {} portfolios in {} ms", portfolios.size(),
+                System.currentTimeMillis() - startTime);
+
+        for (int i = 1; i <= 8; i *= 2) {
+            ArrayList<Position> positions = new ArrayList<>();
+            Security security1 = cusipSecurityMap.values().iterator().next();
+            Position position1 = new Position(1000000, security1);
+            positions.add(position1);
+            TradeEvaluator tradeEvaluator = new TradeEvaluator();
+            ArrayList<Transaction> transactions = new ArrayList<>();
+            portfolios.stream().limit(i * 100).forEach(portfolio -> {
+                Transaction transaction = new Transaction(portfolio, positions);
+                transactions.add(transaction);
+            });
+            Trade trade = new Trade(transactions);
+
+            startTime = System.currentTimeMillis();
+            tradeEvaluator.evaluate(trade);
+            LOG.info("processed trade with {} allocations in {} ms",
+                    trade.getTransactions().count(), System.currentTimeMillis() - startTime);
+        }
     }
 
     /**
-     * Generates a quasi-random set of Positions from the given Portfolio by selecting a random
-     * subset and fuzzing the amounts.
+     * Generates a random set of Positions from the given Securities.
      *
-     * @param portfolio
-     *            a Portfolio from which to source Positions
-     * @return a new Set of quasi-random Positions
+     * @param securities
+     *            a Collection from which to source Securities
+     * @return a new Set of random Positions
      */
-    protected Set<Position> generatePositions(Portfolio portfolio) {
-        return portfolio.getPositions().filter(p -> Math.random() < 0.4).map(p -> {
-            return new Position(p.getAmount() * (0.5 + Math.random()), p.getSecurity());
-        }).collect(Collectors.toUnmodifiableSet());
+    protected Set<Position> generatePositions(ArrayList<Security> securities) {
+        ArrayList<Security> securitiesCopy = new ArrayList<>(securities);
+        int numPositions = 3000 + random.nextInt(2001);
+        HashSet<Position> positions = new HashSet<>(numPositions * 2);
+        for (int i = 0; i < numPositions; i++) {
+            double amount =
+                    (long)((1000 + (Math.pow(10, 3 + random.nextInt(6)) * random.nextDouble()))
+                            * 100) / 100d;
+            Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
+            positions.add(new Position(amount, security));
+        }
+
+        return positions;
     }
 
     protected Set<Rule> generateRules() {
@@ -153,7 +198,7 @@ public class RuleEvaluatorPerformanceTest {
             }
 
             EvaluationGroupClassifier groupClassifier;
-            switch (random.nextInt(5)) {
+            switch (random.nextInt(9)) {
             case 0:
                 groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.currency);
                 break;
@@ -167,6 +212,20 @@ public class RuleEvaluatorPerformanceTest {
                 break;
             case 3:
                 groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.country);
+                break;
+            case 4:
+                groupClassifier =
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.currency, 5);
+                break;
+            case 5:
+                groupClassifier =
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.description, 5);
+                break;
+            case 6:
+                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.region, 5);
+                break;
+            case 7:
+                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.country, 5);
                 break;
             default:
                 groupClassifier = null;
@@ -261,7 +320,7 @@ public class RuleEvaluatorPerformanceTest {
         String averageRating =
                 pimcoRatingScale.getRatingNotch(averageRatingCalc.calculate(benchmark)).getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
-                benchmarkName, positions.size(), usdFormatter.format(totalAmount), averageRating);
+                positions.size(), benchmarkName, usdFormatter.format(totalAmount), averageRating);
 
         return benchmark;
     }

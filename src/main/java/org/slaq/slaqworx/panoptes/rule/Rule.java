@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
@@ -27,8 +24,6 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  * @author jeremy
  */
 public abstract class Rule {
-    private static final Logger LOG = LoggerFactory.getLogger(Rule.class);
-
     private final String id;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
@@ -103,28 +98,31 @@ public abstract class Rule {
      *            the portfolio Positions on which to evaluate the Rule
      * @param benchmarkPositions
      *            the (possibly null) benchmark Positions to evaluate relative to
-     * @return true if the Rule passes, false if it fails
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
+     * @return the result of the Rule evaluation
      */
-    protected abstract boolean eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions);
+    protected abstract EvaluationResult eval(PositionSupplier portfolioPositions,
+            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
 
     /**
-     * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark.
+     * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark, subject
+     * to the given evaluation context.
      *
      * @param portfolioPositions
      *            the portfolio Positions on which to evaluate the Rule
      * @param benchmarkPositions
      *            the (possibly null) benchmark Positions to evaluate relative to
-     * @return true if the Rule passes, false if it fails
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
+     * @return the result of the Rule evaluation
      */
-    public boolean evaluate(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions) {
+    public EvaluationResult evaluate(PositionSupplier portfolioPositions,
+            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         try {
-            return eval(portfolioPositions, benchmarkPositions);
+            return eval(portfolioPositions, benchmarkPositions, evaluationContext);
         } catch (Exception e) {
-            // for now, any unexpected exception results in failure
-            LOG.error("evaluation failed for rule " + id + " (\"" + description + "\")", e);
-            return false;
+            return new EvaluationResult(e);
         }
     }
 

@@ -35,10 +35,14 @@ public class RuleEvaluator {
      *
      * @param portfolio
      *            the Portfolio to be evaluated
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
      * @return a Map associating each evaluated Rule with its result
      */
-    public Map<Rule, Map<EvaluationGroup<?>, Boolean>> evaluate(Portfolio portfolio) {
-        return evaluate(portfolio.getRules(), portfolio, portfolio.getBenchmark());
+    public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
+            EvaluationContext evaluationContext) {
+        return evaluate(portfolio.getRules(), portfolio, portfolio.getBenchmark(),
+                evaluationContext);
     }
 
     /**
@@ -50,11 +54,31 @@ public class RuleEvaluator {
      * @param benchmark
      *            the (possibly null) benchmark to use in place of the Portfolio's associated
      *            benchmark
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
      * @return a Map associating each evaluated Rule with its result
      */
-    public Map<Rule, Map<EvaluationGroup<?>, Boolean>> evaluate(Portfolio portfolio,
-            Portfolio benchmark) {
-        return evaluate(portfolio.getRules(), portfolio, benchmark);
+    public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
+            Portfolio benchmark, EvaluationContext evaluationContext) {
+        return evaluate(portfolio.getRules(), portfolio, benchmark, evaluationContext);
+    }
+
+    /**
+     * Evaluates the given Portfolio using its associated Rules and benchmark (if any), but
+     * overriding its Positions with the specified Positions.
+     *
+     * @param portfolio
+     *            the Portfolio to be evaluated
+     * @param positions
+     *            the Positions to use in place of the Portfolio's associated Positions
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
+     * @return a Map associating each evaluated Rule with its result
+     */
+    public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
+            PositionSupplier positions, EvaluationContext evaluationContext) {
+        return evaluate(portfolio.getRules(), positions, portfolio.getBenchmark(),
+                evaluationContext);
     }
 
     /**
@@ -65,11 +89,13 @@ public class RuleEvaluator {
      *            the Rules to evaluate against the given Portfolio
      * @param portfolio
      *            the Portfolio to be evaluated
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
      * @return a Map associating each evaluated Rule with its result
      */
-    public Map<Rule, Map<EvaluationGroup<?>, Boolean>> evaluate(Stream<Rule> rules,
-            Portfolio portfolio) {
-        return evaluate(rules, portfolio, portfolio.getBenchmark());
+    public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Stream<Rule> rules,
+            Portfolio portfolio, EvaluationContext evaluationContext) {
+        return evaluate(rules, portfolio, portfolio.getBenchmark(), evaluationContext);
     }
 
     /**
@@ -82,17 +108,20 @@ public class RuleEvaluator {
      *            the portfolio Positions to be evaluated
      * @param benchmarkPositions
      *            the (possibly null) benchmark Positions to be evaluated against
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
      * @return a Map associating each evaluated Rule with its (grouped) result
      */
-    public Map<Rule, Map<EvaluationGroup<?>, Boolean>> evaluate(Stream<Rule> rules,
-            PositionSupplier portfolioPositions, PositionSupplier benchmarkPositions) {
+    public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Stream<Rule> rules,
+            PositionSupplier portfolioPositions, PositionSupplier benchmarkPositions,
+            EvaluationContext evaluationContext) {
         // multiple levels of mapping going on: the first level iterates (in parallel) over Rules
         // and evaluates each one
-        Map<Rule, Map<EvaluationGroup<?>, Boolean>> allResults =
+        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
                 rules.parallel().collect(Collectors.toMap(r -> r, rule -> {
-                    LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}",
-                            rule.getId(), rule.getDescription(), portfolioPositions.size(),
-                            portfolioPositions);
+                    // LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}",
+                    // rule.getId(), rule.getDescription(), portfolioPositions.size(),
+                    // portfolioPositions);
 
                     // group the Positions of the portfolio into classifications according to the
                     // Rule's GroupClassifier
@@ -114,8 +143,8 @@ public class RuleEvaluator {
                     }
 
                     // Execute the Rule's GroupAggregators (if any) to create additional
-                    // EvaluationGroups. For example, a Rule may include the Positions holding the
-                    // top five issuers in the Portfolio.
+                    // EvaluationGroups. For example, a Rule may aggregate the Positions holding the
+                    // top five issuers in the Portfolio into a new group.
                     rule.getGroupAggregators().forEach(a -> {
                         classifiedPortfolioPositions
                                 .putAll(a.aggregate(classifiedPortfolioPositions));
@@ -127,37 +156,40 @@ public class RuleEvaluator {
 
                     // for each group of Positions, evaluate the Rule against the group, for both
                     // the Portfolio and the Benchmark (if specified)
-                    Map<EvaluationGroup<?>, Boolean> ruleResults = classifiedPortfolioPositions
-                            .entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
-                                EvaluationGroup<?> group = e.getKey();
-                                Collection<Position> ppos = e.getValue();
-                                // create PositionSets for the grouped Positions, being careful to
-                                // relate to the original Portfolios as some Rules will require it
-                                PositionSet bpos;
-                                if (classifiedBenchmarkPositions == null) {
-                                    // no benchmark is provided
-                                    bpos = null;
-                                } else {
-                                    Collection<Position> bposSet =
-                                            classifiedBenchmarkPositions.get(group);
-                                    if (bposSet == null) {
-                                        // a benchmark was provided, but has no Positions in the
-                                        // group
-                                        bpos = null;
-                                    } else {
-                                        bpos = new PositionSet(
-                                                classifiedBenchmarkPositions.get(group),
-                                                benchmarkPositions.getPortfolio());
-                                    }
-                                }
+                    Map<EvaluationGroup<?>, EvaluationResult> ruleResults =
+                            classifiedPortfolioPositions.entrySet().stream()
+                                    .collect(Collectors.toMap(e -> e.getKey(), e -> {
+                                        EvaluationGroup<?> group = e.getKey();
+                                        Collection<Position> ppos = e.getValue();
+                                        // create PositionSets for the grouped Positions, being
+                                        // careful to relate to the original Portfolios, as some
+                                        // Rules will require them
+                                        PositionSet bpos;
+                                        if (classifiedBenchmarkPositions == null) {
+                                            // no benchmark is provided
+                                            bpos = null;
+                                        } else {
+                                            Collection<Position> bposSet =
+                                                    classifiedBenchmarkPositions.get(group);
+                                            if (bposSet == null) {
+                                                // a benchmark was provided, but has no Positions in
+                                                // the group
+                                                bpos = null;
+                                            } else {
+                                                bpos = new PositionSet(
+                                                        classifiedBenchmarkPositions.get(group),
+                                                        benchmarkPositions.getPortfolio());
+                                            }
+                                        }
 
-                                boolean singleResult = rule.evaluate(
-                                        new PositionSet(ppos, portfolioPositions.getPortfolio()),
-                                        bpos);
+                                        EvaluationResult singleResult = rule.evaluate(
+                                                new PositionSet(ppos,
+                                                        portfolioPositions.getPortfolio()),
+                                                bpos, evaluationContext);
 
-                                // wasn't that easy?
-                                return singleResult;
-                            }));
+                                        // wasn't that easy?
+                                        return singleResult;
+                                    }));
 
                     return ruleResults;
                 }));

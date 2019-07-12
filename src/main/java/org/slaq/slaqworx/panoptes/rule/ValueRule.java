@@ -47,36 +47,38 @@ public abstract class ValueRule extends Rule {
         this.upperLimit = upperLimit;
     }
 
-    /**
-     * Evaluates the Rule on the given portfolio Positions, optionally relative to a given
-     * benchmark.
-     *
-     * @param portfolioPositions
-     *            the portfolio Positions on which to evaluate the Rule
-     * @param benchmarkPositions
-     *            the (possibly null) benchmark Positions to evaluate relative to
-     * @return true if the Rule passes, false if it fails
-     */
     @Override
-    protected final boolean eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions) {
+    protected final EvaluationResult eval(PositionSupplier portfolioPositions,
+            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions);
         if (benchmarkPositions != null) {
-            double benchmarkValue = getValue(benchmarkPositions);
+            // Caching the previously-calculated benchmark value should theoretically provide a
+            // performance benefit to trade evaluation, as the Rule is evaluated against the current
+            // Portfolio composition and again with the proposed (post-trade) composition, but the
+            // benchmark value will not have changed. The measured performance difference, however,
+            // seems to be a wash.
+            Double previousBenchmarkValue = evaluationContext.getPreviousBenchmarkValue(this);
+            double benchmarkValue;
+            if (previousBenchmarkValue == null) {
+                benchmarkValue = getValue(benchmarkPositions);
+                evaluationContext.setPreviousBenchmarkValue(this, benchmarkValue);
+            } else {
+                benchmarkValue = previousBenchmarkValue;
+            }
             // rescale the value to the benchmark; this may result in NaN, which means that the
-            // portfolio concentration is infinitely greater than the benchmark
+            // Position's portfolio concentration is infinitely greater than the benchmark
             value /= benchmarkValue;
         }
 
         if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
-            return false;
+            return new EvaluationResult(false);
         }
 
         if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
-            return false;
+            return new EvaluationResult(false);
         }
 
-        return true;
+        return new EvaluationResult(true);
     }
 
     /**

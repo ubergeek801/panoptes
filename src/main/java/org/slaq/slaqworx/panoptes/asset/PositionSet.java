@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
@@ -47,6 +48,18 @@ public class PositionSet implements PositionSupplier {
         this.positions = new ArrayList<>(positions);
         this.portfolio = portfolio;
         totalAmount = new TotalAmountPositionCalculator().calculate(this);
+    }
+
+    /**
+     * Creates a new PositionSet consisting of the given Positions, with no parent Portfolio.
+     *
+     * @param positions
+     *            the Positions that will comprise this PositionSet
+     * @param portfolio
+     *            the (possibly null) Portfolio associated with this PositionSet
+     */
+    public PositionSet(Stream<Position> positions, Portfolio portfolio) {
+        this(positions.collect(Collectors.toCollection(ArrayList::new)), portfolio);
     }
 
     @Override
