@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.RatingNotch;
@@ -82,13 +83,7 @@ public class RuleEvaluatorPerformanceTest {
 
     @Test
     public void evaluateRules() throws Exception {
-        // Allow a few more threads than processors for the ForkJoinPool common pool, which seems to
-        // help throughput a bit. Doing this at runtime instead of through a -D parameter allows us
-        // to set this dynamically, hopefully before the common pool initializes.
-        int parallelism = (int)(Runtime.getRuntime().availableProcessors() * 1.5);
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
-                String.valueOf(parallelism));
-        assertEquals("attempt to set parallelism failed", parallelism,
+        assertEquals("attempt to set parallelism failed", TestUtil.parallelism,
                 ForkJoinPool.commonPool().getParallelism());
 
         HashMap<String, Security> cusipSecurityMap = new HashMap<>();

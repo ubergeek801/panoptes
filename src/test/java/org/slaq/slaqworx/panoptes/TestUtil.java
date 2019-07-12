@@ -37,7 +37,16 @@ public class TestUtil {
     public static final HashSet<Position> p2Positions;
     public static final Portfolio p2;
 
+    public static final int parallelism;
+
     static {
+        // Allow a few more threads than processors for the ForkJoinPool common pool, which seems to
+        // help throughput a bit. Doing this at runtime instead of through a -D parameter allows us
+        // to set this dynamically, hopefully before the common pool initializes.
+        parallelism = (int)(Runtime.getRuntime().availableProcessors() * 1.5);
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
+                String.valueOf(parallelism));
+
         p1Positions = new HashSet<>();
         p1Positions.add(new Position(1000, TestUtil.s1));
         p1Positions.add(new Position(500, TestUtil.s2));
