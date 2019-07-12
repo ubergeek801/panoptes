@@ -11,14 +11,17 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
@@ -50,6 +54,8 @@ public class RuleEvaluatorPerformanceTest {
     private static final RatingScale pimcoRatingScale;
 
     static {
+        // these rating symbols are used in the PIMCO benchmarks; the numeric equivalents are a
+        // fabrication
         ArrayList<RatingNotch> notches = new ArrayList<>();
         notches.add(new RatingNotch("AAA", 97));
         notches.add(new RatingNotch("AA1", 94));
@@ -81,10 +87,17 @@ public class RuleEvaluatorPerformanceTest {
     private static final String ILAD_CONSTITUENTS_FILE = "PIMCO_ILAD_Constituents_07-02-2019.tsv";
     private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
 
+    /**
+     * Creates random Portfolios (consisting of random Positions and Rules) and runs benchmarks
+     * against them.
+     */
     @Test
+    @Ignore
     public void evaluateRules() throws Exception {
         assertEquals("attempt to set parallelism failed", TestUtil.parallelism,
                 ForkJoinPool.commonPool().getParallelism());
+
+        // load the PIMCO benchmarks, which are also a source of Security information
 
         HashMap<String, Security> cusipSecurityMap = new HashMap<>();
 
@@ -101,7 +114,10 @@ public class RuleEvaluatorPerformanceTest {
         Portfolio[] benchmarks = new Portfolio[] { null, emadBenchmark, gladBenchmark,
                 iladBenchmark, pgovBenchmark };
 
-        ArrayList<Security> securityList = new ArrayList<>(cusipSecurityMap.values());
+        // generate some random Portfolios
+
+        List<Security> securityList =
+                Collections.unmodifiableList(new ArrayList<>(cusipSecurityMap.values()));
         HashSet<Portfolio> portfolios = new HashSet<>(2000);
         int totalNumPositions = 0;
         for (int i = 1; i <= 1000; i++) {
@@ -115,16 +131,20 @@ public class RuleEvaluatorPerformanceTest {
         LOG.info("created {} test portfolios averaging {} positions", portfolios.size(),
                 totalNumPositions / portfolios.size());
 
+        // perform evaluation on each Portfolio
         RuleEvaluator evaluator = new RuleEvaluator();
-        long startTime = System.currentTimeMillis();
+        long portfolioStartTime = System.currentTimeMillis();
         portfolios.forEach(p -> evaluator.evaluate(p, new EvaluationContext()));
-        LOG.info("processed {} portfolios in {} ms", portfolios.size(),
-                System.currentTimeMillis() - startTime);
+        long portfolioEndTime = System.currentTimeMillis();
 
+        // perform evaluation on synthetic Trades with 100, 200, 400 and 800 allocations
+        ArrayList<Long> tradeStartTimes = new ArrayList<>();
+        ArrayList<Long> tradeEndTimes = new ArrayList<>();
+        ArrayList<Long> allocationCounts = new ArrayList<>();
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
             Security security1 = cusipSecurityMap.values().iterator().next();
-            Position position1 = new Position(1000000, security1);
+            Position position1 = new Position(1_000_000, security1);
             positions.add(position1);
             TradeEvaluator tradeEvaluator = new TradeEvaluator();
             ArrayList<Transaction> transactions = new ArrayList<>();
@@ -134,10 +154,18 @@ public class RuleEvaluatorPerformanceTest {
             });
             Trade trade = new Trade(transactions);
 
-            startTime = System.currentTimeMillis();
+            tradeStartTimes.add(System.currentTimeMillis());
             tradeEvaluator.evaluate(trade);
-            LOG.info("processed trade with {} allocations in {} ms",
-                    trade.getTransactions().count(), System.currentTimeMillis() - startTime);
+            tradeEndTimes.add(System.currentTimeMillis());
+            allocationCounts.add(trade.getTransactions().count());
+        }
+
+        // log the timing results
+        LOG.info("processed {} portfolios in {} ms", portfolios.size(),
+                portfolioEndTime - portfolioStartTime);
+        for (int i = 0; i < tradeStartTimes.size(); i++) {
+            LOG.info("processed trade with {} allocations in {} ms", allocationCounts.get(i),
+                    tradeEndTimes.get(i) - tradeStartTimes.get(i));
         }
     }
 
@@ -145,17 +173,20 @@ public class RuleEvaluatorPerformanceTest {
      * Generates a random set of Positions from the given Securities.
      *
      * @param securities
-     *            a Collection from which to source Securities
+     *            a List from which to source Securities
      * @return a new Set of random Positions
      */
-    protected Set<Position> generatePositions(ArrayList<Security> securities) {
+    protected Set<Position> generatePositions(List<Security> securities) {
         ArrayList<Security> securitiesCopy = new ArrayList<>(securities);
+        // generate between 3000 and 5000 positions
         int numPositions = 3000 + random.nextInt(2001);
         HashSet<Position> positions = new HashSet<>(numPositions * 2);
         for (int i = 0; i < numPositions; i++) {
+            // generate an amount in the approximate range of 1_000.00 ~ 10_000_000.00
             double amount =
                     (long)((1000 + (Math.pow(10, 3 + random.nextInt(6)) * random.nextDouble()))
                             * 100) / 100d;
+            // use a given security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
             positions.add(new Position(amount, security));
         }
@@ -163,6 +194,11 @@ public class RuleEvaluatorPerformanceTest {
         return positions;
     }
 
+    /**
+     * Generates a random set of Rules.
+     *
+     * @return a new Set of random Rules
+     */
     protected Set<Rule> generateRules() {
         HashSet<Rule> rules = new HashSet<>(400);
 
@@ -179,7 +215,7 @@ public class RuleEvaluatorPerformanceTest {
                         .equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency));
                 break;
             case 2:
-                filter = p -> p.getSecurity().getAttributeValue(SecurityAttribute.duration) > 3;
+                filter = p -> p.getSecurity().getAttributeValue(SecurityAttribute.duration) > 3.0;
                 break;
             case 3:
                 filter = p -> "Emerging Markets"
@@ -227,10 +263,10 @@ public class RuleEvaluatorPerformanceTest {
             }
 
             if (filter != null) {
-                rules.add(new ConcentrationRule(null, "randomly generated rule " + i, filter, 0.8,
-                        1.2, groupClassifier));
+                rules.add(new ConcentrationRule(null, "ConcentrationRule " + i, filter, 0.8, 1.2,
+                        groupClassifier));
             } else if (compareAttribute != null) {
-                rules.add(new WeightedAverageRule(null, "randomly generated rule " + i, null,
+                rules.add(new WeightedAverageRule(null, "WeightedAverageRule " + i, null,
                         compareAttribute, 0.8, 1.2, groupClassifier));
             }
         }
@@ -238,6 +274,20 @@ public class RuleEvaluatorPerformanceTest {
         return rules;
     }
 
+    /**
+     * Loads data from the given PIMCO constituents file (converted to tab-separated values) and
+     * creates a new Portfolio with the data.
+     *
+     * @param benchmarkName
+     *            the benchmark name/ID
+     * @param sourceFile
+     *            the name of the source file (on the classpath)
+     * @param cusipSecurityMap
+     *            a Map of CUSIP to Security in which to cache loaded Securities
+     * @return a Portfolio consisting of the Positions loaded from the file
+     * @throws IOException
+     *             if the file could not be read
+     */
     protected Portfolio loadPimcoBenchmark(String benchmarkName, String sourceFile,
             Map<String, Security> cusipSecurityMap) throws IOException {
         HashSet<Position> positions = new HashSet<>();
@@ -308,10 +358,11 @@ public class RuleEvaluatorPerformanceTest {
             }
         }
 
+        Portfolio benchmark = new Portfolio(benchmarkName, positions);
+
+        // average rating is kind of interesting, so let's calculate it
         WeightedAveragePositionCalculator averageRatingCalc =
                 new WeightedAveragePositionCalculator(SecurityAttribute.ratingValue);
-
-        Portfolio benchmark = new Portfolio(benchmarkName, positions);
         String averageRating =
                 pimcoRatingScale.getRatingNotch(averageRatingCalc.calculate(benchmark)).getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",

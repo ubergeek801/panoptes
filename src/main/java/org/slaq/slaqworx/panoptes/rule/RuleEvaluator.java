@@ -119,9 +119,9 @@ public class RuleEvaluator {
         // and evaluates each one
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
                 rules.parallel().collect(Collectors.toMap(r -> r, rule -> {
-                    // LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}",
-                    // rule.getId(), rule.getDescription(), portfolioPositions.size(),
-                    // portfolioPositions);
+                    LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}",
+                            rule.getId(), rule.getDescription(), portfolioPositions.size(),
+                            portfolioPositions.getPortfolio());
 
                     // group the Positions of the portfolio into classifications according to the
                     // Rule's GroupClassifier

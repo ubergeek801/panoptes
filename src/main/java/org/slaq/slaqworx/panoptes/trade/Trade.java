@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.trade;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -22,6 +23,15 @@ public class Trade {
     public Trade(String id, Collection<Transaction> transactions) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.transactions.addAll(transactions);
+    }
+
+    /**
+     * Obtains the total number of allocations over all Transactions.
+     *
+     * @return the total allocation count
+     */
+    public int getAllocationCount() {
+        return transactions.stream().collect(Collectors.summingInt(t -> t.size()));
     }
 
     /**

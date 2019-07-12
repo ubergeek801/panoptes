@@ -11,7 +11,8 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
  * A Transaction is a component of a Trade which modifies a single Portfolio by altering (increasing
- * or decreasing) the net position of one or more of its Securities.
+ * or decreasing) the net position of one or more of its Securities. The Positions of a Trade are
+ * also known as allocations.
  *
  * @author jeremy
  */
@@ -21,14 +22,34 @@ public class Transaction implements PositionSupplier {
     private final Portfolio portfolio;
     private final PositionSet positions;
 
-    public Transaction(Portfolio portfolio, Collection<Position> positions) {
-        this(null, portfolio, positions);
+    /**
+     * Creates a new Transaction, with a generated ID, acting on the given Portfolio with the given
+     * allocations.
+     *
+     * @param portfolio
+     *            the Portfolio impacted by this Transaction
+     * @param allocations
+     *            the allocations of the Transaction
+     */
+    public Transaction(Portfolio portfolio, Collection<Position> allocations) {
+        this(null, portfolio, allocations);
     }
 
-    public Transaction(String id, Portfolio portfolio, Collection<Position> positions) {
+    /**
+     * Creates a new Transaction with the given ID, acting on the given Portfolio with the given
+     * allocations.
+     *
+     * @param id
+     *            the unique ID of the Transaction
+     * @param portfolio
+     *            the Portfolio impacted by this Transaction
+     * @param allocations
+     *            the allocations of the Transaction
+     */
+    public Transaction(String id, Portfolio portfolio, Collection<Position> allocations) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.portfolio = portfolio;
-        this.positions = new PositionSet(positions, portfolio);
+        positions = new PositionSet(allocations, portfolio);
     }
 
     /**

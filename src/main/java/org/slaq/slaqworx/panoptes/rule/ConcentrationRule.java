@@ -29,7 +29,7 @@ public class ConcentrationRule extends ValueRule {
      * limit.
      *
      * @param id
-     *            the unique ID of this rule
+     *            the unique ID of this rule, or null to generate one
      * @param description
      *            the rule description
      * @param positionFilter
