@@ -53,7 +53,7 @@ public class Transaction implements PositionSupplier {
     }
 
     /**
-     * Obtains this Transaction unique ID.
+     * Obtains this Transaction's unique ID.
      *
      * @return the ID
      */
@@ -80,12 +80,18 @@ public class Transaction implements PositionSupplier {
         return trade;
     }
 
-    protected void setTrade(Trade trade) {
-        this.trade = trade;
-    }
-
     @Override
     public int size() {
         return positions.size();
+    }
+
+    /**
+     * Specifies the Trade associated with this Transaction.
+     *
+     * @param trade
+     *            the Trade containing this Transaction
+     */
+    protected void setTrade(Trade trade) {
+        this.trade = trade;
     }
 }

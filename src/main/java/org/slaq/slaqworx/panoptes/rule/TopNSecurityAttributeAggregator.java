@@ -20,6 +20,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  */
 public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClassifier
         implements GroupAggregator<SecurityAttribute<?>> {
+    private static final long serialVersionUID = 1L;
+
     private final int count;
 
     /**

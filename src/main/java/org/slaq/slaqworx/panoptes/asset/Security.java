@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -8,7 +9,9 @@ import java.util.Map;
  *
  * @author jeremy
  */
-public class Security {
+public class Security implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final String assetId;
     // while a HashMap would be more convenient, attribute lookups are a very hot piece of code
     // during Rule evaluation, and an array lookup speeds things up by ~13%, so ArrayList it is

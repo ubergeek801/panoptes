@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -19,7 +20,9 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
  *
  * @author jeremy
  */
-public class PositionSet implements PositionSupplier {
+public class PositionSet implements PositionSupplier, Serializable {
+    private static final long serialVersionUID = 1L;
+
     // even though we assume Set semantics, keeping positions in contiguous memory improves
     // calculation performance by 20%
     private final ArrayList<Position> positions;
@@ -37,7 +40,7 @@ public class PositionSet implements PositionSupplier {
     }
 
     /**
-     * Creates a new PositionSet consisting of the given Positions, with no parent Portfolio.
+     * Creates a new PositionSet consisting of the given Positions, with the given parent Portfolio.
      *
      * @param positions
      *            the Positions that will comprise this PositionSet
@@ -51,7 +54,7 @@ public class PositionSet implements PositionSupplier {
     }
 
     /**
-     * Creates a new PositionSet consisting of the given Positions, with no parent Portfolio.
+     * Creates a new PositionSet consisting of the given Positions, with the given parent Portfolio.
      *
      * @param positions
      *            the Positions that will comprise this PositionSet
@@ -59,7 +62,7 @@ public class PositionSet implements PositionSupplier {
      *            the (possibly null) Portfolio associated with this PositionSet
      */
     public PositionSet(Stream<Position> positions, Portfolio portfolio) {
-        this(positions.collect(Collectors.toCollection(ArrayList::new)), portfolio);
+        this(positions.collect(Collectors.toList()), portfolio);
     }
 
     @Override

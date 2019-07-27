@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -15,15 +16,17 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  * EvaluationGroupClassifier; for example, results may be grouped by Security currency by providing
  * an EvaluationGroupClassifier which maps each currency to a distinct group. The default, if an
  * EvaluationGroupClassifier is not specified, is to calculate for an entire Portfolio. Note that a
- * Rule only specifies how its results should be grouped; the actual tabulation is performed by
- * RuleEvaluator.
+ * Rule only specifies how its results should be grouped; the actual tabulation is performed by an
+ * evaluator such as PortfolioEvaluator.
  * <p>
  * Currently, a Rule may have at most one EvaluationGroupClassifier, which may also act as a
  * GroupAggregator.
  *
  * @author jeremy
  */
-public abstract class Rule {
+public abstract class Rule implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final String id;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;

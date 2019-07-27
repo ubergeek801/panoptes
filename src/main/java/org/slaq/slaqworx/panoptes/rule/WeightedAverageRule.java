@@ -22,6 +22,8 @@ import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
  * @author jeremy
  */
 public class WeightedAverageRule extends ValueRule {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates a new WeightedAverageRule with the given parameters.
      *

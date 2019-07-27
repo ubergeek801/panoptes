@@ -16,10 +16,24 @@ public class Trade {
     private final String id;
     private final ArrayList<Transaction> transactions = new ArrayList<>();
 
+    /**
+     * Creates a new Trade with a generated ID and consisting of the given Transactions.
+     *
+     * @param transactions
+     *            the Transactions comprising this Trade
+     */
     public Trade(Collection<Transaction> transactions) {
         this(null, transactions);
     }
 
+    /**
+     * Creates a new Trade with the given ID and consisting of the given Transactions.
+     *
+     * @param id
+     *            the unique ID to assign to this Trade, or null to generate one
+     * @param transactions
+     *            the Transactions comprising this Trade
+     */
     public Trade(String id, Collection<Transaction> transactions) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.transactions.addAll(transactions);
@@ -43,6 +57,11 @@ public class Trade {
         return id;
     }
 
+    /**
+     * Obtains the Transactions comprising this Trade.
+     * 
+     * @return a Stream of Transactions comprising this Trade
+     */
     public Stream<Transaction> getTransactions() {
         return transactions.stream();
     }

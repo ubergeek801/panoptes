@@ -10,6 +10,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  * @author jeremy
  */
 public class SecurityAttributeGroupClassifier implements EvaluationGroupClassifier {
+    private static final long serialVersionUID = 1L;
+
     private final SecurityAttribute<?> securityAttribute;
 
     /**

@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
-import org.slaq.slaqworx.panoptes.rule.RuleEvaluator;
+import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
 
 /**
  * A TradeEvaluator determines the impact of Trades on Portfolios by evaluating and comparing the
@@ -47,9 +47,9 @@ public class TradeEvaluator {
         Map<Portfolio, Stream<Position>> portfolioAllocationsMap = trade.getTransactions()
                 .collect(Collectors.toMap(t -> t.getPortfolio(), t -> t.getPositions()));
 
-        RuleEvaluator evaluator = new RuleEvaluator();
-
         // evaluate the impact on each Portfolio
+        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        TradeEvaluationResult evaluationResult = new TradeEvaluationResult();
         portfolioAllocationsMap.forEach((portfolio, tradePositions) -> {
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
@@ -61,9 +61,22 @@ public class TradeEvaluator {
                             new PositionSet(Stream.concat(portfolio.getPositions(), tradePositions),
                                     portfolio),
                             evaluationContext);
+
+            proposedState.entrySet().parallelStream().forEach(ruleEntry -> {
+                Rule rule = ruleEntry.getKey();
+                Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults =
+                        ruleEntry.getValue();
+                Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
+                        currentState.get(rule);
+
+                proposedGroupResults.forEach((group, proposedResult) -> {
+                    EvaluationResult currentResult = currentGroupResults.get(group);
+                    evaluationResult.addImpact(portfolio, rule, group,
+                            proposedResult.compare(currentResult));
+                });
+            });
         });
 
-        // FIXME produce a meaningful result
-        return new TradeEvaluationResult();
+        return evaluationResult;
     }
 }

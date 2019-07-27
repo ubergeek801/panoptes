@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +14,9 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  *
  * @author jeremy
  */
-public class Portfolio implements PositionSupplier {
+public class Portfolio implements PositionSupplier, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final String id;
     private final Portfolio benchmark;
     private final HashSet<Rule> rules;

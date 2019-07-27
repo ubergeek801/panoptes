@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panoptes
+  labels:
+    app: panoptes
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: panoptes
+  template:
+    metadata:
+      labels:
+        app: panoptes
+    spec:
+      containers:
+      - name: panoptes
+        image: ubergeek801/slaqworx

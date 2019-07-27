@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -7,7 +8,9 @@ import java.util.UUID;
  *
  * @author jeremy
  */
-public class Position {
+public class Position implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final String id;
     private final double amount;
     private final Security security;

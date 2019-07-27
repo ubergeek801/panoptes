@@ -19,15 +19,17 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * RuleEvaluatorTest tests the functionality of the RuleEvaluator.
+ * PortfolioEvaluatorTest tests the functionality of the PortfolioEvaluator.
  *
  * @author jeremy
  */
-public class RuleEvaluatorTest {
+public class PortfolioEvaluatorTest {
     /**
      * DummyRule facilitates testing rule evaluation behavior by always passing or always failing.
      */
     private static class DummyRule extends Rule {
+        private static final long serialVersionUID = 1L;
+
         private final boolean isPass;
 
         public DummyRule(String description, boolean isPass) {
@@ -47,6 +49,8 @@ public class RuleEvaluatorTest {
      * runtime exception.
      */
     private static class ExceptionThrowingRule extends Rule {
+        private static final long serialVersionUID = 1L;
+
         public ExceptionThrowingRule(String description) {
             super(description);
         }
@@ -63,6 +67,8 @@ public class RuleEvaluatorTest {
      * evaluation.
      */
     private static class UseBenchmarkRule extends Rule {
+        private static final long serialVersionUID = 1L;
+
         private final Portfolio benchmark;
 
         public UseBenchmarkRule(String description, Portfolio benchmark) {
@@ -134,7 +140,7 @@ public class RuleEvaluatorTest {
 
         Portfolio portfolio = new Portfolio(null, positions, null, rules);
 
-        RuleEvaluator evaluator = new RuleEvaluator();
+        PortfolioEvaluator evaluator = new PortfolioEvaluator();
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
                 evaluator.evaluate(portfolio, new EvaluationContext());
 
@@ -239,7 +245,7 @@ public class RuleEvaluatorTest {
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                new RuleEvaluator().evaluate(rules.stream(),
+                new PortfolioEvaluator().evaluate(rules.stream(),
                         new Portfolio("testPortfolio", dummyPositions), new EvaluationContext());
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
@@ -257,7 +263,7 @@ public class RuleEvaluatorTest {
      */
     @Test
     public void testEvaluateGroups() {
-        RuleEvaluator evaluator = new RuleEvaluator();
+        PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes =
                 Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
@@ -357,7 +363,7 @@ public class RuleEvaluatorTest {
      */
     @Test
     public void testEvaluateOverrides() {
-        RuleEvaluator evaluator = new RuleEvaluator();
+        PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
         Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);

@@ -24,6 +24,8 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
  * @author jeremy
  */
 public class ConcentrationRule extends ValueRule {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates a new ConcentrationRule with the given ID, description, filter, lower and upper
      * limit.

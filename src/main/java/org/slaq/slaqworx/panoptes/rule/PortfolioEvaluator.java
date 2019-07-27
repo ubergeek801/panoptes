@@ -15,18 +15,18 @@ import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
- * RuleEvaluator is responsible for the process of evaluating a set of Rules against some Portfolio
- * and possibly some related benchmark.
+ * PortfolioEvaluator is responsible for the process of evaluating a set of Rules against some
+ * Portfolio and possibly some related benchmark.
  *
  * @author jeremy
  */
-public class RuleEvaluator {
-    private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluator.class);
+public class PortfolioEvaluator {
+    private static final Logger LOG = LoggerFactory.getLogger(PortfolioEvaluator.class);
 
     /**
-     * Creates a new RuleEvaluator.
+     * Creates a new PortfolioEvaluator.
      */
-    public RuleEvaluator() {
+    public PortfolioEvaluator() {
         // nothing to do
     }
 

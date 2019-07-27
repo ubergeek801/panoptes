@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
 
 /**
  * A ValueRule stipulates limits on values that can be calculated on a portfolio's composition,
@@ -13,6 +14,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  * @author jeremy
  */
 public abstract class ValueRule extends Rule {
+    private static final long serialVersionUID = 1L;
+
     private final Predicate<Position> positionFilter;
     private final SecurityAttribute<Double> calculationAttribute;
     private final Double lowerLimit;
@@ -71,14 +74,14 @@ public abstract class ValueRule extends Rule {
         }
 
         if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
-            return new EvaluationResult(false);
+            return new EvaluationResult(Threshold.BELOW, value);
         }
 
         if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
-            return new EvaluationResult(false);
+            return new EvaluationResult(Threshold.ABOVE, value);
         }
 
-        return new EvaluationResult(true);
+        return new EvaluationResult(Threshold.WITHIN, value);
     }
 
     /**

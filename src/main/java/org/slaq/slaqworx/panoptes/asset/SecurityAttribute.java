@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -13,7 +14,9 @@ import java.util.Map;
  * @param <T>
  *            the type which values of this attribute implement
  */
-public class SecurityAttribute<T> {
+public class SecurityAttribute<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static final Map<String, SecurityAttribute<?>> attributes = new HashMap<>(100, 0.5f);
 
     // some well-known attributes follow, but security attributes are not limited to these
