@@ -2,6 +2,8 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+
 /**
  * EvaluationContext provides contextual information that can be shared across multiple evaluations.
  * Currently it is used experimentally to cache benchmark evaluation results between the "current"
@@ -13,11 +15,17 @@ public class EvaluationContext {
     private final ConcurrentHashMap<Rule, Double> previousBenchmarkValues =
             new ConcurrentHashMap<>(1000);
 
+    private final SecurityProvider securityProvider;
+
     /**
-     * Creates a new EvaluationContext.
+     * Creates a new EvaluationContext using the given SecurityProvider.
+     *
+     * @param securityProvider
+     *            the SecurityProvider from which to obtain Security information, or null if it is
+     *            known not to be needed
      */
-    public EvaluationContext() {
-        // nothing to do
+    public EvaluationContext(SecurityProvider securityProvider) {
+        this.securityProvider = securityProvider;
     }
 
     /**
@@ -30,6 +38,15 @@ public class EvaluationContext {
      */
     public Double getPreviousBenchmarkValue(Rule rule) {
         return previousBenchmarkValues.get(rule);
+    }
+
+    /**
+     * Obtains the SecurityProvider to be used by calculations in this context.
+     *
+     * @return a SecurityProvider
+     */
+    public SecurityProvider getSecurityProvider() {
+        return securityProvider;
     }
 
     /**

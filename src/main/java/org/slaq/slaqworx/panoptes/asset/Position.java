@@ -13,7 +13,7 @@ public class Position implements Serializable {
 
     private final String id;
     private final double amount;
-    private final Security security;
+    private final SecurityKey securityKey;
 
     /**
      * Creates a new Position with a generated ID and the given amount and Security, and a generated
@@ -41,7 +41,7 @@ public class Position implements Serializable {
     public Position(String id, double amount, Security security) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.amount = amount;
-        this.security = security;
+        securityKey = security.getKey();
     }
 
     @Override
@@ -80,10 +80,12 @@ public class Position implements Serializable {
     /**
      * Obtains the Security held by this Position.
      *
-     * @return the Security
+     * @param SecurityProvider
+     *            the SecurityProvider from which to obtain the Security
+     * @return the Security held by this Position
      */
-    public Security getSecurity() {
-        return security;
+    public Security getSecurity(SecurityProvider securityProvider) {
+        return securityProvider.getSecurity(securityKey);
     }
 
     @Override

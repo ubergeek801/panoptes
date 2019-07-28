@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
+import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
@@ -19,19 +20,21 @@ import org.slaq.slaqworx.panoptes.TestUtil;
  * @author jeremy
  */
 public class PortfolioTest {
+    private TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+
     /**
      * Tests that getPositions() behaves as expected.
      */
     @Test
     public void getPositions() {
-        Security dummySecurity = new Security("test", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity("test", Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
         positions.add(new Position(200, dummySecurity));
         positions.add(new Position(300, dummySecurity));
         positions.add(new Position(400, dummySecurity));
 
-        Portfolio portfolio = new Portfolio("p1", positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), positions);
 
         Stream<Position> stream1 = portfolio.getPositions();
         Stream<Position> stream2 = portfolio.getPositions();
@@ -59,14 +62,14 @@ public class PortfolioTest {
      */
     @Test
     public void testGetTotalAmount() {
-        Security dummySecurity = new Security("test", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity("test", Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
         positions.add(new Position(200, dummySecurity));
         positions.add(new Position(300, dummySecurity));
         positions.add(new Position(400, dummySecurity));
 
-        Portfolio portfolio = new Portfolio("test", positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
         // the total amount is merely the sum of the amounts 100 + 200 + 300 + 400 = 1000
         assertEquals("unexpected total amount", 1000, portfolio.getTotalAmount(), TestUtil.EPSILON);
     }
@@ -76,14 +79,14 @@ public class PortfolioTest {
      */
     @Test
     public void testHash() {
-        Portfolio p1 = new Portfolio("p1", Collections.emptySet());
-        Portfolio p2 = new Portfolio("p2", Collections.emptySet());
-        Portfolio p3 = new Portfolio("p3", Collections.emptySet());
-        Portfolio p4 = new Portfolio("p4", Collections.emptySet());
-        Portfolio p1a = new Portfolio("p1", Collections.emptySet());
-        Portfolio p2a = new Portfolio("p2", Collections.emptySet());
-        Portfolio p3a = new Portfolio("p3", Collections.emptySet());
-        Portfolio p4a = new Portfolio("p4", Collections.emptySet());
+        Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), Collections.emptySet());
+        Portfolio p2 = new Portfolio(new PortfolioKey("p2", 1), Collections.emptySet());
+        Portfolio p3 = new Portfolio(new PortfolioKey("p3", 1), Collections.emptySet());
+        Portfolio p4 = new Portfolio(new PortfolioKey("p4", 1), Collections.emptySet());
+        Portfolio p1a = new Portfolio(new PortfolioKey("p1", 1), Collections.emptySet());
+        Portfolio p2a = new Portfolio(new PortfolioKey("p2", 1), Collections.emptySet());
+        Portfolio p3a = new Portfolio(new PortfolioKey("p3", 1), Collections.emptySet());
+        Portfolio p4a = new Portfolio(new PortfolioKey("p4", 1), Collections.emptySet());
 
         HashSet<Portfolio> portfolios = new HashSet<>();
         // adding the four distinct Portfolios any number of times should still result in four

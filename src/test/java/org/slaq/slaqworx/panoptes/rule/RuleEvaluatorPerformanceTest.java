@@ -7,10 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.data.DummyPortfolioDataSource;
 import org.slaq.slaqworx.panoptes.data.DummyPortfolioMapLoader;
+import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
@@ -45,13 +46,15 @@ public class RuleEvaluatorPerformanceTest {
      *             if an error occurs while running the test
      */
     public void run() throws Exception {
+        PimcoBenchmarkDataSource dataSource = PimcoBenchmarkDataSource.getInstance();
+
         // perform evaluation on each Portfolio
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
         DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
         long portfolioStartTime = System.currentTimeMillis();
         ArrayList<Portfolio> portfolios = new ArrayList<>();
-        for (String key : mapLoader.loadAllKeys()) {
-            Portfolio benchmark = DummyPortfolioDataSource.getInstance().getBenchmark(key);
+        for (PortfolioKey key : mapLoader.loadAllKeys()) {
+            Portfolio benchmark = dataSource.getBenchmark(key);
             if (benchmark != null) {
                 // the Portfolio is a benchmark; skip it
                 continue;
@@ -59,7 +62,7 @@ public class RuleEvaluatorPerformanceTest {
 
             Portfolio portfolio = mapLoader.load(key);
             portfolios.add(portfolio);
-            evaluator.evaluate(portfolio, new EvaluationContext());
+            evaluator.evaluate(portfolio, new EvaluationContext(dataSource));
         }
         long portfolioEndTime = System.currentTimeMillis();
 
@@ -70,11 +73,10 @@ public class RuleEvaluatorPerformanceTest {
         ArrayList<Long> evaluationGroupCounts = new ArrayList<>();
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
-            Security security1 = DummyPortfolioDataSource.getInstance().getCusipSecurityMap()
-                    .values().iterator().next();
+            Security security1 = dataSource.getSecurityMap().values().iterator().next();
             Position position1 = new Position(1_000_000, security1);
             positions.add(position1);
-            TradeEvaluator tradeEvaluator = new TradeEvaluator();
+            TradeEvaluator tradeEvaluator = new TradeEvaluator(dataSource);
             ArrayList<Transaction> transactions = new ArrayList<>();
             portfolios.stream().limit(i * 62).forEach(portfolio -> {
                 Transaction transaction = new Transaction(portfolio, positions);

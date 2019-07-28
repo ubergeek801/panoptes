@@ -53,7 +53,7 @@ public abstract class ValueRule extends Rule {
     @Override
     protected final EvaluationResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
-        double value = getValue(portfolioPositions);
+        double value = getValue(portfolioPositions, evaluationContext);
         if (benchmarkPositions != null) {
             // Caching the previously-calculated benchmark value should theoretically provide a
             // performance benefit to trade evaluation, as the Rule is evaluated against the current
@@ -63,7 +63,7 @@ public abstract class ValueRule extends Rule {
             Double previousBenchmarkValue = evaluationContext.getPreviousBenchmarkValue(this);
             double benchmarkValue;
             if (previousBenchmarkValue == null) {
-                benchmarkValue = getValue(benchmarkPositions);
+                benchmarkValue = getValue(benchmarkPositions, evaluationContext);
                 evaluationContext.setPreviousBenchmarkValue(this, benchmarkValue);
             } else {
                 benchmarkValue = previousBenchmarkValue;
@@ -108,7 +108,10 @@ public abstract class ValueRule extends Rule {
      *
      * @param positions
      *            the Positions on which to perform the appropriate calculations
+     * @param evaluationContext
+     *            the EvaluationContext under which to calculate
      * @return the calculation result
      */
-    protected abstract double getValue(PositionSupplier positions);
+    protected abstract double getValue(PositionSupplier positions,
+            EvaluationContext evaluationContext);
 }

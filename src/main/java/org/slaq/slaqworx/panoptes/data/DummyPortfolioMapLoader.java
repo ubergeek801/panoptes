@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -36,14 +37,14 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
  *
  * @author jeremy
  */
-public class DummyPortfolioMapLoader implements MapStore<String, Portfolio>, Serializable {
+public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio>, Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioMapLoader.class);
 
     private final Portfolio[] benchmarks;
 
-    private transient final DummyPortfolioDataSource dataSource;
+    private transient final PimcoBenchmarkDataSource dataSource;
 
     /**
      * Creates a new DummyPortfolioMapLoader.
@@ -52,26 +53,27 @@ public class DummyPortfolioMapLoader implements MapStore<String, Portfolio>, Ser
      *             if Porfolio data could not be loaded
      */
     public DummyPortfolioMapLoader() throws IOException {
-        dataSource = DummyPortfolioDataSource.getInstance();
+        dataSource = PimcoBenchmarkDataSource.getInstance();
 
-        benchmarks = new Portfolio[] { null, dataSource.getBenchmark(DummyPortfolioDataSource.EMAD),
-                dataSource.getBenchmark(DummyPortfolioDataSource.GLAD),
-                dataSource.getBenchmark(DummyPortfolioDataSource.ILAD),
-                dataSource.getBenchmark(DummyPortfolioDataSource.PGOV) };
+        benchmarks =
+                new Portfolio[] { null, dataSource.getBenchmark(PimcoBenchmarkDataSource.EMAD_KEY),
+                        dataSource.getBenchmark(PimcoBenchmarkDataSource.GLAD_KEY),
+                        dataSource.getBenchmark(PimcoBenchmarkDataSource.ILAD_KEY),
+                        dataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY) };
     }
 
     @Override
-    public void delete(String key) {
+    public void delete(PortfolioKey key) {
         // FIXME implement delete()
     }
 
     @Override
-    public void deleteAll(Collection<String> keys) {
+    public void deleteAll(Collection<PortfolioKey> keys) {
         // FIXME implement deleteAll()
     }
 
     @Override
-    public Portfolio load(String key) {
+    public Portfolio load(PortfolioKey key) {
         // if the key corresponds to a benchmark, return the corresponding benchmark
         Portfolio benchmark = dataSource.getBenchmark(key);
         if (benchmark != null) {
@@ -81,72 +83,67 @@ public class DummyPortfolioMapLoader implements MapStore<String, Portfolio>, Ser
         // otherwise generate a random Portfolio
         int seed;
         try {
-            seed = Integer.parseInt(key.substring(4));
+            seed = Integer.parseInt(key.getId().substring(4));
         } catch (Exception e) {
             seed = 0;
         }
         Random random = new Random(seed);
 
-        List<Security> securityList = Collections
-                .unmodifiableList(new ArrayList<>(dataSource.getCusipSecurityMap().values()));
+        List<Security> securityList =
+                Collections.unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
         Set<Position> positions = generatePositions(securityList, random);
         Set<Rule> rules = generateRules(random);
         Portfolio portfolio = new Portfolio(key, positions, benchmarks[random.nextInt(5)], rules);
-        LOG.info("created portfolio {} with {} positions", key, portfolio.size());
+        LOG.info("created Portfolio {} with {} Positions", key, portfolio.size());
 
         return portfolio;
     }
 
     @Override
-    public Map<String, Portfolio> loadAll(Collection<String> keys) {
+    public Map<PortfolioKey, Portfolio> loadAll(Collection<PortfolioKey> keys) {
         LOG.info("loading Portfolios for {} keys", keys.size());
         return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
     }
 
     @Override
-    public Iterable<String> loadAllKeys() {
+    public Iterable<PortfolioKey> loadAllKeys() {
         LOG.info("loading all keys");
 
         // This Iterable produces 504 Portfolio IDs; the first four are the PIMCO benchmarks and
         // the remaining 500 are randomly-generated Portfolios
-        return new Iterable<>() {
+        return () -> new Iterator<>() {
+            private int currentPosition = -4;
+
             @Override
-            public Iterator<String> iterator() {
-                return new Iterator<>() {
-                    private int currentPosition = -4;
+            public boolean hasNext() {
+                return currentPosition < 500;
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return currentPosition < 500;
-                    }
-
-                    @Override
-                    public String next() {
-                        switch (++currentPosition) {
-                        case -3:
-                            return DummyPortfolioDataSource.EMAD;
-                        case -2:
-                            return DummyPortfolioDataSource.GLAD;
-                        case -1:
-                            return DummyPortfolioDataSource.ILAD;
-                        case 0:
-                            return DummyPortfolioDataSource.PGOV;
-                        default:
-                            return "test" + currentPosition;
-                        }
-                    }
-                };
+            @Override
+            public PortfolioKey next() {
+                switch (++currentPosition) {
+                case -3:
+                    return PimcoBenchmarkDataSource.EMAD_KEY;
+                case -2:
+                    return PimcoBenchmarkDataSource.GLAD_KEY;
+                case -1:
+                    return PimcoBenchmarkDataSource.ILAD_KEY;
+                case 0:
+                    return PimcoBenchmarkDataSource.PGOV_KEY;
+                default:
+                    return new PortfolioKey("test" + currentPosition, 1);
+                }
             }
         };
     }
 
     @Override
-    public void store(String key, Portfolio value) {
+    public void store(PortfolioKey key, Portfolio value) {
         // FIXME implement store()
     }
 
     @Override
-    public void storeAll(Map<String, Portfolio> map) {
+    public void storeAll(Map<PortfolioKey, Portfolio> map) {
         // FIXME implement storeAll()
     }
 
@@ -192,20 +189,20 @@ public class DummyPortfolioMapLoader implements MapStore<String, Portfolio>, Ser
             SecurityAttribute<Double> compareAttribute = null;
             switch (random.nextInt(6)) {
             case 0:
-                filter = (Predicate<Position> & Serializable)(p -> "USD"
-                        .equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)));
+                filter = (Predicate<Position> & Serializable)(p -> "USD".equals(
+                        p.getSecurity(dataSource).getAttributeValue(SecurityAttribute.currency)));
                 break;
             case 1:
-                filter = (Predicate<Position> & Serializable)(p -> "BRL"
-                        .equals(p.getSecurity().getAttributeValue(SecurityAttribute.currency)));
+                filter = (Predicate<Position> & Serializable)(p -> "BRL".equals(
+                        p.getSecurity(dataSource).getAttributeValue(SecurityAttribute.currency)));
                 break;
             case 2:
-                filter = (Predicate<Position> & Serializable)(p -> p.getSecurity()
+                filter = (Predicate<Position> & Serializable)(p -> p.getSecurity(dataSource)
                         .getAttributeValue(SecurityAttribute.duration) > 3.0);
                 break;
             case 3:
-                filter = (Predicate<Position> & Serializable)(p -> "Emerging Markets"
-                        .equals(p.getSecurity().getAttributeValue(SecurityAttribute.region)));
+                filter = (Predicate<Position> & Serializable)(p -> "Emerging Markets".equals(
+                        p.getSecurity(dataSource).getAttributeValue(SecurityAttribute.region)));
                 break;
             case 4:
                 compareAttribute = SecurityAttribute.ratingValue;

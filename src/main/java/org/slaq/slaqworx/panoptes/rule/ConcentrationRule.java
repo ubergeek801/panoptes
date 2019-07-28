@@ -50,7 +50,7 @@ public class ConcentrationRule extends ValueRule {
     }
 
     @Override
-    protected double getValue(PositionSupplier positions) {
+    protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
         // ConcentrationRule works like a ValueRule in which the calculated value is scaled by the
         // total amount of the portfolio. (Eventually this could support scaling by other aggregate
         // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
@@ -58,7 +58,8 @@ public class ConcentrationRule extends ValueRule {
 
         TotalAmountPositionCalculator calculator = new TotalAmountPositionCalculator();
 
-        double subtotalAmount = calculator.calculate(positions, getPositionFilter());
+        double subtotalAmount =
+                calculator.calculate(positions, getPositionFilter(), evaluationContext);
         double totalAmount = positions.getPortfolio().getTotalAmount();
         return subtotalAmount / totalAmount;
     }

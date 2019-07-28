@@ -8,6 +8,9 @@ import java.util.HashSet;
 
 import org.junit.Test;
 
+import org.slaq.slaqworx.panoptes.TestSecurityProvider;
+import org.slaq.slaqworx.panoptes.TestUtil;
+
 /**
  * PositionTest tests the functionality of Position.
  *
@@ -19,7 +22,9 @@ public class PositionTest {
      */
     @Test
     public void testHash() {
-        Security dummySecurity = new Security("test", Collections.emptyMap());
+        TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+
+        Security dummySecurity = securityProvider.newSecurity("test", Collections.emptyMap());
         Position p1 = new Position("p1", 100, dummySecurity);
         Position p2 = new Position("p2", 100, dummySecurity);
         Position p3 = new Position("p3", 100, dummySecurity);

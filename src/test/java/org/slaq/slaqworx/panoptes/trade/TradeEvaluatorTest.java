@@ -10,7 +10,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import org.slaq.slaqworx.panoptes.TestSecurityProvider;
+import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -31,8 +34,10 @@ public class TradeEvaluatorTest {
      */
     @Test
     public void testEvaluate() {
-        Security s1 = new Security("s1", Map.of(SecurityAttribute.duration, 3.0));
-        Security s2 = new Security("s2", Map.of(SecurityAttribute.duration, 4.0));
+        TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+
+        Security s1 = securityProvider.newSecurity("s1", Map.of(SecurityAttribute.duration, 3.0));
+        Security s2 = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.duration, 4.0));
 
         HashSet<Position> p1Positions = new HashSet<>();
         p1Positions.add(new Position(1_000, s1));
@@ -61,7 +66,7 @@ public class TradeEvaluatorTest {
                 SecurityAttribute.duration, null, 4d, null);
         p1Rules.add(p1Rule4);
 
-        Portfolio p1 = new Portfolio("p1", p1Positions, null, p1Rules);
+        Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), p1Positions, null, p1Rules);
 
         Position t1Alloc1 = new Position(1_000, s2);
         List<Position> t1Allocations = Arrays.asList(t1Alloc1);
@@ -69,7 +74,7 @@ public class TradeEvaluatorTest {
         List<Transaction> transactions = Arrays.asList(t1);
 
         Trade trade = new Trade(transactions);
-        TradeEvaluator evaluator = new TradeEvaluator();
+        TradeEvaluator evaluator = new TradeEvaluator(securityProvider);
         TradeEvaluationResult result = evaluator.evaluate(trade);
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =

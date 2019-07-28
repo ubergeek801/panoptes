@@ -27,7 +27,7 @@ public class PortfolioEvaluator {
      * Creates a new PortfolioEvaluator.
      */
     public PortfolioEvaluator() {
-        // nothing to do
+        // noting to do
     }
 
     /**
@@ -128,7 +128,8 @@ public class PortfolioEvaluator {
                     Map<EvaluationGroup<?>, Collection<Position>> classifiedPortfolioPositions =
                             portfolioPositions.getPositions()
                                     .collect(Collectors.groupingBy(
-                                            p -> rule.getGroupClassifier().classify(p),
+                                            p -> rule.getGroupClassifier().classify(
+                                                    evaluationContext.getSecurityProvider(), p),
                                             Collectors.toCollection(ArrayList::new)));
 
                     // do the same for the benchmark, if specified
@@ -136,10 +137,14 @@ public class PortfolioEvaluator {
                     if (benchmarkPositions == null) {
                         classifiedBenchmarkPositions = null;
                     } else {
-                        classifiedBenchmarkPositions = benchmarkPositions.getPositions()
-                                .collect(Collectors.groupingBy(
-                                        p -> rule.getGroupClassifier().classify(p),
-                                        Collectors.toCollection(ArrayList::new)));
+                        classifiedBenchmarkPositions =
+                                benchmarkPositions.getPositions()
+                                        .collect(Collectors
+                                                .groupingBy(
+                                                        p -> rule.getGroupClassifier()
+                                                                .classify(evaluationContext
+                                                                        .getSecurityProvider(), p),
+                                                        Collectors.toCollection(ArrayList::new)));
                     }
 
                     // Execute the Rule's GroupAggregators (if any) to create additional

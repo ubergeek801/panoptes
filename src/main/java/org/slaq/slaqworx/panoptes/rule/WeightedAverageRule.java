@@ -51,10 +51,10 @@ public class WeightedAverageRule extends ValueRule {
     }
 
     @Override
-    protected double getValue(PositionSupplier positions) {
+    protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
         WeightedAveragePositionCalculator calculator =
                 new WeightedAveragePositionCalculator(getCalculationAttribute());
 
-        return calculator.calculate(positions, getPositionFilter());
+        return calculator.calculate(positions, getPositionFilter(), evaluationContext);
     }
 }

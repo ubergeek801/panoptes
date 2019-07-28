@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes;
 
-import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +12,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.data.DummyPortfolioMapLoader;
+import org.slaq.slaqworx.panoptes.data.PortfolioCache;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -38,20 +41,28 @@ public class Panoptes {
     }
 
     /**
-     * Provides a Hazelcast configuration suitable for the detected runtime environment.
+     * Provides a Hazelcast configuration suitable for the detected runtime environment. Spring Boot
+     * will automatically use this configuration when it creates the HazelcastInstance.
      *
      * @return a Hazelcast Config
-     * @throws IOException
+     * @throws Exception
      *             if the configuration could not be created
      */
     @Bean
-    public Config hazelcastConfig() throws IOException {
+    public Config hazelcastConfig() throws Exception {
         Config config = new Config();
 
-        MapStoreConfig portfolioMapStoreConfig = new MapStoreConfig();
-        portfolioMapStoreConfig.setImplementation(new DummyPortfolioMapLoader());
-        config.getMapConfig("portfolios").setBackupCount(0)
-                .setMapStoreConfig(portfolioMapStoreConfig);
+        for (Entry<String, Class<? extends MapStore<?, ?>>> mapStoreEntry : PortfolioCache
+                .getMapStores().entrySet()) {
+            String name = mapStoreEntry.getKey();
+            Class<? extends MapStore<?, ?>> loaderClass = mapStoreEntry.getValue();
+            MapStoreConfig mapStoreConfig = new MapStoreConfig()
+                    .setImplementation(loaderClass.getDeclaredConstructor().newInstance());
+            NearCacheConfig nearCacheConfig =
+                    new NearCacheConfig().setInMemoryFormat(InMemoryFormat.BINARY);
+            config.getMapConfig(name).setBackupCount(0).setInMemoryFormat(InMemoryFormat.BINARY)
+                    .setMapStoreConfig(mapStoreConfig).setNearCacheConfig(nearCacheConfig);
+        }
 
         if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
             // not running in Kubernetes; run standalone
@@ -77,10 +88,9 @@ public class Panoptes {
     @Bean
     public ApplicationRunner startupRunner(ApplicationContext appContext) {
         return args -> {
-            // the HazelcastInstance exists courtesy of Spring Boot integration
             HazelcastInstance hazelcastInstance = appContext.getBean(HazelcastInstance.class);
 
-            Map<String, Portfolio> portfolios = hazelcastInstance.getMap("portfolios");
+            Map<String, Portfolio> portfolios = hazelcastInstance.getMap("portfolio");
             LOG.info("got {} Portfolios from cache", portfolios.size());
         };
     }

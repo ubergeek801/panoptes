@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * WeightedAveragePositionCalculatorTest tests the functionality of the
@@ -18,6 +20,8 @@ public class WeightedAveragePositionCalculatorTest {
      */
     @Test
     public void testCalculateWeightedAverage() {
+        TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+
         WeightedAveragePositionCalculator calculator =
                 new WeightedAveragePositionCalculator(TestUtil.moovyRating);
 
@@ -26,14 +30,16 @@ public class WeightedAveragePositionCalculatorTest {
         // weighted average = (90_000 + 42_500) / (1000 + 500) = 132_500 / 1500 = 88.333...
 
         assertEquals("unexpected weighted average for p1", (132_500d / 1500),
-                calculator.calculate(TestUtil.p1), TestUtil.EPSILON);
+                calculator.calculate(TestUtil.p1, new EvaluationContext(securityProvider)),
+                TestUtil.EPSILON);
 
         // 500 of s1 = 500 * s1.moovyRating = 500 * 90 = 45_000
         // 1000 of s2 = 1000 * s2.moovyRating = 1000 * 85 = 85_000
         // weighted average = (45_000 + 85_000) / (1000 + 500) = 130_000 / 1500 = 86.666...
 
         assertEquals("unexpected weighted average for p2", (130_000d / 1500),
-                calculator.calculate(TestUtil.p2), TestUtil.EPSILON);
+                calculator.calculate(TestUtil.p2, new EvaluationContext(securityProvider)),
+                TestUtil.EPSILON);
 
         calculator = new WeightedAveragePositionCalculator(TestUtil.fetchRating);
 
@@ -41,14 +47,16 @@ public class WeightedAveragePositionCalculatorTest {
         // 500 of s2 = 500 * s2.fetchRating = 500 * (no rating) = (not applicable)
         // weighted average = 88_000 / 1000 = 88
 
-        assertEquals("unexpected weighted average for p1", 88d, calculator.calculate(TestUtil.p1),
+        assertEquals("unexpected weighted average for p1", 88d,
+                calculator.calculate(TestUtil.p1, new EvaluationContext(securityProvider)),
                 TestUtil.EPSILON);
 
         // 500 of s1 = 500 * s1.fetchRating = 500 * 88 = 44_000
         // 1000 of s2 = 1000 * s2.fetchRating = 1000 * (no rating) = (not applicable)
         // weighted average = 44_000 / 500 = 88
 
-        assertEquals("unexpected weighted average for p2", 88d, calculator.calculate(TestUtil.p2),
+        assertEquals("unexpected weighted average for p2", 88d,
+                calculator.calculate(TestUtil.p2, new EvaluationContext(securityProvider)),
                 TestUtil.EPSILON);
     }
 }

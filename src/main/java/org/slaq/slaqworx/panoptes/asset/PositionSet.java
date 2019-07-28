@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * A PositionSet encapsulates a set of Positions, optionally related to a parent Portfolio. If the
@@ -50,7 +51,8 @@ public class PositionSet implements PositionSupplier, Serializable {
     public PositionSet(Collection<Position> positions, Portfolio portfolio) {
         this.positions = new ArrayList<>(positions);
         this.portfolio = portfolio;
-        totalAmount = new TotalAmountPositionCalculator().calculate(this);
+        totalAmount =
+                new TotalAmountPositionCalculator().calculate(this, new EvaluationContext(null));
     }
 
     /**

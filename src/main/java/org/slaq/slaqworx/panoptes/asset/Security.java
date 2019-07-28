@@ -12,21 +12,21 @@ import java.util.Map;
 public class Security implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String assetId;
+    private final SecurityKey key;
     // while a HashMap would be more convenient, attribute lookups are a very hot piece of code
     // during Rule evaluation, and an array lookup speeds things up by ~13%, so ArrayList it is
     private final ArrayList<? super Object> attributes = new ArrayList<>();
 
     /**
-     * Creates a new Security with the given asset ID and SecurityAttribute values.
+     * Creates a new Security with the given key and SecurityAttribute values.
      *
-     * @param assetId
+     * @param key
      *            the unique ID identifying the Security
      * @param attributes
      *            a (possibly empty) Map of SecurityAttribute to attribute value
      */
-    public Security(String assetId, Map<SecurityAttribute<?>, ? super Object> attributes) {
-        this.assetId = assetId;
+    public Security(SecurityKey key, Map<SecurityAttribute<?>, ? super Object> attributes) {
+        this.key = key;
         attributes.forEach((a, v) -> {
             this.attributes.ensureCapacity(a.getIndex() + 1);
             while (this.attributes.size() < a.getIndex() + 1) {
@@ -48,16 +48,7 @@ public class Security implements Serializable {
             return false;
         }
         Security other = (Security)obj;
-        return assetId.equals(other.assetId);
-    }
-
-    /**
-     * Obtains the unique asset ID identifying this Security.
-     *
-     * @return the asset ID
-     */
-    public String getAssetId() {
-        return assetId;
+        return key.equals(other.key);
     }
 
     /**
@@ -85,8 +76,22 @@ public class Security implements Serializable {
         }
     }
 
+    /**
+     * Obtains the unique key identifying this Security.
+     *
+     * @return the SecurityKey
+     */
+    public SecurityKey getKey() {
+        return key;
+    }
+
     @Override
     public int hashCode() {
-        return assetId.hashCode();
+        return key.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Security[" + key + "]";
     }
 }

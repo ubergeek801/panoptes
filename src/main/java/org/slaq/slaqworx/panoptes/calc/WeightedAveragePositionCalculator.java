@@ -12,6 +12,7 @@ import java.util.stream.Collector;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * WeightedAveragePositionCalculator is a PositionCalculator that determines the weighted average of
@@ -30,16 +31,24 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
      * calculate a weighted average of the given attribute.
      *
      * @author jeremy
-     *
      */
     private class WeightedAveragePositionCollector
             implements Collector<Position, AmountAccumulator, Double> {
+        private final EvaluationContext evaluationContext;
+
+        /**
+         * Creates a new WeightedAveragePositionCollector.
+         */
+        public WeightedAveragePositionCollector(EvaluationContext evaluationContext) {
+            this.evaluationContext = evaluationContext;
+        }
+
         @Override
         public BiConsumer<AmountAccumulator, Position> accumulator() {
             // accumulate the Position's amount and weighted amount
             return (a, p) -> {
-                Double attributeValue =
-                        p.getSecurity().getAttributeValue(getCalculationAttribute());
+                Double attributeValue = p.getSecurity(evaluationContext.getSecurityProvider())
+                        .getAttributeValue(getCalculationAttribute());
                 if (attributeValue == null) {
                     return;
                 }
@@ -78,6 +87,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     /**
      * Creates a new WeightedAveragePositionCalculator which calculates on the given attribute.
      *
+     * @param securityProvider
+     *            the SecurityProvider from which to obtain Security information
      * @param calculationAttribute
      *            the attribute on which to calculate
      */
@@ -86,8 +97,9 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     }
 
     @Override
-    public double calc(PositionSupplier positions, Predicate<? super Position> positionFilter) {
+    public double calc(PositionSupplier positions, Predicate<? super Position> positionFilter,
+            EvaluationContext evaluationContext) {
         return positions.getPositions().filter(positionFilter)
-                .collect(new WeightedAveragePositionCollector());
+                .collect(new WeightedAveragePositionCollector(evaluationContext));
     }
 }

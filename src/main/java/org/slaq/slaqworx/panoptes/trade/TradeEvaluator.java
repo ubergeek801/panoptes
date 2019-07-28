@@ -10,11 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
+import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
-import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
  * A TradeEvaluator determines the impact of Trades on Portfolios by evaluating and comparing the
@@ -25,11 +26,16 @@ import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
 public class TradeEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
 
+    private final SecurityProvider securityProvider;
+
     /**
      * Creates a new TradeEvaluator.
+     *
+     * @param securityProvider
+     *            the SecurityProvider to use to obtain Security information
      */
-    public TradeEvaluator() {
-        // nothing to do
+    public TradeEvaluator(SecurityProvider securityProvider) {
+        this.securityProvider = securityProvider;
     }
 
     /**
@@ -53,7 +59,7 @@ public class TradeEvaluator {
         portfolioAllocationsMap.forEach((portfolio, tradePositions) -> {
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
-            EvaluationContext evaluationContext = new EvaluationContext();
+            EvaluationContext evaluationContext = new EvaluationContext(securityProvider);
             Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
                     evaluator.evaluate(portfolio, evaluationContext);
             Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =

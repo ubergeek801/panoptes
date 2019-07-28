@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.hazelcast.core.HazelcastInstance;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 
 /**
  * DummyPortfolioDataTest tests that loading dummy Portfolio data works as expected.
@@ -25,12 +26,15 @@ public class DummyPortfolioDataTest {
     @Autowired
     HazelcastInstance hazelcastInstance;
 
+    @Autowired
+    PortfolioCache portfolioCache;
+
     /**
      * Tests that Portfolio data can be loaded and is available to the Hazelcast cache.
      */
     @Test
     public void testLoadData() {
-        Map<String, Portfolio> portfolios = hazelcastInstance.getMap("portfolios");
+        Map<PortfolioKey, Portfolio> portfolios = hazelcastInstance.getMap("portfolio");
         assertFalse("portfolios should contain some data", portfolios.isEmpty());
     }
 }

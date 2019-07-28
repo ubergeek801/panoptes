@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
  * SecurityAttributeGroupClassifier is an EvaluationGroupClassifier which classifies Positions based
@@ -26,9 +27,10 @@ public class SecurityAttributeGroupClassifier implements EvaluationGroupClassifi
     }
 
     @Override
-    public EvaluationGroup<SecurityAttribute<?>> classify(Position position) {
-        return new EvaluationGroup<>(
-                String.valueOf(position.getSecurity().getAttributeValue(securityAttribute)),
+    public EvaluationGroup<SecurityAttribute<?>> classify(SecurityProvider securityProvider,
+            Position position) {
+        return new EvaluationGroup<>(String.valueOf(
+                position.getSecurity(securityProvider).getAttributeValue(securityAttribute)),
                 securityAttribute);
     }
 

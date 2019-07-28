@@ -94,21 +94,6 @@ public abstract class Rule implements Serializable {
     }
 
     /**
-     * Evaluates the Rule on the given portfolio Positions, optionally relative to a given
-     * benchmark. The public evaluate() methods ultimately delegate to this one.
-     *
-     * @param portfolioPositions
-     *            the portfolio Positions on which to evaluate the Rule
-     * @param benchmarkPositions
-     *            the (possibly null) benchmark Positions to evaluate relative to
-     * @param evaluationContext
-     *            the EvaluationContext under which to evaluate
-     * @return the result of the Rule evaluation
-     */
-    protected abstract EvaluationResult eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
-
-    /**
      * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark, subject
      * to the given evaluation context.
      *
@@ -169,4 +154,19 @@ public abstract class Rule implements Serializable {
     public int hashCode() {
         return id.hashCode();
     }
+
+    /**
+     * Evaluates the Rule on the given portfolio Positions, optionally relative to a given
+     * benchmark. The public evaluate() methods ultimately delegate to this one.
+     *
+     * @param portfolioPositions
+     *            the portfolio Positions on which to evaluate the Rule
+     * @param benchmarkPositions
+     *            the (possibly null) benchmark Positions to evaluate relative to
+     * @param evaluationContext
+     *            the EvaluationContext under which to evaluate
+     * @return the result of the Rule evaluation
+     */
+    protected abstract EvaluationResult eval(PositionSupplier portfolioPositions,
+            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
 }

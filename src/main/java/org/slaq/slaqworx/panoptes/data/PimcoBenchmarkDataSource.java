@@ -17,21 +17,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.RatingNotch;
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * DummyPortfolioDataSource provides access to the data obtained from the PIMCO benchmark
+ * PimcoBenchmarkDataSource provides access to the data obtained from the PIMCO benchmark
  * constituent files.
  *
  * @author jeremy
  */
-public class DummyPortfolioDataSource {
-    private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioDataSource.class);
+public class PimcoBenchmarkDataSource implements SecurityProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDataSource.class);
 
     private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-02-2019.tsv";
     private static final String GLAD_CONSTITUENTS_FILE = "PIMCO_GLAD_Constituents_07-02-2019.tsv";
@@ -42,10 +46,10 @@ public class DummyPortfolioDataSource {
     private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
     private static final RatingScale pimcoRatingScale;
 
-    protected static final String EMAD = "EMAD";
-    protected static final String GLAD = "GLAD";
-    protected static final String ILAD = "ILAD";
-    protected static final String PGOV = "PGOV";
+    protected static final PortfolioKey EMAD_KEY = new PortfolioKey("EMAD", 1);
+    protected static final PortfolioKey GLAD_KEY = new PortfolioKey("GLAD", 1);
+    protected static final PortfolioKey ILAD_KEY = new PortfolioKey("ILAD", 1);
+    protected static final PortfolioKey PGOV_KEY = new PortfolioKey("PGOV", 1);
 
     static {
         // these rating symbols are used in the PIMCO benchmarks; the numeric equivalents are a
@@ -76,86 +80,87 @@ public class DummyPortfolioDataSource {
         pimcoRatingScale = new RatingScale(notches, 100);
     }
 
-    private static DummyPortfolioDataSource instance;
+    private static PimcoBenchmarkDataSource instance;
 
     /**
-     * Obtains the singleton instance of the DummyPortfolioDataSource.
+     * Obtains the singleton instance of the PimcoBenchmarkDataSource.
      *
-     * @return the DummyPortfolioDataSource instance
+     * @return the PimcoBenchmarkDataSource instance
      * @throws IOException
      *             if the data could not be read
      */
-    public synchronized static DummyPortfolioDataSource getInstance() throws IOException {
+    public synchronized static PimcoBenchmarkDataSource getInstance() throws IOException {
         if (instance == null) {
-            instance = new DummyPortfolioDataSource();
+            instance = new PimcoBenchmarkDataSource();
         }
 
         return instance;
     }
 
-    private final HashMap<String, Security> cusipSecurityMap = new HashMap<>();
-    private final HashMap<String, Portfolio> benchmarkMap = new HashMap<>();
+    private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
+    private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
     /**
-     * Creates a new DummyPortfolioDataSource. Restricted to enforce singleton semantics.
+     * Creates a new PimcoBenchmarkDataSource. Restricted to enforce singleton semantics.
      *
      * @throws IOException
      *             if the data could not be read
      */
-    private DummyPortfolioDataSource() throws IOException {
+    private PimcoBenchmarkDataSource() throws IOException {
         // load the PIMCO benchmarks, which are also a source of Security information
 
-        Portfolio emadBenchmark =
-                loadPimcoBenchmark(EMAD, EMAD_CONSTITUENTS_FILE, cusipSecurityMap);
-        Portfolio gladBenchmark =
-                loadPimcoBenchmark(GLAD, GLAD_CONSTITUENTS_FILE, cusipSecurityMap);
-        Portfolio iladBenchmark =
-                loadPimcoBenchmark(ILAD, ILAD_CONSTITUENTS_FILE, cusipSecurityMap);
-        Portfolio pgovBenchmark =
-                loadPimcoBenchmark(PGOV, PGOV_CONSTITUENTS_FILE, cusipSecurityMap);
-        benchmarkMap.put(emadBenchmark.getId(), emadBenchmark);
-        benchmarkMap.put(gladBenchmark.getId(), gladBenchmark);
-        benchmarkMap.put(iladBenchmark.getId(), iladBenchmark);
-        benchmarkMap.put(pgovBenchmark.getId(), pgovBenchmark);
-        LOG.info("loaded {} distinct securities", cusipSecurityMap.size());
+        Portfolio emadBenchmark = loadPimcoBenchmark(EMAD_KEY, EMAD_CONSTITUENTS_FILE, securityMap);
+        Portfolio gladBenchmark = loadPimcoBenchmark(GLAD_KEY, GLAD_CONSTITUENTS_FILE, securityMap);
+        Portfolio iladBenchmark = loadPimcoBenchmark(ILAD_KEY, ILAD_CONSTITUENTS_FILE, securityMap);
+        Portfolio pgovBenchmark = loadPimcoBenchmark(PGOV_KEY, PGOV_CONSTITUENTS_FILE, securityMap);
+        benchmarkMap.put(EMAD_KEY, emadBenchmark);
+        benchmarkMap.put(GLAD_KEY, gladBenchmark);
+        benchmarkMap.put(ILAD_KEY, iladBenchmark);
+        benchmarkMap.put(PGOV_KEY, pgovBenchmark);
+        LOG.info("loaded {} distinct securities", securityMap.size());
     }
 
     /**
      * Obtains the benchmark with the given ID.
      *
-     * @param benchmarkName
-     *            the ID of the benchmark to be obtained
+     * @param benchmarkKey
+     *            the key of the benchmark to be obtained
      * @return the benchmark with the given ID, or null if it does not exist
      */
-    public Portfolio getBenchmark(String benchmarkName) {
-        return benchmarkMap.get(benchmarkName);
+    public Portfolio getBenchmark(PortfolioKey benchmarkKey) {
+        return benchmarkMap.get(benchmarkKey);
+    }
+
+    @Override
+    public Security getSecurity(SecurityKey key) {
+        return securityMap.get(key);
     }
 
     /**
-     * Obtains a Map mapping security ID to its corresponding Security.
+     * Obtains a Map mapping security key to its corresponding Security.
      *
-     * @return a Map of security ID to Security
+     * @return a Map of security key to Security
      */
-    public Map<String, Security> getCusipSecurityMap() {
-        return cusipSecurityMap;
+    public Map<SecurityKey, Security> getSecurityMap() {
+        return securityMap;
     }
 
     /**
      * Loads data from the given PIMCO constituents file (converted to tab-separated values) and
      * creates a new Portfolio with the data.
      *
-     * @param benchmarkName
-     *            the benchmark name/ID
+     * @param benchmarkKey
+     *            the benchmark key
      * @param sourceFile
      *            the name of the source file (on the classpath)
-     * @param cusipSecurityMap
-     *            a Map of CUSIP to Security in which to cache loaded Securities
+     * @param securityMap
+     *            a Map of SecurityKey to Security in which to cache loaded Securities
      * @return a Portfolio consisting of the Positions loaded from the file
      * @throws IOException
      *             if the file could not be read
      */
-    protected Portfolio loadPimcoBenchmark(String benchmarkName, String sourceFile,
-            Map<String, Security> cusipSecurityMap) throws IOException {
+    protected Portfolio loadPimcoBenchmark(PortfolioKey benchmarkKey, String sourceFile,
+            Map<SecurityKey, Security> securityMap) throws IOException {
         HashSet<Position> positions = new HashSet<>();
         double totalAmount = 0;
         try (BufferedReader constituentReader = new BufferedReader(new InputStreamReader(
@@ -200,7 +205,8 @@ public class DummyPortfolioDataSource {
                 BigDecimal duration =
                         new BigDecimal(values[++column]).setScale(2, RoundingMode.HALF_UP);
 
-                Security security = cusipSecurityMap.computeIfAbsent(cusip, c -> {
+                SecurityKey securityKey = new SecurityKey(cusip, 1);
+                Security security = securityMap.computeIfAbsent(securityKey, c -> {
                     Map<SecurityAttribute<?>, ? super Object> attributes = new HashMap<>();
                     attributes.put(SecurityAttribute.isin, isin);
                     attributes.put(SecurityAttribute.description, description);
@@ -216,7 +222,7 @@ public class DummyPortfolioDataSource {
                     attributes.put(SecurityAttribute.yield, yield);
                     attributes.put(SecurityAttribute.duration, duration.doubleValue());
 
-                    return new Security(cusip, attributes);
+                    return new Security(securityKey, attributes);
                 });
 
                 positions.add(new Position(marketValueUsd.doubleValue(), security));
@@ -224,15 +230,16 @@ public class DummyPortfolioDataSource {
             }
         }
 
-        Portfolio benchmark = new Portfolio(benchmarkName, positions);
+        Portfolio benchmark = new Portfolio(benchmarkKey, positions);
 
         // average rating is kind of interesting, so let's calculate it
         WeightedAveragePositionCalculator averageRatingCalc =
                 new WeightedAveragePositionCalculator(SecurityAttribute.ratingValue);
-        String averageRating =
-                pimcoRatingScale.getRatingNotch(averageRatingCalc.calculate(benchmark)).getSymbol();
+        String averageRating = pimcoRatingScale
+                .getRatingNotch(averageRatingCalc.calculate(benchmark, new EvaluationContext(this)))
+                .getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
-                positions.size(), benchmarkName, usdFormatter.format(totalAmount), averageRating);
+                positions.size(), benchmarkKey, usdFormatter.format(totalAmount), averageRating);
 
         return benchmark;
     }

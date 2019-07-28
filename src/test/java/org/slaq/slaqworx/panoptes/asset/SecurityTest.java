@@ -8,6 +8,9 @@ import java.util.HashSet;
 
 import org.junit.Test;
 
+import org.slaq.slaqworx.panoptes.TestSecurityProvider;
+import org.slaq.slaqworx.panoptes.TestUtil;
+
 /**
  * SecurityTest tests the functionality of Security.
  *
@@ -19,14 +22,16 @@ public class SecurityTest {
      */
     @Test
     public void testHash() {
-        Security s1 = new Security("s1", Collections.emptyMap());
-        Security s2 = new Security("s2", Collections.emptyMap());
-        Security s3 = new Security("s3", Collections.emptyMap());
-        Security s4 = new Security("s4", Collections.emptyMap());
-        Security s1a = new Security("s1", Collections.emptyMap());
-        Security s2a = new Security("s2", Collections.emptyMap());
-        Security s3a = new Security("s3", Collections.emptyMap());
-        Security s4a = new Security("s4", Collections.emptyMap());
+        TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+
+        Security s1 = securityProvider.newSecurity("s1", Collections.emptyMap());
+        Security s2 = securityProvider.newSecurity("s2", Collections.emptyMap());
+        Security s3 = securityProvider.newSecurity("s3", Collections.emptyMap());
+        Security s4 = securityProvider.newSecurity("s4", Collections.emptyMap());
+        Security s1a = securityProvider.newSecurity("s1", Collections.emptyMap());
+        Security s2a = securityProvider.newSecurity("s2", Collections.emptyMap());
+        Security s3a = securityProvider.newSecurity("s3", Collections.emptyMap());
+        Security s4a = securityProvider.newSecurity("s4", Collections.emptyMap());
 
         HashSet<Security> securities = new HashSet<>();
         // adding the four distinct Securities any number of times should still result in four
@@ -53,5 +58,4 @@ public class SecurityTest {
         assertTrue("Securities should have contained s3", securities.contains(s3));
         assertTrue("Securities should have contained s4", securities.contains(s4));
     }
-
 }

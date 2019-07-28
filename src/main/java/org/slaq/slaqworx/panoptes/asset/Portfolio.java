@@ -17,29 +17,29 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 public class Portfolio implements PositionSupplier, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String id;
+    private final PortfolioKey key;
     private final Portfolio benchmark;
     private final HashSet<Rule> rules;
     private final PositionSet positionSet;
 
     /**
-     * Creates a new Portfolio with the given ID and Positions, with no associated Benchmark or
+     * Creates a new Portfolio with the given key and Positions, with no associated Benchmark or
      * Rules.
      *
-     * @param id
-     *            the unique Portfolio ID
+     * @param key
+     *            the unique Portfolio key
      * @param positions
      *            the Positions comprising the Portfolio
      */
-    public Portfolio(String id, Set<Position> positions) {
-        this(id, positions, null, Collections.emptySet());
+    public Portfolio(PortfolioKey key, Set<Position> positions) {
+        this(key, positions, null, Collections.emptySet());
     }
 
     /**
-     * Creates a new Portfolio with the given ID, Positions, Benchmark and Rules.
+     * Creates a new Portfolio with the given key, Positions, Benchmark and Rules.
      *
-     * @param id
-     *            the unique Portfolio ID
+     * @param key
+     *            the unique Portfolio key
      * @param positions
      *            the Positions comprising the Portfolio
      * @param benchmark
@@ -47,8 +47,9 @@ public class Portfolio implements PositionSupplier, Serializable {
      * @param rules
      *            the (possibly empty) Rules associated with the Portfolio
      */
-    public Portfolio(String id, Set<Position> positions, Portfolio benchmark, Set<Rule> rules) {
-        this.id = id;
+    public Portfolio(PortfolioKey key, Set<Position> positions, Portfolio benchmark,
+            Set<Rule> rules) {
+        this.key = key;
         this.benchmark = benchmark;
         this.rules = new HashSet<>(rules);
         positionSet = new PositionSet(positions, this);
@@ -66,11 +67,11 @@ public class Portfolio implements PositionSupplier, Serializable {
             return false;
         }
         Portfolio other = (Portfolio)obj;
-        if (id == null) {
-            if (other.id != null) {
+        if (key == null) {
+            if (other.key != null) {
                 return false;
             }
-        } else if (!id.equals(other.id)) {
+        } else if (!key.equals(other.key)) {
             return false;
         }
         return true;
@@ -86,12 +87,12 @@ public class Portfolio implements PositionSupplier, Serializable {
     }
 
     /**
-     * Obtains this Portfolio's unique ID.
+     * Obtains this Portfolio's unique key.
      *
-     * @return this Portfolio's ID
+     * @return this Portfolio's key
      */
-    public String getId() {
-        return id;
+    public PortfolioKey getKey() {
+        return key;
     }
 
     @Override
@@ -129,10 +130,7 @@ public class Portfolio implements PositionSupplier, Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
+        return key.hashCode();
     }
 
     @Override
@@ -142,6 +140,6 @@ public class Portfolio implements PositionSupplier, Serializable {
 
     @Override
     public String toString() {
-        return "Portfolio[id=\"" + id + "\"]";
+        return "Portfolio[id=\"" + key + "\"]";
     }
 }
