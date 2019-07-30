@@ -24,8 +24,8 @@ public abstract class ValueRule extends Rule {
     /**
      * Creates a new ValueRule with the given parameters.
      *
-     * @param id
-     *            the unique ID of this rule, or null to generate one
+     * @param key
+     *            the unique key of this rule, or null to generate one
      * @param description
      *            the rule description
      * @param positionFilter
@@ -40,10 +40,10 @@ public abstract class ValueRule extends Rule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    protected ValueRule(String id, String description, Predicate<Position> positionFilter,
+    protected ValueRule(RuleKey key, String description, Predicate<Position> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
             EvaluationGroupClassifier groupClassifier) {
-        super(id, description, groupClassifier);
+        super(key, description, groupClassifier);
         this.positionFilter = positionFilter;
         this.calculationAttribute = calculationAttribute;
         this.lowerLimit = lowerLimit;

@@ -27,11 +27,11 @@ public class ConcentrationRule extends ValueRule {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates a new ConcentrationRule with the given ID, description, filter, lower and upper
+     * Creates a new ConcentrationRule with the given key, description, filter, lower and upper
      * limit.
      *
-     * @param id
-     *            the unique ID of this rule, or null to generate one
+     * @param key
+     *            the unique key of this rule, or null to generate one
      * @param description
      *            the rule description
      * @param positionFilter
@@ -44,9 +44,9 @@ public class ConcentrationRule extends ValueRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    public ConcentrationRule(String id, String description, Predicate<Position> positionFilter,
+    public ConcentrationRule(RuleKey key, String description, Predicate<Position> positionFilter,
             Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
-        super(id, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier);
+        super(key, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier);
     }
 
     @Override

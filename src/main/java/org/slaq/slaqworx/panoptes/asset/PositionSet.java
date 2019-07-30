@@ -51,8 +51,8 @@ public class PositionSet implements PositionSupplier, Serializable {
     public PositionSet(Collection<Position> positions, Portfolio portfolio) {
         this.positions = new ArrayList<>(positions);
         this.portfolio = portfolio;
-        totalAmount =
-                new TotalAmountPositionCalculator().calculate(this, new EvaluationContext(null));
+        totalAmount = new TotalAmountPositionCalculator().calculate(this,
+                new EvaluationContext(null, null));
     }
 
     /**

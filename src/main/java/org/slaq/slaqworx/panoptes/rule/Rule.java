@@ -27,46 +27,36 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 public abstract class Rule implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String id;
+    private final RuleKey key;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
     private final ArrayList<GroupAggregator<?>> groupAggregators = new ArrayList<>();
 
     /**
-     * Creates a new Rule with a generated ID and the given description.
+     * Creates a new Rule with the given key and description.
      *
+     * @param key
+     *            the unique key to assign to the Rule, or null to generate one
      * @param description
      *            the description of the Rule
      */
-    protected Rule(String description) {
-        this(null, description);
+    protected Rule(RuleKey key, String description) {
+        this(key, description, null);
     }
 
     /**
-     * Creates a new Rule with the given ID and description.
+     * Creates a new Rule with the given key, description and evaluation group classifier.
      *
-     * @param id
-     *            the unique ID to assign to the Rule, or null to generate one
-     * @param description
-     *            the description of the Rule
-     */
-    protected Rule(String id, String description) {
-        this(id, description, null);
-    }
-
-    /**
-     * Creates a new Rule with the given ID, description and evaluation group classifier.
-     *
-     * @param id
-     *            the unique ID to assign to the Rule, or null to generate one
+     * @param key
+     *            the unique key to assign to the Rule, or null to generate one
      * @param description
      *            the description of the Rule
      * @param groupClassifier
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    protected Rule(String id, String description, EvaluationGroupClassifier groupClassifier) {
-        this.id = (id == null ? UUID.randomUUID().toString() : id);
+    protected Rule(RuleKey key, String description, EvaluationGroupClassifier groupClassifier) {
+        this.key = (key == null ? new RuleKey(UUID.randomUUID().toString(), 1) : key);
         this.description = description;
         if (groupClassifier == null) {
             this.groupClassifier = EvaluationGroupClassifier.defaultClassifier();
@@ -78,6 +68,16 @@ public abstract class Rule implements Serializable {
         }
     }
 
+    /**
+     * Creates a new Rule with a generated key and the given description.
+     *
+     * @param description
+     *            the description of the Rule
+     */
+    protected Rule(String description) {
+        this(null, description);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -86,11 +86,11 @@ public abstract class Rule implements Serializable {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof Rule)) {
             return false;
         }
         Rule other = (Rule)obj;
-        return id.equals(other.id);
+        return key.equals(other.key);
     }
 
     /**
@@ -142,17 +142,17 @@ public abstract class Rule implements Serializable {
     }
 
     /**
-     * Obtains this Rule's unique ID.
+     * Obtains this Rule's unique key.
      *
-     * @return the Rule ID
+     * @return the Rule key
      */
-    public String getId() {
-        return id;
+    public RuleKey getKey() {
+        return key;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return key.hashCode();
     }
 
     /**

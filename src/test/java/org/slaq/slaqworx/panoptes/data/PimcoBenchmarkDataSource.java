@@ -16,8 +16,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.RatingNotch;
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
@@ -34,7 +36,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  *
  * @author jeremy
  */
-public class PimcoBenchmarkDataSource implements SecurityProvider {
+public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDataSource.class);
 
     private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-02-2019.tsv";
@@ -132,6 +134,12 @@ public class PimcoBenchmarkDataSource implements SecurityProvider {
     }
 
     @Override
+    public Portfolio getPortfolio(PortfolioKey key) {
+        // we only know about benchmarks
+        return getBenchmark(key);
+    }
+
+    @Override
     public Security getSecurity(SecurityKey key) {
         return securityMap.get(key);
     }
@@ -208,19 +216,20 @@ public class PimcoBenchmarkDataSource implements SecurityProvider {
                 SecurityKey securityKey = new SecurityKey(cusip, 1);
                 Security security = securityMap.computeIfAbsent(securityKey, c -> {
                     Map<SecurityAttribute<?>, ? super Object> attributes = new HashMap<>();
-                    attributes.put(SecurityAttribute.isin, isin);
-                    attributes.put(SecurityAttribute.description, description);
-                    attributes.put(SecurityAttribute.country, country);
-                    attributes.put(SecurityAttribute.region, region);
-                    attributes.put(SecurityAttribute.sector, sector);
-                    attributes.put(SecurityAttribute.currency, currency);
-                    attributes.put(SecurityAttribute.coupon, coupon);
-                    attributes.put(SecurityAttribute.maturityDate, maturityDate);
-                    attributes.put(SecurityAttribute.ratingSymbol, ratingSymbol);
-                    attributes.put(SecurityAttribute.ratingValue,
+                    attributes.put(TestUtil.cusip, cusip);
+                    attributes.put(TestUtil.isin, isin);
+                    attributes.put(TestUtil.description, description);
+                    attributes.put(TestUtil.country, country);
+                    attributes.put(TestUtil.region, region);
+                    attributes.put(TestUtil.sector, sector);
+                    attributes.put(TestUtil.currency, currency);
+                    attributes.put(TestUtil.coupon, coupon);
+                    attributes.put(TestUtil.maturityDate, maturityDate);
+                    attributes.put(TestUtil.ratingSymbol, ratingSymbol);
+                    attributes.put(TestUtil.ratingValue,
                             pimcoRatingScale.getRatingNotch(ratingSymbol).getMiddle());
-                    attributes.put(SecurityAttribute.yield, yield);
-                    attributes.put(SecurityAttribute.duration, duration.doubleValue());
+                    attributes.put(TestUtil.yield, yield);
+                    attributes.put(TestUtil.duration, duration.doubleValue());
 
                     return new Security(securityKey, attributes);
                 });
@@ -234,9 +243,10 @@ public class PimcoBenchmarkDataSource implements SecurityProvider {
 
         // average rating is kind of interesting, so let's calculate it
         WeightedAveragePositionCalculator averageRatingCalc =
-                new WeightedAveragePositionCalculator(SecurityAttribute.ratingValue);
+                new WeightedAveragePositionCalculator(TestUtil.ratingValue);
         String averageRating = pimcoRatingScale
-                .getRatingNotch(averageRatingCalc.calculate(benchmark, new EvaluationContext(this)))
+                .getRatingNotch(
+                        averageRatingCalc.calculate(benchmark, new EvaluationContext(this, this)))
                 .getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
                 positions.size(), benchmarkKey, usdFormatter.format(totalAmount), averageRating);

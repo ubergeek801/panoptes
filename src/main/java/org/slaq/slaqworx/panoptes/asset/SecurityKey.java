@@ -5,7 +5,7 @@ package org.slaq.slaqworx.panoptes.asset;
  *
  * @author jeremy
  */
-public class SecurityKey extends AssetKey {
+public class SecurityKey extends IdVersionKey {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -18,5 +18,12 @@ public class SecurityKey extends AssetKey {
      */
     public SecurityKey(String id, long version) {
         super(id, version);
+    }
+
+    /**
+     * Creates a new SecurityKey. Restricted because this should only be used by Hibernate.
+     */
+    protected SecurityKey() {
+        // nothing to do
     }
 }

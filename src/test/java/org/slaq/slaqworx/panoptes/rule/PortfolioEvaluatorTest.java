@@ -15,6 +15,7 @@ import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -93,26 +94,26 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() {
-        Security iss1Sec1 = securityProvider.newSecurity("issuer1Sec1",
-                Map.of(SecurityAttribute.issuer, "ISSFOO"));
-        Security iss1Sec2 = securityProvider.newSecurity("issuer1Sec2",
-                Map.of(SecurityAttribute.issuer, "ISSFOO"));
-        Security iss1Sec3 = securityProvider.newSecurity("issuer1Sec3",
-                Map.of(SecurityAttribute.issuer, "ISSFOO"));
-        Security iss2Sec1 = securityProvider.newSecurity("issuer2Sec1",
-                Map.of(SecurityAttribute.issuer, "ISSBAR"));
-        Security iss2Sec2 = securityProvider.newSecurity("issuer2Sec2",
-                Map.of(SecurityAttribute.issuer, "ISSBAR"));
-        Security iss3Sec1 = securityProvider.newSecurity("issuer3Sec1",
-                Map.of(SecurityAttribute.issuer, "ISSBAZ"));
-        Security iss4Sec1 = securityProvider.newSecurity("issuer4Sec1",
-                Map.of(SecurityAttribute.issuer, "ISSABC"));
-        Security iss4Sec2 = securityProvider.newSecurity("issuer4Sec2",
-                Map.of(SecurityAttribute.issuer, "ISSABC"));
-        Security iss5Sec1 = securityProvider.newSecurity("issuer5Sec1",
-                Map.of(SecurityAttribute.issuer, "ISSDEF"));
-        Security iss6Sec1 = securityProvider.newSecurity("issuer6Sec1",
-                Map.of(SecurityAttribute.issuer, "ISSGHI"));
+        Security iss1Sec1 =
+                securityProvider.newSecurity("issuer1Sec1", Map.of(TestUtil.issuer, "ISSFOO"));
+        Security iss1Sec2 =
+                securityProvider.newSecurity("issuer1Sec2", Map.of(TestUtil.issuer, "ISSFOO"));
+        Security iss1Sec3 =
+                securityProvider.newSecurity("issuer1Sec3", Map.of(TestUtil.issuer, "ISSFOO"));
+        Security iss2Sec1 =
+                securityProvider.newSecurity("issuer2Sec1", Map.of(TestUtil.issuer, "ISSBAR"));
+        Security iss2Sec2 =
+                securityProvider.newSecurity("issuer2Sec2", Map.of(TestUtil.issuer, "ISSBAR"));
+        Security iss3Sec1 =
+                securityProvider.newSecurity("issuer3Sec1", Map.of(TestUtil.issuer, "ISSBAZ"));
+        Security iss4Sec1 =
+                securityProvider.newSecurity("issuer4Sec1", Map.of(TestUtil.issuer, "ISSABC"));
+        Security iss4Sec2 =
+                securityProvider.newSecurity("issuer4Sec2", Map.of(TestUtil.issuer, "ISSABC"));
+        Security iss5Sec1 =
+                securityProvider.newSecurity("issuer5Sec1", Map.of(TestUtil.issuer, "ISSDEF"));
+        Security iss6Sec1 =
+                securityProvider.newSecurity("issuer6Sec1", Map.of(TestUtil.issuer, "ISSGHI"));
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
@@ -140,23 +141,23 @@ public class PortfolioEvaluatorTest {
 
         HashSet<Rule> rules = new HashSet<>();
         ConcentrationRule top2issuerRule =
-                new ConcentrationRule("top2", "top 2 issuer concentration", null, null, 0.25,
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
+                new ConcentrationRule(new RuleKey("top2", 1), "top 2 issuer concentration", null,
+                        null, 0.25, new TopNSecurityAttributeAggregator(TestUtil.issuer, 2));
         rules.add(top2issuerRule);
         ConcentrationRule top3issuerRule =
-                new ConcentrationRule("top3", "top 3 issuer concentration", null, null, 0.75,
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
+                new ConcentrationRule(new RuleKey("top3", 1), "top 3 issuer concentration", null,
+                        null, 0.75, new TopNSecurityAttributeAggregator(TestUtil.issuer, 3));
         rules.add(top3issuerRule);
         ConcentrationRule top10issuerRule =
-                new ConcentrationRule("top10", "top 10 issuer concentration", null, null, 0.999,
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 10));
+                new ConcentrationRule(new RuleKey("top10", 1), "top 10 issuer concentration", null,
+                        null, 0.999, new TopNSecurityAttributeAggregator(TestUtil.issuer, 10));
         rules.add(top10issuerRule);
 
         Portfolio portfolio = new Portfolio(null, positions, null, rules);
 
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
-                evaluator.evaluate(portfolio, new EvaluationContext(securityProvider));
+                evaluator.evaluate(portfolio, new EvaluationContext(null, securityProvider));
 
         assertEquals("number of results should equal number of Rules", rules.size(),
                 allResults.size());
@@ -261,7 +262,7 @@ public class PortfolioEvaluatorTest {
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
                 new PortfolioEvaluator().evaluate(rules.stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), dummyPositions),
-                        new EvaluationContext(securityProvider));
+                        new EvaluationContext(null, securityProvider));
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
         assertTrue("always-pass rule should have passed",
@@ -280,19 +281,16 @@ public class PortfolioEvaluatorTest {
     public void testEvaluateGroups() {
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
-        Map<SecurityAttribute<?>, ? super Object> usdAttributes =
-                Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
-                        SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO");
+        Map<SecurityAttribute<?>, ? super Object> usdAttributes = Map.of(TestUtil.currency, "USD",
+                TestUtil.ratingValue, 90d, TestUtil.duration, 3d, TestUtil.issuer, "ISSFOO");
         Security usdSecurity = securityProvider.newSecurity("usdSec", usdAttributes);
 
-        Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
-                Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.ratingValue, 80d,
-                        SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO");
+        Map<SecurityAttribute<?>, ? super Object> nzdAttributes = Map.of(TestUtil.currency, "NZD",
+                TestUtil.ratingValue, 80d, TestUtil.duration, 4d, TestUtil.issuer, "ISSFOO");
         Security nzdSecurity = securityProvider.newSecurity("nzdSec", nzdAttributes);
 
-        Map<SecurityAttribute<?>, ? super Object> cadAttributes =
-                Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.ratingValue, 75d,
-                        SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR");
+        Map<SecurityAttribute<?>, ? super Object> cadAttributes = Map.of(TestUtil.currency, "CAD",
+                TestUtil.ratingValue, 75d, TestUtil.duration, 5d, TestUtil.issuer, "ISSBAR");
         Security cadSecurity = securityProvider.newSecurity("cadSec", cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();
@@ -317,14 +315,14 @@ public class PortfolioEvaluatorTest {
 
         HashSet<Rule> rules = new HashSet<>();
         Rule durationRule = new WeightedAverageRule(null, "currency-grouped duration rule", null,
-                SecurityAttribute.duration, null, 4d,
-                new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
+                TestUtil.duration, null, 4d,
+                new SecurityAttributeGroupClassifier(TestUtil.currency));
         rules.add(durationRule);
         Rule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
-                SecurityAttribute.ratingValue, 80d, null, null);
+                TestUtil.ratingValue, 80d, null, null);
         rules.add(qualityRule);
         Rule issuerRule = new ConcentrationRule(null, "issuer-grouped concentration rule", null,
-                null, 0.5, new SecurityAttributeGroupClassifier(SecurityAttribute.issuer));
+                null, 0.5, new SecurityAttributeGroupClassifier(TestUtil.issuer));
         rules.add(issuerRule);
 
         // total value = 2_100, weighted rating = 165_500, weighted duration = 9_200,
@@ -332,7 +330,7 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions, null, rules);
 
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                evaluator.evaluate(portfolio, new EvaluationContext(securityProvider));
+                evaluator.evaluate(portfolio, new EvaluationContext(null, securityProvider));
 
         // all rules should have entries
         assertEquals("number of evaluated rules should match number of portfolio rules",
@@ -390,6 +388,11 @@ public class PortfolioEvaluatorTest {
                 new Portfolio(new PortfolioKey("testPortfolioBenchmark", 1), dummyPositions);
         Portfolio overrideBenchmark =
                 new Portfolio(new PortfolioKey("testOverrideBenchmark", 1), overridePositions);
+        // a really dumb PortfolioProvider that returns either portfolioBenchmark or
+        // overrideBenchmark
+        PortfolioProvider benchmarkProvider =
+                k -> (portfolioBenchmark.getId().equals(k) ? portfolioBenchmark
+                        : overrideBenchmark);
 
         DummyRule passRule = new DummyRule("testPass", true);
         DummyRule failRule = new DummyRule("testFail", false);
@@ -405,8 +408,8 @@ public class PortfolioEvaluatorTest {
                 portfolioBenchmark, portfolioRules);
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                evaluator.evaluate(portfolio, new EvaluationContext(securityProvider));
+        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator.evaluate(portfolio,
+                new EvaluationContext(benchmarkProvider, securityProvider));
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
@@ -419,7 +422,7 @@ public class PortfolioEvaluatorTest {
 
         // test the form of evaluate() that should override the portfolio benchmark
         results = evaluator.evaluate(portfolio, overrideBenchmark,
-                new EvaluationContext(securityProvider));
+                new EvaluationContext(benchmarkProvider, securityProvider));
 
         assertEquals("unexpected number of results", 3, results.size());
         assertTrue("always-pass rule should have passed",
@@ -434,7 +437,7 @@ public class PortfolioEvaluatorTest {
 
         // test the form of evaluate() that should override the portfolio rules
         results = evaluator.evaluate(overrideRules.stream(), portfolio,
-                new EvaluationContext(securityProvider));
+                new EvaluationContext(benchmarkProvider, securityProvider));
 
         assertEquals("unexpected number of results", 1, results.size());
         assertTrue("portfolio benchmark should have been used", results
@@ -442,7 +445,7 @@ public class PortfolioEvaluatorTest {
 
         // test the form of evaluate() that should override the portfolio rules and benchmark
         results = evaluator.evaluate(overrideRules.stream(), portfolio, overrideBenchmark,
-                new EvaluationContext(securityProvider));
+                new EvaluationContext(benchmarkProvider, securityProvider));
 
         assertEquals("unexpected number of results", 1, results.size());
         assertFalse("override benchmark should have been used", results

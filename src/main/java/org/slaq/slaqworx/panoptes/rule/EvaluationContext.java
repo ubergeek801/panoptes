@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
@@ -15,17 +16,32 @@ public class EvaluationContext {
     private final ConcurrentHashMap<Rule, Double> previousBenchmarkValues =
             new ConcurrentHashMap<>(1000);
 
+    private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
 
     /**
-     * Creates a new EvaluationContext using the given SecurityProvider.
+     * Creates a new EvaluationContext with the given attributes.
      *
+     * @param portfolioProvider
+     *            the portfolioProvider from which to obtain POrtfolio information, or null if it is
+     *            known not to be needed
      * @param securityProvider
      *            the SecurityProvider from which to obtain Security information, or null if it is
      *            known not to be needed
      */
-    public EvaluationContext(SecurityProvider securityProvider) {
+    public EvaluationContext(PortfolioProvider portfolioProvider,
+            SecurityProvider securityProvider) {
+        this.portfolioProvider = portfolioProvider;
         this.securityProvider = securityProvider;
+    }
+
+    /**
+     * Obtains the PortfolioProvider to be used by calculations in this context.
+     *
+     * @return a PortfolioProvider
+     */
+    public PortfolioProvider getPortfolioProvider() {
+        return portfolioProvider;
     }
 
     /**

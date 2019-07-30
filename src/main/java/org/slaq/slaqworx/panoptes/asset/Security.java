@@ -4,36 +4,61 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Type;
+
+import org.slaq.slaqworx.panoptes.util.Keyed;
+
 /**
  * A Security is an investable instrument.
  *
  * @author jeremy
  */
-public class Security implements Serializable {
+@Entity
+public class Security implements Keyed<SecurityKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final SecurityKey key;
-    // while a HashMap would be more convenient, attribute lookups are a very hot piece of code
-    // during Rule evaluation, and an array lookup speeds things up by ~13%, so ArrayList it is
-    private final ArrayList<? super Object> attributes = new ArrayList<>();
+    @EmbeddedId
+    private SecurityKey id;
+
+    @Type(type = "com.vladmihalcea.hibernate.type.json.JsonBinaryType")
+    @Column(columnDefinition = "jsonb")
+    private Map<SecurityAttribute<?>, ? super Object> attributes;
+
+    // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule
+    // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
+    @Transient
+    private ArrayList<? super Object> attributeList = new ArrayList<>();
 
     /**
      * Creates a new Security with the given key and SecurityAttribute values.
      *
-     * @param key
+     * @param id
      *            the unique ID identifying the Security
      * @param attributes
      *            a (possibly empty) Map of SecurityAttribute to attribute value
      */
-    public Security(SecurityKey key, Map<SecurityAttribute<?>, ? super Object> attributes) {
-        this.key = key;
+    public Security(SecurityKey id, Map<SecurityAttribute<?>, ? super Object> attributes) {
+        this.id = id;
+        this.attributes = attributes;
         attributes.forEach((a, v) -> {
-            this.attributes.ensureCapacity(a.getIndex() + 1);
-            while (this.attributes.size() < a.getIndex() + 1) {
-                this.attributes.add(null);
+            attributeList.ensureCapacity(a.getIndex() + 1);
+            while (attributeList.size() < a.getIndex() + 1) {
+                attributeList.add(null);
             }
-            this.attributes.set(a.getIndex(), v);
+            attributeList.set(a.getIndex(), v);
         });
+    }
+
+    /**
+     * Creates a new Security. Restricted because this should only be used by Hibernate.
+     */
+    protected Security() {
+        // nothing to do
     }
 
     @Override
@@ -48,7 +73,7 @@ public class Security implements Serializable {
             return false;
         }
         Security other = (Security)obj;
-        return key.equals(other.key);
+        return id.equals(other.id);
     }
 
     /**
@@ -63,35 +88,31 @@ public class Security implements Serializable {
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
         try {
             @SuppressWarnings("unchecked")
-            T attributeValue = (T)attributes.get(attribute.getIndex());
+            T attributeValue = (T)attributeList.get(attribute.getIndex());
 
             return attributeValue;
         } catch (IndexOutOfBoundsException e) {
             // this attribute must not exist; prevent future IndexOutOfBoundsExceptions
-            attributes.ensureCapacity(attribute.getIndex() + 1);
-            while (attributes.size() < attribute.getIndex() + 1) {
-                attributes.add(null);
+            attributeList.ensureCapacity(attribute.getIndex() + 1);
+            while (attributeList.size() < attribute.getIndex() + 1) {
+                attributeList.add(null);
             }
             return null;
         }
     }
 
-    /**
-     * Obtains the unique key identifying this Security.
-     *
-     * @return the SecurityKey
-     */
-    public SecurityKey getKey() {
-        return key;
+    @Override
+    public SecurityKey getId() {
+        return id;
     }
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Security[" + key + "]";
+        return "Security[" + id + "]";
     }
 }

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
@@ -26,15 +27,19 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 public class TradeEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
 
+    private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
 
     /**
      * Creates a new TradeEvaluator.
      *
+     * @param portfolioProvider
+     *            the PortfolioProvider to use to obtain Portfolio information
      * @param securityProvider
      *            the SecurityProvider to use to obtain Security information
      */
-    public TradeEvaluator(SecurityProvider securityProvider) {
+    public TradeEvaluator(PortfolioProvider portfolioProvider, SecurityProvider securityProvider) {
+        this.portfolioProvider = portfolioProvider;
         this.securityProvider = securityProvider;
     }
 
@@ -59,7 +64,8 @@ public class TradeEvaluator {
         portfolioAllocationsMap.forEach((portfolio, tradePositions) -> {
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
-            EvaluationContext evaluationContext = new EvaluationContext(securityProvider);
+            EvaluationContext evaluationContext =
+                    new EvaluationContext(portfolioProvider, securityProvider);
             Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
                     evaluator.evaluate(portfolio, evaluationContext);
             Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =

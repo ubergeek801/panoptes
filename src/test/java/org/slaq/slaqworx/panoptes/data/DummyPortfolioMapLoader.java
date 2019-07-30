@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.core.MapStore;
 
+import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -189,57 +190,54 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
             SecurityAttribute<Double> compareAttribute = null;
             switch (random.nextInt(6)) {
             case 0:
-                filter = (Predicate<Position> & Serializable)(p -> "USD".equals(
-                        p.getSecurity(dataSource).getAttributeValue(SecurityAttribute.currency)));
+                filter = (Predicate<Position> & Serializable)(p -> "USD"
+                        .equals(p.getSecurity(dataSource).getAttributeValue(TestUtil.currency)));
                 break;
             case 1:
-                filter = (Predicate<Position> & Serializable)(p -> "BRL".equals(
-                        p.getSecurity(dataSource).getAttributeValue(SecurityAttribute.currency)));
+                filter = (Predicate<Position> & Serializable)(p -> "BRL"
+                        .equals(p.getSecurity(dataSource).getAttributeValue(TestUtil.currency)));
                 break;
             case 2:
                 filter = (Predicate<Position> & Serializable)(p -> p.getSecurity(dataSource)
-                        .getAttributeValue(SecurityAttribute.duration) > 3.0);
+                        .getAttributeValue(TestUtil.duration) > 3.0);
                 break;
             case 3:
-                filter = (Predicate<Position> & Serializable)(p -> "Emerging Markets".equals(
-                        p.getSecurity(dataSource).getAttributeValue(SecurityAttribute.region)));
+                filter = (Predicate<Position> & Serializable)(p -> "Emerging Markets"
+                        .equals(p.getSecurity(dataSource).getAttributeValue(TestUtil.region)));
                 break;
             case 4:
-                compareAttribute = SecurityAttribute.ratingValue;
+                compareAttribute = TestUtil.ratingValue;
                 break;
             default:
-                compareAttribute = SecurityAttribute.duration;
+                compareAttribute = TestUtil.duration;
             }
 
             EvaluationGroupClassifier groupClassifier;
             switch (random.nextInt(9)) {
             case 0:
-                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.currency);
+                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.currency);
                 break;
             case 1:
                 // description is a proxy for issuer
-                groupClassifier =
-                        new SecurityAttributeGroupClassifier(SecurityAttribute.description);
+                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.description);
                 break;
             case 2:
-                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.region);
+                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.region);
                 break;
             case 3:
-                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.country);
+                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.country);
                 break;
             case 4:
-                groupClassifier =
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.currency, 5);
+                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.currency, 5);
                 break;
             case 5:
-                groupClassifier =
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.description, 5);
+                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.description, 5);
                 break;
             case 6:
-                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.region, 5);
+                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.region, 5);
                 break;
             case 7:
-                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.country, 5);
+                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.country, 5);
                 break;
             default:
                 groupClassifier = null;

@@ -1,23 +1,28 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.io.Serializable;
-import java.util.UUID;
+
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+
+import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
  * A Position is a holding of some amount of a particular Security by some Portfolio.
  *
  * @author jeremy
  */
-public class Position implements Serializable {
+@Entity
+public class Position implements Keyed<PositionKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String id;
+    @EmbeddedId
+    private final PositionKey id;
     private final double amount;
-    private final SecurityKey securityKey;
+    private final SecurityKey securityId;
 
     /**
-     * Creates a new Position with a generated ID and the given amount and Security, and a generated
-     * ID.
+     * Creates a new Position with a generated key and the given amount and Security.
      *
      * @param amount
      *            the amount of the Security held in this Position
@@ -32,16 +37,16 @@ public class Position implements Serializable {
      * Creates a new Position with the given ID, amount and Security.
      *
      * @param id
-     *            the unique ID to assign to this Position, or null to generate one
+     *            the unique key to assign to this Position, or null to generate one
      * @param amount
      *            the amount of the Security held in this Position
      * @param security
      *            the held Security
      */
-    public Position(String id, double amount, Security security) {
-        this.id = (id == null ? UUID.randomUUID().toString() : id);
+    public Position(PositionKey id, double amount, Security security) {
+        this.id = (id == null ? new PositionKey(null, 1) : id);
         this.amount = amount;
-        securityKey = security.getKey();
+        securityId = security.getId();
     }
 
     @Override
@@ -68,12 +73,8 @@ public class Position implements Serializable {
         return amount;
     }
 
-    /**
-     * Obtains the unique ID of this Position.
-     *
-     * @return the ID
-     */
-    public String getId() {
+    @Override
+    public PositionKey getId() {
         return id;
     }
 
@@ -85,7 +86,7 @@ public class Position implements Serializable {
      * @return the Security held by this Position
      */
     public Security getSecurity(SecurityProvider securityProvider) {
-        return securityProvider.getSecurity(securityKey);
+        return securityProvider.getSecurity(securityId);
     }
 
     @Override

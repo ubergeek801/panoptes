@@ -27,8 +27,8 @@ public class WeightedAverageRule extends ValueRule {
     /**
      * Creates a new WeightedAverageRule with the given parameters.
      *
-     * @param id
-     *            the unique ID of this rule, or null to generate one
+     * @param key
+     *            the unique key of this rule, or null to generate one
      * @param description
      *            the rule description
      * @param positionFilter
@@ -43,10 +43,10 @@ public class WeightedAverageRule extends ValueRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    public WeightedAverageRule(String id, String description, Predicate<Position> positionFilter,
+    public WeightedAverageRule(RuleKey key, String description, Predicate<Position> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
             EvaluationGroupClassifier groupClassifier) {
-        super(id, description, positionFilter, calculationAttribute, lowerLimit, upperLimit,
+        super(key, description, positionFilter, calculationAttribute, lowerLimit, upperLimit,
                 groupClassifier);
     }
 

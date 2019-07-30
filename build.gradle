@@ -10,14 +10,14 @@ group = 'org.slaq'
 version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '11'
 
-def globalJvmArgs = ['--add-modules', 'java.se',
-        '--add-exports', 'java.base/jdk.internal.ref=ALL-UNNAMED',
+def globalJvmArgs = ['-XX:+UseG1GC', '-XX:+UseStringDeduplication', '-XX:MaxGCPauseMillis=5000',
+        '--add-modules', 'java.se', '--add-exports', 'java.base/jdk.internal.ref=ALL-UNNAMED',
         '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
         '--add-opens', 'java.base/java.nio=ALL-UNNAMED',
         '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
         '--add-opens', 'java.management/sun.management=ALL-UNNAMED',
         '--add-opens', 'jdk.management/com.sun.management.internal=ALL-UNNAMED']
-def k8sJvmArgs = ['-Xmx3G']
+def k8sJvmArgs = ['-Xmx3328m', '-Dhazelcast.jmx=true']
 k8sJvmArgs.addAll(globalJvmArgs) 
 
 repositories {
@@ -30,19 +30,29 @@ ext {
 
 dependencies {
     implementation 'ch.qos.logback:logback-classic'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'com.hazelcast:hazelcast'
     implementation 'com.hazelcast:hazelcast-kubernetes:1.5.1'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
+    implementation 'com.vladmihalcea:hibernate-types-52:2.5.0'
+    implementation 'io.hawt:hawtio-springboot:2.7.0'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.postgresql:postgresql:42.2.6'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
     }
+}
+
+test {
+    jvmArgs = globalJvmArgs
 }
 
 bootRun {

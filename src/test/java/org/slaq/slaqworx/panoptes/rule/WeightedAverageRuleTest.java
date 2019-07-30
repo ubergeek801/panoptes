@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
-import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
  * WeightedAverageRuleTest tests the functionality of the WeightedAverageRule.
@@ -29,25 +28,25 @@ public class WeightedAverageRuleTest {
 
         ValueRule rule =
                 new WeightedAverageRule(null, "test", null, TestUtil.moovyRating, 1.02, null, null);
-        assertFalse("rule with 102% lower limit should have failed",
-                rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext(securityProvider))
-                        .isPassed());
+        assertFalse("rule with 102% lower limit should have failed", rule
+                .evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext(null, securityProvider))
+                .isPassed());
 
         rule = new WeightedAverageRule(null, "test", null, TestUtil.moovyRating, 1.015, null, null);
-        assertTrue("rule with 101.5% lower limit should have passed",
-                rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext(securityProvider))
-                        .isPassed());
+        assertTrue("rule with 101.5% lower limit should have passed", rule
+                .evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext(null, securityProvider))
+                .isPassed());
 
         // both TestUtil.p1 and TestUtil.p2 should have an average duration of 4.0
 
-        rule = new WeightedAverageRule(null, "test", null, SecurityAttribute.duration, null, 3.9,
-                null);
-        assertFalse("rule with 3.9 upper limit should have failed", rule
-                .evaluate(TestUtil.p1, null, new EvaluationContext(securityProvider)).isPassed());
+        rule = new WeightedAverageRule(null, "test", null, TestUtil.duration, null, 3.9, null);
+        assertFalse("rule with 3.9 upper limit should have failed",
+                rule.evaluate(TestUtil.p1, null, new EvaluationContext(null, securityProvider))
+                        .isPassed());
 
-        rule = new WeightedAverageRule(null, "test", null, SecurityAttribute.duration, null, 4d,
-                null);
-        assertTrue("rule with 4.0 upper limit should have passed", rule
-                .evaluate(TestUtil.p1, null, new EvaluationContext(securityProvider)).isPassed());
+        rule = new WeightedAverageRule(null, "test", null, TestUtil.duration, null, 4d, null);
+        assertTrue("rule with 4.0 upper limit should have passed",
+                rule.evaluate(TestUtil.p1, null, new EvaluationContext(null, securityProvider))
+                        .isPassed());
     }
 }

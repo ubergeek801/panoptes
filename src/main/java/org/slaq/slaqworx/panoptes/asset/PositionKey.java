@@ -1,22 +1,22 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * PortfolioKey is a key used to reference Portfolios.
+ * PositionKey is a key used to reference Positions.
  *
  * @author jeremy
  */
-public class PortfolioKey extends IdVersionKey {
+public class PositionKey extends IdVersionKey {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates a new PortfolioKey with the given ID and version.
+     * Creates a new PositionKey with the given ID and version.
      *
      * @param id
      *            the ID to assign to the key, or null to generate one
      * @param version
      *            the version to assign to the key
      */
-    public PortfolioKey(String id, long version) {
+    public PositionKey(String id, long version) {
         super(id, version);
     }
 }

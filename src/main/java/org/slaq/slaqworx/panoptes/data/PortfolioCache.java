@@ -5,8 +5,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.MapStore;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
@@ -19,17 +20,9 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
  */
 @Service
 public class PortfolioCache implements SecurityProvider {
-    private static final String PORTFOLIO_CACHE_NAME = "portfolio";
-    private static final String POSITION_CACHE_NAME = "position";
-    private static final String SECURITY_CACHE_NAME = "security";
-
-    private static final Map<String, Class<? extends MapStore<?, ?>>> MAP_STORES = Map.of(
-            PORTFOLIO_CACHE_NAME, DummyPortfolioMapLoader.class, POSITION_CACHE_NAME,
-            DummyPositionMapLoader.class, SECURITY_CACHE_NAME, DummySecurityMapLoader.class);
-
-    public static Map<String, Class<? extends MapStore<?, ?>>> getMapStores() {
-        return MAP_STORES;
-    }
+    protected static final String PORTFOLIO_CACHE_NAME = "portfolio";
+    protected static final String POSITION_CACHE_NAME = "position";
+    protected static final String SECURITY_CACHE_NAME = "security";
 
     private final HazelcastInstance hazelcastInstance;
 
@@ -44,6 +37,26 @@ public class PortfolioCache implements SecurityProvider {
         this.hazelcastInstance = hazelcastInstance;
     }
 
+    /**
+     * Obtains the Portfolio with the given key.
+     *
+     * @param key
+     *            the key for which to obtain the Portfolio
+     * @return the Portfolio corresponding to the given key, or null if it does not exist
+     */
+    public Portfolio getPortfolio(PortfolioKey key) {
+        return getPortfolioCache().get(key);
+    }
+
+    /**
+     * Obtains the Portfolio cache from Hazelcast.
+     *
+     * @return the Hazelcast Portfolio cache
+     */
+    public Map<PortfolioKey, Portfolio> getPortfolioCache() {
+        return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
+    }
+
     @Override
     public Security getSecurity(SecurityKey key) {
         return getSecurityCache().get(key);
@@ -54,7 +67,7 @@ public class PortfolioCache implements SecurityProvider {
      *
      * @return the Hazelcast Security cache
      */
-    protected Map<SecurityKey, Security> getSecurityCache() {
+    public Map<SecurityKey, Security> getSecurityCache() {
         return hazelcastInstance.getMap(SECURITY_CACHE_NAME);
     }
 }

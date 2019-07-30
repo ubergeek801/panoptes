@@ -5,7 +5,7 @@ metadata:
   labels:
     app: panoptes
 spec:
-  replicas: 5
+  replicas: 4
   selector:
     matchLabels:
       app: panoptes
@@ -14,6 +14,79 @@ spec:
       labels:
         app: panoptes
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - uberkube01
       containers:
       - name: panoptes
         image: ubergeek801/slaqworx
+        ports:
+        - containerPort: 8080
+          hostPort: 8080
+      - name: panoptes-telegraf
+        image: telegraf:1.11.3
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: "HOST_PROC"
+          value: "/rootfs/proc"
+        - name: "HOST_SYS"
+          value: "/rootfs/sys"
+        volumeMounts:
+        - name: sys
+          mountPath: /rootfs/sys
+          readOnly: true
+        - name: proc
+          mountPath: /rootfs/proc
+          readOnly: true
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+        - name: varrunutmp
+          mountPath: /var/run/utmp
+          readOnly: true
+        - name: varlog
+          mountPath: /var/log
+          readOnly: true
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: config
+          mountPath: /etc/telegraf
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 500Mi
+          limits:
+            cpu: 200m
+            memory: 500Mi
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: varrunutmp
+        hostPath:
+          path: /var/run/utmp
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          name: telegraf-conf

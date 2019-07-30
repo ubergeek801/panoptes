@@ -6,7 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
  * A Portfolio is a set of Positions held by some entity, which may be (for example) a customer
@@ -14,11 +18,13 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  *
  * @author jeremy
  */
-public class Portfolio implements PositionSupplier, Serializable {
+@Entity
+public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final PortfolioKey key;
-    private final Portfolio benchmark;
+    @EmbeddedId
+    private final PortfolioKey id;
+    private final PortfolioKey benchmarkId;
     private final HashSet<Rule> rules;
     private final PositionSet positionSet;
 
@@ -26,19 +32,19 @@ public class Portfolio implements PositionSupplier, Serializable {
      * Creates a new Portfolio with the given key and Positions, with no associated Benchmark or
      * Rules.
      *
-     * @param key
+     * @param id
      *            the unique Portfolio key
      * @param positions
      *            the Positions comprising the Portfolio
      */
-    public Portfolio(PortfolioKey key, Set<Position> positions) {
-        this(key, positions, null, Collections.emptySet());
+    public Portfolio(PortfolioKey id, Set<Position> positions) {
+        this(id, positions, null, Collections.emptySet());
     }
 
     /**
      * Creates a new Portfolio with the given key, Positions, Benchmark and Rules.
      *
-     * @param key
+     * @param id
      *            the unique Portfolio key
      * @param positions
      *            the Positions comprising the Portfolio
@@ -47,10 +53,10 @@ public class Portfolio implements PositionSupplier, Serializable {
      * @param rules
      *            the (possibly empty) Rules associated with the Portfolio
      */
-    public Portfolio(PortfolioKey key, Set<Position> positions, Portfolio benchmark,
+    public Portfolio(PortfolioKey id, Set<Position> positions, Portfolio benchmark,
             Set<Rule> rules) {
-        this.key = key;
-        this.benchmark = benchmark;
+        this.id = id;
+        benchmarkId = (benchmark == null ? null : benchmark.getId());
         this.rules = new HashSet<>(rules);
         positionSet = new PositionSet(positions, this);
     }
@@ -67,11 +73,11 @@ public class Portfolio implements PositionSupplier, Serializable {
             return false;
         }
         Portfolio other = (Portfolio)obj;
-        if (key == null) {
-            if (other.key != null) {
+        if (id == null) {
+            if (other.id != null) {
                 return false;
             }
-        } else if (!key.equals(other.key)) {
+        } else if (!id.equals(other.id)) {
             return false;
         }
         return true;
@@ -80,19 +86,17 @@ public class Portfolio implements PositionSupplier, Serializable {
     /**
      * Obtains this Portfolio's benchmark.
      *
+     * @param SecurityProvider
+     *            the PortfolioProvider from which to obtain the benchmark Portfolio
      * @return this Portfolio's benchmark, or null if one is not associated
      */
-    public Portfolio getBenchmark() {
-        return benchmark;
+    public Portfolio getBenchmark(PortfolioProvider portfolioProvider) {
+        return (benchmarkId == null ? null : portfolioProvider.getPortfolio(benchmarkId));
     }
 
-    /**
-     * Obtains this Portfolio's unique key.
-     *
-     * @return this Portfolio's key
-     */
-    public PortfolioKey getKey() {
-        return key;
+    @Override
+    public PortfolioKey getId() {
+        return id;
     }
 
     @Override
@@ -130,7 +134,7 @@ public class Portfolio implements PositionSupplier, Serializable {
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return id.hashCode();
     }
 
     @Override
@@ -140,6 +144,6 @@ public class Portfolio implements PositionSupplier, Serializable {
 
     @Override
     public String toString() {
-        return "Portfolio[id=\"" + key + "\"]";
+        return "Portfolio[id=\"" + id + "\"]";
     }
 }
