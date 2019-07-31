@@ -62,7 +62,7 @@ public class RuleEvaluatorPerformanceTest {
 
             Portfolio portfolio = mapLoader.load(key);
             portfolios.add(portfolio);
-            evaluator.evaluate(portfolio, new EvaluationContext(dataSource, dataSource));
+            evaluator.evaluate(portfolio, new EvaluationContext(dataSource, dataSource, mapLoader));
         }
         long portfolioEndTime = System.currentTimeMillis();
 
@@ -76,7 +76,7 @@ public class RuleEvaluatorPerformanceTest {
             Security security1 = dataSource.getSecurityMap().values().iterator().next();
             Position position1 = new Position(1_000_000, security1);
             positions.add(position1);
-            TradeEvaluator tradeEvaluator = new TradeEvaluator(dataSource, dataSource);
+            TradeEvaluator tradeEvaluator = new TradeEvaluator(dataSource, dataSource, mapLoader);
             ArrayList<Transaction> transactions = new ArrayList<>();
             portfolios.stream().limit(i * 62).forEach(portfolio -> {
                 Transaction transaction = new Transaction(portfolio, positions);

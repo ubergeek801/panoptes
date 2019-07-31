@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
+import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
  * A Rule is a testable assertion against a set of Positions (typically supplied by a Portfolio). A
@@ -24,10 +28,12 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  *
  * @author jeremy
  */
-public abstract class Rule implements Serializable {
+@Entity
+public abstract class Rule implements Keyed<RuleKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final RuleKey key;
+    @EmbeddedId
+    private final RuleKey id;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
     private final ArrayList<GroupAggregator<?>> groupAggregators = new ArrayList<>();
@@ -56,7 +62,7 @@ public abstract class Rule implements Serializable {
      *            GroupAggregator
      */
     protected Rule(RuleKey key, String description, EvaluationGroupClassifier groupClassifier) {
-        this.key = (key == null ? new RuleKey(UUID.randomUUID().toString(), 1) : key);
+        id = (key == null ? new RuleKey(UUID.randomUUID().toString(), 1) : key);
         this.description = description;
         if (groupClassifier == null) {
             this.groupClassifier = EvaluationGroupClassifier.defaultClassifier();
@@ -90,7 +96,7 @@ public abstract class Rule implements Serializable {
             return false;
         }
         Rule other = (Rule)obj;
-        return key.equals(other.key);
+        return id.equals(other.id);
     }
 
     /**
@@ -142,17 +148,18 @@ public abstract class Rule implements Serializable {
     }
 
     /**
-     * Obtains this Rule's unique key.
+     * Obtains this Rule's unique ID.
      *
-     * @return the Rule key
+     * @return the Rule ID
      */
-    public RuleKey getKey() {
-        return key;
+    @Override
+    public RuleKey getId() {
+        return id;
     }
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return id.hashCode();
     }
 
     /**

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
@@ -38,12 +41,14 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
  *
  * @author jeremy
  */
-public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio>, Serializable {
+public class DummyPortfolioMapLoader
+        implements MapStore<PortfolioKey, Portfolio>, RuleProvider, Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioMapLoader.class);
 
     private final Portfolio[] benchmarks;
+    private final Map<RuleKey, Rule> ruleMap = new HashMap<>();
 
     private transient final PimcoBenchmarkDataSource dataSource;
 
@@ -71,6 +76,11 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     @Override
     public void deleteAll(Collection<PortfolioKey> keys) {
         // FIXME implement deleteAll()
+    }
+
+    @Override
+    public Rule getRule(RuleKey key) {
+        return ruleMap.get(key);
     }
 
     @Override
@@ -252,6 +262,7 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
             }
         }
 
+        ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getId(), r -> r)));
         return rules;
     }
 }

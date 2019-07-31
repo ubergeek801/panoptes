@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -19,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @param <T>
  *            the type which values of this attribute implement
  */
-@Entity
 public class SecurityAttribute<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -61,7 +57,6 @@ public class SecurityAttribute<T> implements Serializable {
         return attribute;
     }
 
-    @Id
     private final String name;
     private final int index;
 

@@ -37,7 +37,7 @@ public class Security implements Keyed<String>, Serializable {
     private String id;
 
     @Type(type = "com.vladmihalcea.hibernate.type.json.JsonBinaryType")
-    @JsonDeserialize(using = SecurityAttributeDeserializer.class)
+    @JsonDeserialize(contentConverter = SecurityAttributeConverter.class)
     private Map<SecurityAttribute<?>, ? super Object> attributes;
 
     // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule

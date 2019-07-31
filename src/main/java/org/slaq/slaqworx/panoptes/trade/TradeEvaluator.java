@@ -17,6 +17,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
 /**
  * A TradeEvaluator determines the impact of Trades on Portfolios by evaluating and comparing the
@@ -29,6 +30,7 @@ public class TradeEvaluator {
 
     private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
+    private final RuleProvider ruleProvider;
 
     /**
      * Creates a new TradeEvaluator.
@@ -37,10 +39,14 @@ public class TradeEvaluator {
      *            the PortfolioProvider to use to obtain Portfolio information
      * @param securityProvider
      *            the SecurityProvider to use to obtain Security information
+     * @param ruleProvider
+     *            the RuleProvider to use to obtain Rule information
      */
-    public TradeEvaluator(PortfolioProvider portfolioProvider, SecurityProvider securityProvider) {
+    public TradeEvaluator(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
+            RuleProvider ruleProvider) {
         this.portfolioProvider = portfolioProvider;
         this.securityProvider = securityProvider;
+        this.ruleProvider = ruleProvider;
     }
 
     /**
@@ -65,7 +71,7 @@ public class TradeEvaluator {
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
             EvaluationContext evaluationContext =
-                    new EvaluationContext(portfolioProvider, securityProvider);
+                    new EvaluationContext(portfolioProvider, securityProvider, ruleProvider);
             Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
                     evaluator.evaluate(portfolio, evaluationContext);
             Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =

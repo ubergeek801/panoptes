@@ -1,15 +1,20 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -25,7 +30,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     @EmbeddedId
     private final PortfolioKey id;
     private final PortfolioKey benchmarkId;
-    private final HashSet<Rule> rules;
+    private final HashSet<RuleKey> ruleIds;
+    @Transient
     private final PositionSet positionSet;
 
     /**
@@ -51,13 +57,13 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      * @param benchmark
      *            the (possibly null) Portfolio that acts a benchmark for the Portfolio
      * @param rules
-     *            the (possibly empty) Rules associated with the Portfolio
+     *            the (possibly empty) Collection of Rules associated with the Portfolio
      */
     public Portfolio(PortfolioKey id, Set<Position> positions, Portfolio benchmark,
-            Set<Rule> rules) {
+            Collection<Rule> rules) {
         this.id = id;
         benchmarkId = (benchmark == null ? null : benchmark.getId());
-        this.rules = new HashSet<>(rules);
+        ruleIds = rules.stream().map(r -> r.getId()).collect(Collectors.toCollection(HashSet::new));
         positionSet = new PositionSet(positions, this);
     }
 
@@ -86,7 +92,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     /**
      * Obtains this Portfolio's benchmark.
      *
-     * @param SecurityProvider
+     * @param portfolioProvider
      *            the PortfolioProvider from which to obtain the benchmark Portfolio
      * @return this Portfolio's benchmark, or null if one is not associated
      */
@@ -121,10 +127,13 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     /**
      * Obtains this Portfolio's Rules as a Stream.
      *
+     * @param ruleProvider
+     *            the RuleProvider from which to obtain the Rules
+     *
      * @return a Stream of Rules
      */
-    public Stream<Rule> getRules() {
-        return rules.stream();
+    public Stream<Rule> getRules(RuleProvider ruleProvider) {
+        return ruleIds.stream().map(r -> ruleProvider.getRule(r));
     }
 
     @Override

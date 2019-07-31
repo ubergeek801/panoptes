@@ -62,7 +62,7 @@ public class HibernateEntityMapStore<ID, T extends Keyed<ID>>
 
     @Override
     public Iterable<ID> loadAllKeys() {
-        LOG.info("loading {} keys for {}", repository.count(), mapName);
+        LOG.info("loading {} keys for cache \"{}\"", repository.count(), mapName);
         return repository.getAllIds();
     }
 

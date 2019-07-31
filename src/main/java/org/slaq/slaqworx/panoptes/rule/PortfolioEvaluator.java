@@ -41,7 +41,7 @@ public class PortfolioEvaluator {
      */
     public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             EvaluationContext evaluationContext) {
-        return evaluate(portfolio.getRules(), portfolio,
+        return evaluate(portfolio.getRules(evaluationContext.getRuleProvider()), portfolio,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext);
     }
@@ -61,7 +61,8 @@ public class PortfolioEvaluator {
      */
     public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             Portfolio benchmark, EvaluationContext evaluationContext) {
-        return evaluate(portfolio.getRules(), portfolio, benchmark, evaluationContext);
+        return evaluate(portfolio.getRules(evaluationContext.getRuleProvider()), portfolio,
+                benchmark, evaluationContext);
     }
 
     /**
@@ -78,7 +79,7 @@ public class PortfolioEvaluator {
      */
     public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             PositionSupplier positions, EvaluationContext evaluationContext) {
-        return evaluate(portfolio.getRules(), positions,
+        return evaluate(portfolio.getRules(evaluationContext.getRuleProvider()), positions,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext);
     }
@@ -124,7 +125,7 @@ public class PortfolioEvaluator {
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
                 rules.parallel().collect(Collectors.toMap(r -> r, rule -> {
                     LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}",
-                            rule.getKey(), rule.getDescription(), portfolioPositions.size(),
+                            rule.getId(), rule.getDescription(), portfolioPositions.size(),
                             portfolioPositions.getPortfolio());
 
                     // group the Positions of the portfolio into classifications according to the

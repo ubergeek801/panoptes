@@ -7,6 +7,11 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
+/**
+ * TestSecurityProvider is a SecurityProvider suitable for testing purposes.
+ *
+ * @author jeremy
+ */
 public class TestSecurityProvider implements SecurityProvider {
     private final HashMap<String, Security> securityMap = new HashMap<>();
 

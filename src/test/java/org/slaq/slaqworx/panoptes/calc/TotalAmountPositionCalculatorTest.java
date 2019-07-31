@@ -37,8 +37,8 @@ public class TotalAmountPositionCalculatorTest {
         positions.add(new Position(300, dummySecurity));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
-        double totalAmount =
-                calculator.calculate(portfolio, new EvaluationContext(null, securityProvider));
+        double totalAmount = calculator.calculate(portfolio,
+                new EvaluationContext(null, securityProvider, null));
         // the total should merely be the sum of the amounts
         assertEquals("unexpected total amount", 600, totalAmount, TestUtil.EPSILON);
     }
