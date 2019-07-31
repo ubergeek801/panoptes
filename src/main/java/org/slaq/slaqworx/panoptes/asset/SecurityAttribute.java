@@ -9,6 +9,9 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * A SecurityAttribute identifies a particular attribute of a Security.
  *
@@ -21,6 +24,22 @@ public class SecurityAttribute<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final Map<String, SecurityAttribute<?>> attributes = new HashMap<>(100, 0.5f);
+
+    @JsonCreator
+    public static SecurityAttribute<?> fromJsonString(String string) {
+        return of(string);
+    }
+
+    /**
+     * Obtains the SecurityAttribute corresponding to the given name, if it exists.
+     *
+     * @param name
+     *            the name of the SecurityAttribute to obtain
+     * @return the SecurityAttribute corresponding to the given name, or null if it does not exist
+     */
+    public static SecurityAttribute<?> of(String name) {
+        return attributes.get(name);
+    }
 
     /**
      * Obtains (or creates) a SecurityAttribute with the given name and value type.
@@ -45,6 +64,7 @@ public class SecurityAttribute<T> implements Serializable {
     @Id
     private final String name;
     private final int index;
+
     @Type(type = "org.hibernate.type.StringType")
     private final Class<T> type;
 
@@ -113,8 +133,13 @@ public class SecurityAttribute<T> implements Serializable {
         return name.hashCode();
     }
 
+    @JsonValue
+    public String toJsonString() {
+        return name;
+    }
+
     @Override
     public String toString() {
-        return name; // "SecurityAttribute[\"" + name + "\"]";
+        return "SecurityAttribute[\"" + name + "\"]";
     }
 }

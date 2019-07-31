@@ -25,7 +25,6 @@ import org.slaq.slaqworx.panoptes.asset.RatingNotch;
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -99,7 +98,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         return instance;
     }
 
-    private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
+    private final HashMap<String, Security> securityMap = new HashMap<>();
     private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
     /**
@@ -140,16 +139,16 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     }
 
     @Override
-    public Security getSecurity(SecurityKey key) {
+    public Security getSecurity(String key) {
         return securityMap.get(key);
     }
 
     /**
-     * Obtains a Map mapping security key to its corresponding Security.
+     * Obtains a Map mapping security ID to its corresponding Security.
      *
-     * @return a Map of security key to Security
+     * @return a Map of security ID to Security
      */
-    public Map<SecurityKey, Security> getSecurityMap() {
+    public Map<String, Security> getSecurityMap() {
         return securityMap;
     }
 
@@ -162,13 +161,13 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
      * @param sourceFile
      *            the name of the source file (on the classpath)
      * @param securityMap
-     *            a Map of SecurityKey to Security in which to cache loaded Securities
+     *            a Map of ID to Security in which to cache loaded Securities
      * @return a Portfolio consisting of the Positions loaded from the file
      * @throws IOException
      *             if the file could not be read
      */
     protected Portfolio loadPimcoBenchmark(PortfolioKey benchmarkKey, String sourceFile,
-            Map<SecurityKey, Security> securityMap) throws IOException {
+            Map<String, Security> securityMap) throws IOException {
         HashSet<Position> positions = new HashSet<>();
         double totalAmount = 0;
         try (BufferedReader constituentReader = new BufferedReader(new InputStreamReader(
@@ -213,26 +212,23 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 BigDecimal duration =
                         new BigDecimal(values[++column]).setScale(2, RoundingMode.HALF_UP);
 
-                SecurityKey securityKey = new SecurityKey(cusip, 1);
-                Security security = securityMap.computeIfAbsent(securityKey, c -> {
-                    Map<SecurityAttribute<?>, ? super Object> attributes = new HashMap<>();
-                    attributes.put(TestUtil.cusip, cusip);
-                    attributes.put(TestUtil.isin, isin);
-                    attributes.put(TestUtil.description, description);
-                    attributes.put(TestUtil.country, country);
-                    attributes.put(TestUtil.region, region);
-                    attributes.put(TestUtil.sector, sector);
-                    attributes.put(TestUtil.currency, currency);
-                    attributes.put(TestUtil.coupon, coupon);
-                    attributes.put(TestUtil.maturityDate, maturityDate);
-                    attributes.put(TestUtil.ratingSymbol, ratingSymbol);
-                    attributes.put(TestUtil.ratingValue,
-                            pimcoRatingScale.getRatingNotch(ratingSymbol).getMiddle());
-                    attributes.put(TestUtil.yield, yield);
-                    attributes.put(TestUtil.duration, duration.doubleValue());
-
-                    return new Security(securityKey, attributes);
-                });
+                Map<SecurityAttribute<?>, ? super Object> attributes = new HashMap<>();
+                attributes.put(TestUtil.cusip, cusip);
+                attributes.put(TestUtil.isin, isin);
+                attributes.put(TestUtil.description, description);
+                attributes.put(TestUtil.country, country);
+                attributes.put(TestUtil.region, region);
+                attributes.put(TestUtil.sector, sector);
+                attributes.put(TestUtil.currency, currency);
+                attributes.put(TestUtil.coupon, coupon);
+                attributes.put(TestUtil.maturityDate, maturityDate);
+                attributes.put(TestUtil.ratingSymbol, ratingSymbol);
+                attributes.put(TestUtil.ratingValue,
+                        pimcoRatingScale.getRatingNotch(ratingSymbol).getMiddle());
+                attributes.put(TestUtil.yield, yield);
+                attributes.put(TestUtil.duration, duration.doubleValue());
+                Security security = new Security(attributes);
+                securityMap.put(security.getId(), security);
 
                 positions.add(new Position(marketValueUsd.doubleValue(), security));
                 totalAmount += marketValueUsd.doubleValue();

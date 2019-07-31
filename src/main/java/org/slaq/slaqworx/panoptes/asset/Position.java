@@ -19,7 +19,7 @@ public class Position implements Keyed<PositionKey>, Serializable {
     @EmbeddedId
     private final PositionKey id;
     private final double amount;
-    private final SecurityKey securityId;
+    private final String securityId;
 
     /**
      * Creates a new Position with a generated key and the given amount and Security.

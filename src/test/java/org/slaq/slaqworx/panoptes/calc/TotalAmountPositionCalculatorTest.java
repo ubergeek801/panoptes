@@ -29,7 +29,7 @@ public class TotalAmountPositionCalculatorTest {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         TotalAmountPositionCalculator calculator = new TotalAmountPositionCalculator();
-        Security dummySecurity = securityProvider.newSecurity("test", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
 
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));

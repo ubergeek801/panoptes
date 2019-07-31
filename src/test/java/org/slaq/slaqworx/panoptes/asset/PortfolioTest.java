@@ -27,7 +27,7 @@ public class PortfolioTest {
      */
     @Test
     public void getPositions() {
-        Security dummySecurity = securityProvider.newSecurity("test", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
         positions.add(new Position(200, dummySecurity));
@@ -62,7 +62,7 @@ public class PortfolioTest {
      */
     @Test
     public void testGetTotalAmount() {
-        Security dummySecurity = securityProvider.newSecurity("test", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
         positions.add(new Position(200, dummySecurity));

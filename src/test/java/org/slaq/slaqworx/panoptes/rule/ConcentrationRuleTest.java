@@ -36,8 +36,8 @@ public class ConcentrationRuleTest {
                 null, 0.1, null);
 
         Security emergingMarketSecurity =
-                securityProvider.newSecurity("s1", Map.of(TestUtil.region, "Emerging Markets"));
-        Security usSecurity = securityProvider.newSecurity("s2", Map.of(TestUtil.region, "US"));
+                securityProvider.newSecurity(Map.of(TestUtil.region, "Emerging Markets"));
+        Security usSecurity = securityProvider.newSecurity(Map.of(TestUtil.region, "US"));
 
         // create a portfolio with 50% concentration in Emerging Markets
         HashSet<Position> positions = new HashSet<>();
@@ -82,8 +82,8 @@ public class ConcentrationRuleTest {
                         p.getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
                 0.95, 1.05, null);
 
-        Security brlSecurity = securityProvider.newSecurity("s1", Map.of(TestUtil.currency, "BRL"));
-        Security nzdSecurity = securityProvider.newSecurity("s2", Map.of(TestUtil.currency, "NZD"));
+        Security brlSecurity = securityProvider.newSecurity(Map.of(TestUtil.currency, "BRL"));
+        Security nzdSecurity = securityProvider.newSecurity(Map.of(TestUtil.currency, "NZD"));
 
         // create a benchmark with 50% concentration in BRL
         HashSet<Position> benchmarkPositions = new HashSet<>();

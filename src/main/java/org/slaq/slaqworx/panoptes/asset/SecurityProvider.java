@@ -8,11 +8,11 @@ package org.slaq.slaqworx.panoptes.asset;
 @FunctionalInterface
 public interface SecurityProvider {
     /**
-     * Obtains the Security corresponding to the given key.
+     * Obtains the Security corresponding to the given ID.
      *
-     * @param key
-     *            the key identifying the Security to be obtained
+     * @param id
+     *            the ID identifying the Security to be obtained
      * @return the Security corresponding to the given key, or null if it could not be located
      */
-    public Security getSecurity(SecurityKey key);
+    public Security getSecurity(String id);
 }

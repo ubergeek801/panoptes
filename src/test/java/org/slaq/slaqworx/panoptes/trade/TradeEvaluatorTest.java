@@ -36,8 +36,8 @@ public class TradeEvaluatorTest {
     public void testEvaluate() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider.newSecurity("s1", Map.of(TestUtil.duration, 3.0));
-        Security s2 = securityProvider.newSecurity("s2", Map.of(TestUtil.duration, 4.0));
+        Security s1 = securityProvider.newSecurity(Map.of(TestUtil.duration, 3.0));
+        Security s2 = securityProvider.newSecurity(Map.of(TestUtil.duration, 4.0));
 
         HashSet<Position> p1Positions = new HashSet<>();
         p1Positions.add(new Position(1_000, s1));

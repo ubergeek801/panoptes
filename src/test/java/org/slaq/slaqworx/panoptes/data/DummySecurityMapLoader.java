@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
  * DummySecurityMapLoader is a MapStore that initializes the Hazelcast cache with Security data from
@@ -17,7 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  *
  * @author jeremy
  */
-public class DummySecurityMapLoader implements MapStore<SecurityKey, Security>, Serializable {
+public class DummySecurityMapLoader implements MapStore<String, Security>, Serializable {
     private static final long serialVersionUID = 1L;
 
     private transient final PimcoBenchmarkDataSource dataSource;
@@ -33,37 +32,37 @@ public class DummySecurityMapLoader implements MapStore<SecurityKey, Security>, 
     }
 
     @Override
-    public void delete(SecurityKey key) {
+    public void delete(String key) {
         // FIXME implement delete()
     }
 
     @Override
-    public void deleteAll(Collection<SecurityKey> keys) {
+    public void deleteAll(Collection<String> keys) {
         // FIXME implement deleteAll()
     }
 
     @Override
-    public Security load(SecurityKey key) {
+    public Security load(String key) {
         return dataSource.getSecurityMap().get(key);
     }
 
     @Override
-    public Map<SecurityKey, Security> loadAll(Collection<SecurityKey> keys) {
+    public Map<String, Security> loadAll(Collection<String> keys) {
         return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
     }
 
     @Override
-    public Iterable<SecurityKey> loadAllKeys() {
+    public Iterable<String> loadAllKeys() {
         return dataSource.getSecurityMap().keySet();
     }
 
     @Override
-    public void store(SecurityKey key, Security value) {
+    public void store(String key, Security value) {
         // FIXME implement store()
     }
 
     @Override
-    public void storeAll(Map<SecurityKey, Security> map) {
+    public void storeAll(Map<String, Security> map) {
         // FIXME implement storeAll()
     }
 }

@@ -57,11 +57,11 @@ public class TestUtil {
 
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
             Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d);
-    public static final Security s1 = securityProvider.newSecurity("TestUtilS1", s1Attributes);
+    public static final Security s1 = securityProvider.newSecurity(s1Attributes);
 
     public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
             Map.of(moovyRating, 85d, npRating, 78d, duration, 4d);
-    public static final Security s2 = securityProvider.newSecurity("TestUtilS2", s2Attributes);
+    public static final Security s2 = securityProvider.newSecurity(s2Attributes);
 
     public static final Set<Position> p1Positions =
             Set.of(new Position(1000, s1), new Position(500, s2));

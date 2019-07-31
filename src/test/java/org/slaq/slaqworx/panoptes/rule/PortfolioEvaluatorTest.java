@@ -94,26 +94,16 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() {
-        Security iss1Sec1 =
-                securityProvider.newSecurity("issuer1Sec1", Map.of(TestUtil.issuer, "ISSFOO"));
-        Security iss1Sec2 =
-                securityProvider.newSecurity("issuer1Sec2", Map.of(TestUtil.issuer, "ISSFOO"));
-        Security iss1Sec3 =
-                securityProvider.newSecurity("issuer1Sec3", Map.of(TestUtil.issuer, "ISSFOO"));
-        Security iss2Sec1 =
-                securityProvider.newSecurity("issuer2Sec1", Map.of(TestUtil.issuer, "ISSBAR"));
-        Security iss2Sec2 =
-                securityProvider.newSecurity("issuer2Sec2", Map.of(TestUtil.issuer, "ISSBAR"));
-        Security iss3Sec1 =
-                securityProvider.newSecurity("issuer3Sec1", Map.of(TestUtil.issuer, "ISSBAZ"));
-        Security iss4Sec1 =
-                securityProvider.newSecurity("issuer4Sec1", Map.of(TestUtil.issuer, "ISSABC"));
-        Security iss4Sec2 =
-                securityProvider.newSecurity("issuer4Sec2", Map.of(TestUtil.issuer, "ISSABC"));
-        Security iss5Sec1 =
-                securityProvider.newSecurity("issuer5Sec1", Map.of(TestUtil.issuer, "ISSDEF"));
-        Security iss6Sec1 =
-                securityProvider.newSecurity("issuer6Sec1", Map.of(TestUtil.issuer, "ISSGHI"));
+        Security iss1Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
+        Security iss1Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
+        Security iss1Sec3 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
+        Security iss2Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSBAR"));
+        Security iss2Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSBAR"));
+        Security iss3Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSBAZ"));
+        Security iss4Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSABC"));
+        Security iss4Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSABC"));
+        Security iss5Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSDEF"));
+        Security iss6Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSGHI"));
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
@@ -283,15 +273,15 @@ public class PortfolioEvaluatorTest {
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes = Map.of(TestUtil.currency, "USD",
                 TestUtil.ratingValue, 90d, TestUtil.duration, 3d, TestUtil.issuer, "ISSFOO");
-        Security usdSecurity = securityProvider.newSecurity("usdSec", usdAttributes);
+        Security usdSecurity = securityProvider.newSecurity(usdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> nzdAttributes = Map.of(TestUtil.currency, "NZD",
                 TestUtil.ratingValue, 80d, TestUtil.duration, 4d, TestUtil.issuer, "ISSFOO");
-        Security nzdSecurity = securityProvider.newSecurity("nzdSec", nzdAttributes);
+        Security nzdSecurity = securityProvider.newSecurity(nzdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> cadAttributes = Map.of(TestUtil.currency, "CAD",
                 TestUtil.ratingValue, 75d, TestUtil.duration, 5d, TestUtil.issuer, "ISSBAR");
-        Security cadSecurity = securityProvider.newSecurity("cadSec", cadAttributes);
+        Security cadSecurity = securityProvider.newSecurity(cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300

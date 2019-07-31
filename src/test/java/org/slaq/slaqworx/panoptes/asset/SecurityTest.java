@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -24,14 +25,19 @@ public class SecurityTest {
     public void testHash() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider.newSecurity("s1", Collections.emptyMap());
-        Security s2 = securityProvider.newSecurity("s2", Collections.emptyMap());
-        Security s3 = securityProvider.newSecurity("s3", Collections.emptyMap());
-        Security s4 = securityProvider.newSecurity("s4", Collections.emptyMap());
-        Security s1a = securityProvider.newSecurity("s1", Collections.emptyMap());
-        Security s2a = securityProvider.newSecurity("s2", Collections.emptyMap());
-        Security s3a = securityProvider.newSecurity("s3", Collections.emptyMap());
-        Security s4a = securityProvider.newSecurity("s4", Collections.emptyMap());
+        Security s1 = securityProvider
+                .newSecurity(Map.of(TestUtil.country, "US", TestUtil.cusip, "abcde"));
+        Security s2 = securityProvider.newSecurity(
+                Map.of(TestUtil.cusip, "abcde", TestUtil.currency, "USD", TestUtil.duration, 3d));
+        Security s3 = securityProvider.newSecurity(Map.of(TestUtil.description, "a security"));
+        Security s4 = securityProvider.newSecurity(Collections.emptyMap());
+        // these are the same as above, with the attributes permuted; these should hash to the same
+        Security s1a = securityProvider
+                .newSecurity(Map.of(TestUtil.cusip, "abcde", TestUtil.country, "US"));
+        Security s2a = securityProvider.newSecurity(
+                Map.of(TestUtil.cusip, "abcde", TestUtil.duration, 3d, TestUtil.currency, "USD"));
+        Security s3a = securityProvider.newSecurity(Map.of(TestUtil.description, "a security"));
+        Security s4a = securityProvider.newSecurity(Collections.emptyMap());
 
         HashSet<Security> securities = new HashSet<>();
         // adding the four distinct Securities any number of times should still result in four

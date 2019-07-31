@@ -1,32 +1,43 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Map;
+import java.util.TreeMap;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A Security is an investable instrument.
+ * A Security is an investable instrument. Unlike most other asset-related entities, a Security is
+ * implicitly "versioned" by hashing its attributes: the resulting hash is used as the primary key.
+ * Thus when a Security changes (due to a change in some analytic field such as yield or rating),
+ * the new version will use a different hash as the ID.
  *
  * @author jeremy
  */
 @Entity
-public class Security implements Keyed<SecurityKey>, Serializable {
+public class Security implements Keyed<String>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    @EmbeddedId
-    private SecurityKey id;
+    @Id
+    private String id;
 
     @Type(type = "com.vladmihalcea.hibernate.type.json.JsonBinaryType")
-    @Column(columnDefinition = "jsonb")
+    @JsonDeserialize(using = SecurityAttributeDeserializer.class)
     private Map<SecurityAttribute<?>, ? super Object> attributes;
 
     // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule
@@ -35,15 +46,15 @@ public class Security implements Keyed<SecurityKey>, Serializable {
     private ArrayList<? super Object> attributeList = new ArrayList<>();
 
     /**
-     * Creates a new Security with the given key and SecurityAttribute values.
+     * Creates a new Security with the given key and SecurityAttribute values. The ID is calculated
+     * from a hash of the attributes.
      *
-     * @param id
-     *            the unique ID identifying the Security
      * @param attributes
      *            a (possibly empty) Map of SecurityAttribute to attribute value
      */
-    public Security(SecurityKey id, Map<SecurityAttribute<?>, ? super Object> attributes) {
-        this.id = id;
+    public Security(Map<SecurityAttribute<?>, ? super Object> attributes) {
+        id = hash(attributes);
+
         this.attributes = attributes;
         attributes.forEach((a, v) -> {
             attributeList.ensureCapacity(a.getIndex() + 1);
@@ -102,7 +113,7 @@ public class Security implements Keyed<SecurityKey>, Serializable {
     }
 
     @Override
-    public SecurityKey getId() {
+    public String getId() {
         return id;
     }
 
@@ -114,5 +125,45 @@ public class Security implements Keyed<SecurityKey>, Serializable {
     @Override
     public String toString() {
         return "Security[" + id + "]";
+    }
+
+    /**
+     * Produces a hash of the given attributes.
+     *
+     * @param attributes
+     *            the SecurityAttributes from which to compute the hash
+     * @return the calculated hash value
+     */
+    protected String hash(Map<SecurityAttribute<?>, ? super Object> attributes) {
+        // sort the attributes in a stable order
+        TreeMap<SecurityAttribute<?>, ? super Object> sortedAttributes =
+                new TreeMap<>((a1, a2) -> a1.getName().compareTo(a2.getName()));
+        sortedAttributes.putAll(attributes);
+
+        // serialize the attribute map contents, using Java serialization only where necessary
+        ByteArrayOutputStream attributeBytes = new ByteArrayOutputStream();
+        sortedAttributes.forEach((a, v) -> {
+            try {
+                attributeBytes.write(a.getName().getBytes());
+                attributeBytes.write('=');
+                new ObjectOutputStream(attributeBytes).writeObject(v);
+            } catch (IOException e) {
+                // FIXME find a better way to handle this
+                throw new RuntimeException("could not serialize " + v.getClass(), e);
+            }
+            attributeBytes.write(';');
+        });
+
+        // compute the hash on the serialized data
+        MessageDigest sha256;
+        try {
+            sha256 = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            // FIXME find a better way to handle this
+            throw new RuntimeException("could not get SHA-256 algorithm", e);
+        }
+
+        // return the hash in base64
+        return Base64.getEncoder().encodeToString(sha256.digest(attributeBytes.toByteArray()));
     }
 }
