@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -28,11 +25,9 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-@Entity
 public abstract class Rule implements Keyed<RuleKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    @EmbeddedId
     private final RuleKey id;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
@@ -153,7 +148,7 @@ public abstract class Rule implements Keyed<RuleKey>, Serializable {
      * @return the Rule ID
      */
     @Override
-    public RuleKey getId() {
+    public RuleKey getKey() {
         return id;
     }
 

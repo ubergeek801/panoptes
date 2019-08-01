@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.annotations.Type;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -19,11 +17,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class SecurityAttribute<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, SecurityAttribute<?>> attributes = new HashMap<>(100, 0.5f);
+    private static final Map<String, SecurityAttribute<?>> attributesByName =
+            new HashMap<>(100, 0.5f);
+    private static final Map<Integer, SecurityAttribute<?>> attributesByIndex =
+            new HashMap<>(100, 0.5f);
 
-    @JsonCreator
-    public static SecurityAttribute<?> fromJsonString(String string) {
-        return of(string);
+    /**
+     * Obtains the SecurityAttribute corresponding to the given index, if it exists.
+     *
+     * @param index
+     *            the index of the SecurityAttribute to obtain
+     * @return the SecurityAttribute corresponding to the given index, or null if it does not exist
+     */
+    public static SecurityAttribute<?> of(int index) {
+        return attributesByIndex.get(index);
     }
 
     /**
@@ -33,8 +40,9 @@ public class SecurityAttribute<T> implements Serializable {
      *            the name of the SecurityAttribute to obtain
      * @return the SecurityAttribute corresponding to the given name, or null if it does not exist
      */
+    @JsonCreator
     public static SecurityAttribute<?> of(String name) {
-        return attributes.get(name);
+        return attributesByName.get(name);
     }
 
     /**
@@ -52,15 +60,16 @@ public class SecurityAttribute<T> implements Serializable {
      */
     public static <T> SecurityAttribute<T> of(String name, int index, Class<T> type) {
         @SuppressWarnings("unchecked")
-        SecurityAttribute<T> attribute = (SecurityAttribute<T>)attributes.computeIfAbsent(name,
-                n -> new SecurityAttribute<>(name, index, type));
+        SecurityAttribute<T> attribute = (SecurityAttribute<T>)attributesByName
+                .computeIfAbsent(name, n -> new SecurityAttribute<>(name, index, type));
+        attributesByIndex.put(index, attribute);
+
         return attribute;
     }
 
     private final String name;
     private final int index;
 
-    @Type(type = "org.hibernate.type.StringType")
     private final Class<T> type;
 
     /**

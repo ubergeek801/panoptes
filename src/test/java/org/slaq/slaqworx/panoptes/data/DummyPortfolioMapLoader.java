@@ -179,7 +179,7 @@ public class DummyPortfolioMapLoader
                             * 100) / 100d;
             // use a given security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
-            positions.add(new Position(amount, security));
+            positions.add(new Position(amount, security.getKey()));
         }
 
         return positions;
@@ -262,7 +262,7 @@ public class DummyPortfolioMapLoader
             }
         }
 
-        ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getId(), r -> r)));
+        ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));
         return rules;
     }
 }

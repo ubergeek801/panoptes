@@ -41,8 +41,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 50% concentration in Emerging Markets
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, emergingMarketSecurity));
-        positions.add(new Position(100, usSecurity));
+        positions.add(new Position(100, emergingMarketSecurity.getKey()));
+        positions.add(new Position(100, usSecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertFalse("portfolio with > 10% concentration should have failed",
@@ -51,8 +51,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 10% concentration
         positions = new HashSet<>();
-        positions.add(new Position(100, emergingMarketSecurity));
-        positions.add(new Position(900, usSecurity));
+        positions.add(new Position(100, emergingMarketSecurity.getKey()));
+        positions.add(new Position(900, usSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertTrue("portfolio with == 10% concentration should have passed",
@@ -61,8 +61,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 5% concentration
         positions = new HashSet<>();
-        positions.add(new Position(50, emergingMarketSecurity));
-        positions.add(new Position(950, usSecurity));
+        positions.add(new Position(50, emergingMarketSecurity.getKey()));
+        positions.add(new Position(950, usSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertTrue("portfolio with == 5% concentration should have passed",
@@ -87,8 +87,8 @@ public class ConcentrationRuleTest {
 
         // create a benchmark with 50% concentration in BRL
         HashSet<Position> benchmarkPositions = new HashSet<>();
-        benchmarkPositions.add(new Position(100, brlSecurity));
-        benchmarkPositions.add(new Position(100, nzdSecurity));
+        benchmarkPositions.add(new Position(100, brlSecurity.getKey()));
+        benchmarkPositions.add(new Position(100, nzdSecurity.getKey()));
         final Portfolio benchmark1 =
                 new Portfolio(new PortfolioKey("testBenchmark", 1), benchmarkPositions);
         // a really dumb PortfolioProvider that always returns benchmark1
@@ -96,8 +96,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 56% concentration in BRL
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(56, brlSecurity));
-        positions.add(new Position(44, nzdSecurity));
+        positions.add(new Position(56, brlSecurity.getKey()));
+        positions.add(new Position(44, nzdSecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertFalse("portfolio with == 56% concentration should have failed",
@@ -107,8 +107,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 44% concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(44, brlSecurity));
-        positions.add(new Position(56, nzdSecurity));
+        positions.add(new Position(44, brlSecurity.getKey()));
+        positions.add(new Position(56, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertFalse("portfolio with == 44% concentration should have failed",
@@ -118,8 +118,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 52.5% (50% * 105%) concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(52.5, brlSecurity));
-        positions.add(new Position(47.5, nzdSecurity));
+        positions.add(new Position(52.5, brlSecurity.getKey()));
+        positions.add(new Position(47.5, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertTrue("portfolio with == 52.5% concentration should have passed",
@@ -129,8 +129,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 47.5% (50% * 95%) concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(47.5, brlSecurity));
-        positions.add(new Position(52.5, nzdSecurity));
+        positions.add(new Position(47.5, brlSecurity.getKey()));
+        positions.add(new Position(52.5, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         assertTrue("portfolio with == 52.5% concentration should have passed",
@@ -140,7 +140,7 @@ public class ConcentrationRuleTest {
 
         // create a benchmark with 0% concentration in BRL
         benchmarkPositions = new HashSet<>();
-        benchmarkPositions.add(new Position(100, nzdSecurity));
+        benchmarkPositions.add(new Position(100, nzdSecurity.getKey()));
         final Portfolio benchmark2 =
                 new Portfolio(new PortfolioKey("testBenchmark", 1), benchmarkPositions);
         // a really dumb PortfolioProvider that always returns benchmark2
@@ -161,7 +161,7 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 0% concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(100, nzdSecurity));
+        positions.add(new Position(100, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         // zero concentration is at least zero, so should pass
@@ -172,8 +172,8 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 1% concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(1, brlSecurity));
-        positions.add(new Position(99, nzdSecurity));
+        positions.add(new Position(1, brlSecurity.getKey()));
+        positions.add(new Position(99, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         // any concentration is at least zero, so should pass

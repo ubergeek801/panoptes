@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.hazelcast.HazelcastJpaDependencyAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
 
 /**
@@ -16,9 +16,7 @@ import org.slaq.slaqworx.panoptes.data.PortfolioCache;
  *
  * @author jeremy
  */
-@SpringBootApplication(
-        // we use JPA to load Hazelcast, so don't use Hazelcast for JPA 2LC
-        exclude = HazelcastJpaDependencyAutoConfiguration.class)
+@SpringBootApplication
 public class Panoptes {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
@@ -44,6 +42,8 @@ public class Panoptes {
         return args -> {
             PortfolioCache portfolioCache = appContext.getBean(PortfolioCache.class);
 
+            portfolioCache.getSecurityCache()
+                    .get(new SecurityKey("6IZ9H8UUfJrBfVJlTZjpi53ANyRjt2XONyQvNmt8jYM="));
             LOG.info("cache contains {} Portfolios", portfolioCache.getPortfolioCache().size());
             LOG.info("cache contains {} Securities", portfolioCache.getSecurityCache().size());
         };

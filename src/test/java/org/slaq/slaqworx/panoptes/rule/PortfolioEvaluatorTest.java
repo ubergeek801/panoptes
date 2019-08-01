@@ -109,40 +109,40 @@ public class PortfolioEvaluatorTest {
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
         HashSet<Position> positions = new HashSet<>();
-        Position iss1Sec1Pos = new Position(100, iss1Sec1);
+        Position iss1Sec1Pos = new Position(100, iss1Sec1.getKey());
         positions.add(iss1Sec1Pos);
-        Position iss1Sec2Pos = new Position(100, iss1Sec2);
+        Position iss1Sec2Pos = new Position(100, iss1Sec2.getKey());
         positions.add(iss1Sec2Pos);
-        Position iss1Sec3Pos = new Position(100, iss1Sec3);
+        Position iss1Sec3Pos = new Position(100, iss1Sec3.getKey());
         positions.add(iss1Sec3Pos);
-        Position iss2Sec1Pos = new Position(100, iss2Sec1);
+        Position iss2Sec1Pos = new Position(100, iss2Sec1.getKey());
         positions.add(iss2Sec1Pos);
-        Position iss2Sec2Pos = new Position(100, iss2Sec2);
+        Position iss2Sec2Pos = new Position(100, iss2Sec2.getKey());
         positions.add(iss2Sec2Pos);
-        Position iss3Sec1Pos = new Position(100, iss3Sec1);
+        Position iss3Sec1Pos = new Position(100, iss3Sec1.getKey());
         positions.add(iss3Sec1Pos);
-        Position iss4Sec1Pos = new Position(100, iss4Sec1);
+        Position iss4Sec1Pos = new Position(100, iss4Sec1.getKey());
         positions.add(iss4Sec1Pos);
-        Position iss4Sec2Pos = new Position(100, iss4Sec2);
+        Position iss4Sec2Pos = new Position(100, iss4Sec2.getKey());
         positions.add(iss4Sec2Pos);
-        Position iss5Sec1Pos = new Position(100, iss5Sec1);
+        Position iss5Sec1Pos = new Position(100, iss5Sec1.getKey());
         positions.add(iss5Sec1Pos);
-        Position iss6Sec1Pos = new Position(100, iss6Sec1);
+        Position iss6Sec1Pos = new Position(100, iss6Sec1.getKey());
         positions.add(iss6Sec1Pos);
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
         ConcentrationRule top2issuerRule =
                 new ConcentrationRule(new RuleKey("top2", 1), "top 2 issuer concentration", null,
                         null, 0.25, new TopNSecurityAttributeAggregator(TestUtil.issuer, 2));
-        rules.put(top2issuerRule.getId(), top2issuerRule);
+        rules.put(top2issuerRule.getKey(), top2issuerRule);
         ConcentrationRule top3issuerRule =
                 new ConcentrationRule(new RuleKey("top3", 1), "top 3 issuer concentration", null,
                         null, 0.75, new TopNSecurityAttributeAggregator(TestUtil.issuer, 3));
-        rules.put(top3issuerRule.getId(), top3issuerRule);
+        rules.put(top3issuerRule.getKey(), top3issuerRule);
         ConcentrationRule top10issuerRule =
                 new ConcentrationRule(new RuleKey("top10", 1), "top 10 issuer concentration", null,
                         null, 0.999, new TopNSecurityAttributeAggregator(TestUtil.issuer, 10));
-        rules.put(top10issuerRule.getId(), top10issuerRule);
+        rules.put(top10issuerRule.getKey(), top10issuerRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));
 
@@ -245,13 +245,13 @@ public class PortfolioEvaluatorTest {
         ExceptionThrowingRule exceptionRule = new ExceptionThrowingRule("exceptionThrowingRule");
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
-        rules.put(passRule.getId(), passRule);
-        rules.put(failRule.getId(), failRule);
-        rules.put(exceptionRule.getId(), exceptionRule);
+        rules.put(passRule.getKey(), passRule);
+        rules.put(failRule.getKey(), failRule);
+        rules.put(exceptionRule.getKey(), exceptionRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));
 
-        Position dummyPosition = new Position(1, TestUtil.s1);
+        Position dummyPosition = new Position(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
@@ -290,35 +290,35 @@ public class PortfolioEvaluatorTest {
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300
-        Position usdPosition1 = new Position(100, usdSecurity);
+        Position usdPosition1 = new Position(100, usdSecurity.getKey());
         positions.add(usdPosition1);
         // value = 200, weighted rating = 18_000, weighted duration = 600
-        Position usdPosition2 = new Position(200, usdSecurity);
+        Position usdPosition2 = new Position(200, usdSecurity.getKey());
         positions.add(usdPosition2);
         // value = 300, weighted rating = 24_000, weighted duration = 1_200
-        Position nzdPosition1 = new Position(300, nzdSecurity);
+        Position nzdPosition1 = new Position(300, nzdSecurity.getKey());
         positions.add(nzdPosition1);
         // value = 400, weighted rating = 32_000, weighted duration = 1_600
-        Position nzdPosition2 = new Position(400, nzdSecurity);
+        Position nzdPosition2 = new Position(400, nzdSecurity.getKey());
         positions.add(nzdPosition2);
         // value = 500, weighted rating = 37_500, weighted duration = 2_500
-        Position cadPosition1 = new Position(500, cadSecurity);
+        Position cadPosition1 = new Position(500, cadSecurity.getKey());
         positions.add(cadPosition1);
         // value = 600, weighted rating = 45_000, weighted duration = 3_000
-        Position cadPosition2 = new Position(600, cadSecurity);
+        Position cadPosition2 = new Position(600, cadSecurity.getKey());
         positions.add(cadPosition2);
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
         Rule durationRule = new WeightedAverageRule(null, "currency-grouped duration rule", null,
                 TestUtil.duration, null, 4d,
                 new SecurityAttributeGroupClassifier(TestUtil.currency));
-        rules.put(durationRule.getId(), durationRule);
+        rules.put(durationRule.getKey(), durationRule);
         Rule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
                 TestUtil.ratingValue, 80d, null, null);
-        rules.put(qualityRule.getId(), qualityRule);
+        rules.put(qualityRule.getKey(), qualityRule);
         Rule issuerRule = new ConcentrationRule(null, "issuer-grouped concentration rule", null,
                 null, 0.5, new SecurityAttributeGroupClassifier(TestUtil.issuer));
-        rules.put(issuerRule.getId(), issuerRule);
+        rules.put(issuerRule.getKey(), issuerRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));
 
@@ -376,10 +376,10 @@ public class PortfolioEvaluatorTest {
     public void testEvaluateOverrides() {
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
-        Position dummyPosition = new Position(1, TestUtil.s1);
+        Position dummyPosition = new Position(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        Position overridePosition = new Position(1, TestUtil.s2);
+        Position overridePosition = new Position(1, TestUtil.s2.getKey());
         Set<Position> overridePositions = Set.of(overridePosition);
 
         Portfolio portfolioBenchmark =
@@ -389,7 +389,7 @@ public class PortfolioEvaluatorTest {
         // a really dumb PortfolioProvider that returns either portfolioBenchmark or
         // overrideBenchmark
         PortfolioProvider benchmarkProvider =
-                (k -> (portfolioBenchmark.getId().equals(k) ? portfolioBenchmark
+                (k -> (portfolioBenchmark.getKey().equals(k) ? portfolioBenchmark
                         : overrideBenchmark));
 
         DummyRule passRule = new DummyRule("testPass", true);
@@ -398,9 +398,9 @@ public class PortfolioEvaluatorTest {
                 new UseBenchmarkRule("testBenchmarkId", portfolioBenchmark);
 
         HashMap<RuleKey, Rule> portfolioRules = new HashMap<>();
-        portfolioRules.put(passRule.getId(), passRule);
-        portfolioRules.put(failRule.getId(), failRule);
-        portfolioRules.put(usePortfolioBenchmarkRule.getId(), usePortfolioBenchmarkRule);
+        portfolioRules.put(passRule.getKey(), passRule);
+        portfolioRules.put(failRule.getKey(), failRule);
+        portfolioRules.put(usePortfolioBenchmarkRule.getKey(), usePortfolioBenchmarkRule);
 
         RuleProvider ruleProvider = (k -> portfolioRules.get(k));
 

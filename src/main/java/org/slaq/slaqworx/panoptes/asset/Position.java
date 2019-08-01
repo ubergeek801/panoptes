@@ -2,9 +2,6 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.io.Serializable;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -12,41 +9,39 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-@Entity
 public class Position implements Keyed<PositionKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    @EmbeddedId
-    private final PositionKey id;
+    private final PositionKey key;
     private final double amount;
-    private final String securityId;
+    private final SecurityKey securityKey;
 
     /**
-     * Creates a new Position with a generated key and the given amount and Security.
+     * Creates a new Position with a generated key and the specified amount and Security.
      *
      * @param amount
      *            the amount of the Security held in this Position
-     * @param security
-     *            the held Security
+     * @param securityKey
+     *            the key of the held Security
      */
-    public Position(double amount, Security security) {
-        this(null, amount, security);
+    public Position(double amount, SecurityKey securityKey) {
+        this(null, amount, securityKey);
     }
 
     /**
-     * Creates a new Position with the given ID, amount and Security.
+     * Creates a new Position with the specified ID, amount and Security.
      *
-     * @param id
+     * @param key
      *            the unique key to assign to this Position, or null to generate one
      * @param amount
      *            the amount of the Security held in this Position
-     * @param security
-     *            the held Security
+     * @param securityKey
+     *            the key of the held Security
      */
-    public Position(PositionKey id, double amount, Security security) {
-        this.id = (id == null ? new PositionKey(null, 1) : id);
+    public Position(PositionKey key, double amount, SecurityKey securityKey) {
+        this.key = (key == null ? new PositionKey(null, 1) : key);
         this.amount = amount;
-        securityId = security.getId();
+        this.securityKey = securityKey;
     }
 
     @Override
@@ -61,7 +56,7 @@ public class Position implements Keyed<PositionKey>, Serializable {
             return false;
         }
         Position other = (Position)obj;
-        return id.equals(other.id);
+        return key.equals(other.key);
     }
 
     /**
@@ -74,8 +69,8 @@ public class Position implements Keyed<PositionKey>, Serializable {
     }
 
     @Override
-    public PositionKey getId() {
-        return id;
+    public PositionKey getKey() {
+        return key;
     }
 
     /**
@@ -86,11 +81,20 @@ public class Position implements Keyed<PositionKey>, Serializable {
      * @return the Security held by this Position
      */
     public Security getSecurity(SecurityProvider securityProvider) {
-        return securityProvider.getSecurity(securityId);
+        return securityProvider.getSecurity(securityKey);
+    }
+
+    /**
+     * Obtains the key of the Security held by this Position.
+     *
+     * @return the key of the Security held by this Position
+     */
+    public SecurityKey getSecurityKey() {
+        return securityKey;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return key.hashCode();
     }
 }

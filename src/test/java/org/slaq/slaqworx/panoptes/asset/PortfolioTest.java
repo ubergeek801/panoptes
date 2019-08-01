@@ -29,10 +29,10 @@ public class PortfolioTest {
     public void getPositions() {
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity));
-        positions.add(new Position(200, dummySecurity));
-        positions.add(new Position(300, dummySecurity));
-        positions.add(new Position(400, dummySecurity));
+        positions.add(new Position(100, dummySecurity.getKey()));
+        positions.add(new Position(200, dummySecurity.getKey()));
+        positions.add(new Position(300, dummySecurity.getKey()));
+        positions.add(new Position(400, dummySecurity.getKey()));
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), positions);
 
@@ -64,10 +64,10 @@ public class PortfolioTest {
     public void testGetTotalAmount() {
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity));
-        positions.add(new Position(200, dummySecurity));
-        positions.add(new Position(300, dummySecurity));
-        positions.add(new Position(400, dummySecurity));
+        positions.add(new Position(100, dummySecurity.getKey()));
+        positions.add(new Position(200, dummySecurity.getKey()));
+        positions.add(new Position(300, dummySecurity.getKey()));
+        positions.add(new Position(400, dummySecurity.getKey()));
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
         // the total amount is merely the sum of the amounts 100 + 200 + 300 + 400 = 1000

@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.io.Serializable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -15,6 +13,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
@@ -50,17 +49,13 @@ public class PanoptesDataConfiguration {
         Config config = new Config();
 
         createMapConfiguration(config, PortfolioCache.PORTFOLIO_CACHE_NAME,
-                new HibernateEntityMapStore<>(PortfolioCache.PORTFOLIO_CACHE_NAME,
-                        appContext.getBean(PortfolioRepository.class)));
+                appContext.getBean(PortfolioMapStore.class));
         createMapConfiguration(config, PortfolioCache.POSITION_CACHE_NAME,
-                new HibernateEntityMapStore<>(PortfolioCache.POSITION_CACHE_NAME,
-                        appContext.getBean(PositionRepository.class)));
+                appContext.getBean(PositionMapStore.class));
         createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME,
-                new HibernateEntityMapStore<>(PortfolioCache.SECURITY_CACHE_NAME,
-                        appContext.getBean(SecurityRepository.class)));
+                appContext.getBean(SecurityMapStore.class));
         createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME,
-                new HibernateEntityMapStore<>(PortfolioCache.RULE_CACHE_NAME,
-                        appContext.getBean(RuleRepository.class)));
+                appContext.getBean(RuleMapStore.class));
 
         if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
             // not running in Kubernetes; run standalone
@@ -117,7 +112,7 @@ public class PanoptesDataConfiguration {
      * @param loader
      *            the MapStore implementation to use for the map
      */
-    protected void createMapConfiguration(Config config, String cacheName, Serializable loader) {
+    protected void createMapConfiguration(Config config, String cacheName, MapStore<?, ?> loader) {
         MapStoreConfig mapStoreConfig = new MapStoreConfig().setImplementation(loader);
         NearCacheConfig nearCacheConfig =
                 new NearCacheConfig().setInMemoryFormat(InMemoryFormat.BINARY);

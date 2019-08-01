@@ -74,7 +74,7 @@ public class RuleEvaluatorPerformanceTest {
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
             Security security1 = dataSource.getSecurityMap().values().iterator().next();
-            Position position1 = new Position(1_000_000, security1);
+            Position position1 = new Position(1_000_000, security1.getKey());
             positions.add(position1);
             TradeEvaluator tradeEvaluator = new TradeEvaluator(dataSource, dataSource, mapLoader);
             ArrayList<Transaction> transactions = new ArrayList<>();

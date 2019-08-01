@@ -10,6 +10,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -77,7 +78,7 @@ public class PortfolioCache implements PortfolioProvider, RuleProvider, Security
     }
 
     @Override
-    public Security getSecurity(String key) {
+    public Security getSecurity(SecurityKey key) {
         return getSecurityCache().get(key);
     }
 
@@ -86,7 +87,7 @@ public class PortfolioCache implements PortfolioProvider, RuleProvider, Security
      *
      * @return the Hazelcast Security cache
      */
-    public Map<String, Security> getSecurityCache() {
+    public Map<SecurityKey, Security> getSecurityCache() {
         return hazelcastInstance.getMap(SECURITY_CACHE_NAME);
     }
 }

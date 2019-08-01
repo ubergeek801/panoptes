@@ -42,7 +42,7 @@ public class TradeEvaluatorTest {
         Security s2 = securityProvider.newSecurity(Map.of(TestUtil.duration, 4.0));
 
         HashSet<Position> p1Positions = new HashSet<>();
-        p1Positions.add(new Position(1_000, s1));
+        p1Positions.add(new Position(1_000, s1.getKey()));
 
         // to keep things simple, all Rules test against duration, with some conflicting
         // assertions
@@ -51,29 +51,29 @@ public class TradeEvaluatorTest {
         // Rule should fail
         Rule p1Rule1 = new WeightedAverageRule(new RuleKey("p1Rule1", 1), "WeightedAverage<=3.0",
                 null, TestUtil.duration, null, 3d, null);
-        p1Rules.put(p1Rule1.getId(), p1Rule1);
+        p1Rules.put(p1Rule1.getKey(), p1Rule1);
         // since the Portfolio is already above the limit, and the Trade makes it worse, this Rule
         // should fail
         Rule p1Rule2 = new WeightedAverageRule(new RuleKey("p1Rule2", 1), "WeightedAverage<=2.0",
                 null, TestUtil.duration, null, 2d, null);
-        p1Rules.put(p1Rule2.getId(), p1Rule2);
+        p1Rules.put(p1Rule2.getKey(), p1Rule2);
         // since the Portfolio is already below the limit, and the Trade improves it, this Rule
         // should pass
         Rule p1Rule3 = new WeightedAverageRule(new RuleKey("p1Rule3", 1), "WeightedAverage>=4.0",
                 null, TestUtil.duration, 4d, null, null);
-        p1Rules.put(p1Rule3.getId(), p1Rule3);
+        p1Rules.put(p1Rule3.getKey(), p1Rule3);
         // since the Portfolio is already within the limit, and remains so with the Trade, this Rule
         // should pass
         Rule p1Rule4 = new WeightedAverageRule(new RuleKey("p1Rule4", 1), "WeightedAverage<=4.0",
                 null, TestUtil.duration, null, 4d, null);
-        p1Rules.put(p1Rule4.getId(), p1Rule4);
+        p1Rules.put(p1Rule4.getKey(), p1Rule4);
 
         RuleProvider ruleProvider = (k -> p1Rules.get(k));
 
         Portfolio p1 =
                 new Portfolio(new PortfolioKey("p1", 1), p1Positions, null, p1Rules.values());
 
-        Position t1Alloc1 = new Position(1_000, s2);
+        Position t1Alloc1 = new Position(1_000, s2.getKey());
         List<Position> t1Allocations = Arrays.asList(t1Alloc1);
         Transaction t1 = new Transaction(p1, t1Allocations);
         List<Transaction> transactions = Arrays.asList(t1);

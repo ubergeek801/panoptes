@@ -25,6 +25,7 @@ import org.slaq.slaqworx.panoptes.asset.RatingNotch;
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -98,7 +99,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         return instance;
     }
 
-    private final HashMap<String, Security> securityMap = new HashMap<>();
+    private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
     private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
     /**
@@ -139,7 +140,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     }
 
     @Override
-    public Security getSecurity(String key) {
+    public Security getSecurity(SecurityKey key) {
         return securityMap.get(key);
     }
 
@@ -148,7 +149,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
      *
      * @return a Map of security ID to Security
      */
-    public Map<String, Security> getSecurityMap() {
+    public Map<SecurityKey, Security> getSecurityMap() {
         return securityMap;
     }
 
@@ -161,13 +162,13 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
      * @param sourceFile
      *            the name of the source file (on the classpath)
      * @param securityMap
-     *            a Map of ID to Security in which to cache loaded Securities
+     *            a Map of key to Security in which to cache loaded Securities
      * @return a Portfolio consisting of the Positions loaded from the file
      * @throws IOException
      *             if the file could not be read
      */
     protected Portfolio loadPimcoBenchmark(PortfolioKey benchmarkKey, String sourceFile,
-            Map<String, Security> securityMap) throws IOException {
+            Map<SecurityKey, Security> securityMap) throws IOException {
         HashSet<Position> positions = new HashSet<>();
         double totalAmount = 0;
         try (BufferedReader constituentReader = new BufferedReader(new InputStreamReader(
@@ -228,9 +229,9 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 attributes.put(TestUtil.yield, yield);
                 attributes.put(TestUtil.duration, duration.doubleValue());
                 Security security = new Security(attributes);
-                securityMap.put(security.getId(), security);
+                securityMap.put(security.getKey(), security);
 
-                positions.add(new Position(marketValueUsd.doubleValue(), security));
+                positions.add(new Position(marketValueUsd.doubleValue(), security.getKey()));
                 totalAmount += marketValueUsd.doubleValue();
             }
         }

@@ -8,10 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
-
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
@@ -23,15 +19,12 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-@Entity
 public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Serializable {
     private static final long serialVersionUID = 1L;
 
-    @EmbeddedId
     private final PortfolioKey id;
     private final PortfolioKey benchmarkId;
     private final HashSet<RuleKey> ruleIds;
-    @Transient
     private final PositionSet positionSet;
 
     /**
@@ -62,8 +55,9 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     public Portfolio(PortfolioKey id, Set<Position> positions, Portfolio benchmark,
             Collection<Rule> rules) {
         this.id = id;
-        benchmarkId = (benchmark == null ? null : benchmark.getId());
-        ruleIds = rules.stream().map(r -> r.getId()).collect(Collectors.toCollection(HashSet::new));
+        benchmarkId = (benchmark == null ? null : benchmark.getKey());
+        ruleIds =
+                rules.stream().map(r -> r.getKey()).collect(Collectors.toCollection(HashSet::new));
         positionSet = new PositionSet(positions, this);
     }
 
@@ -101,7 +95,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     }
 
     @Override
-    public PortfolioKey getId() {
+    public PortfolioKey getKey() {
         return id;
     }
 
@@ -129,7 +123,6 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      *
      * @param ruleProvider
      *            the RuleProvider from which to obtain the Rules
-     *
      * @return a Stream of Rules
      */
     public Stream<Rule> getRules(RuleProvider ruleProvider) {

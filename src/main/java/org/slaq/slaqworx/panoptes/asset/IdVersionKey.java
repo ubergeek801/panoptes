@@ -3,16 +3,11 @@ package org.slaq.slaqworx.panoptes.asset;
 import java.io.Serializable;
 import java.util.UUID;
 
-import javax.persistence.Embeddable;
-import javax.persistence.MappedSuperclass;
-
 /**
  * IdVersionKey is a key used to reference most asset types (using trivial subclasses).
  *
  * @author jeremy
  */
-@Embeddable
-@MappedSuperclass
 public abstract class IdVersionKey implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -30,13 +25,6 @@ public abstract class IdVersionKey implements Serializable {
     public IdVersionKey(String id, long version) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
         this.version = version;
-    }
-
-    /**
-     * Creates a new IdVersionKey. Restricted because this should only be used by Hibernate.
-     */
-    protected IdVersionKey() {
-        // nothing to do
     }
 
     @Override

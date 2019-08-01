@@ -33,12 +33,11 @@ dependencies {
     implementation 'com.hazelcast:hazelcast'
     implementation 'com.hazelcast:hazelcast-kubernetes:1.5.1'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
-    implementation 'com.vladmihalcea:hibernate-types-52:2.5.0'
     implementation 'io.hawt:hawtio-springboot:2.7.0'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.postgresql:postgresql:42.2.6'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
@@ -13,7 +14,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
  * @author jeremy
  */
 public class TestSecurityProvider implements SecurityProvider {
-    private final HashMap<String, Security> securityMap = new HashMap<>();
+    private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
 
     /**
      * Creates a new TestSecurityProvider. Restricted because instances of this class should be
@@ -24,7 +25,7 @@ public class TestSecurityProvider implements SecurityProvider {
     }
 
     @Override
-    public Security getSecurity(String key) {
+    public Security getSecurity(SecurityKey key) {
         return securityMap.get(key);
     }
 
@@ -37,7 +38,7 @@ public class TestSecurityProvider implements SecurityProvider {
      */
     public Security newSecurity(Map<SecurityAttribute<?>, Object> attributes) {
         Security security = new Security(attributes);
-        securityMap.put(security.getId(), security);
+        securityMap.put(security.getKey(), security);
 
         return security;
     }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
  * DummySecurityMapLoader is a MapStore that initializes the Hazelcast cache with Security data from
@@ -16,7 +17,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
  *
  * @author jeremy
  */
-public class DummySecurityMapLoader implements MapStore<String, Security>, Serializable {
+public class DummySecurityMapLoader implements MapStore<SecurityKey, Security>, Serializable {
     private static final long serialVersionUID = 1L;
 
     private transient final PimcoBenchmarkDataSource dataSource;
@@ -32,37 +33,37 @@ public class DummySecurityMapLoader implements MapStore<String, Security>, Seria
     }
 
     @Override
-    public void delete(String key) {
+    public void delete(SecurityKey key) {
         // FIXME implement delete()
     }
 
     @Override
-    public void deleteAll(Collection<String> keys) {
+    public void deleteAll(Collection<SecurityKey> keys) {
         // FIXME implement deleteAll()
     }
 
     @Override
-    public Security load(String key) {
+    public Security load(SecurityKey key) {
         return dataSource.getSecurityMap().get(key);
     }
 
     @Override
-    public Map<String, Security> loadAll(Collection<String> keys) {
+    public Map<SecurityKey, Security> loadAll(Collection<SecurityKey> keys) {
         return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
     }
 
     @Override
-    public Iterable<String> loadAllKeys() {
+    public Iterable<SecurityKey> loadAllKeys() {
         return dataSource.getSecurityMap().keySet();
     }
 
     @Override
-    public void store(String key, Security value) {
+    public void store(SecurityKey key, Security value) {
         // FIXME implement store()
     }
 
     @Override
-    public void storeAll(Map<String, Security> map) {
+    public void storeAll(Map<SecurityKey, Security> map) {
         // FIXME implement storeAll()
     }
 }

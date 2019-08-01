@@ -8,16 +8,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.Type;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -29,21 +24,14 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-@Entity
-public class Security implements Keyed<String>, Serializable {
+public class Security implements Keyed<SecurityKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Id
-    private String id;
-
-    @Type(type = "com.vladmihalcea.hibernate.type.json.JsonBinaryType")
-    @JsonDeserialize(contentConverter = SecurityAttributeConverter.class)
-    private Map<SecurityAttribute<?>, ? super Object> attributes;
+    private SecurityKey key;
 
     // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule
     // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
-    @Transient
-    private ArrayList<? super Object> attributeList = new ArrayList<>();
+    private ArrayList<? super Object> attributeValues = new ArrayList<>();
 
     /**
      * Creates a new Security with the given key and SecurityAttribute values. The ID is calculated
@@ -53,23 +41,15 @@ public class Security implements Keyed<String>, Serializable {
      *            a (possibly empty) Map of SecurityAttribute to attribute value
      */
     public Security(Map<SecurityAttribute<?>, ? super Object> attributes) {
-        id = hash(attributes);
+        key = new SecurityKey(hash(attributes));
 
-        this.attributes = attributes;
         attributes.forEach((a, v) -> {
-            attributeList.ensureCapacity(a.getIndex() + 1);
-            while (attributeList.size() < a.getIndex() + 1) {
-                attributeList.add(null);
+            attributeValues.ensureCapacity(a.getIndex() + 1);
+            while (attributeValues.size() < a.getIndex() + 1) {
+                attributeValues.add(null);
             }
-            attributeList.set(a.getIndex(), v);
+            attributeValues.set(a.getIndex(), v);
         });
-    }
-
-    /**
-     * Creates a new Security. Restricted because this should only be used by Hibernate.
-     */
-    protected Security() {
-        // nothing to do
     }
 
     @Override
@@ -84,7 +64,22 @@ public class Security implements Keyed<String>, Serializable {
             return false;
         }
         Security other = (Security)obj;
-        return id.equals(other.id);
+        return key.equals(other.key);
+    }
+
+    /**
+     * Obtains this Security's attributes as a Map. This can be a somewhat expensive operation if
+     * there are a lot of attributes; currently its only expected use is when serializing a
+     * Security.
+     *
+     * @return a Map of SecurityAttribute to value
+     */
+    public Map<SecurityAttribute<?>, ? super Object> getAttributes() {
+        HashMap<SecurityAttribute<?>, ? super Object> attributeMap =
+                new HashMap<>(attributeValues.size() * 2);
+        return IntStream.range(0, attributeValues.size()).boxed()
+                .filter(i -> attributeValues.get(i) != null).collect(Collectors
+                        .toMap(i -> SecurityAttribute.of(i), i -> attributeValues.get(i)));
     }
 
     /**
@@ -99,32 +94,32 @@ public class Security implements Keyed<String>, Serializable {
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
         try {
             @SuppressWarnings("unchecked")
-            T attributeValue = (T)attributeList.get(attribute.getIndex());
+            T attributeValue = (T)attributeValues.get(attribute.getIndex());
 
             return attributeValue;
         } catch (IndexOutOfBoundsException e) {
             // this attribute must not exist; prevent future IndexOutOfBoundsExceptions
-            attributeList.ensureCapacity(attribute.getIndex() + 1);
-            while (attributeList.size() < attribute.getIndex() + 1) {
-                attributeList.add(null);
+            attributeValues.ensureCapacity(attribute.getIndex() + 1);
+            while (attributeValues.size() < attribute.getIndex() + 1) {
+                attributeValues.add(null);
             }
             return null;
         }
     }
 
     @Override
-    public String getId() {
-        return id;
+    public SecurityKey getKey() {
+        return key;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return key.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Security[" + id + "]";
+        return "Security[" + key + "]";
     }
 
     /**

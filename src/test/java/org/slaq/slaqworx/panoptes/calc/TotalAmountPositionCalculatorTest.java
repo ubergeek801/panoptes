@@ -32,9 +32,9 @@ public class TotalAmountPositionCalculatorTest {
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
 
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity));
-        positions.add(new Position(200, dummySecurity));
-        positions.add(new Position(300, dummySecurity));
+        positions.add(new Position(100, dummySecurity.getKey()));
+        positions.add(new Position(200, dummySecurity.getKey()));
+        positions.add(new Position(300, dummySecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
 
         double totalAmount = calculator.calculate(portfolio,

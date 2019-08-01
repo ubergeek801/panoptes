@@ -10,9 +10,9 @@ public interface SecurityProvider {
     /**
      * Obtains the Security corresponding to the given ID.
      *
-     * @param id
-     *            the ID identifying the Security to be obtained
+     * @param key
+     *            the key identifying the Security to be obtained
      * @return the Security corresponding to the given key, or null if it could not be located
      */
-    public Security getSecurity(String id);
+    public Security getSecurity(SecurityKey key);
 }
