@@ -36,6 +36,8 @@ public class SecurityMapStoreTest {
 
         String output = mapStore.attributesToJson(map);
 
-        assertEquals("unexpected JSON", json, output.toString());
+        // note the reordered keys which unfortunately makes this test slightly brittle
+        assertEquals("unexpected JSON", "{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\","
+                + "\"yield\":2.6,\"ratingValue\":99.1}", output.toString());
     }
 }

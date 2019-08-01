@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.data;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.time.temporal.Temporal;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -12,13 +12,11 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -100,35 +98,32 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
             return String.valueOf(value);
         }
 
-        if (attributeType == BigDecimal.class) {
-            if (value instanceof String) {
-                return new BigDecimal((String)value);
-            }
-            if (value instanceof Double) {
-                return BigDecimal.valueOf((Double)value);
-            }
-            if (value instanceof Float) {
-                return BigDecimal.valueOf((Float)value);
-            }
-            if (value instanceof Integer) {
-                return new BigDecimal((Integer)value);
-            }
-            if (value instanceof Long) {
-                return new BigDecimal((Long)value);
-            }
-        } else if (attributeType == LocalDate.class) {
-            // for some reason, when deserializing a Map, the JavaTimeModule deserializers don't
-            // seem to work automatically
-            if (value instanceof String) {
-                try {
-                    return LocalDateDeserializer.INSTANCE.deserialize(
-                            new JsonFactory().createParser((String)value),
-                            jsonMapper.getDeserializationContext());
-                } catch (Exception e) {
-                    // FIXME throw a better exception
-                    throw new RuntimeException("could not parse value " + value, e);
+        try {
+            if (attributeType == BigDecimal.class) {
+                if (value instanceof String) {
+                    return new BigDecimal((String)value);
+                }
+                if (value instanceof Double) {
+                    return BigDecimal.valueOf((Double)value);
+                }
+                if (value instanceof Float) {
+                    return BigDecimal.valueOf((Float)value);
+                }
+                if (value instanceof Integer) {
+                    return new BigDecimal((Integer)value);
+                }
+                if (value instanceof Long) {
+                    return new BigDecimal((Long)value);
+                }
+            } else if (Temporal.class.isAssignableFrom(attributeType)) {
+                // probably one of the java.time classes; give it a try
+                if (value instanceof String) {
+                    return jsonMapper.readValue("\"" + value + "\"", attributeType);
                 }
             }
+        } catch (Exception e) {
+            // FIXME throw a better exception
+            throw new RuntimeException("could not parse value " + value, e);
         }
 
         throw new IllegalArgumentException("cannot coerce value " + value + "(" + value.getClass()
