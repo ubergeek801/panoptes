@@ -25,14 +25,14 @@ public class PositionTest {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
-        Position p1 = new Position(new PositionKey("p1", 1), 100, dummySecurity.getKey());
-        Position p2 = new Position(new PositionKey("p2", 1), 100, dummySecurity.getKey());
-        Position p3 = new Position(new PositionKey("p3", 1), 100, dummySecurity.getKey());
-        Position p4 = new Position(new PositionKey("p4", 1), 100, dummySecurity.getKey());
-        Position p1a = new Position(new PositionKey("p1", 1), 100, dummySecurity.getKey());
-        Position p2a = new Position(new PositionKey("p2", 1), 100, dummySecurity.getKey());
-        Position p3a = new Position(new PositionKey("p3", 1), 100, dummySecurity.getKey());
-        Position p4a = new Position(new PositionKey("p4", 1), 100, dummySecurity.getKey());
+        Position p1 = new Position(new PositionKey("p1"), 100, dummySecurity.getKey());
+        Position p2 = new Position(new PositionKey("p2"), 100, dummySecurity.getKey());
+        Position p3 = new Position(new PositionKey("p3"), 100, dummySecurity.getKey());
+        Position p4 = new Position(new PositionKey("p4"), 100, dummySecurity.getKey());
+        Position p1a = new Position(new PositionKey("p1"), 100, dummySecurity.getKey());
+        Position p2a = new Position(new PositionKey("p2"), 100, dummySecurity.getKey());
+        Position p3a = new Position(new PositionKey("p3"), 100, dummySecurity.getKey());
+        Position p4a = new Position(new PositionKey("p4"), 100, dummySecurity.getKey());
 
         HashSet<Position> positions = new HashSet<>();
         // adding the four distinct Positions any number of times should still result in four

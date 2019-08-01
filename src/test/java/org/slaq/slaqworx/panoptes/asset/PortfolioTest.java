@@ -34,7 +34,7 @@ public class PortfolioTest {
         positions.add(new Position(300, dummySecurity.getKey()));
         positions.add(new Position(400, dummySecurity.getKey()));
 
-        Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), "test", positions);
 
         Stream<Position> stream1 = portfolio.getPositions();
         Stream<Position> stream2 = portfolio.getPositions();
@@ -69,7 +69,7 @@ public class PortfolioTest {
         positions.add(new Position(300, dummySecurity.getKey()));
         positions.add(new Position(400, dummySecurity.getKey()));
 
-        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
         // the total amount is merely the sum of the amounts 100 + 200 + 300 + 400 = 1000
         assertEquals("unexpected total amount", 1000, portfolio.getTotalAmount(), TestUtil.EPSILON);
     }
@@ -79,14 +79,14 @@ public class PortfolioTest {
      */
     @Test
     public void testHash() {
-        Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), Collections.emptySet());
-        Portfolio p2 = new Portfolio(new PortfolioKey("p2", 1), Collections.emptySet());
-        Portfolio p3 = new Portfolio(new PortfolioKey("p3", 1), Collections.emptySet());
-        Portfolio p4 = new Portfolio(new PortfolioKey("p4", 1), Collections.emptySet());
-        Portfolio p1a = new Portfolio(new PortfolioKey("p1", 1), Collections.emptySet());
-        Portfolio p2a = new Portfolio(new PortfolioKey("p2", 1), Collections.emptySet());
-        Portfolio p3a = new Portfolio(new PortfolioKey("p3", 1), Collections.emptySet());
-        Portfolio p4a = new Portfolio(new PortfolioKey("p4", 1), Collections.emptySet());
+        Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), "test", Collections.emptySet());
+        Portfolio p2 = new Portfolio(new PortfolioKey("p2", 1), "test", Collections.emptySet());
+        Portfolio p3 = new Portfolio(new PortfolioKey("p3", 1), "test", Collections.emptySet());
+        Portfolio p4 = new Portfolio(new PortfolioKey("p4", 1), "test", Collections.emptySet());
+        Portfolio p1a = new Portfolio(new PortfolioKey("p1", 1), "test", Collections.emptySet());
+        Portfolio p2a = new Portfolio(new PortfolioKey("p2", 1), "test", Collections.emptySet());
+        Portfolio p3a = new Portfolio(new PortfolioKey("p3", 1), "test", Collections.emptySet());
+        Portfolio p4a = new Portfolio(new PortfolioKey("p4", 1), "test", Collections.emptySet());
 
         HashSet<Portfolio> portfolios = new HashSet<>();
         // adding the four distinct Portfolios any number of times should still result in four

@@ -236,7 +236,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
             }
         }
 
-        Portfolio benchmark = new Portfolio(benchmarkKey, positions);
+        Portfolio benchmark =
+                new Portfolio(benchmarkKey, benchmarkKey.getId() + " Benchmark", positions);
 
         // average rating is kind of interesting, so let's calculate it
         WeightedAveragePositionCalculator averageRatingCalc =

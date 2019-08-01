@@ -43,7 +43,7 @@ public class ConcentrationRuleTest {
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, emergingMarketSecurity.getKey()));
         positions.add(new Position(100, usSecurity.getKey()));
-        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertFalse("portfolio with > 10% concentration should have failed",
                 rule.evaluate(portfolio, null, new EvaluationContext(null, securityProvider, null))
@@ -53,7 +53,7 @@ public class ConcentrationRuleTest {
         positions = new HashSet<>();
         positions.add(new Position(100, emergingMarketSecurity.getKey()));
         positions.add(new Position(900, usSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue("portfolio with == 10% concentration should have passed",
                 rule.evaluate(portfolio, null, new EvaluationContext(null, securityProvider, null))
@@ -63,7 +63,7 @@ public class ConcentrationRuleTest {
         positions = new HashSet<>();
         positions.add(new Position(50, emergingMarketSecurity.getKey()));
         positions.add(new Position(950, usSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue("portfolio with == 5% concentration should have passed",
                 rule.evaluate(portfolio, null, new EvaluationContext(null, securityProvider, null))
@@ -90,7 +90,7 @@ public class ConcentrationRuleTest {
         benchmarkPositions.add(new Position(100, brlSecurity.getKey()));
         benchmarkPositions.add(new Position(100, nzdSecurity.getKey()));
         final Portfolio benchmark1 =
-                new Portfolio(new PortfolioKey("testBenchmark", 1), benchmarkPositions);
+                new Portfolio(new PortfolioKey("testBenchmark", 1), "test", benchmarkPositions);
         // a really dumb PortfolioProvider that always returns benchmark1
         PortfolioProvider benchmark1Provider = (key -> benchmark1);
 
@@ -98,7 +98,7 @@ public class ConcentrationRuleTest {
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(56, brlSecurity.getKey()));
         positions.add(new Position(44, nzdSecurity.getKey()));
-        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertFalse("portfolio with == 56% concentration should have failed",
                 rule.evaluate(portfolio, benchmark1,
@@ -109,7 +109,7 @@ public class ConcentrationRuleTest {
         positions = new HashSet<>();
         positions.add(new Position(44, brlSecurity.getKey()));
         positions.add(new Position(56, nzdSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertFalse("portfolio with == 44% concentration should have failed",
                 rule.evaluate(portfolio, benchmark1,
@@ -120,7 +120,7 @@ public class ConcentrationRuleTest {
         positions = new HashSet<>();
         positions.add(new Position(52.5, brlSecurity.getKey()));
         positions.add(new Position(47.5, nzdSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue("portfolio with == 52.5% concentration should have passed",
                 rule.evaluate(portfolio, benchmark1,
@@ -131,7 +131,7 @@ public class ConcentrationRuleTest {
         positions = new HashSet<>();
         positions.add(new Position(47.5, brlSecurity.getKey()));
         positions.add(new Position(52.5, nzdSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue("portfolio with == 52.5% concentration should have passed",
                 rule.evaluate(portfolio, benchmark1,
@@ -142,7 +142,7 @@ public class ConcentrationRuleTest {
         benchmarkPositions = new HashSet<>();
         benchmarkPositions.add(new Position(100, nzdSecurity.getKey()));
         final Portfolio benchmark2 =
-                new Portfolio(new PortfolioKey("testBenchmark", 1), benchmarkPositions);
+                new Portfolio(new PortfolioKey("testBenchmark", 1), "test", benchmarkPositions);
         // a really dumb PortfolioProvider that always returns benchmark2
         PortfolioProvider benchmark2Provider = (key -> benchmark2);
 
@@ -162,7 +162,7 @@ public class ConcentrationRuleTest {
         // create a portfolio with 0% concentration in BRL
         positions = new HashSet<>();
         positions.add(new Position(100, nzdSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         // zero concentration is at least zero, so should pass
         assertTrue("portfolio with any concentration should have passed",
@@ -174,7 +174,7 @@ public class ConcentrationRuleTest {
         positions = new HashSet<>();
         positions.add(new Position(1, brlSecurity.getKey()));
         positions.add(new Position(99, nzdSecurity.getKey()));
-        portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         // any concentration is at least zero, so should pass
         assertTrue("portfolio with any concentration should have passed",

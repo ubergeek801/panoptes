@@ -35,7 +35,7 @@ public class TotalAmountPositionCalculatorTest {
         positions.add(new Position(100, dummySecurity.getKey()));
         positions.add(new Position(200, dummySecurity.getKey()));
         positions.add(new Position(300, dummySecurity.getKey()));
-        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), positions);
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         double totalAmount = calculator.calculate(portfolio,
                 new EvaluationContext(null, securityProvider, null));

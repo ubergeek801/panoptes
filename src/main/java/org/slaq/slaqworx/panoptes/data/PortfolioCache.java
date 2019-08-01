@@ -9,6 +9,9 @@ import com.hazelcast.core.HazelcastInstance;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
@@ -23,7 +26,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  * @author jeremy
  */
 @Service
-public class PortfolioCache implements PortfolioProvider, RuleProvider, SecurityProvider {
+public class PortfolioCache
+        implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
     protected static final String PORTFOLIO_CACHE_NAME = "portfolio";
     protected static final String POSITION_CACHE_NAME = "position";
     protected static final String SECURITY_CACHE_NAME = "security";
@@ -61,6 +65,20 @@ public class PortfolioCache implements PortfolioProvider, RuleProvider, Security
      */
     public Map<PortfolioKey, Portfolio> getPortfolioCache() {
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
+    }
+
+    @Override
+    public Position getPosition(PositionKey key) {
+        return getPositionCache().get(key);
+    }
+
+    /**
+     * Obtains the Position cache from Hazelcast.
+     *
+     * @return the Hazelcast Position cache
+     */
+    public Map<PositionKey, Position> getPositionCache() {
+        return hazelcastInstance.getMap(POSITION_CACHE_NAME);
     }
 
     @Override

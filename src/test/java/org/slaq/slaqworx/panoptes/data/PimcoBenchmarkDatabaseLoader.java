@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -13,6 +12,8 @@ import com.hazelcast.core.IMap;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
@@ -28,7 +29,6 @@ public class PimcoBenchmarkDatabaseLoader {
      * Loads the cache (and then flushes to the database) using data from the PIMCO data source.
      */
     @Test
-    @Ignore
     public void loadDatabase() throws Exception {
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
 
@@ -40,16 +40,32 @@ public class PimcoBenchmarkDatabaseLoader {
 
         IMap<PortfolioKey, Portfolio> portfolioMap =
                 (IMap<PortfolioKey, Portfolio>)portfolioCache.getPortfolioCache();
+        IMap<PositionKey, Position> positionMap =
+                (IMap<PositionKey, Position>)portfolioCache.getPositionCache();
         LOG.info("adding 4 benchmarks to cache");
-        portfolioMap.put(PimcoBenchmarkDataSource.EMAD_KEY,
-                pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.EMAD_KEY));
-        portfolioMap.put(PimcoBenchmarkDataSource.GLAD_KEY,
-                pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.GLAD_KEY));
-        portfolioMap.put(PimcoBenchmarkDataSource.ILAD_KEY,
-                pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.ILAD_KEY));
-        portfolioMap.put(PimcoBenchmarkDataSource.PGOV_KEY,
-                pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY));
+
+        Portfolio benchmark = pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.EMAD_KEY);
+        LOG.info("adding {} positions to cache", benchmark.getPositionSet().size());
+        benchmark.getPositions().forEach(p -> positionMap.put(p.getKey(), p));
+        portfolioMap.put(benchmark.getKey(), benchmark);
+
+        benchmark = pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.GLAD_KEY);
+        LOG.info("adding {} positions to cache", benchmark.getPositionSet().size());
+        benchmark.getPositions().forEach(p -> positionMap.put(p.getKey(), p));
+        portfolioMap.put(benchmark.getKey(), benchmark);
+
+        benchmark = pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.ILAD_KEY);
+        LOG.info("adding {} positions to cache", benchmark.getPositionSet().size());
+        benchmark.getPositions().forEach(p -> positionMap.put(p.getKey(), p));
+        portfolioMap.put(benchmark.getKey(), benchmark);
+
+        benchmark = pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY);
+        LOG.info("adding {} positions to cache", benchmark.getPositionSet().size());
+        benchmark.getPositions().forEach(p -> positionMap.put(p.getKey(), p));
+        portfolioMap.put(benchmark.getKey(), benchmark);
+
         portfolioMap.flush();
+        positionMap.flush();
 
         LOG.info("completed database loading");
     }

@@ -8,6 +8,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+import com.hazelcast.core.IMap;
+
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
 
@@ -42,10 +49,16 @@ public class Panoptes {
         return args -> {
             PortfolioCache portfolioCache = appContext.getBean(PortfolioCache.class);
 
-            portfolioCache.getSecurityCache()
-                    .get(new SecurityKey("6IZ9H8UUfJrBfVJlTZjpi53ANyRjt2XONyQvNmt8jYM="));
-            LOG.info("cache contains {} Portfolios", portfolioCache.getPortfolioCache().size());
-            LOG.info("cache contains {} Securities", portfolioCache.getSecurityCache().size());
+            IMap<PortfolioKey, Portfolio> portfolioMap =
+                    (IMap<PortfolioKey, Portfolio>)portfolioCache.getPortfolioCache();
+            IMap<PositionKey, Position> positionMap =
+                    (IMap<PositionKey, Position>)portfolioCache.getPositionCache();
+            IMap<SecurityKey, Security> securityMap =
+                    (IMap<SecurityKey, Security>)portfolioCache.getSecurityCache();
+
+            LOG.info("cache contains {} Portfolios", portfolioMap.size());
+            LOG.info("cache contains {} Positions", positionMap.size());
+            LOG.info("cache contains {} Securities", securityMap.size());
         };
     }
 }

@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -28,7 +27,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 public abstract class Rule implements Keyed<RuleKey>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final RuleKey id;
+    private final RuleKey key;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
     private final ArrayList<GroupAggregator<?>> groupAggregators = new ArrayList<>();
@@ -57,7 +56,7 @@ public abstract class Rule implements Keyed<RuleKey>, Serializable {
      *            GroupAggregator
      */
     protected Rule(RuleKey key, String description, EvaluationGroupClassifier groupClassifier) {
-        id = (key == null ? new RuleKey(UUID.randomUUID().toString(), 1) : key);
+        this.key = (key == null ? new RuleKey(null) : key);
         this.description = description;
         if (groupClassifier == null) {
             this.groupClassifier = EvaluationGroupClassifier.defaultClassifier();
@@ -91,7 +90,7 @@ public abstract class Rule implements Keyed<RuleKey>, Serializable {
             return false;
         }
         Rule other = (Rule)obj;
-        return id.equals(other.id);
+        return key.equals(other.key);
     }
 
     /**
@@ -149,12 +148,12 @@ public abstract class Rule implements Keyed<RuleKey>, Serializable {
      */
     @Override
     public RuleKey getKey() {
-        return id;
+        return key;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return key.hashCode();
     }
 
     /**

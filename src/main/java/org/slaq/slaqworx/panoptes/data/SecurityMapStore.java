@@ -22,6 +22,11 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
+/**
+ * SecurityMapStore is a Hazelcast MapStore that provides Security persistence services.
+ *
+ * @author jeremy
+ */
 @Service
 public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     private static final long serialVersionUID = 1L;
@@ -30,6 +35,13 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
             new ObjectMapper().registerModule(new JavaTimeModule())
                     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
+    /**
+     * Creates a new SecurityMapStore. Restricted because instances of this class should be created
+     * through Spring.
+     *
+     * @param dataSource
+     *            the DataSource through which to access the database
+     */
     protected SecurityMapStore(DataSource dataSource) {
         super(dataSource);
     }
@@ -56,7 +68,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
                             + " do update set attributes = excluded.attributes",
                     key.getId(), attributesToJson(security.getAttributes()));
         } catch (Exception e) {
-            // FIXME handle this exception better
+            // FIXME throw a better exception
             throw new RuntimeException("could not serialize SecurityAttributes for " + key, e);
         }
     }
@@ -177,6 +189,8 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
             throw new RuntimeException("could not deserialize SecurityAttributes", e);
         }
 
+        // now coerce the values into their expected types based on the corresponding
+        // SecurityAttributes
         return jsonMap.entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> coerce(e.getKey(), e.getValue())));
     }

@@ -23,28 +23,33 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     private static final long serialVersionUID = 1L;
 
     private final PortfolioKey id;
-    private final PortfolioKey benchmarkId;
+    private final String name;
+    private final PortfolioKey benchmarkKey;
     private final HashSet<RuleKey> ruleIds;
     private final PositionSet positionSet;
 
     /**
-     * Creates a new Portfolio with the given key and Positions, with no associated Benchmark or
-     * Rules.
+     * Creates a new Portfolio with the given key, name and Positions, with no associated Benchmark
+     * or Rules.
      *
      * @param id
      *            the unique Portfolio key
+     * @param name
+     *            the Portfolio name/description
      * @param positions
      *            the Positions comprising the Portfolio
      */
-    public Portfolio(PortfolioKey id, Set<Position> positions) {
-        this(id, positions, null, Collections.emptySet());
+    public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
+        this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
     }
 
     /**
-     * Creates a new Portfolio with the given key, Positions, Benchmark and Rules.
+     * Creates a new Portfolio with the given key, name, Positions, Benchmark and Rules.
      *
      * @param id
      *            the unique Portfolio key
+     * @param name
+     *            the Portfolio name/description
      * @param positions
      *            the Positions comprising the Portfolio
      * @param benchmark
@@ -52,12 +57,33 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      * @param rules
      *            the (possibly empty) Collection of Rules associated with the Portfolio
      */
-    public Portfolio(PortfolioKey id, Set<Position> positions, Portfolio benchmark,
+    public Portfolio(PortfolioKey id, String name, Set<Position> positions, Portfolio benchmark,
             Collection<Rule> rules) {
+        this(id, name, positions, (benchmark == null ? null : benchmark.getKey()), rules);
+    }
+
+    /**
+     * Creates a new Portfolio with the given key, name, Positions, Benchmark and Rules.
+     *
+     * @param id
+     *            the unique Portfolio key
+     * @param name
+     *            the Portfolio name/description
+     * @param positions
+     *            the Positions comprising the Portfolio
+     * @param benchmarkKey
+     *            the (possibly null) Portfolio that acts a benchmark for the Portfolio
+     * @param rules
+     *            the (possibly empty) Collection of Rules associated with the Portfolio
+     */
+    public Portfolio(PortfolioKey id, String name, Set<Position> positions,
+            PortfolioKey benchmarkKey, Collection<Rule> rules) {
         this.id = id;
-        benchmarkId = (benchmark == null ? null : benchmark.getKey());
-        ruleIds =
-                rules.stream().map(r -> r.getKey()).collect(Collectors.toCollection(HashSet::new));
+        this.name = name;
+        this.benchmarkKey = benchmarkKey;
+        ruleIds = (rules == null ? new HashSet<>()
+                : rules.stream().map(r -> r.getKey())
+                        .collect(Collectors.toCollection(HashSet::new)));
         positionSet = new PositionSet(positions, this);
     }
 
@@ -84,19 +110,32 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     }
 
     /**
-     * Obtains this Portfolio's benchmark.
+     * Obtains this Portfolio's benchmark, if any.
      *
      * @param portfolioProvider
      *            the PortfolioProvider from which to obtain the benchmark Portfolio
      * @return this Portfolio's benchmark, or null if one is not associated
      */
     public Portfolio getBenchmark(PortfolioProvider portfolioProvider) {
-        return (benchmarkId == null ? null : portfolioProvider.getPortfolio(benchmarkId));
+        return (benchmarkKey == null ? null : portfolioProvider.getPortfolio(benchmarkKey));
+    }
+
+    public PortfolioKey getBenchmarkKey() {
+        return benchmarkKey;
     }
 
     @Override
     public PortfolioKey getKey() {
         return id;
+    }
+
+    /**
+     * Obtains the name/description of this Portfolio.
+     *
+     * @return the Portfolio name
+     */
+    public String getName() {
+        return name;
     }
 
     @Override

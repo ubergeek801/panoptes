@@ -11,6 +11,15 @@ import java.util.UUID;
 public abstract class IdVersionKey implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Obtains a generated ID of the form used by an IdVersionKey.
+     *
+     * @return a generated ID
+     */
+    public static String generateId() {
+        return UUID.randomUUID().toString();
+    }
+
     private String id;
     private long version;
 
@@ -23,7 +32,7 @@ public abstract class IdVersionKey implements Serializable {
      *            the version to assign to the key
      */
     public IdVersionKey(String id, long version) {
-        this.id = (id == null ? UUID.randomUUID().toString() : id);
+        this.id = (id == null ? generateId() : id);
         this.version = version;
     }
 

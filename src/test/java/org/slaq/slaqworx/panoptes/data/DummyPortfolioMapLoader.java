@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,12 +71,12 @@ public class DummyPortfolioMapLoader
 
     @Override
     public void delete(PortfolioKey key) {
-        // FIXME implement delete()
+        // nothing to do
     }
 
     @Override
     public void deleteAll(Collection<PortfolioKey> keys) {
-        // FIXME implement deleteAll()
+        // nothing to do
     }
 
     @Override
@@ -104,7 +105,9 @@ public class DummyPortfolioMapLoader
                 Collections.unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
         Set<Position> positions = generatePositions(securityList, random);
         Set<Rule> rules = generateRules(random);
-        Portfolio portfolio = new Portfolio(key, positions, benchmarks[random.nextInt(5)], rules);
+        Portfolio portfolio =
+                new Portfolio(key, "Test Portfolio " + RandomStringUtils.randomAlphabetic(40),
+                        positions, benchmarks[random.nextInt(5)], rules);
         LOG.info("created Portfolio {} with {} Positions", key, portfolio.size());
 
         return portfolio;
@@ -150,12 +153,12 @@ public class DummyPortfolioMapLoader
 
     @Override
     public void store(PortfolioKey key, Portfolio value) {
-        // FIXME implement store()
+        // nothing to do
     }
 
     @Override
     public void storeAll(Map<PortfolioKey, Portfolio> map) {
-        // FIXME implement storeAll()
+        // nothing to do
     }
 
     /**

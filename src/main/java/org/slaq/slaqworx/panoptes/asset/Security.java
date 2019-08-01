@@ -8,7 +8,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -75,8 +74,6 @@ public class Security implements Keyed<SecurityKey>, Serializable {
      * @return a Map of SecurityAttribute to value
      */
     public Map<SecurityAttribute<?>, ? super Object> getAttributes() {
-        HashMap<SecurityAttribute<?>, ? super Object> attributeMap =
-                new HashMap<>(attributeValues.size() * 2);
         return IntStream.range(0, attributeValues.size()).boxed()
                 .filter(i -> attributeValues.get(i) != null).collect(Collectors
                         .toMap(i -> SecurityAttribute.of(i), i -> attributeValues.get(i)));

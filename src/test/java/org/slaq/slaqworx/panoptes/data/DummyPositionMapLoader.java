@@ -21,39 +21,37 @@ public class DummyPositionMapLoader implements MapStore<String, Position>, Seria
 
     @Override
     public void delete(String key) {
-        // FIXME implement delete()
+        // nothing to do
     }
 
     @Override
     public void deleteAll(Collection<String> keys) {
-        // FIXME implement deleteAll()
+        // nothing to do
     }
 
     @Override
     public Position load(String key) {
-        // FIXME implement load()
         return null;
     }
 
     @Override
     public Map<String, Position> loadAll(Collection<String> keys) {
-        // FIXME implement loadAll()
         return null;
     }
 
     @Override
     public Iterable<String> loadAllKeys() {
-        // FIXME implement loadAllKeys()
+        // nothing to do
         return Collections.emptyList();
     }
 
     @Override
     public void store(String key, Position value) {
-        // FIXME implement store()
+        // nothing to do
     }
 
     @Override
     public void storeAll(Map<String, Position> map) {
-        // FIXME implement storeAll()
+        // nothing to do
     }
 }

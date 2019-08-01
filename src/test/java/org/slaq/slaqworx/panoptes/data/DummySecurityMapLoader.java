@@ -34,12 +34,12 @@ public class DummySecurityMapLoader implements MapStore<SecurityKey, Security>, 
 
     @Override
     public void delete(SecurityKey key) {
-        // FIXME implement delete()
+        // nothing to do
     }
 
     @Override
     public void deleteAll(Collection<SecurityKey> keys) {
-        // FIXME implement deleteAll()
+        // nothing to do
     }
 
     @Override
@@ -59,11 +59,11 @@ public class DummySecurityMapLoader implements MapStore<SecurityKey, Security>, 
 
     @Override
     public void store(SecurityKey key, Security value) {
-        // FIXME implement store()
+        // nothing to do
     }
 
     @Override
     public void storeAll(Map<SecurityKey, Security> map) {
-        // FIXME implement storeAll()
+        // nothing to do
     }
 }

@@ -39,7 +39,7 @@ public class Position implements Keyed<PositionKey>, Serializable {
      *            the key of the held Security
      */
     public Position(PositionKey key, double amount, SecurityKey securityKey) {
-        this.key = (key == null ? new PositionKey(null, 1) : key);
+        this.key = (key == null ? new PositionKey(null) : key);
         this.amount = amount;
         this.securityKey = securityKey;
     }

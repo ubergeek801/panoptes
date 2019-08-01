@@ -132,21 +132,22 @@ public class PortfolioEvaluatorTest {
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
         ConcentrationRule top2issuerRule =
-                new ConcentrationRule(new RuleKey("top2", 1), "top 2 issuer concentration", null,
-                        null, 0.25, new TopNSecurityAttributeAggregator(TestUtil.issuer, 2));
+                new ConcentrationRule(new RuleKey("top2"), "top 2 issuer concentration", null, null,
+                        0.25, new TopNSecurityAttributeAggregator(TestUtil.issuer, 2));
         rules.put(top2issuerRule.getKey(), top2issuerRule);
         ConcentrationRule top3issuerRule =
-                new ConcentrationRule(new RuleKey("top3", 1), "top 3 issuer concentration", null,
-                        null, 0.75, new TopNSecurityAttributeAggregator(TestUtil.issuer, 3));
+                new ConcentrationRule(new RuleKey("top3"), "top 3 issuer concentration", null, null,
+                        0.75, new TopNSecurityAttributeAggregator(TestUtil.issuer, 3));
         rules.put(top3issuerRule.getKey(), top3issuerRule);
         ConcentrationRule top10issuerRule =
-                new ConcentrationRule(new RuleKey("top10", 1), "top 10 issuer concentration", null,
+                new ConcentrationRule(new RuleKey("top10"), "top 10 issuer concentration", null,
                         null, 0.999, new TopNSecurityAttributeAggregator(TestUtil.issuer, 10));
         rules.put(top10issuerRule.getKey(), top10issuerRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));
 
-        Portfolio portfolio = new Portfolio(null, positions, null, rules.values());
+        Portfolio portfolio =
+                new Portfolio(null, "test", positions, (PortfolioKey)null, rules.values());
 
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults = evaluator
@@ -256,7 +257,7 @@ public class PortfolioEvaluatorTest {
 
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
                 new PortfolioEvaluator().evaluate(rules.values().stream(),
-                        new Portfolio(new PortfolioKey("testPortfolio", 1), dummyPositions),
+                        new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
                         new EvaluationContext(null, securityProvider, ruleProvider));
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
@@ -324,8 +325,8 @@ public class PortfolioEvaluatorTest {
 
         // total value = 2_100, weighted rating = 165_500, weighted duration = 9_200,
         // weighted average rating = 78.80952381, weighted average duration = 4.380952381
-        Portfolio portfolio =
-                new Portfolio(new PortfolioKey("test", 1), positions, null, rules.values());
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions,
+                (PortfolioKey)null, rules.values());
 
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator.evaluate(portfolio,
                 new EvaluationContext(null, securityProvider, ruleProvider));
@@ -382,10 +383,10 @@ public class PortfolioEvaluatorTest {
         Position overridePosition = new Position(1, TestUtil.s2.getKey());
         Set<Position> overridePositions = Set.of(overridePosition);
 
-        Portfolio portfolioBenchmark =
-                new Portfolio(new PortfolioKey("testPortfolioBenchmark", 1), dummyPositions);
-        Portfolio overrideBenchmark =
-                new Portfolio(new PortfolioKey("testOverrideBenchmark", 1), overridePositions);
+        Portfolio portfolioBenchmark = new Portfolio(new PortfolioKey("testPortfolioBenchmark", 1),
+                "test", dummyPositions);
+        Portfolio overrideBenchmark = new Portfolio(new PortfolioKey("testOverrideBenchmark", 1),
+                "test", overridePositions);
         // a really dumb PortfolioProvider that returns either portfolioBenchmark or
         // overrideBenchmark
         PortfolioProvider benchmarkProvider =
@@ -404,7 +405,7 @@ public class PortfolioEvaluatorTest {
 
         RuleProvider ruleProvider = (k -> portfolioRules.get(k));
 
-        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), dummyPositions,
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", dummyPositions,
                 portfolioBenchmark, portfolioRules.values());
 
         // test the form of evaluate() that should use the portfolio defaults

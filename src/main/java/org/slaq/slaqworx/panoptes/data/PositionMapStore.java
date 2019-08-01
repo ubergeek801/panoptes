@@ -12,10 +12,22 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
+/**
+ * PositionMapStore is a Hazelcast MapStore that provides Position persistence services.
+ *
+ * @author jeremy
+ */
 @Service
 public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates a new PositionMapStore. Restricted because instances of this class should be created
+     * through Spring.
+     *
+     * @param dataSource
+     *            the DataSource through which to access the database
+     */
     protected PositionMapStore(DataSource dataSource) {
         super(dataSource);
     }
@@ -28,41 +40,39 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     @Override
     public Position mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(1);
-        int version = rs.getInt(2);
-        double amount = rs.getDouble(3);
-        String securityId = rs.getString(4);
+        double amount = rs.getDouble(2);
+        String securityId = rs.getString(3);
 
-        return new Position(new PositionKey(id, version), amount, new SecurityKey(securityId));
+        return new Position(new PositionKey(id), amount, new SecurityKey(securityId));
     }
 
     @Override
     public void store(PositionKey key, Position position) {
-        // FIXME update to handle update if necessary
         getJdbcTemplate().update(
-                "insert into " + getTableName()
-                        + " (id, version, amount, security_id) values (?, ?, ?, ?)",
-                key.getId(), key.getVersion(), position.getAmount(), position.getSecurityKey());
+                "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
+                        + " on conflict on constraint position_pk do update"
+                        + " set amount = excluded.amount, security_id = excluded.security_id",
+                key.getId(), position.getAmount(), position.getSecurityKey().getId());
     }
 
     @Override
     protected String getIdColumnNames() {
-        return "id, version";
+        return "id";
     }
 
     @Override
     protected RowMapper<PositionKey> getKeyMapper() {
-        return (rs, rowNum) -> new PositionKey(rs.getString(1), rs.getInt(2));
+        return (rs, rowNum) -> new PositionKey(rs.getString(1));
     }
 
     @Override
     protected Object[] getLoadParameters(PositionKey key) {
-        return new Object[] { key.getId(), key.getVersion() };
+        return new Object[] { key.getId() };
     }
 
     @Override
     protected String getLoadQuery() {
-        return "select id, version, amount, security_id from " + getTableName()
-                + " where id = ? and version = ?";
+        return "select id, amount, security_id from " + getTableName() + " where id = ?";
     }
 
     @Override
