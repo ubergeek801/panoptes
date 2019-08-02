@@ -17,6 +17,9 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProxy;
+import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleProxy;
 
 /**
  * PortfolioMapStore is a Hazelcast MapStore that provides Portfolio persistence services.
@@ -48,6 +51,9 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
         getJdbcTemplate().update(
                 "delete from portfolio_position where portfolio_id = ? and portfolio_version = ?",
                 key.getId(), key.getVersion());
+        getJdbcTemplate().update(
+                "delete from portfolio_rule where portfolio_id = ? and portfolio_version = ?",
+                key.getId(), key.getVersion());
         getJdbcTemplate().update("delete from " + getTableName() + " where id = ? and version = ?",
                 key.getId(), key.getVersion());
     }
@@ -70,10 +76,18 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
         Set<Position> positions = positionKeys.stream()
                 .map(k -> new PositionProxy(k, getPortfolioCache())).collect(Collectors.toSet());
 
-        // FIXME include rules
+        // get the keys for the related Rules
+        List<RuleKey> ruleKeys = getJdbcTemplate().query(
+                "select rule_id from portfolio_rule"
+                        + " where portfolio_id = ? and portfolio_version = ?",
+                new Object[] { id, version },
+                (RowMapper<RuleKey>)(rsPos, rowNumPos) -> new RuleKey(rsPos.getString(1)));
+        Set<Rule> rules = ruleKeys.stream().map(k -> new RuleProxy(k, getPortfolioCache()))
+                .collect(Collectors.toSet());
+
         return new Portfolio(new PortfolioKey(id, version), name, positions,
                 (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
-                null);
+                rules);
     }
 
     @Override

@@ -2,7 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 /**
  * A PositionProxy is a proxy for a concrete Position implementation, where only the key is known at
- * creation time. Subsequent operations on the PositionProxy are delegated to the position resolved
+ * creation time. Subsequent operations on the PositionProxy are delegated to the Position resolved
  * by the specified PositionProvider.
  *
  * @author jeremy

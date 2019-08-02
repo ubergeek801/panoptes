@@ -32,7 +32,7 @@ public class PortfolioEvaluatorTest {
     /**
      * DummyRule facilitates testing rule evaluation behavior by always passing or always failing.
      */
-    private static class DummyRule extends Rule {
+    private static class DummyRule extends MaterializedRule {
         private static final long serialVersionUID = 1L;
 
         private final boolean isPass;
@@ -53,7 +53,7 @@ public class PortfolioEvaluatorTest {
      * ExceptionThrowingRule facilitates testing rule evaluation behavior by always throwing a
      * runtime exception.
      */
-    private static class ExceptionThrowingRule extends Rule {
+    private static class ExceptionThrowingRule extends MaterializedRule {
         private static final long serialVersionUID = 1L;
 
         public ExceptionThrowingRule(String description) {
@@ -71,7 +71,7 @@ public class PortfolioEvaluatorTest {
      * UseBenchmarkRule facilitates testing whether a specific benchmark was used during a rule
      * evaluation.
      */
-    private static class UseBenchmarkRule extends Rule {
+    private static class UseBenchmarkRule extends MaterializedRule {
         private static final long serialVersionUID = 1L;
 
         private final Portfolio benchmark;

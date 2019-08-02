@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 @Service
-public class RuleMapStore extends HazelcastMapStore<RuleKey, Rule> {
+public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,11 +34,12 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, Rule> {
 
     @Override
     public void delete(RuleKey key) {
+        getJdbcTemplate().update("delete from portfolio_rule where rule_id = ?", key.getId());
         getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
     }
 
     @Override
-    public Rule mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public MaterializedRule mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(1);
         String description = rs.getString(2);
 
@@ -47,7 +48,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, Rule> {
     }
 
     @Override
-    public void store(RuleKey key, Rule value) {
+    public void store(RuleKey key, MaterializedRule value) {
         // FIXME implement store()
     }
 
