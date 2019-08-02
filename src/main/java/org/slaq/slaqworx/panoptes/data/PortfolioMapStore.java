@@ -2,15 +2,21 @@ package org.slaq.slaqworx.panoptes.data;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.asset.PositionProxy;
 
 /**
  * PortfolioMapStore is a Hazelcast MapStore that provides Portfolio persistence services.
@@ -21,20 +27,29 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
     private static final long serialVersionUID = 1L;
 
+    private transient ApplicationContext applicationContext;
+
     /**
      * Creates a new PortfolioMapStore. Restricted because instances of this class should be created
      * through Spring.
      *
+     * @param applicationContext
+     *            the ApplicationConext from which to resolve dependent Beans
      * @param dataSource
      *            the DataSource through which to access the database
      */
-    protected PortfolioMapStore(DataSource dataSource) {
+    protected PortfolioMapStore(ApplicationContext applicationContext, DataSource dataSource) {
         super(dataSource);
+        this.applicationContext = applicationContext;
     }
 
     @Override
     public void delete(PortfolioKey key) {
-        // FIXME implement delete()
+        getJdbcTemplate().update(
+                "delete from portfolio_position where portfolio_id = ? and portfolio_version = ?",
+                key.getId(), key.getVersion());
+        getJdbcTemplate().update("delete from " + getTableName() + " where id = ? and version = ?",
+                key.getId(), key.getVersion());
     }
 
     @Override
@@ -45,8 +60,18 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
         String benchmarkId = rs.getString(4);
         int benchmarkVersion = rs.getInt(5);
 
-        // FIXME include positions and rules
-        return new Portfolio(new PortfolioKey(id, version), name, Collections.emptySet(),
+        // get the keys for the related Positions
+        List<PositionKey> positionKeys = getJdbcTemplate().query(
+                "select position_id from portfolio_position"
+                        + " where portfolio_id = ? and portfolio_version = ?",
+                new Object[] { id, version },
+                (RowMapper<PositionKey>)(rsPos, rowNumPos) -> new PositionKey(rsPos.getString(1)));
+        // some unfortunate copying of Collections to Sets
+        Set<Position> positions = positionKeys.stream()
+                .map(k -> new PositionProxy(k, getPortfolioCache())).collect(Collectors.toSet());
+
+        // FIXME include rules
+        return new Portfolio(new PortfolioKey(id, version), name, positions,
                 (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
                 null);
     }
@@ -89,6 +114,17 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     protected String getLoadQuery() {
         return "select id, version, name, benchmark_id, benchmark_version from " + getTableName()
                 + " where id = ? and version = ?";
+    }
+
+    /**
+     * Obtains the PortfolioCache to be used to resolve references. Lazily obtained to avoid a
+     * circular injection dependency.
+     *
+     * @param portfolioCache
+     *            the PortfolioCache to use to obtain data
+     */
+    protected PortfolioCache getPortfolioCache() {
+        return applicationContext.getBean(PortfolioCache.class);
     }
 
     @Override

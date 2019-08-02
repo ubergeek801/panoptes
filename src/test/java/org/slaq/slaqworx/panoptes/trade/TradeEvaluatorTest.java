@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -42,7 +43,7 @@ public class TradeEvaluatorTest {
         Security s2 = securityProvider.newSecurity(Map.of(TestUtil.duration, 4.0));
 
         HashSet<Position> p1Positions = new HashSet<>();
-        p1Positions.add(new Position(1_000, s1.getKey()));
+        p1Positions.add(new MaterializedPosition(1_000, s1.getKey()));
 
         // to keep things simple, all Rules test against duration, with some conflicting
         // assertions
@@ -73,7 +74,7 @@ public class TradeEvaluatorTest {
         Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), "test", p1Positions,
                 (PortfolioKey)null, p1Rules.values());
 
-        Position t1Alloc1 = new Position(1_000, s2.getKey());
+        MaterializedPosition t1Alloc1 = new MaterializedPosition(1_000, s2.getKey());
         List<Position> t1Allocations = Arrays.asList(t1Alloc1);
         Transaction t1 = new Transaction(p1, t1Allocations);
         List<Transaction> transactions = Arrays.asList(t1);

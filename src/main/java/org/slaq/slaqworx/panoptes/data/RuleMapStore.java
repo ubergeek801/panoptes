@@ -34,7 +34,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, Rule> {
 
     @Override
     public void delete(RuleKey key) {
-        // FIXME implement delete()
+        getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
     }
 
     @Override

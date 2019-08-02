@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -28,20 +29,18 @@ public class PimcoBenchmarkDatabaseLoader {
     /**
      * Loads the cache (and then flushes to the database) using data from the PIMCO data source.
      */
+    @Ignore
     @Test
     public void loadDatabase() throws Exception {
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
 
-        IMap<SecurityKey, Security> securityMap =
-                (IMap<SecurityKey, Security>)portfolioCache.getSecurityCache();
+        IMap<SecurityKey, Security> securityMap = portfolioCache.getSecurityCache();
         LOG.info("adding {} securities to cache", pimcoDataSource.getSecurityMap().size());
         securityMap.putAll(pimcoDataSource.getSecurityMap());
         securityMap.flush();
 
-        IMap<PortfolioKey, Portfolio> portfolioMap =
-                (IMap<PortfolioKey, Portfolio>)portfolioCache.getPortfolioCache();
-        IMap<PositionKey, Position> positionMap =
-                (IMap<PositionKey, Position>)portfolioCache.getPositionCache();
+        IMap<PortfolioKey, Portfolio> portfolioMap = portfolioCache.getPortfolioCache();
+        IMap<PositionKey, Position> positionMap = portfolioCache.getPositionCache();
         LOG.info("adding 4 benchmarks to cache");
 
         Portfolio benchmark = pimcoDataSource.getBenchmark(PimcoBenchmarkDataSource.EMAD_KEY);

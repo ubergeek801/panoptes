@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -109,25 +110,25 @@ public class PortfolioEvaluatorTest {
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
         HashSet<Position> positions = new HashSet<>();
-        Position iss1Sec1Pos = new Position(100, iss1Sec1.getKey());
+        MaterializedPosition iss1Sec1Pos = new MaterializedPosition(100, iss1Sec1.getKey());
         positions.add(iss1Sec1Pos);
-        Position iss1Sec2Pos = new Position(100, iss1Sec2.getKey());
+        MaterializedPosition iss1Sec2Pos = new MaterializedPosition(100, iss1Sec2.getKey());
         positions.add(iss1Sec2Pos);
-        Position iss1Sec3Pos = new Position(100, iss1Sec3.getKey());
+        MaterializedPosition iss1Sec3Pos = new MaterializedPosition(100, iss1Sec3.getKey());
         positions.add(iss1Sec3Pos);
-        Position iss2Sec1Pos = new Position(100, iss2Sec1.getKey());
+        MaterializedPosition iss2Sec1Pos = new MaterializedPosition(100, iss2Sec1.getKey());
         positions.add(iss2Sec1Pos);
-        Position iss2Sec2Pos = new Position(100, iss2Sec2.getKey());
+        MaterializedPosition iss2Sec2Pos = new MaterializedPosition(100, iss2Sec2.getKey());
         positions.add(iss2Sec2Pos);
-        Position iss3Sec1Pos = new Position(100, iss3Sec1.getKey());
+        MaterializedPosition iss3Sec1Pos = new MaterializedPosition(100, iss3Sec1.getKey());
         positions.add(iss3Sec1Pos);
-        Position iss4Sec1Pos = new Position(100, iss4Sec1.getKey());
+        MaterializedPosition iss4Sec1Pos = new MaterializedPosition(100, iss4Sec1.getKey());
         positions.add(iss4Sec1Pos);
-        Position iss4Sec2Pos = new Position(100, iss4Sec2.getKey());
+        MaterializedPosition iss4Sec2Pos = new MaterializedPosition(100, iss4Sec2.getKey());
         positions.add(iss4Sec2Pos);
-        Position iss5Sec1Pos = new Position(100, iss5Sec1.getKey());
+        MaterializedPosition iss5Sec1Pos = new MaterializedPosition(100, iss5Sec1.getKey());
         positions.add(iss5Sec1Pos);
-        Position iss6Sec1Pos = new Position(100, iss6Sec1.getKey());
+        MaterializedPosition iss6Sec1Pos = new MaterializedPosition(100, iss6Sec1.getKey());
         positions.add(iss6Sec1Pos);
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
@@ -252,7 +253,7 @@ public class PortfolioEvaluatorTest {
 
         RuleProvider ruleProvider = (k -> rules.get(k));
 
-        Position dummyPosition = new Position(1, TestUtil.s1.getKey());
+        MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
@@ -291,22 +292,22 @@ public class PortfolioEvaluatorTest {
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300
-        Position usdPosition1 = new Position(100, usdSecurity.getKey());
+        MaterializedPosition usdPosition1 = new MaterializedPosition(100, usdSecurity.getKey());
         positions.add(usdPosition1);
         // value = 200, weighted rating = 18_000, weighted duration = 600
-        Position usdPosition2 = new Position(200, usdSecurity.getKey());
+        MaterializedPosition usdPosition2 = new MaterializedPosition(200, usdSecurity.getKey());
         positions.add(usdPosition2);
         // value = 300, weighted rating = 24_000, weighted duration = 1_200
-        Position nzdPosition1 = new Position(300, nzdSecurity.getKey());
+        MaterializedPosition nzdPosition1 = new MaterializedPosition(300, nzdSecurity.getKey());
         positions.add(nzdPosition1);
         // value = 400, weighted rating = 32_000, weighted duration = 1_600
-        Position nzdPosition2 = new Position(400, nzdSecurity.getKey());
+        MaterializedPosition nzdPosition2 = new MaterializedPosition(400, nzdSecurity.getKey());
         positions.add(nzdPosition2);
         // value = 500, weighted rating = 37_500, weighted duration = 2_500
-        Position cadPosition1 = new Position(500, cadSecurity.getKey());
+        MaterializedPosition cadPosition1 = new MaterializedPosition(500, cadSecurity.getKey());
         positions.add(cadPosition1);
         // value = 600, weighted rating = 45_000, weighted duration = 3_000
-        Position cadPosition2 = new Position(600, cadSecurity.getKey());
+        MaterializedPosition cadPosition2 = new MaterializedPosition(600, cadSecurity.getKey());
         positions.add(cadPosition2);
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
@@ -377,10 +378,10 @@ public class PortfolioEvaluatorTest {
     public void testEvaluateOverrides() {
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
-        Position dummyPosition = new Position(1, TestUtil.s1.getKey());
+        MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        Position overridePosition = new Position(1, TestUtil.s2.getKey());
+        MaterializedPosition overridePosition = new MaterializedPosition(1, TestUtil.s2.getKey());
         Set<Position> overridePositions = Set.of(overridePosition);
 
         Portfolio portfolioBenchmark = new Portfolio(new PortfolioKey("testPortfolioBenchmark", 1),

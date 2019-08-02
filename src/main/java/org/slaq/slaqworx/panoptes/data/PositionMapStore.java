@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  * @author jeremy
  */
 @Service
-public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
+public class PositionMapStore extends HazelcastMapStore<PositionKey, MaterializedPosition> {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,20 +34,22 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
     @Override
     public void delete(PositionKey key) {
-        // FIXME implement delete()
+        getJdbcTemplate().update("delete from portfolio_position where position_id = ?",
+                key.getId());
+        getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
     }
 
     @Override
-    public Position mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public MaterializedPosition mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(1);
         double amount = rs.getDouble(2);
         String securityId = rs.getString(3);
 
-        return new Position(new PositionKey(id), amount, new SecurityKey(securityId));
+        return new MaterializedPosition(new PositionKey(id), amount, new SecurityKey(securityId));
     }
 
     @Override
-    public void store(PositionKey key, Position position) {
+    public void store(PositionKey key, MaterializedPosition position) {
         getJdbcTemplate().update(
                 "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
                         + " on conflict on constraint position_pk do update"

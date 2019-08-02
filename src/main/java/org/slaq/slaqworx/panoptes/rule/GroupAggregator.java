@@ -10,7 +10,6 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * new groups.
  *
  * @author jeremy
- *
  * @param <K>
  *            the EvaluationGroup key on which the function operates
  */

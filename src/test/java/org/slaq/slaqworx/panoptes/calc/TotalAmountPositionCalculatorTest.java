@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -32,9 +33,9 @@ public class TotalAmountPositionCalculatorTest {
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
 
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity.getKey()));
-        positions.add(new Position(200, dummySecurity.getKey()));
-        positions.add(new Position(300, dummySecurity.getKey()));
+        positions.add(new MaterializedPosition(100, dummySecurity.getKey()));
+        positions.add(new MaterializedPosition(200, dummySecurity.getKey()));
+        positions.add(new MaterializedPosition(300, dummySecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         double totalAmount = calculator.calculate(portfolio,

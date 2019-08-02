@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -64,12 +65,14 @@ public class TestUtil {
     public static final Security s2 = securityProvider.newSecurity(s2Attributes);
 
     public static final Set<Position> p1Positions =
-            Set.of(new Position(1000, s1.getKey()), new Position(500, s2.getKey()));
+            Set.of(new MaterializedPosition(1000, s1.getKey()),
+                    new MaterializedPosition(500, s2.getKey()));
     public static final Portfolio p1 =
             new Portfolio(new PortfolioKey("TestUtilP1", 1), "TestUtilP1", p1Positions);
 
     public static final Set<Position> p2Positions =
-            Set.of(new Position(500, s1.getKey()), new Position(1000, s2.getKey()));
+            Set.of(new MaterializedPosition(500, s1.getKey()),
+                    new MaterializedPosition(1000, s2.getKey()));
     public static final Portfolio p2 =
             new Portfolio(new PortfolioKey("TestUtilP2", 1), "TestUtilP2", p2Positions);
 

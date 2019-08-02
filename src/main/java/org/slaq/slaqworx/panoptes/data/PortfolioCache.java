@@ -1,10 +1,9 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -63,7 +62,7 @@ public class PortfolioCache
      *
      * @return the Hazelcast Portfolio cache
      */
-    public Map<PortfolioKey, Portfolio> getPortfolioCache() {
+    public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
     }
 
@@ -77,7 +76,7 @@ public class PortfolioCache
      *
      * @return the Hazelcast Position cache
      */
-    public Map<PositionKey, Position> getPositionCache() {
+    public IMap<PositionKey, Position> getPositionCache() {
         return hazelcastInstance.getMap(POSITION_CACHE_NAME);
     }
 
@@ -91,7 +90,7 @@ public class PortfolioCache
      *
      * @return the Hazelcast Rule cache
      */
-    public Map<RuleKey, Rule> getRuleCache() {
+    public IMap<RuleKey, Rule> getRuleCache() {
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
     }
 
@@ -105,7 +104,7 @@ public class PortfolioCache
      *
      * @return the Hazelcast Security cache
      */
-    public Map<SecurityKey, Security> getSecurityCache() {
+    public IMap<SecurityKey, Security> getSecurityCache() {
         return hazelcastInstance.getMap(SECURITY_CACHE_NAME);
     }
 }

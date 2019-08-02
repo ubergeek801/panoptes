@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -74,7 +75,8 @@ public class RuleEvaluatorPerformanceTest {
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
             Security security1 = dataSource.getSecurityMap().values().iterator().next();
-            Position position1 = new Position(1_000_000, security1.getKey());
+            MaterializedPosition position1 =
+                    new MaterializedPosition(1_000_000, security1.getKey());
             positions.add(position1);
             TradeEvaluator tradeEvaluator = new TradeEvaluator(dataSource, dataSource, mapLoader);
             ArrayList<Transaction> transactions = new ArrayList<>();

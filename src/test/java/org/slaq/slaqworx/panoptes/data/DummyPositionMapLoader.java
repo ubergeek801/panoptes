@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.hazelcast.core.MapStore;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 
 /**
  * DummyPositionMapLoader is a MapStore that initializes the Hazelcast cache with random Position
@@ -16,7 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  *
  * @author jeremy
  */
-public class DummyPositionMapLoader implements MapStore<String, Position>, Serializable {
+public class DummyPositionMapLoader implements MapStore<String, MaterializedPosition>, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -30,12 +30,12 @@ public class DummyPositionMapLoader implements MapStore<String, Position>, Seria
     }
 
     @Override
-    public Position load(String key) {
+    public MaterializedPosition load(String key) {
         return null;
     }
 
     @Override
-    public Map<String, Position> loadAll(Collection<String> keys) {
+    public Map<String, MaterializedPosition> loadAll(Collection<String> keys) {
         return null;
     }
 
@@ -46,12 +46,12 @@ public class DummyPositionMapLoader implements MapStore<String, Position>, Seria
     }
 
     @Override
-    public void store(String key, Position value) {
+    public void store(String key, MaterializedPosition value) {
         // nothing to do
     }
 
     @Override
-    public void storeAll(Map<String, Position> map) {
+    public void storeAll(Map<String, MaterializedPosition> map) {
         // nothing to do
     }
 }

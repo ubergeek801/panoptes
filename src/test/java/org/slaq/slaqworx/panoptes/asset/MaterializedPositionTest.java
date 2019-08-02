@@ -12,11 +12,11 @@ import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
- * PositionTest tests the functionality of Position.
+ * MaterializedPositionTest tests the functionality of MaterializedPosition.
  *
  * @author jeremy
  */
-public class PositionTest {
+public class MaterializedPositionTest {
     /**
      * Tests that Positions are hashed in a reasonable way.
      */
@@ -25,16 +25,24 @@ public class PositionTest {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
-        Position p1 = new Position(new PositionKey("p1"), 100, dummySecurity.getKey());
-        Position p2 = new Position(new PositionKey("p2"), 100, dummySecurity.getKey());
-        Position p3 = new Position(new PositionKey("p3"), 100, dummySecurity.getKey());
-        Position p4 = new Position(new PositionKey("p4"), 100, dummySecurity.getKey());
-        Position p1a = new Position(new PositionKey("p1"), 100, dummySecurity.getKey());
-        Position p2a = new Position(new PositionKey("p2"), 100, dummySecurity.getKey());
-        Position p3a = new Position(new PositionKey("p3"), 100, dummySecurity.getKey());
-        Position p4a = new Position(new PositionKey("p4"), 100, dummySecurity.getKey());
+        MaterializedPosition p1 =
+                new MaterializedPosition(new PositionKey("p1"), 100, dummySecurity.getKey());
+        MaterializedPosition p2 =
+                new MaterializedPosition(new PositionKey("p2"), 100, dummySecurity.getKey());
+        MaterializedPosition p3 =
+                new MaterializedPosition(new PositionKey("p3"), 100, dummySecurity.getKey());
+        MaterializedPosition p4 =
+                new MaterializedPosition(new PositionKey("p4"), 100, dummySecurity.getKey());
+        MaterializedPosition p1a =
+                new MaterializedPosition(new PositionKey("p1"), 100, dummySecurity.getKey());
+        MaterializedPosition p2a =
+                new MaterializedPosition(new PositionKey("p2"), 100, dummySecurity.getKey());
+        MaterializedPosition p3a =
+                new MaterializedPosition(new PositionKey("p3"), 100, dummySecurity.getKey());
+        MaterializedPosition p4a =
+                new MaterializedPosition(new PositionKey("p4"), 100, dummySecurity.getKey());
 
-        HashSet<Position> positions = new HashSet<>();
+        HashSet<MaterializedPosition> positions = new HashSet<>();
         // adding the four distinct Positions any number of times should still result in four
         // distinct Positions
         positions.add(p1);

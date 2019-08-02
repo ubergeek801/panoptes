@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -182,7 +183,7 @@ public class DummyPortfolioMapLoader
                             * 100) / 100d;
             // use a given security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
-            positions.add(new Position(amount, security.getKey()));
+            positions.add(new MaterializedPosition(amount, security.getKey()));
         }
 
         return positions;

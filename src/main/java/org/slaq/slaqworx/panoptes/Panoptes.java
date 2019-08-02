@@ -49,16 +49,12 @@ public class Panoptes {
         return args -> {
             PortfolioCache portfolioCache = appContext.getBean(PortfolioCache.class);
 
-            IMap<PortfolioKey, Portfolio> portfolioMap =
-                    (IMap<PortfolioKey, Portfolio>)portfolioCache.getPortfolioCache();
-            IMap<PositionKey, Position> positionMap =
-                    (IMap<PositionKey, Position>)portfolioCache.getPositionCache();
-            IMap<SecurityKey, Security> securityMap =
-                    (IMap<SecurityKey, Security>)portfolioCache.getSecurityCache();
-
-            LOG.info("cache contains {} Portfolios", portfolioMap.size());
-            LOG.info("cache contains {} Positions", positionMap.size());
+            IMap<SecurityKey, Security> securityMap = portfolioCache.getSecurityCache();
             LOG.info("cache contains {} Securities", securityMap.size());
+            IMap<PositionKey, Position> positionMap = portfolioCache.getPositionCache();
+            LOG.info("cache contains {} Positions", positionMap.size());
+            IMap<PortfolioKey, Portfolio> portfolioMap = portfolioCache.getPortfolioCache();
+            LOG.info("cache contains {} Portfolios", portfolioMap.size());
         };
     }
 }
