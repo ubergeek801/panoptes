@@ -15,6 +15,8 @@ import java.util.stream.IntStream;
 
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
+import groovy.lang.MissingPropertyException;
+
 /**
  * A Security is an investable instrument. Unlike most other asset-related entities, a Security is
  * implicitly "versioned" by hashing its attributes: the resulting hash is used as the primary key.
@@ -89,6 +91,10 @@ public class Security implements Keyed<SecurityKey>, Serializable {
      * @return the value of the given attribute, or null if not assigned
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
+        if (attribute == null) {
+            return null;
+        }
+
         try {
             @SuppressWarnings("unchecked")
             T attributeValue = (T)attributeValues.get(attribute.getIndex());
@@ -112,6 +118,22 @@ public class Security implements Keyed<SecurityKey>, Serializable {
     @Override
     public int hashCode() {
         return key.hashCode();
+    }
+
+    /**
+     * Provided as a convenience to Groovy filters to allow shorthand SecurityAttribute access.
+     *
+     * @param name
+     *            the name of the SecurityAttribute to resolve
+     * @return the value of the attribute if it exists, or null if it does not
+     */
+    public Object propertyMissing(String name) {
+        SecurityAttribute<?> attribute = SecurityAttribute.of(name);
+        if (attribute == null) {
+            throw new MissingPropertyException(name);
+        }
+
+        return getAttributeValue(attribute);
     }
 
     @Override
@@ -140,7 +162,7 @@ public class Security implements Keyed<SecurityKey>, Serializable {
                 attributeBytes.write('=');
                 new ObjectOutputStream(attributeBytes).writeObject(v);
             } catch (IOException e) {
-                // FIXME find a better way to handle this
+                // TODO throw a better exception
                 throw new RuntimeException("could not serialize " + v.getClass(), e);
             }
             attributeBytes.write(';');
@@ -151,7 +173,7 @@ public class Security implements Keyed<SecurityKey>, Serializable {
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
-            // FIXME find a better way to handle this
+            // TODO throw a better exception
             throw new RuntimeException("could not get SHA-256 algorithm", e);
         }
 

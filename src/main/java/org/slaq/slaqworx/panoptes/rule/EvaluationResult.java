@@ -34,7 +34,7 @@ public class EvaluationResult {
      * Threshold indicates whether a value-based result is below, within or above the evaluated
      * Rule's threshold.
      * <p>
-     * FIXME there are probably better names for these
+     * TODO there are probably better names for these
      */
     public static enum Threshold {
         BELOW, WITHIN, ABOVE
@@ -99,7 +99,7 @@ public class EvaluationResult {
      */
     public Impact compare(EvaluationResult originalResult) {
         if (originalResult == null) {
-            // FIXME decide whether this even makes sense
+            // TODO decide whether this even makes sense
             return Impact.UNKNOWN;
         }
 

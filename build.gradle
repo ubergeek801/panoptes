@@ -35,6 +35,7 @@ dependencies {
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation 'io.hawt:hawtio-springboot:2.7.0'
     implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.codehaus.groovy:groovy'
     implementation 'org.postgresql:postgresql:42.2.6'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'

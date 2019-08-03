@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import org.slaq.slaqworx.panoptes.util.Keyed;
-
 /**
  * A MaterializedPosition is a basic implementation of the Position interface. A
  * MaterializedPosition may be durable (e.g. sourced from a database/cache) or ephemeral (e.g.
@@ -9,7 +7,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public class MaterializedPosition implements Position, Keyed<PositionKey> {
+public class MaterializedPosition implements Position {
     private static final long serialVersionUID = 1L;
 
     private final PositionKey key;

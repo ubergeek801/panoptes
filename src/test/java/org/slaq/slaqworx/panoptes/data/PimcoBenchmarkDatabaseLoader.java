@@ -29,8 +29,8 @@ public class PimcoBenchmarkDatabaseLoader {
     /**
      * Loads the cache (and then flushes to the database) using data from the PIMCO data source.
      */
-    @Ignore
     @Test
+    @Ignore
     public void loadDatabase() throws Exception {
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
 

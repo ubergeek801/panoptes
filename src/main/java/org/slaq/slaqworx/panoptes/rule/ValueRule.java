@@ -51,6 +51,19 @@ public abstract class ValueRule extends MaterializedRule {
     }
 
     @Override
+    public String getGroovyFilter() {
+        if (positionFilter == null) {
+            return null;
+        }
+
+        if (positionFilter instanceof GroovyPositionFilter) {
+            return ((GroovyPositionFilter)positionFilter).getExpression();
+        }
+
+        return null;
+    }
+
+    @Override
     protected final EvaluationResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions, evaluationContext);
@@ -85,12 +98,21 @@ public abstract class ValueRule extends MaterializedRule {
     }
 
     /**
-     * Obtains this rule's (possibly null) calculation attribute.
+     * Obtains this Rule's (possibly null) calculation attribute.
      *
      * @return the SecurityAttribute on which to perform calculations
      */
     protected SecurityAttribute<Double> getCalculationAttribute() {
         return calculationAttribute;
+    }
+
+    /**
+     * Obtains this Rule's (possibly null) lower limit.
+     *
+     * @return the lower limit against which to evaluate
+     */
+    protected Double getLowerLimit() {
+        return lowerLimit;
     }
 
     /**
@@ -100,6 +122,15 @@ public abstract class ValueRule extends MaterializedRule {
      */
     protected Predicate<Position> getPositionFilter() {
         return positionFilter;
+    }
+
+    /**
+     * Obtains this Rule's (possibly null) upper limit.
+     *
+     * @return the upper limit against which to evaluate
+     */
+    protected Double getUpperLimit() {
+        return upperLimit;
     }
 
     /**

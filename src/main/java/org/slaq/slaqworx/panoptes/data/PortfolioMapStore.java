@@ -100,6 +100,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                 + " benchmark_version = excluded.benchmark_version", key.getId(), key.getVersion(),
                 portfolio.getName(), benchmarkKey == null ? null : benchmarkKey.getId(),
                 benchmarkKey == null ? null : benchmarkKey.getVersion());
+
         getJdbcTemplate().update(
                 "delete from portfolio_position where portfolio_id = ? and portfolio_version = ?",
                 key.getId(), key.getVersion());
@@ -107,6 +108,15 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                 "insert into portfolio_position (portfolio_id, portfolio_version, position_id)"
                         + " values (?, ?, ?)",
                 key.getId(), key.getVersion(), p.getKey().getId()));
+
+        getJdbcTemplate().update(
+                "delete from portfolio_rule where portfolio_id = ? and portfolio_version = ?",
+                key.getId(), key.getVersion());
+        portfolio.getRuleKeys()
+                .forEach(r -> getJdbcTemplate().update(
+                        "insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)"
+                                + " values (?, ?, ?)",
+                        key.getId(), key.getVersion(), r.getId()));
     }
 
     @Override

@@ -68,7 +68,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
                             + " do update set attributes = excluded.attributes",
                     key.getId(), attributesToJson(security.getAttributes()));
         } catch (Exception e) {
-            // FIXME throw a better exception
+            // TODO throw a better exception
             throw new RuntimeException("could not serialize SecurityAttributes for " + key, e);
         }
     }
@@ -134,7 +134,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
                 }
             }
         } catch (Exception e) {
-            // FIXME throw a better exception
+            // TODO throw a better exception
             throw new RuntimeException("could not parse value " + value, e);
         }
 
@@ -185,7 +185,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
         try {
             jsonMap = jsonMapper.readValue(jsonAttributes, attributeMapRef);
         } catch (Exception e) {
-            // FIXME throw a better exception
+            // TODO throw a better exception
             throw new RuntimeException("could not deserialize SecurityAttributes", e);
         }
 

@@ -175,7 +175,8 @@ public class PortfolioEvaluator {
                                         // careful to relate to the original Portfolios, as some
                                         // Rules will require them
                                         PositionSet bpos;
-                                        if (classifiedBenchmarkPositions == null) {
+                                        if (benchmarkPositions == null
+                                                || classifiedBenchmarkPositions == null) {
                                             // no benchmark is provided
                                             bpos = null;
                                         } else {

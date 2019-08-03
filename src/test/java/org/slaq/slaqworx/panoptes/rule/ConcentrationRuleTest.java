@@ -1,6 +1,8 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
@@ -69,6 +71,39 @@ public class ConcentrationRuleTest {
         assertTrue("portfolio with == 5% concentration should have passed",
                 rule.evaluate(portfolio, null, new EvaluationContext(null, securityProvider, null))
                         .isPassed());
+
+        // repeat the first test with a GroovyPositionFilter
+
+        rule = new ConcentrationRule(null, "test rule",
+                new GroovyPositionFilter("s.region == \"Emerging Markets\"", securityProvider),
+                null, 0.1, null);
+
+        // create a portfolio with 50% concentration in Emerging Markets
+        positions = new HashSet<>();
+        positions.add(new MaterializedPosition(100, emergingMarketSecurity.getKey()));
+        positions.add(new MaterializedPosition(100, usSecurity.getKey()));
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
+
+        EvaluationResult result =
+                rule.evaluate(portfolio, null, new EvaluationContext(null, securityProvider, null));
+        assertFalse("portfolio with > 10% concentration should have failed", result.isPassed());
+        assertNull("rule should not have failed with exception", result.getException());
+
+        // repeat the first test with a faulty GroovyPositionFilter
+
+        rule = new ConcentrationRule(null, "test rule", new GroovyPositionFilter(
+                "s.bogusProperty == \"Emerging Markets\"", securityProvider), null, 0.1, null);
+
+        // create a portfolio with 50% concentration in Emerging Markets
+        positions = new HashSet<>();
+        positions.add(new MaterializedPosition(100, emergingMarketSecurity.getKey()));
+        positions.add(new MaterializedPosition(100, usSecurity.getKey()));
+        portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
+
+        result = rule.evaluate(portfolio, null,
+                new EvaluationContext(null, securityProvider, null));
+        assertFalse("portfolio with > 10% concentration should have failed", result.isPassed());
+        assertNotNull("rule should have failed with exception", result.getException());
     }
 
     /**

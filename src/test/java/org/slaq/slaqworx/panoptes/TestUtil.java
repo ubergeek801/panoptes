@@ -44,35 +44,36 @@ public class TestUtil {
             SecurityAttribute.of("yield", 11, BigDecimal.class);
     public static SecurityAttribute<Double> duration =
             SecurityAttribute.of("duration", 12, Double.class);
+
     public static SecurityAttribute<String> issuer =
             SecurityAttribute.of("issuer", 13, String.class);
-
     public static final SecurityAttribute<Double> moovyRating =
             SecurityAttribute.of("Moovy", 14, Double.class);
     public static final SecurityAttribute<Double> npRating =
             SecurityAttribute.of("N&P", 15, Double.class);
+
     public static final SecurityAttribute<Double> fetchRating =
             SecurityAttribute.of("Fetch", 16, Double.class);
 
     private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
-
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
-            Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d);
+            Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d, country, "US");
+
     public static final Security s1 = securityProvider.newSecurity(s1Attributes);
-
     public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
-            Map.of(moovyRating, 85d, npRating, 78d, duration, 4d);
-    public static final Security s2 = securityProvider.newSecurity(s2Attributes);
+            Map.of(moovyRating, 85d, npRating, 78d, duration, 4d, country, "NZ");
 
+    public static final Security s2 = securityProvider.newSecurity(s2Attributes);
     public static final Set<Position> p1Positions =
             Set.of(new MaterializedPosition(1000, s1.getKey()),
                     new MaterializedPosition(500, s2.getKey()));
+
     public static final Portfolio p1 =
             new Portfolio(new PortfolioKey("TestUtilP1", 1), "TestUtilP1", p1Positions);
-
     public static final Set<Position> p2Positions =
             Set.of(new MaterializedPosition(500, s1.getKey()),
                     new MaterializedPosition(1000, s2.getKey()));
+
     public static final Portfolio p2 =
             new Portfolio(new PortfolioKey("TestUtilP2", 1), "TestUtilP2", p2Positions);
 

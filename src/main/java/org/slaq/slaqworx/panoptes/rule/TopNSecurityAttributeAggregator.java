@@ -6,10 +6,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
  * TopNSecurityAttributeAggregator is a SecurityAttributeGroupClassifier which classifies Positions
@@ -20,7 +23,35 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  */
 public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClassifier
         implements GroupAggregator<SecurityAttribute<?>> {
+    static class Configuration {
+        public String attribute;
+        public int count;
+    }
+
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Creates a new TopNSecurityAttributeAggregator which aggregates Positions on the
+     * SecurityAttribute specified in the JSON configuration.
+     *
+     * @param jsonConfiguration
+     *            a JSON configuration specifying the SecurityAttribute on which to aggregate
+     *            Positions
+     */
+    public static TopNSecurityAttributeAggregator fromJson(String jsonConfiguration) {
+        Configuration configuration;
+        try {
+            configuration = JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration,
+                    Configuration.class);
+        } catch (Exception e) {
+            // TODO throw a better exception
+            throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration,
+                    e);
+        }
+
+        return new TopNSecurityAttributeAggregator(SecurityAttribute.of(configuration.attribute),
+                configuration.count);
+    }
 
     private final int count;
 
@@ -66,5 +97,19 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
                 new EvaluationGroup<SecurityAttribute<?>>(
                         getSecurityAttribute() + ".top(" + count + ")", getSecurityAttribute()),
                 aggregatePositions);
+    }
+
+    @Override
+    public String getJsonConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.attribute = getSecurityAttribute().getName();
+        configuration.count = count;
+
+        try {
+            return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);
+        } catch (JsonProcessingException e) {
+            // TODO throw a better exception
+            throw new RuntimeException("could not serialize JSON configuration", e);
+        }
     }
 }

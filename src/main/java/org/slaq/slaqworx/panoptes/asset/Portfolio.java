@@ -25,7 +25,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
     private final PortfolioKey id;
     private final String name;
     private final PortfolioKey benchmarkKey;
-    private final HashSet<RuleKey> ruleIds;
+    private final HashSet<RuleKey> ruleKeys;
     private final PositionSet positionSet;
 
     /**
@@ -81,7 +81,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
         this.id = id;
         this.name = name;
         this.benchmarkKey = benchmarkKey;
-        ruleIds = (rules == null ? new HashSet<>()
+        ruleKeys = (rules == null ? new HashSet<>()
                 : rules.stream().map(r -> r.getKey())
                         .collect(Collectors.toCollection(HashSet::new)));
         positionSet = new PositionSet(positions, this);
@@ -157,6 +157,10 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
         return positionSet;
     }
 
+    public Stream<RuleKey> getRuleKeys() {
+        return ruleKeys.stream();
+    }
+
     /**
      * Obtains this Portfolio's Rules as a Stream.
      *
@@ -165,7 +169,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      * @return a Stream of Rules
      */
     public Stream<Rule> getRules(RuleProvider ruleProvider) {
-        return ruleIds.stream().map(r -> ruleProvider.getRule(r));
+        return ruleKeys.stream().map(r -> ruleProvider.getRule(r));
     }
 
     @Override

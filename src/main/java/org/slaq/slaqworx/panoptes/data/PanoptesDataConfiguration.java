@@ -62,7 +62,7 @@ public class PanoptesDataConfiguration {
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
         } else {
             // use Kubernetes discovery
-            // FIXME parameterize the cluster DNS property
+            // TODO parameterize the cluster DNS property
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
                     .setProperty("service-dns", "panoptes-hazelcast.default.svc.cluster.local");

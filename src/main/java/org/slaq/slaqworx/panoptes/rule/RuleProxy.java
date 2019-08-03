@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -11,7 +12,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  *
  * @author jeremy
  */
-public class RuleProxy implements Rule {
+public class RuleProxy implements Rule, Serializable {
     private static final long serialVersionUID = 1L;
 
     private final RuleKey key;

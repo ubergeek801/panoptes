@@ -36,25 +36,25 @@ public class PortfolioTest {
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), "test", positions);
 
-        Stream<Position> stream1 = portfolio.getPositions();
-        Stream<Position> stream2 = portfolio.getPositions();
+        try (Stream<Position> stream1 = portfolio.getPositions();
+                Stream<Position> stream2 = portfolio.getPositions()) {
+            assertFalse("position streams should be distinct", stream1 == stream2);
+            assertFalse("position streams should be distinct", stream1.equals(stream2));
+            assertEquals("unexpected count for stream 1", 4, stream1.count());
+            assertEquals("unexpected count for stream 2", 4, stream2.count());
 
-        assertFalse("position streams should be distinct", stream1 == stream2);
-        assertFalse("position streams should be distinct", stream1.equals(stream2));
-        assertEquals("unexpected count for stream 1", 4, stream1.count());
-        assertEquals("unexpected count for stream 2", 4, stream2.count());
-
-        // ensure that both streams can be iterated independently/simultaneously
-        Iterator<Position> iter1 = portfolio.getPositions().iterator();
-        Iterator<Position> iter2 = portfolio.getPositions().iterator();
-        int itemCount = 0;
-        while (iter1.hasNext()) {
-            iter1.next();
-            iter2.next();
-            itemCount++;
+            // ensure that both streams can be iterated independently/simultaneously
+            Iterator<Position> iter1 = portfolio.getPositions().iterator();
+            Iterator<Position> iter2 = portfolio.getPositions().iterator();
+            int itemCount = 0;
+            while (iter1.hasNext()) {
+                iter1.next();
+                iter2.next();
+                itemCount++;
+            }
+            assertFalse("stream 2 should be exhausted", iter2.hasNext());
+            assertEquals("unexpected count for parallel stream iteration", 4, itemCount);
         }
-        assertFalse("stream 2 should be exhausted", iter2.hasNext());
-        assertEquals("unexpected count for parallel stream iteration", 4, itemCount);
     }
 
     /**

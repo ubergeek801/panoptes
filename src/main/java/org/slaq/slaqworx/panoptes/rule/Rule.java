@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -23,7 +22,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public interface Rule extends Keyed<RuleKey>, Serializable {
+public interface Rule extends Keyed<RuleKey> {
     /**
      * Evaluates the Rule on the given Portfolio, optionally relative to a given benchmark, subject
      * to the given evaluation context.
