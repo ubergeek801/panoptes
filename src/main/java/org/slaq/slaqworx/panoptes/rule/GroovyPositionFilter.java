@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.function.Predicate;
 
@@ -16,12 +17,13 @@ import groovy.lang.GroovyClassLoader;
  *
  * @author jeremy
  */
-public class GroovyPositionFilter implements Predicate<Position> {
+public class GroovyPositionFilter implements Predicate<PositionEvaluationContext>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static final GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
 
     private final String expression;
-    private final SecurityProvider securityProvider;
-    private final Constructor<Predicate<Position>> filterClassConstructor;
+    private transient final Predicate<PositionEvaluationContext> groovyFilter;
 
     /**
      * Creates a new GroovyPositionFilter using the given Groovy expression.
@@ -31,32 +33,32 @@ public class GroovyPositionFilter implements Predicate<Position> {
      * @param securityProvider
      *            the SecurityProvider for use by the filter
      */
-    protected GroovyPositionFilter(String expression, SecurityProvider securityProvider) {
+    public GroovyPositionFilter(String expression) {
         this.expression = expression;
-        this.securityProvider = securityProvider;
 
         StringBuilder classDef = new StringBuilder("import " + Predicate.class.getName() + "\n");
         classDef.append("import " + Position.class.getName() + "\n");
+        classDef.append("import " + PositionEvaluationContext.class.getName() + "\n");
         classDef.append("import " + Security.class.getName() + "\n");
         classDef.append("import " + SecurityAttribute.class.getName() + "\n");
         classDef.append("import " + SecurityProvider.class.getName() + "\n");
-        classDef.append("class GroovyFilter implements Predicate<Position> {\n");
-        classDef.append(" SecurityProvider secProvider\n");
-        classDef.append(" GroovyFilter(SecurityProvider secProvider) {\n");
-        classDef.append("  this.secProvider = secProvider\n");
-        classDef.append(" }\n");
-        classDef.append(" boolean test(Position p) {\n");
-        classDef.append("  Security s = p.getSecurity(secProvider)\n");
+        classDef.append("class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
+        classDef.append(" boolean test(PositionEvaluationContext ctx) {\n");
+        classDef.append("  Position p = ctx.position\n");
+        classDef.append("  Security s = p.getSecurity(ctx.evaluationContext.securityProvider)\n");
         classDef.append("  return " + expression);
         classDef.append(" }");
         classDef.append("}");
 
-        Class<Predicate<Position>> filterClass = groovyClassLoader.parseClass(classDef.toString());
+        Class<Predicate<PositionEvaluationContext>> filterClass =
+                groovyClassLoader.parseClass(classDef.toString());
         try {
-            filterClassConstructor = filterClass.getConstructor(SecurityProvider.class);
+            Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
+                    filterClass.getConstructor();
+            groovyFilter = filterClassConstructor.newInstance();
         } catch (Exception e) {
             // TODO throw a better exception
-            throw new RuntimeException("could not get Groovy filter constructor", e);
+            throw new RuntimeException("could not instantaite Groovy filter", e);
         }
     }
 
@@ -70,15 +72,7 @@ public class GroovyPositionFilter implements Predicate<Position> {
     }
 
     @Override
-    public boolean test(Position position) {
-        Predicate<Position> groovyFilter;
-        try {
-            groovyFilter = filterClassConstructor.newInstance(securityProvider);
-        } catch (Exception e) {
-            // TODO throw a better exception
-            throw new RuntimeException("could not instantiate Groovy filter", e);
-        }
-
+    public boolean test(PositionEvaluationContext position) {
         return groovyFilter.test(position);
     }
 }

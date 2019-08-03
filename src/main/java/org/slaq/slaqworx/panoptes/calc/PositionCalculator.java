@@ -2,10 +2,10 @@ package org.slaq.slaqworx.panoptes.calc;
 
 import java.util.function.Predicate;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
  * PositionCalculator is the parent of classes which perform calculations on Positions, typically to
@@ -59,7 +59,8 @@ public abstract class PositionCalculator<T> {
      * @return the result of the calculation
      */
     public final double calculate(PositionSupplier positions,
-            Predicate<? super Position> positionFilter, EvaluationContext evaluationContext) {
+            Predicate<PositionEvaluationContext> positionFilter,
+            EvaluationContext evaluationContext) {
         return calc(positions, positionFilter == null ? p -> true : positionFilter,
                 evaluationContext);
     }
@@ -77,7 +78,8 @@ public abstract class PositionCalculator<T> {
      * @return the result of the calculation
      */
     protected abstract double calc(PositionSupplier positions,
-            Predicate<? super Position> positionFilter, EvaluationContext evaluationContext);
+            Predicate<PositionEvaluationContext> positionFilter,
+            EvaluationContext evaluationContext);
 
     /**
      * Obtains the SecurityAttribute type to be used in calculations.

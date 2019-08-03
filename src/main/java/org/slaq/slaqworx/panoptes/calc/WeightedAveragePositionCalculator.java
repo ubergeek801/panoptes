@@ -13,6 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
  * WeightedAveragePositionCalculator is a PositionCalculator that determines the weighted average of
@@ -33,22 +34,22 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
      * @author jeremy
      */
     private class WeightedAveragePositionCollector
-            implements Collector<Position, AmountAccumulator, Double> {
-        private final EvaluationContext evaluationContext;
-
+            implements Collector<PositionEvaluationContext, AmountAccumulator, Double> {
         /**
          * Creates a new WeightedAveragePositionCollector.
          */
-        public WeightedAveragePositionCollector(EvaluationContext evaluationContext) {
-            this.evaluationContext = evaluationContext;
+        public WeightedAveragePositionCollector() {
+            // nothing to do
         }
 
         @Override
-        public BiConsumer<AmountAccumulator, Position> accumulator() {
+        public BiConsumer<AmountAccumulator, PositionEvaluationContext> accumulator() {
             // accumulate the Position's amount and weighted amount
-            return (a, p) -> {
-                Double attributeValue = p.getSecurity(evaluationContext.getSecurityProvider())
-                        .getAttributeValue(getCalculationAttribute());
+            return (a, c) -> {
+                Position p = c.getPosition();
+                Double attributeValue =
+                        p.getSecurity(c.getEvaluationContext().getSecurityProvider())
+                                .getAttributeValue(getCalculationAttribute());
                 if (attributeValue == null) {
                     return;
                 }
@@ -97,9 +98,10 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     }
 
     @Override
-    public double calc(PositionSupplier positions, Predicate<? super Position> positionFilter,
+    public double calc(PositionSupplier positions,
+            Predicate<PositionEvaluationContext> positionFilter,
             EvaluationContext evaluationContext) {
-        return positions.getPositions().filter(positionFilter)
-                .collect(new WeightedAveragePositionCollector(evaluationContext));
+        return positions.getPositionsWithContext(evaluationContext).filter(positionFilter)
+                .collect(new WeightedAveragePositionCollector());
     }
 }

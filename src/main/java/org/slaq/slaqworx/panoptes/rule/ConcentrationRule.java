@@ -4,9 +4,7 @@ import java.util.function.Predicate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
@@ -41,8 +39,6 @@ public class ConcentrationRule extends ValueRule {
      *
      * @param jsonConfiguration
      *            the JSON configuration specifying lower and upper limits
-     * @param securityProvider
-     *            the SecurityProvider to use for the Groovy filter
      * @param key
      *            the unique key of this rule, or null to generate one
      * @param description
@@ -53,9 +49,8 @@ public class ConcentrationRule extends ValueRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    public static ConcentrationRule fromJson(String jsonConfiguration,
-            SecurityProvider securityProvider, RuleKey key, String description, String groovyFilter,
-            EvaluationGroupClassifier groupClassifier) {
+    public static ConcentrationRule fromJson(String jsonConfiguration, RuleKey key,
+            String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
         Configuration configuration;
         try {
             configuration = JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration,
@@ -67,8 +62,7 @@ public class ConcentrationRule extends ValueRule {
         }
 
         return new ConcentrationRule(key, description,
-                (groovyFilter == null ? null
-                        : new GroovyPositionFilter(groovyFilter, securityProvider)),
+                (groovyFilter == null ? null : new GroovyPositionFilter(groovyFilter)),
                 configuration.lowerLimit, configuration.upperLimit, groupClassifier);
     }
 
@@ -90,8 +84,9 @@ public class ConcentrationRule extends ValueRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    public ConcentrationRule(RuleKey key, String description, Predicate<Position> positionFilter,
-            Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+    public ConcentrationRule(RuleKey key, String description,
+            Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
+            Double upperLimit, EvaluationGroupClassifier groupClassifier) {
         super(key, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier);
     }
 

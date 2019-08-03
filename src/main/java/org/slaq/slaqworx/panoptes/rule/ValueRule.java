@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Predicate;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
@@ -16,7 +15,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
 public abstract class ValueRule extends MaterializedRule {
     private static final long serialVersionUID = 1L;
 
-    private final Predicate<Position> positionFilter;
+    private final Predicate<PositionEvaluationContext> positionFilter;
     private final SecurityAttribute<Double> calculationAttribute;
     private final Double lowerLimit;
     private final Double upperLimit;
@@ -40,7 +39,8 @@ public abstract class ValueRule extends MaterializedRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    protected ValueRule(RuleKey key, String description, Predicate<Position> positionFilter,
+    protected ValueRule(RuleKey key, String description,
+            Predicate<PositionEvaluationContext> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
             EvaluationGroupClassifier groupClassifier) {
         super(key, description, groupClassifier);
@@ -120,7 +120,7 @@ public abstract class ValueRule extends MaterializedRule {
      *
      * @return the Predicate encoding the position filter
      */
-    protected Predicate<Position> getPositionFilter() {
+    protected Predicate<PositionEvaluationContext> getPositionFilter() {
         return positionFilter;
     }
 

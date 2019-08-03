@@ -4,10 +4,8 @@ import java.util.function.Predicate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
@@ -40,8 +38,6 @@ public class WeightedAverageRule extends ValueRule {
      *
      * @param jsonConfiguration
      *            the JSON configuration specifying calculation attribute, lower and upper limits
-     * @param securityProvider
-     *            the SecurityProvider to use for the Groovy filter
      * @param key
      *            the unique key of this rule, or null to generate one
      * @param description
@@ -52,9 +48,8 @@ public class WeightedAverageRule extends ValueRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    public static WeightedAverageRule fromJson(String jsonConfiguration,
-            SecurityProvider securityProvider, RuleKey key, String description, String groovyFilter,
-            EvaluationGroupClassifier groupClassifier) {
+    public static WeightedAverageRule fromJson(String jsonConfiguration, RuleKey key,
+            String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
         Configuration configuration;
         try {
             configuration = JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration,
@@ -69,8 +64,7 @@ public class WeightedAverageRule extends ValueRule {
         SecurityAttribute<Double> calculationAttribute =
                 (SecurityAttribute<Double>)SecurityAttribute.of(configuration.attribute);
         return new WeightedAverageRule(key, description,
-                (groovyFilter == null ? null
-                        : new GroovyPositionFilter(groovyFilter, securityProvider)),
+                (groovyFilter == null ? null : new GroovyPositionFilter(groovyFilter)),
                 calculationAttribute, configuration.lowerLimit, configuration.upperLimit,
                 groupClassifier);
     }
@@ -94,7 +88,8 @@ public class WeightedAverageRule extends ValueRule {
      *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
      *            GroupAggregator
      */
-    public WeightedAverageRule(RuleKey key, String description, Predicate<Position> positionFilter,
+    public WeightedAverageRule(RuleKey key, String description,
+            Predicate<PositionEvaluationContext> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
             EvaluationGroupClassifier groupClassifier) {
         super(key, description, positionFilter, calculationAttribute, lowerLimit, upperLimit,

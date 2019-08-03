@@ -33,9 +33,9 @@ public class ConcentrationRuleTest {
     @Test
     public void testEvaluate() {
         // the rule tests that the concentration of region = "Emerging Markets" <= 10%
-        ConcentrationRule rule = new ConcentrationRule(null, "test rule",
-                p -> "Emerging Markets"
-                        .equals(p.getSecurity(securityProvider).getAttributeValue(TestUtil.region)),
+        ConcentrationRule rule = new ConcentrationRule(
+                null, "test rule", c -> "Emerging Markets".equals(c.getPosition()
+                        .getSecurity(securityProvider).getAttributeValue(TestUtil.region)),
                 null, 0.1, null);
 
         Security emergingMarketSecurity =
@@ -75,8 +75,7 @@ public class ConcentrationRuleTest {
         // repeat the first test with a GroovyPositionFilter
 
         rule = new ConcentrationRule(null, "test rule",
-                new GroovyPositionFilter("s.region == \"Emerging Markets\"", securityProvider),
-                null, 0.1, null);
+                new GroovyPositionFilter("s.region == \"Emerging Markets\""), null, 0.1, null);
 
         // create a portfolio with 50% concentration in Emerging Markets
         positions = new HashSet<>();
@@ -91,8 +90,9 @@ public class ConcentrationRuleTest {
 
         // repeat the first test with a faulty GroovyPositionFilter
 
-        rule = new ConcentrationRule(null, "test rule", new GroovyPositionFilter(
-                "s.bogusProperty == \"Emerging Markets\"", securityProvider), null, 0.1, null);
+        rule = new ConcentrationRule(null, "test rule",
+                new GroovyPositionFilter("s.bogusProperty == \"Emerging Markets\""), null, 0.1,
+                null);
 
         // create a portfolio with 50% concentration in Emerging Markets
         positions = new HashSet<>();
@@ -113,9 +113,8 @@ public class ConcentrationRuleTest {
     public void testEvaluateBenchmarkRelative() {
         // the rule tests that the concentration of currency = BRL is between 95% and 105% of the
         // benchmark
-        ConcentrationRule rule = new ConcentrationRule(null, "test rule",
-                p -> "BRL".equals(
-                        p.getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
+        ConcentrationRule rule = new ConcentrationRule(null, "test rule", c -> "BRL".equals(
+                c.getPosition().getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
                 0.95, 1.05, null);
 
         Security brlSecurity = securityProvider.newSecurity(Map.of(TestUtil.currency, "BRL"));
@@ -190,9 +189,8 @@ public class ConcentrationRuleTest {
 
         // the rule tests that the concentration of currency = BRL is at least 95% of the
         // benchmark
-        rule = new ConcentrationRule(null, "test rule",
-                p -> "BRL".equals(
-                        p.getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
+        rule = new ConcentrationRule(null, "test rule", c -> "BRL".equals(
+                c.getPosition().getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
                 0.95, null, null);
 
         // create a portfolio with 0% concentration in BRL
@@ -220,9 +218,8 @@ public class ConcentrationRuleTest {
 
         // the rule tests that the concentration of currency = BRL is at most 105% of the
         // benchmark
-        rule = new ConcentrationRule(null, "test rule",
-                p -> "BRL".equals(
-                        p.getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
+        rule = new ConcentrationRule(null, "test rule", c -> "BRL".equals(
+                c.getPosition().getSecurity(securityProvider).getAttributeValue(TestUtil.currency)),
                 null, 1.05, null);
 
         // any concentration is infinitely higher than the benchmark, so should fail

@@ -6,12 +6,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -23,11 +20,8 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * @author jeremy
  */
 @Service
-public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule>
-        implements ApplicationContextAware {
+public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     private static final long serialVersionUID = 1L;
-
-    private ApplicationContext applicationContext;
 
     /**
      * Creates a new RuleMapStore. Restricted because instances of this class should be created
@@ -48,8 +42,6 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule>
 
     @Override
     public MaterializedRule mapRow(ResultSet rs, int rowNum) throws SQLException {
-        PortfolioCache securityProvider = applicationContext.getBean(PortfolioCache.class);
-
         String id = rs.getString(1);
         String description = rs.getString(2);
         String ruleTypeName = rs.getString(3);
@@ -65,10 +57,9 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule>
             classifier = null;
         } else {
             try {
-                Method fromJsonMethod =
-                        classifierType.getMethod("fromJson", String.class, SecurityProvider.class);
+                Method fromJsonMethod = classifierType.getMethod("fromJson", String.class);
                 classifier = (EvaluationGroupClassifier)fromJsonMethod.invoke(null,
-                        classifierConfiguration, securityProvider);
+                        classifierConfiguration);
             } catch (Exception e) {
                 // TODO throw a better exception
                 throw new RuntimeException("could not instantiate classifier class " + ruleTypeName
@@ -79,11 +70,10 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule>
         Class<MaterializedRule> ruleType = resolveClass(ruleTypeName, "rule", id, description);
         MaterializedRule rule;
         try {
-            Method fromJsonMethod = ruleType.getMethod("fromJson", String.class,
-                    SecurityProvider.class, RuleKey.class, String.class, String.class,
-                    EvaluationGroupClassifier.class);
-            rule = (MaterializedRule)fromJsonMethod.invoke(null, configuration, securityProvider,
-                    new RuleKey(id), description, groovyFilter, classifier);
+            Method fromJsonMethod = ruleType.getMethod("fromJson", String.class, RuleKey.class,
+                    String.class, String.class, EvaluationGroupClassifier.class);
+            rule = (MaterializedRule)fromJsonMethod.invoke(null, configuration, new RuleKey(id),
+                    description, groovyFilter, classifier);
         } catch (Exception e) {
             // TODO throw a better exception
             throw new RuntimeException("could not instantiate rule class " + ruleTypeName
@@ -91,11 +81,6 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule>
         }
 
         return rule;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
     }
 
     @Override

@@ -30,6 +30,8 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
+import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
@@ -54,6 +56,11 @@ public class DummyPortfolioMapLoader
 
     private transient final PimcoBenchmarkDataSource dataSource;
 
+    private final GroovyPositionFilter currencyUsdFilter;
+    private final GroovyPositionFilter currencyBrlFilter;
+    private final GroovyPositionFilter duration3Filter;
+    private final GroovyPositionFilter regionEmergingMarketFilter;
+
     /**
      * Creates a new DummyPortfolioMapLoader.
      *
@@ -68,6 +75,11 @@ public class DummyPortfolioMapLoader
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.GLAD_KEY),
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.ILAD_KEY),
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY) };
+
+        currencyUsdFilter = new GroovyPositionFilter("s.currency == \"USD\"");
+        currencyBrlFilter = new GroovyPositionFilter("s.currency == \"BRL\"");
+        duration3Filter = new GroovyPositionFilter("s.duration > 3.0");
+        regionEmergingMarketFilter = new GroovyPositionFilter("s.region == \"Emerging Markets\"");
     }
 
     @Override
@@ -200,24 +212,20 @@ public class DummyPortfolioMapLoader
         HashSet<Rule> rules = new HashSet<>(400);
 
         for (int i = 1; i <= 200; i++) {
-            Predicate<Position> filter = null;
+            Predicate<PositionEvaluationContext> filter = null;
             SecurityAttribute<Double> compareAttribute = null;
             switch (random.nextInt(6)) {
             case 0:
-                filter = (Predicate<Position> & Serializable)(p -> "USD"
-                        .equals(p.getSecurity(dataSource).getAttributeValue(TestUtil.currency)));
+                filter = currencyUsdFilter;
                 break;
             case 1:
-                filter = (Predicate<Position> & Serializable)(p -> "BRL"
-                        .equals(p.getSecurity(dataSource).getAttributeValue(TestUtil.currency)));
+                filter = currencyBrlFilter;
                 break;
             case 2:
-                filter = (Predicate<Position> & Serializable)(p -> p.getSecurity(dataSource)
-                        .getAttributeValue(TestUtil.duration) > 3.0);
+                filter = duration3Filter;
                 break;
             case 3:
-                filter = (Predicate<Position> & Serializable)(p -> "Emerging Markets"
-                        .equals(p.getSecurity(dataSource).getAttributeValue(TestUtil.region)));
+                filter = regionEmergingMarketFilter;
                 break;
             case 4:
                 compareAttribute = TestUtil.ratingValue;

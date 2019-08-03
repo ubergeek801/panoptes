@@ -2,6 +2,9 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.stream.Stream;
 
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
+
 /**
  * A PositionSupplier supplies Positions. An implementor might be a customer portfolio or a "raw"
  * set of Positions. A PositionSupplier may provide access to a related Portfolio (which may be
@@ -19,11 +22,22 @@ public interface PositionSupplier {
     public Portfolio getPortfolio();
 
     /**
-     * Obtains this PositionSupplier Positions as a (new) Stream.
+     * Obtains this PositionSupplier's Positions as a (new) Stream.
      *
      * @return a Stream of Positions
      */
     public Stream<Position> getPositions();
+
+    /**
+     * Given an EvaluationContext, obtains this PositionSupplier's Positions as a (new) Stream of
+     * PositionEvaluationContexts.
+     *
+     * @return a Stream of PositionEvaluationContexts
+     */
+    public default Stream<PositionEvaluationContext>
+            getPositionsWithContext(EvaluationContext evaluationContext) {
+        return getPositions().map(p -> new PositionEvaluationContext(p, evaluationContext));
+    }
 
     /**
      * Obtains the sum of the Position amounts of this PositionSupplier.
