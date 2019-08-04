@@ -31,8 +31,6 @@ public class ConcentrationRule extends ValueRule {
         public Double upperLimit;
     }
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new ConcentrationRule with the given JSON configuration, key, description, filter
      * and classifier.

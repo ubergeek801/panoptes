@@ -91,7 +91,7 @@ public class PortfolioCache
      * @return the Hazelcast Rule cache
      */
     public IMap<RuleKey, Rule> getRuleCache() {
-        return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
+        return hazelcastInstance.getMap(RULE_CACHE_NAME);
     }
 
     @Override

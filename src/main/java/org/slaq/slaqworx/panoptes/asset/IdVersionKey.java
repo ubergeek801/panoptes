@@ -1,16 +1,13 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * IdVersionKey is a key used to reference most asset types (using trivial subclasses).
+ * IdVersionKey is a key used to reference some asset types (using trivial subclasses).
  *
  * @author jeremy
  */
-public abstract class IdVersionKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public abstract class IdVersionKey {
     /**
      * Obtains a generated ID of the form used by an IdVersionKey.
      *

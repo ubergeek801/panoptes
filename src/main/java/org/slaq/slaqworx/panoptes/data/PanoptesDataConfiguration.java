@@ -13,9 +13,27 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.MapStore;
 
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.asset.ProxyFactory;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer;
+import org.slaq.slaqworx.panoptes.serializer.PositionKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.PositionSerializer;
+import org.slaq.slaqworx.panoptes.serializer.RuleKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
+import org.slaq.slaqworx.panoptes.serializer.SecurityKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
 
 /**
  * PanoptesDataConfiguration is a Spring Configuration that provides Beans related to DataSources,
@@ -45,17 +63,39 @@ public class PanoptesDataConfiguration {
      */
     @Bean
     @DependsOn("securityAttributeLoader")
-    public Config hazelcastConfig(ApplicationContext appContext) throws Exception {
+    public Config hazelcastConfig(ApplicationContext applicationContext) throws Exception {
         Config config = new Config();
 
+        config.getSerializationConfig().addSerializerConfig(new SerializerConfig()
+                .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class))
+                .addSerializerConfig(new SerializerConfig()
+                        .setImplementation(
+                                new PortfolioSerializer(new ProxyFactory(applicationContext)))
+                        .setTypeClass(Portfolio.class))
+                .addSerializerConfig(
+                        new SerializerConfig().setImplementation(new PositionKeySerializer())
+                                .setTypeClass(PositionKey.class))
+                .addSerializerConfig(
+                        new SerializerConfig().setImplementation(new PositionSerializer())
+                                .setTypeClass(MaterializedPosition.class))
+                .addSerializerConfig(new SerializerConfig()
+                        .setImplementation(new RuleKeySerializer()).setTypeClass(RuleKey.class))
+                .addSerializerConfig(new SerializerConfig().setImplementation(new RuleSerializer())
+                        .setTypeClass(MaterializedRule.class))
+                .addSerializerConfig(
+                        new SerializerConfig().setImplementation(new SecurityKeySerializer())
+                                .setTypeClass(SecurityKey.class))
+                .addSerializerConfig(new SerializerConfig()
+                        .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
+
         createMapConfiguration(config, PortfolioCache.PORTFOLIO_CACHE_NAME,
-                appContext.getBean(PortfolioMapStore.class));
+                applicationContext.getBean(PortfolioMapStore.class));
         createMapConfiguration(config, PortfolioCache.POSITION_CACHE_NAME,
-                appContext.getBean(PositionMapStore.class));
+                applicationContext.getBean(PositionMapStore.class));
         createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME,
-                appContext.getBean(SecurityMapStore.class));
+                applicationContext.getBean(SecurityMapStore.class));
         createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME,
-                appContext.getBean(RuleMapStore.class));
+                applicationContext.getBean(RuleMapStore.class));
 
         if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
             // not running in Kubernetes; run standalone

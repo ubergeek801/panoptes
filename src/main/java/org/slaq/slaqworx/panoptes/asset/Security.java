@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.asset;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -25,9 +24,7 @@ import groovy.lang.MissingPropertyException;
  *
  * @author jeremy
  */
-public class Security implements Keyed<SecurityKey>, Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class Security implements Keyed<SecurityKey> {
     private SecurityKey key;
 
     // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule

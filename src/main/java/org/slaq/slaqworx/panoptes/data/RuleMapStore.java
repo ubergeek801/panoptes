@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
@@ -50,37 +50,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
         String classifierTypeName = rs.getString(6);
         String classifierConfiguration = rs.getString(7);
 
-        Class<EvaluationGroupClassifier> classifierType =
-                resolveClass(classifierTypeName, "classifier", id, description);
-        EvaluationGroupClassifier classifier;
-        if (classifierType == null) {
-            classifier = null;
-        } else {
-            try {
-                Method fromJsonMethod = classifierType.getMethod("fromJson", String.class);
-                classifier = (EvaluationGroupClassifier)fromJsonMethod.invoke(null,
-                        classifierConfiguration);
-            } catch (Exception e) {
-                // TODO throw a better exception
-                throw new RuntimeException("could not instantiate classifier class " + ruleTypeName
-                        + " for rule " + id + "(" + description + ")");
-            }
-        }
-
-        Class<MaterializedRule> ruleType = resolveClass(ruleTypeName, "rule", id, description);
-        MaterializedRule rule;
-        try {
-            Method fromJsonMethod = ruleType.getMethod("fromJson", String.class, RuleKey.class,
-                    String.class, String.class, EvaluationGroupClassifier.class);
-            rule = (MaterializedRule)fromJsonMethod.invoke(null, configuration, new RuleKey(id),
-                    description, groovyFilter, classifier);
-        } catch (Exception e) {
-            // TODO throw a better exception
-            throw new RuntimeException("could not instantiate rule class " + ruleTypeName
-                    + " for rule " + id + "(" + description + ")");
-        }
-
-        return rule;
+        return RuleSerializer.constructRule(id, description, ruleTypeName, configuration,
+                groovyFilter, classifierTypeName, classifierConfiguration);
     }
 
     @Override
@@ -101,7 +72,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
         getJdbcTemplate().update(
                 "insert into " + getTableName()
                         + " (id, description, type, configuration, filter, classifier_type,"
-                        + " classifier_configuration) values (?, ?, ?, ?, ?, ?, ?)"
+                        + " classifier_configuration) values (?, ?, ?, ?::json, ?, ?, ?::json)"
                         + " on conflict on constraint rule_pk do update"
                         + " set description = excluded.description, type = excluded.type,"
                         + " configuration = excluded.configuration, filter = excluded.filter,"
@@ -136,39 +107,5 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     @Override
     protected String getTableName() {
         return "rule";
-    }
-
-    /**
-     * Resolves the Class with the given name.
-     *
-     * @param <T>
-     *            the expected type of the returned Class
-     * @param className
-     *            the name of the Class to resolve
-     * @param function
-     *            the function that the class serves (for logging purposes)
-     * @param ruleId
-     *            the rule ID for which the Class is being instantiated (for logging purposes)
-     * @param ruleDescription
-     *            the rule description for which the Class is being instantiated (for logging
-     *            purposes)
-     * @return the requested Class, or null if the given class name was null
-     */
-    protected <T> Class<T> resolveClass(String className, String function, String ruleId,
-            String ruleDescription) {
-        if (className == null) {
-            return null;
-        }
-
-        try {
-            @SuppressWarnings("unchecked")
-            Class<T> clazz = (Class<T>)Class.forName(className);
-
-            return clazz;
-        } catch (ClassNotFoundException e) {
-            // TODO throw a better exception
-            throw new RuntimeException("could not find " + function + " class " + className
-                    + " for rule " + ruleId + "(" + ruleDescription + ")");
-        }
     }
 }

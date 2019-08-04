@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.function.Predicate;
 
@@ -13,13 +12,11 @@ import groovy.lang.GroovyClassLoader;
 
 /**
  * GroovyPositionFilter is a Position-based Predicate that can be used as a Position filter for Rule
- * evaluation.
+ * evaluation. Currently it is the only such filter that can be persisted.
  *
  * @author jeremy
  */
-public class GroovyPositionFilter implements Predicate<PositionEvaluationContext>, Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class GroovyPositionFilter implements Predicate<PositionEvaluationContext> {
     private static final GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
 
     private final String expression;

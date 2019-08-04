@@ -19,8 +19,6 @@ public class SecurityAttributeGroupClassifier
         public String attribute;
     }
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new SecurityAttributeGroupClassifier which classifies Positions based on the
      * SecurityAttribute specified in the JSON configuration.

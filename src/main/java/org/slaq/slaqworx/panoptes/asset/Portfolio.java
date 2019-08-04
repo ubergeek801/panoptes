@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,9 +18,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     private final PortfolioKey id;
     private final String name;
     private final PortfolioKey benchmarkKey;
@@ -39,7 +36,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      * @param positions
      *            the Positions comprising the Portfolio
      */
-    public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
+    public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions) {
         this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
     }
 
@@ -57,8 +54,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      * @param rules
      *            the (possibly empty) Collection of Rules associated with the Portfolio
      */
-    public Portfolio(PortfolioKey id, String name, Set<Position> positions, Portfolio benchmark,
-            Collection<Rule> rules) {
+    public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions,
+            Portfolio benchmark, Collection<? extends Rule> rules) {
         this(id, name, positions, (benchmark == null ? null : benchmark.getKey()), rules);
     }
 
@@ -76,8 +73,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier, Seriali
      * @param rules
      *            the (possibly empty) Collection of Rules associated with the Portfolio
      */
-    public Portfolio(PortfolioKey id, String name, Set<Position> positions,
-            PortfolioKey benchmarkKey, Collection<Rule> rules) {
+    public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions,
+            PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
         this.id = id;
         this.name = name;
         this.benchmarkKey = benchmarkKey;

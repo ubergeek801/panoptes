@@ -28,8 +28,6 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
         public int count;
     }
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new TopNSecurityAttributeAggregator which aggregates Positions on the
      * SecurityAttribute specified in the JSON configuration.

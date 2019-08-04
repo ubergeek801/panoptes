@@ -22,10 +22,9 @@ public class SecurityMapStoreTest {
         // ensure that TestUtil is loaded and thus initializes SecurityAttributes
         TestUtil.testSecurityProvider();
 
-        SecurityMapStore mapStore = new SecurityMapStore(new DummyDataSource());
         String json = "{\"cusip\":\"0MV4CFXX\",\"yield\":2.6,\"ratingValue\":99.1,"
                 + "\"maturityDate\":\"2019-07-31\"}";
-        Map<SecurityAttribute<?>, ? super Object> map = mapStore.jsonToAttributes(json);
+        Map<SecurityAttribute<?>, ? super Object> map = SecurityMapStore.jsonToAttributes(json);
         assertEquals("unexpected map size", 4, map.size());
         assertEquals("unexpected value for cusip", "0MV4CFXX", map.get(TestUtil.cusip));
         assertEquals("unexpected value for yield", new BigDecimal("2.6"), map.get(TestUtil.yield));
@@ -34,7 +33,7 @@ public class SecurityMapStoreTest {
         assertEquals("unexpected value for maturityDate", LocalDate.of(2019, 7, 31),
                 map.get(TestUtil.maturityDate));
 
-        String output = mapStore.attributesToJson(map);
+        String output = SecurityMapStore.attributesToJson(map);
 
         // note the reordered keys which unfortunately makes this test slightly brittle
         assertEquals("unexpected JSON", "{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\","

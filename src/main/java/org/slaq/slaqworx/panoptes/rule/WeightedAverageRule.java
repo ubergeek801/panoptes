@@ -30,8 +30,6 @@ public class WeightedAverageRule extends ValueRule {
         public Double upperLimit;
     }
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new WeightedAverageRule with the given JSON configuration, key, description, filter
      * and classifier.

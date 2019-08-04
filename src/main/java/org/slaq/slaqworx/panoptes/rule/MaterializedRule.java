@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
-
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
@@ -11,10 +9,7 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  *
  * @author jeremy
  */
-public abstract class MaterializedRule extends AbstractRule
-        implements JsonConfigurable, Serializable {
-    private static final long serialVersionUID = 1L;
-
+public abstract class MaterializedRule extends AbstractRule implements JsonConfigurable {
     /**
      * Creates a new MaterializedRule with the given key and description.
      *

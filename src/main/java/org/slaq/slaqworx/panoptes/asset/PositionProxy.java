@@ -8,8 +8,6 @@ package org.slaq.slaqworx.panoptes.asset;
  * @author jeremy
  */
 public class PositionProxy implements Position {
-    private static final long serialVersionUID = 1L;
-
     private final PositionKey key;
     private final transient PositionProvider positionProvider;
 

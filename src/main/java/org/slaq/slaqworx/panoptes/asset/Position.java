@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.io.Serializable;
-
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -9,7 +7,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public interface Position extends Keyed<PositionKey>, Serializable {
+public interface Position extends Keyed<PositionKey> {
     /**
      * Obtains the amount of this Position.
      *
@@ -23,7 +21,7 @@ public interface Position extends Keyed<PositionKey>, Serializable {
     /**
      * Obtains the Security held by this Position.
      *
-     * @param SecurityProvider
+     * @param securityProvider
      *            the SecurityProvider from which to obtain the Security
      * @return the Security held by this Position
      */

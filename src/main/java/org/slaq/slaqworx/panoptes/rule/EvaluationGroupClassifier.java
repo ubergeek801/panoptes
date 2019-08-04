@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
-
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
@@ -12,14 +10,14 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
  * @author jeremy
  */
 @FunctionalInterface
-public interface EvaluationGroupClassifier extends Serializable {
+public interface EvaluationGroupClassifier {
     /**
      * Obtains the default (Portfolio-level) classifier.
      *
      * @return the default classifier
      */
     public static EvaluationGroupClassifier defaultClassifier() {
-        return (securityProvider, position) -> EvaluationGroup.defaultGroup();
+        return new DefaultEvaluationGroupClassifier();
     }
 
     /**

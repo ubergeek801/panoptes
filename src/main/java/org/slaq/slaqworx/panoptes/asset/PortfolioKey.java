@@ -6,8 +6,6 @@ package org.slaq.slaqworx.panoptes.asset;
  * @author jeremy
  */
 public class PortfolioKey extends IdVersionKey {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new PortfolioKey with the given ID and version.
      *

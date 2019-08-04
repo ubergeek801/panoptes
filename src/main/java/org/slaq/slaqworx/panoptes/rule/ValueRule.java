@@ -13,8 +13,6 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
  * @author jeremy
  */
 public abstract class ValueRule extends MaterializedRule {
-    private static final long serialVersionUID = 1L;
-
     private final Predicate<PositionEvaluationContext> positionFilter;
     private final SecurityAttribute<Double> calculationAttribute;
     private final Double lowerLimit;

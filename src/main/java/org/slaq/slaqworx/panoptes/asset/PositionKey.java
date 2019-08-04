@@ -1,15 +1,11 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.io.Serializable;
-
 /**
  * PositionKey is a key used to reference Positions.
  *
  * @author jeremy
  */
-public class PositionKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class PositionKey {
     private final String id;
 
     /**

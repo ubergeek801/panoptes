@@ -1,15 +1,11 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.io.Serializable;
-
 /**
  * SecurityKey is a key used to reference Securities.
  *
  * @author jeremy
  */
-public class SecurityKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class SecurityKey {
     private final String id;
 
     /**

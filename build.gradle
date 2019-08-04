@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.1.6.RELEASE'
+    id 'com.google.protobuf' version '0.8.10'
     id 'com.google.cloud.tools.jib' version '1.4.0'
 }
 
@@ -30,6 +31,7 @@ ext {
 
 dependencies {
     implementation 'ch.qos.logback:logback-classic'
+    implementation 'com.google.protobuf:protobuf-javalite:3.9.0'
     implementation 'com.hazelcast:hazelcast'
     implementation 'com.hazelcast:hazelcast-kubernetes:1.5.1'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
@@ -48,6 +50,22 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
+    }
+}
+
+protobuf {
+    protoc {
+        // The artifact spec for the Protobuf Compiler
+        artifact = 'com.google.protobuf:protoc:3.9.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
     }
 }
 
