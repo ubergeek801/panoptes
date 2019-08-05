@@ -12,9 +12,10 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.config.MapStoreConfig.InitialLoadMode;
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -63,39 +64,31 @@ public class PanoptesDataConfiguration {
      */
     @Bean
     @DependsOn("securityAttributeLoader")
-    public Config hazelcastConfig(ApplicationContext applicationContext) throws Exception {
+    public Config hazelcastConfig() {
         Config config = new Config();
 
-        config.getSerializationConfig().addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class))
-                .addSerializerConfig(new SerializerConfig()
-                        .setImplementation(
-                                new PortfolioSerializer(new ProxyFactory(applicationContext)))
-                        .setTypeClass(Portfolio.class))
-                .addSerializerConfig(
-                        new SerializerConfig().setImplementation(new PositionKeySerializer())
-                                .setTypeClass(PositionKey.class))
-                .addSerializerConfig(
-                        new SerializerConfig().setImplementation(new PositionSerializer())
-                                .setTypeClass(MaterializedPosition.class))
-                .addSerializerConfig(new SerializerConfig()
-                        .setImplementation(new RuleKeySerializer()).setTypeClass(RuleKey.class))
-                .addSerializerConfig(new SerializerConfig().setImplementation(new RuleSerializer())
-                        .setTypeClass(MaterializedRule.class))
-                .addSerializerConfig(
-                        new SerializerConfig().setImplementation(new SecurityKeySerializer())
-                                .setTypeClass(SecurityKey.class))
-                .addSerializerConfig(new SerializerConfig()
-                        .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
+        SerializationConfig serializationConfig = config.getSerializationConfig();
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(PortfolioKeySerializer.class).setTypeClass(PortfolioKey.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(PortfolioSerializer.class).setTypeClass(Portfolio.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(PositionKeySerializer.class).setTypeClass(PositionKey.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(PositionSerializer.class).setTypeClass(MaterializedPosition.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(RuleKeySerializer.class).setTypeClass(RuleKey.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(RuleSerializer.class).setTypeClass(MaterializedRule.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(SecurityKeySerializer.class).setTypeClass(SecurityKey.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(SecuritySerializer.class).setTypeClass(Security.class));
 
-        createMapConfiguration(config, PortfolioCache.PORTFOLIO_CACHE_NAME,
-                applicationContext.getBean(PortfolioMapStore.class));
-        createMapConfiguration(config, PortfolioCache.POSITION_CACHE_NAME,
-                applicationContext.getBean(PositionMapStore.class));
-        createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME,
-                applicationContext.getBean(SecurityMapStore.class));
-        createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME,
-                applicationContext.getBean(RuleMapStore.class));
+        createMapConfiguration(config, PortfolioCache.PORTFOLIO_CACHE_NAME);
+        createMapConfiguration(config, PortfolioCache.POSITION_CACHE_NAME);
+        createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME);
+        createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME);
 
         if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
             // not running in Kubernetes; run standalone
@@ -149,14 +142,27 @@ public class PanoptesDataConfiguration {
      *            the Hazelcast Config to which to add the MapConfig
      * @param cacheName
      *            the name of the map being configured
-     * @param loader
-     *            the MapStore implementation to use for the map
      */
-    protected void createMapConfiguration(Config config, String cacheName, MapStore<?, ?> loader) {
-        MapStoreConfig mapStoreConfig = new MapStoreConfig().setImplementation(loader);
+    protected void createMapConfiguration(Config config, String cacheName) {
+        MapStoreConfig mapStoreConfig =
+                new MapStoreConfig().setFactoryClassName(HazelcastMapStoreFactory.class.getName())
+                        .setWriteDelaySeconds(15).setWriteBatchSize(1000)
+                        .setInitialLoadMode(InitialLoadMode.LAZY);
         NearCacheConfig nearCacheConfig =
                 new NearCacheConfig().setInMemoryFormat(InMemoryFormat.BINARY);
         config.getMapConfig(cacheName).setBackupCount(0).setInMemoryFormat(InMemoryFormat.BINARY)
                 .setMapStoreConfig(mapStoreConfig).setNearCacheConfig(nearCacheConfig);
+    }
+
+    /**
+     * Provides a ProxyFactory which uses the specified AppliactionContext to resolve references.
+     *
+     * @param applicationContext
+     *            the ApplicationContext to use when resolving references
+     * @return a ProxyFactory
+     */
+    @Bean
+    protected ProxyFactory proxyFactory(ApplicationContext applicationContext) {
+        return new ProxyFactory(applicationContext);
     }
 }

@@ -2,21 +2,17 @@ package org.slaq.slaqworx.panoptes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 
-import com.hazelcast.core.IMap;
-
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -24,8 +20,21 @@ import org.slaq.slaqworx.panoptes.data.PortfolioCache;
  * @author jeremy
  */
 @SpringBootApplication
-public class Panoptes {
+public class Panoptes implements ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
+
+    private static ApplicationContext applicationContext;
+
+    /**
+     * Obtains the ApplicationContext of the running Panoptes application. This should only be used
+     * in cases where dependency injection isn't possible, e.g. from Hazelcast <code>MapStore</code>
+     * classes which are instantiated directly by Hazelcast.
+     *
+     * @return the current ApplicationContext
+     */
+    public static ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
     /**
      * The entry point for the Panoptes application. Currently the app doesn't do anything useful.
@@ -35,6 +44,25 @@ public class Panoptes {
      */
     public static void main(String[] args) {
         SpringApplication.run(Panoptes.class, args);
+
+        PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
+        int numPortfolios = portfolioCache.getPortfolioCache().size();
+        LOG.info("{} Portfolios to process", numPortfolios);
+
+        long startTime = System.currentTimeMillis();
+        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        portfolioCache.getPortfolioCache().values().forEach(p -> {
+            LOG.info("evaluating Portfolio {}", p.getName());
+            evaluator.evaluate(p,
+                    new EvaluationContext(portfolioCache, portfolioCache, portfolioCache));
+        });
+        long endTime = System.currentTimeMillis();
+        LOG.info("evaluated {} Portfolios in {} ms", numPortfolios, endTime - startTime);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        Panoptes.applicationContext = applicationContext;
     }
 
     /**
@@ -47,14 +75,7 @@ public class Panoptes {
     @Bean
     public ApplicationRunner startupRunner(ApplicationContext appContext) {
         return args -> {
-            PortfolioCache portfolioCache = appContext.getBean(PortfolioCache.class);
-
-            IMap<SecurityKey, Security> securityMap = portfolioCache.getSecurityCache();
-            LOG.info("cache contains {} Securities", securityMap.size());
-            IMap<PositionKey, Position> positionMap = portfolioCache.getPositionCache();
-            LOG.info("cache contains {} Positions", positionMap.size());
-            IMap<PortfolioKey, Portfolio> portfolioMap = portfolioCache.getPortfolioCache();
-            LOG.info("cache contains {} Portfolios", portfolioMap.size());
+            LOG.info("Panoptes started");
         };
     }
 }

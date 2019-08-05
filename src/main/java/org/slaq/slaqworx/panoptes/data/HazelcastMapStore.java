@@ -1,6 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,8 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
 import com.hazelcast.core.MapStore;
 
 /**
- * HazelcastMapStore is a partial implementation of a MapStore. Interestingly, MapStores are
- * required to implement Serializable although the interface doesn't inherit it, so we do.
+ * HazelcastMapStore is a partial implementation of a MapStore.
  * <p>
  * HazelcastMapStore provides default implementations for the <code>*All</code> methods (e.g.
  * <code>loadAll()</code>) which delegate to the single-key operations, but subclasses may override
@@ -27,10 +26,7 @@ import com.hazelcast.core.MapStore;
  * @param <V>
  *            the entity value type
  */
-public abstract class HazelcastMapStore<K, V>
-        implements MapStore<K, V>, RowMapper<V>, Serializable {
-    private static final long serialVersionUID = 1L;
-
+public abstract class HazelcastMapStore<K, V> implements MapStore<K, V>, RowMapper<V> {
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -44,30 +40,36 @@ public abstract class HazelcastMapStore<K, V>
     }
 
     @Override
-    public void deleteAll(Collection<K> keys) {
+    public synchronized void deleteAll(Collection<K> keys) {
         keys.forEach(k -> delete(k));
     }
 
     @Override
-    public final V load(K key) {
+    public synchronized final V load(K key) {
         return DataAccessUtils.singleResult(
                 getJdbcTemplate().query(getLoadQuery(), getLoadParameters(key), this));
     }
 
     @Override
-    public Map<K, V> loadAll(Collection<K> keys) {
+    public synchronized Map<K, V> loadAll(Collection<K> keys) {
         return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
     }
 
     @Override
     public Iterable<K> loadAllKeys() {
-        // TODO fetching all keys into a Collection will suck when the number of keys is large
-        return jdbcTemplate.query("select " + getIdColumnNames() + " from " + getTableName(),
-                getKeyMapper());
+        try {
+            return new KeyIterator<>(
+                    jdbcTemplate.getDataSource().getConnection().prepareStatement(
+                            "select " + getIdColumnNames() + " from " + getTableName()),
+                    getKeyMapper());
+        } catch (SQLException e) {
+            // TODO throw a better exception
+            throw new RuntimeException("could not get keys for " + getTableName(), e);
+        }
     }
 
     @Override
-    public void storeAll(Map<K, V> map) {
+    public synchronized void storeAll(Map<K, V> map) {
         map.forEach((k, v) -> store(k, v));
     }
 

@@ -5,10 +5,9 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
+import org.slaq.slaqworx.panoptes.Panoptes;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProxy;
@@ -18,9 +17,16 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleProxy;
 
-@Service
 public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
     private final ProxyFactory proxyFactory;
+
+    /**
+     * Creates a new PortfolioSerializer which uses the current ApplicationContext to resolve a
+     * ProxyFactory.
+     */
+    public PortfolioSerializer() {
+        proxyFactory = Panoptes.getApplicationContext().getBean(ProxyFactory.class);
+    }
 
     /**
      * Creates a new PortfolioSerializer which delegates to the given ProxyFactory.
@@ -55,9 +61,9 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
             benchmarkKey = null;
         }
 
-        Set<PositionProxy> positionKeys = portfolioMsg.getPositionKeysList().stream()
+        Set<PositionProxy> positionKeys = portfolioMsg.getPositionKeyList().stream()
                 .map(k -> proxyFactory.positionProxy(k.getId())).collect(Collectors.toSet());
-        Set<RuleProxy> ruleKeys = portfolioMsg.getRuleKeysList().stream()
+        Set<RuleProxy> ruleKeys = portfolioMsg.getRuleKeyList().stream()
                 .map(k -> proxyFactory.ruleProxy(k.getId())).collect(Collectors.toSet());
 
         return new Portfolio(key, portfolioMsg.getName(), positionKeys, benchmarkKey, ruleKeys);
@@ -90,12 +96,12 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
         portfolio.getRuleKeys().forEach(k -> {
             IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
             ruleKeyBuilder.setId(k.getId());
-            portfolioBuilder.addRuleKeys(ruleKeyBuilder.build());
+            portfolioBuilder.addRuleKey(ruleKeyBuilder.build());
         });
         portfolio.getPositions().forEach(k -> {
             IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
             positionKeyBuilder.setId(k.getKey().getId());
-            portfolioBuilder.addRuleKeys(positionKeyBuilder.build());
+            portfolioBuilder.addPositionKey(positionKeyBuilder.build());
         });
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

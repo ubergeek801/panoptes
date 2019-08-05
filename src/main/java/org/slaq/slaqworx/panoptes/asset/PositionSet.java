@@ -25,7 +25,7 @@ public class PositionSet implements PositionSupplier {
     // calculation performance by 20%
     private final ArrayList<Position> positions;
     private final Portfolio portfolio;
-    private final double totalAmount;
+    private Double totalAmount;
 
     /**
      * Creates a new PositionSet consisting of the given Positions, with no parent Portfolio.
@@ -48,8 +48,6 @@ public class PositionSet implements PositionSupplier {
     public PositionSet(Collection<? extends Position> positions, Portfolio portfolio) {
         this.positions = new ArrayList<>(positions);
         this.portfolio = portfolio;
-        totalAmount = new TotalAmountPositionCalculator().calculate(this,
-                new EvaluationContext(null, null, null));
     }
 
     /**
@@ -76,6 +74,11 @@ public class PositionSet implements PositionSupplier {
 
     @Override
     public double getTotalAmount() {
+        if (totalAmount == null) {
+            totalAmount = new TotalAmountPositionCalculator().calculate(this,
+                    new EvaluationContext(null, null, null));
+        }
+
         return totalAmount;
     }
 

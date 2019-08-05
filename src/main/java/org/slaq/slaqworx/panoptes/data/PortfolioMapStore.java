@@ -28,8 +28,6 @@ import org.slaq.slaqworx.panoptes.rule.RuleProxy;
  */
 @Service
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
-    private static final long serialVersionUID = 1L;
-
     private transient ApplicationContext applicationContext;
 
     /**

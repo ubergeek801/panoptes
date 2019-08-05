@@ -1,24 +1,23 @@
 package org.slaq.slaqworx.panoptes.data;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import com.hazelcast.core.IMap;
-
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
@@ -27,7 +26,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
-@SpringBootApplication
+// @SpringBootApplication
 public class PimcoBenchmarkDatabaseLoader {
     private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDatabaseLoader.class);
 
@@ -49,16 +48,20 @@ public class PimcoBenchmarkDatabaseLoader {
      *            the Spring ApplicationContext
      * @return an ApplicationRunner which performs the cache load
      */
-    @Bean
+    // @Bean
     public ApplicationRunner startupRunner(ApplicationContext appContext) {
         return args -> {
-            PortfolioCache portfolioCache = appContext.getBean(PortfolioCache.class);
             PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
+            TransactionTemplate txTemplate = appContext.getBean(TransactionTemplate.class);
 
-            IMap<SecurityKey, Security> securityMap = portfolioCache.getSecurityCache();
-            LOG.info("adding {} securities to cache", pimcoDataSource.getSecurityMap().size());
-            securityMap.putAll(pimcoDataSource.getSecurityMap());
-            securityMap.flush();
+            LOG.info("persisting {} Securities", pimcoDataSource.getSecurityMap().size());
+            SecurityMapStore securityMapStore = appContext.getBean(SecurityMapStore.class);
+            txTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    securityMapStore.storeAll(pimcoDataSource.getSecurityMap());
+                }
+            });
 
             DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
             ArrayList<Portfolio> portfolios = new ArrayList<>();
@@ -67,26 +70,60 @@ public class PimcoBenchmarkDatabaseLoader {
                 portfolios.add(portfolio);
             }
 
-            IMap<RuleKey, Rule> ruleMap = portfolioCache.getRuleCache();
+            RuleMapStore ruleMapStore = appContext.getBean(RuleMapStore.class);
             portfolios.stream().forEach(pf -> {
                 LOG.info("persisting {} Rules for Portfolio {}", pf.getRuleKeys().count(),
                         pf.getName());
-                pf.getRules(mapLoader).forEach(r -> ruleMap.put(r.getKey(), r));
+                txTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        Map<RuleKey, MaterializedRule> ruleMap = pf.getRules(mapLoader).collect(
+                                Collectors.toMap(r -> r.getKey(), r -> (MaterializedRule)r));
+                        ruleMapStore.storeAll(ruleMap);
+                    }
+                });
             });
-            ruleMap.flush();
 
-            IMap<PositionKey, Position> positionMap = portfolioCache.getPositionCache();
+            PositionMapStore positionMapStore = appContext.getBean(PositionMapStore.class);
             portfolios.stream().forEach(pf -> {
                 LOG.info("persisting {} Positions for Portfolio {}", pf.getPositionSet().size(),
                         pf.getName());
-                pf.getPositions().forEach(p -> positionMap.put(p.getKey(), p));
+                txTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        Map<PositionKey, MaterializedPosition> positionMap =
+                                pf.getPositions().collect(Collectors.toMap(p -> p.getKey(),
+                                        p -> (MaterializedPosition)p));
+                        positionMapStore.storeAll(positionMap);
+                    }
+                });
             });
-            positionMap.flush();
 
-            IMap<PortfolioKey, Portfolio> portfolioMap = portfolioCache.getPortfolioCache();
-            LOG.info("persisting {} Portfolios", portfolios.size());
-            portfolios.stream().forEach(pf -> portfolioMap.put(pf.getKey(), pf));
-            portfolioMap.flush();
+            PortfolioMapStore portfolioMapStore = appContext.getBean(PortfolioMapStore.class);
+            // persist the benchmarks first
+            LOG.info("persisting 4 benchmark Portfolios");
+            txTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    portfolioMapStore.store(PimcoBenchmarkDataSource.EMAD_KEY,
+                            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.EMAD_KEY));
+                    portfolioMapStore.store(PimcoBenchmarkDataSource.GLAD_KEY,
+                            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.GLAD_KEY));
+                    portfolioMapStore.store(PimcoBenchmarkDataSource.ILAD_KEY,
+                            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.ILAD_KEY));
+                    portfolioMapStore.store(PimcoBenchmarkDataSource.PGOV_KEY,
+                            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.PGOV_KEY));
+                }
+            });
+            portfolios.stream().filter(p -> p.getKey().getId().length() != 4).forEach(p -> {
+                LOG.info("persisting Portfolio {}", p.getKey());
+                txTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        portfolioMapStore.store(p.getKey(), p);
+                    }
+                });
+            });
 
             LOG.info("completed database loading");
         };

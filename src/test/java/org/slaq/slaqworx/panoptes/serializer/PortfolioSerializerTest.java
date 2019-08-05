@@ -27,8 +27,8 @@ public class PortfolioSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        PortfolioSerializer serializer =
-                new PortfolioSerializer(new ProxyFactory(key -> null, key -> null));
+        PortfolioSerializer serializer = new PortfolioSerializer(new ProxyFactory(
+                key -> TestUtil.testPositionProvider().getPosition(key), key -> null));
 
         Portfolio portfolio = TestUtil.p1;
         byte[] buffer = serializer.write(TestUtil.p1);

@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -17,10 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  *
  * @author jeremy
  */
-@Service
 public class PositionMapStore extends HazelcastMapStore<PositionKey, MaterializedPosition> {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new PositionMapStore. Restricted because instances of this class should be created
      * through Spring.

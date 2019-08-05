@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -56,6 +55,8 @@ public class TestUtil {
             SecurityAttribute.of("Fetch", 16, Double.class);
 
     private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
+    private static final TestPositionProvider positionProvider = new TestPositionProvider();
+
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
             Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d, country, "US");
 
@@ -65,20 +66,29 @@ public class TestUtil {
 
     public static final Security s2 = securityProvider.newSecurity(s2Attributes);
     public static final Set<Position> p1Positions =
-            Set.of(new MaterializedPosition(1000, s1.getKey()),
-                    new MaterializedPosition(500, s2.getKey()));
+            Set.of(positionProvider.newPosition(null, 1000, s1.getKey()),
+                    positionProvider.newPosition(null, 500, s2.getKey()));
 
     public static final Portfolio p1 =
             new Portfolio(new PortfolioKey("TestUtilP1", 1), "TestUtilP1", p1Positions);
     public static final Set<Position> p2Positions =
-            Set.of(new MaterializedPosition(500, s1.getKey()),
-                    new MaterializedPosition(1000, s2.getKey()));
+            Set.of(positionProvider.newPosition(null, 500, s1.getKey()),
+                    positionProvider.newPosition(null, 1000, s2.getKey()));
 
     public static final Portfolio p2 =
             new Portfolio(new PortfolioKey("TestUtilP2", 1), "TestUtilP2", p2Positions);
 
     /**
-     * Obtains a SecurityProvider suitable for unit testing.
+     * Obtains a PositionProvider suitable for unit testing using Positions created by TestUtil.
+     *
+     * @return a SecurityProvider
+     */
+    public static TestPositionProvider testPositionProvider() {
+        return positionProvider;
+    }
+
+    /**
+     * Obtains a SecurityProvider suitable for unit testing using Securities created by TestUtil.
      *
      * @return a SecurityProvider
      */

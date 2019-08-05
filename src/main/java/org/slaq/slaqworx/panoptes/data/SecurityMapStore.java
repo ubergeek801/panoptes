@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,10 +22,7 @@ import org.slaq.slaqworx.panoptes.serializer.SerializerUtil;
  *
  * @author jeremy
  */
-@Service
 public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Serializes the given SecurityAttributes values to JSON.
      *

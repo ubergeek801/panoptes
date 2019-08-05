@@ -21,8 +21,6 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  */
 @Service
 public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new RuleMapStore. Restricted because instances of this class should be created
      * through Spring.
