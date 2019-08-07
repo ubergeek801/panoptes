@@ -9,6 +9,7 @@ package org.slaq.slaqworx.panoptes.asset;
  */
 public class PositionProxy implements Position {
     private final PositionKey key;
+    private Position position;
     private final PositionProvider positionProvider;
 
     /**
@@ -70,6 +71,10 @@ public class PositionProxy implements Position {
      * @return the proxied Position
      */
     protected Position getPosition() {
-        return positionProvider.getPosition(key);
+        if (position == null) {
+            position = positionProvider.getPosition(key);
+        }
+
+        return position;
     }
 }

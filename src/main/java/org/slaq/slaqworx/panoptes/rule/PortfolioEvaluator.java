@@ -41,7 +41,7 @@ public class PortfolioEvaluator {
      */
     public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             EvaluationContext evaluationContext) {
-        return evaluate(portfolio.getRules(evaluationContext.getRuleProvider()), portfolio,
+        return evaluate(portfolio.getRules(), portfolio,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext);
     }
@@ -61,8 +61,7 @@ public class PortfolioEvaluator {
      */
     public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             Portfolio benchmark, EvaluationContext evaluationContext) {
-        return evaluate(portfolio.getRules(evaluationContext.getRuleProvider()), portfolio,
-                benchmark, evaluationContext);
+        return evaluate(portfolio.getRules(), portfolio, benchmark, evaluationContext);
     }
 
     /**
@@ -79,7 +78,7 @@ public class PortfolioEvaluator {
      */
     public Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             PositionSupplier positions, EvaluationContext evaluationContext) {
-        return evaluate(portfolio.getRules(evaluationContext.getRuleProvider()), positions,
+        return evaluate(portfolio.getRules(), positions,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext);
     }

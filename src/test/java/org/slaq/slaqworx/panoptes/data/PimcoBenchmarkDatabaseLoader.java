@@ -72,12 +72,12 @@ public class PimcoBenchmarkDatabaseLoader {
 
             RuleMapStore ruleMapStore = appContext.getBean(RuleMapStore.class);
             portfolios.stream().forEach(pf -> {
-                LOG.info("persisting {} Rules for Portfolio {}", pf.getRuleKeys().count(),
+                LOG.info("persisting {} Rules for Portfolio {}", pf.getRules().count(),
                         pf.getName());
                 txTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override
                     protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        Map<RuleKey, MaterializedRule> ruleMap = pf.getRules(mapLoader).collect(
+                        Map<RuleKey, MaterializedRule> ruleMap = pf.getRules().collect(
                                 Collectors.toMap(r -> r.getKey(), r -> (MaterializedRule)r));
                         ruleMapStore.storeAll(ruleMap);
                     }

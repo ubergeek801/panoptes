@@ -103,9 +103,9 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
         if (benchmarkKeyMsg != null) {
             portfolioBuilder.setBenchmarkKey(benchmarkKeyMsg);
         }
-        portfolio.getRuleKeys().forEach(k -> {
+        portfolio.getRules().forEach(r -> {
             IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-            ruleKeyBuilder.setId(k.getId());
+            ruleKeyBuilder.setId(r.getKey().getId());
             portfolioBuilder.addRuleKey(ruleKeyBuilder.build());
         });
         portfolio.getPositions().forEach(k -> {

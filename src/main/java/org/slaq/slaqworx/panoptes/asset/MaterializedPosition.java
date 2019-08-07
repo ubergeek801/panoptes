@@ -11,6 +11,7 @@ public class MaterializedPosition implements Position {
     private final PositionKey key;
     private final double amount;
     private final SecurityKey securityKey;
+    private Security security;
 
     /**
      * Creates a new Position with a generated key and the specified amount and Security.
@@ -67,7 +68,11 @@ public class MaterializedPosition implements Position {
 
     @Override
     public Security getSecurity(SecurityProvider securityProvider) {
-        return securityProvider.getSecurity(securityKey);
+        if (security == null) {
+            security = securityProvider.getSecurity(securityKey);
+        }
+
+        return security;
     }
 
     @Override

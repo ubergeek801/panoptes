@@ -4,12 +4,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.rule.Rule;
-import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -22,7 +19,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     private final PortfolioKey id;
     private final String name;
     private final PortfolioKey benchmarkKey;
-    private final HashSet<RuleKey> ruleKeys;
+    private Portfolio benchmark;
+    private final HashSet<Rule> rules;
     private final PositionSet positionSet;
 
     /**
@@ -78,9 +76,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
         this.id = id;
         this.name = name;
         this.benchmarkKey = benchmarkKey;
-        ruleKeys = (rules == null ? new HashSet<>()
-                : rules.stream().map(r -> r.getKey())
-                        .collect(Collectors.toCollection(HashSet::new)));
+        this.rules = (rules == null ? new HashSet<>() : new HashSet<>(rules));
         positionSet = new PositionSet(positions, this);
     }
 
@@ -114,7 +110,15 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
      * @return this Portfolio's benchmark, or null if one is not associated
      */
     public Portfolio getBenchmark(PortfolioProvider portfolioProvider) {
-        return (benchmarkKey == null ? null : portfolioProvider.getPortfolio(benchmarkKey));
+        if (benchmarkKey == null) {
+            return null;
+        }
+
+        if (benchmark == null) {
+            benchmark = portfolioProvider.getPortfolio(benchmarkKey);
+        }
+
+        return benchmark;
     }
 
     public PortfolioKey getBenchmarkKey() {
@@ -154,19 +158,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
         return positionSet;
     }
 
-    public Stream<RuleKey> getRuleKeys() {
-        return ruleKeys.stream();
-    }
-
-    /**
-     * Obtains this Portfolio's Rules as a Stream.
-     *
-     * @param ruleProvider
-     *            the RuleProvider from which to obtain the Rules
-     * @return a Stream of Rules
-     */
-    public Stream<Rule> getRules(RuleProvider ruleProvider) {
-        return ruleKeys.stream().map(r -> ruleProvider.getRule(r));
+    public Stream<Rule> getRules() {
+        return rules.stream();
     }
 
     @Override

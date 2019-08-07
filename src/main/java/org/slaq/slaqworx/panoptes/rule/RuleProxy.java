@@ -13,6 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  */
 public class RuleProxy implements Rule {
     private final RuleKey key;
+    private Rule rule;
     private final RuleProvider ruleProvider;
 
     /**
@@ -80,6 +81,10 @@ public class RuleProxy implements Rule {
      * @return the proxied Rule
      */
     protected Rule getRule() {
-        return ruleProvider.getRule(key);
+        if (rule == null) {
+            rule = ruleProvider.getRule(key);
+        }
+
+        return rule;
     }
 }

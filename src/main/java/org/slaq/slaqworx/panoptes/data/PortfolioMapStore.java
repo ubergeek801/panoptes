@@ -110,11 +110,11 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
         getJdbcTemplate().update(
                 "delete from portfolio_rule where portfolio_id = ? and portfolio_version = ?",
                 key.getId(), key.getVersion());
-        portfolio.getRuleKeys()
+        portfolio.getRules()
                 .forEach(r -> getJdbcTemplate().update(
                         "insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)"
                                 + " values (?, ?, ?)",
-                        key.getId(), key.getVersion(), r.getId()));
+                        key.getId(), key.getVersion(), r.getKey().getId()));
     }
 
     @Override
