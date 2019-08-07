@@ -11,6 +11,12 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 
+/**
+ * <code>PositionSerializer</code> (de)serializes the state of a <code>Position</code> (actually a
+ * <code>MaterializedPosition</code> using Protobuf.
+ *
+ * @author jeremy
+ */
 public class PositionSerializer implements ByteArraySerializer<MaterializedPosition> {
     @Override
     public void destroy() {

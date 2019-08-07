@@ -2,16 +2,18 @@ package org.slaq.slaqworx.panoptes.data;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.hazelcast.core.MapStore;
+
+import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
  * HazelcastMapStore is a partial implementation of a MapStore.
@@ -26,7 +28,8 @@ import com.hazelcast.core.MapStore;
  * @param <V>
  *            the entity value type
  */
-public abstract class HazelcastMapStore<K, V> implements MapStore<K, V>, RowMapper<V> {
+public abstract class HazelcastMapStore<K, V extends Keyed<K>>
+        implements MapStore<K, V>, RowMapper<V> {
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -40,27 +43,55 @@ public abstract class HazelcastMapStore<K, V> implements MapStore<K, V>, RowMapp
     }
 
     @Override
-    public synchronized void deleteAll(Collection<K> keys) {
+    public void deleteAll(Collection<K> keys) {
         keys.forEach(k -> delete(k));
     }
 
     @Override
-    public synchronized final V load(K key) {
-        return DataAccessUtils.singleResult(
-                getJdbcTemplate().query(getLoadQuery(), getLoadParameters(key), this));
+    public final V load(K key) {
+        Map<K, V> values = loadAll(List.of(key));
+
+        return (values.isEmpty() ? null : values.get(0));
     }
 
     @Override
-    public synchronized Map<K, V> loadAll(Collection<K> keys) {
-        return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
+    public Map<K, V> loadAll(Collection<K> keys) {
+        String[] keyColumns = getKeyColumnNames();
+        StringBuilder query = new StringBuilder(getLoadSelect());
+        query.append(" where (").append(String.join(",", keyColumns) + ") in (values ");
+
+        Object[] parameters = new Object[(keys.size() * keyColumns.length)];
+        int keyIndex = 0;
+        int parameterIndex = 0;
+        for (K key : keys) {
+            if (keyIndex > 0) {
+                query.append(", ");
+            }
+            query.append("(");
+            Object[] keyComponents = getKeyComponents(key);
+            for (int keyComponentIndex =
+                    0; keyComponentIndex < keyComponents.length; keyComponentIndex++) {
+                if (keyComponentIndex > 0) {
+                    query.append(", ");
+                }
+                query.append("?");
+                parameters[parameterIndex++] = keyComponents[keyComponentIndex];
+            }
+            query.append(")");
+            keyIndex++;
+        }
+        query.append(")");
+
+        return getJdbcTemplate().query(query.toString(), parameters, this).stream()
+                .collect(Collectors.toMap(v -> v.getKey(), v -> v));
     }
 
     @Override
     public Iterable<K> loadAllKeys() {
         try {
             return new KeyIterator<>(
-                    jdbcTemplate.getDataSource().getConnection().prepareStatement(
-                            "select " + getIdColumnNames() + " from " + getTableName()),
+                    jdbcTemplate.getDataSource().getConnection().prepareStatement("select "
+                            + String.join(",", getKeyColumnNames()) + " from " + getTableName()),
                     getKeyMapper());
         } catch (SQLException e) {
             // TODO throw a better exception
@@ -69,16 +100,9 @@ public abstract class HazelcastMapStore<K, V> implements MapStore<K, V>, RowMapp
     }
 
     @Override
-    public synchronized void storeAll(Map<K, V> map) {
+    public void storeAll(Map<K, V> map) {
         map.forEach((k, v) -> store(k, v));
     }
-
-    /**
-     * Obtains the ID column(s) for this MapStore's table.
-     *
-     * @return a SQL-friendly representation of the table's ID column names
-     */
-    protected abstract String getIdColumnNames();
 
     /**
      * Obtains the JdbcTemplate to use for database operations.
@@ -90,6 +114,22 @@ public abstract class HazelcastMapStore<K, V> implements MapStore<K, V>, RowMapp
     }
 
     /**
+     * Obtains the key column(s) for this MapStore's table.
+     *
+     * @return the table's key column names
+     */
+    protected abstract String[] getKeyColumnNames();
+
+    /**
+     * Obtains the component values that comprise the given key.
+     *
+     * @param key
+     *            the key from which to extract component values
+     * @return the component values as an <code>Object</code> array
+     */
+    protected abstract Object[] getKeyComponents(K key);
+
+    /**
      * Obtains a RowMapper which can be used to fetch keys for the entity being mapped.
      *
      * @return a RowMapper
@@ -97,21 +137,12 @@ public abstract class HazelcastMapStore<K, V> implements MapStore<K, V>, RowMapp
     protected abstract RowMapper<K> getKeyMapper();
 
     /**
-     * Obtains the parameters that should be used in the SQL query returned by
-     * <code>getLoadQuery()</code>.
+     * Obtains the <code>select</code> portion of the SQL query to be used to load row(s) by ID(s).
+     * This portion of the query should not include a <code>where</code> clause.
      *
-     * @param key
-     *            the key being loaded
-     * @return the parameters to be used in the load query
+     * @return a partial SQL query
      */
-    protected abstract Object[] getLoadParameters(K key);
-
-    /**
-     * Obtains the SQL query to be used to load a single row.
-     *
-     * @return a SQL query
-     */
-    protected abstract String getLoadQuery();
+    protected abstract String getLoadSelect();
 
     /**
      * Obtains this MapStore's table name.

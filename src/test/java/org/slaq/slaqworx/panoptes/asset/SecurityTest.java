@@ -3,6 +3,8 @@ package org.slaq.slaqworx.panoptes.asset;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,6 +20,27 @@ import org.slaq.slaqworx.panoptes.TestUtil;
  * @author jeremy
  */
 public class SecurityTest {
+    /**
+     * Tests that getAttributes() behaves as expected.
+     */
+    @Test
+    public void testGetAttributes() {
+        TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+
+        Security s = securityProvider.newSecurity(Map.of(TestUtil.country, "US", TestUtil.cusip,
+                "abcde", TestUtil.duration, 3.1, TestUtil.coupon, new BigDecimal("4.00"),
+                TestUtil.maturityDate, LocalDate.of(2019, 8, 5)));
+        Map<SecurityAttribute<?>, ? super Object> attributes = s.getAttributes();
+        assertEquals("country value should have matched", "US", attributes.get(TestUtil.country));
+        assertEquals("cusip value should have matched", "abcde", attributes.get(TestUtil.cusip));
+        assertEquals("duration value should have matched", 3.1,
+                (double)attributes.get(TestUtil.duration), TestUtil.EPSILON);
+        assertEquals("coupon value should have matched", new BigDecimal("4.00"),
+                attributes.get(TestUtil.coupon));
+        assertEquals("maturity date value should have matched", LocalDate.of(2019, 8, 5),
+                attributes.get(TestUtil.maturityDate));
+    }
+
     /**
      * Tests that Securities are hashed in a reasonable way.
      */

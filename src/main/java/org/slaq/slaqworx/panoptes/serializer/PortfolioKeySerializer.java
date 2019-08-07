@@ -8,6 +8,12 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 
+/**
+ * <code>PortfolioKeySerializer</code> (de)serializes the state of a <code>PortfolioKey</code> using
+ * Protobuf.
+ *
+ * @author jeremy
+ */
 public class PortfolioKeySerializer implements ByteArraySerializer<PortfolioKey> {
     @Override
     public void destroy() {

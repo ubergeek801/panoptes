@@ -13,6 +13,12 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.SecurityMsg;
 
+/**
+ * <code>SecuritySerializer</code> (de)serializes the state of a <code>Security</code> using
+ * Protobuf.
+ *
+ * @author jeremy
+ */
 public class SecuritySerializer implements ByteArraySerializer<Security> {
     @Override
     public void destroy() {

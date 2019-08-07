@@ -11,6 +11,13 @@ import com.hazelcast.core.MapStoreFactory;
 
 import org.slaq.slaqworx.panoptes.Panoptes;
 
+/**
+ * <code>HazelcastMapStoreFactory</code> is a <code>MapStoreFactory</code> that provides
+ * <code>MapStore</code>s for the cached <code>Map</code>s (e.g. <code>Portiofolio</code>,
+ * <code>Position</code>, <code>Rule</code>, <code>Security</code>).
+ *
+ * @author jeremy
+ */
 public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override

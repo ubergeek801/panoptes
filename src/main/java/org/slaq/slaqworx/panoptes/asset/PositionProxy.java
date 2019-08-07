@@ -9,7 +9,7 @@ package org.slaq.slaqworx.panoptes.asset;
  */
 public class PositionProxy implements Position {
     private final PositionKey key;
-    private final transient PositionProvider positionProvider;
+    private final PositionProvider positionProvider;
 
     /**
      * Creates a new PositionProxy of the given key, delegating to the given Position provider.

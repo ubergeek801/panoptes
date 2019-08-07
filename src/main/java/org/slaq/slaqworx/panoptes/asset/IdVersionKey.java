@@ -87,6 +87,6 @@ public abstract class IdVersionKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + id + ":" + version + "]";
+        return id + ":" + version;
     }
 }

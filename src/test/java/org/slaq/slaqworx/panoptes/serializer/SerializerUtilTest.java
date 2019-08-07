@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.data;
+package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -12,31 +12,34 @@ import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * SecurityMapStoreTest tests the functionality of the SecurityMapStore.
+ * SerializerUtilTest tests the functionality of SerializerUtil.
  *
  * @author jeremy
  */
-public class SecurityMapStoreTest {
+public class SerializerUtilTest {
+    /**
+     * Tests that jsonToAttributes() behaves as expected.
+     */
     @Test
-    public void testSerialize() throws Exception {
+    public void testJsonToAttributes() throws Exception {
         // ensure that TestUtil is loaded and thus initializes SecurityAttributes
         TestUtil.testSecurityProvider();
 
-        String json = "{\"cusip\":\"0MV4CFXX\",\"yield\":2.6,\"ratingValue\":99.1,"
+        String json = "{\"cusip\":\"0MV4CFXX\",\"yield\":2.60,\"ratingValue\":99.1,"
                 + "\"maturityDate\":\"2019-07-31\"}";
-        Map<SecurityAttribute<?>, ? super Object> map = SecurityMapStore.jsonToAttributes(json);
+        Map<SecurityAttribute<?>, ? super Object> map = SerializerUtil.jsonToAttributes(json);
         assertEquals("unexpected map size", 4, map.size());
         assertEquals("unexpected value for cusip", "0MV4CFXX", map.get(TestUtil.cusip));
-        assertEquals("unexpected value for yield", new BigDecimal("2.6"), map.get(TestUtil.yield));
+        assertEquals("unexpected value for yield", new BigDecimal("2.60"), map.get(TestUtil.yield));
         assertEquals("unexpected value for ratingValue", 99.1,
                 (double)map.get(TestUtil.ratingValue), TestUtil.EPSILON);
         assertEquals("unexpected value for maturityDate", LocalDate.of(2019, 7, 31),
                 map.get(TestUtil.maturityDate));
 
-        String output = SecurityMapStore.attributesToJson(map);
+        String output = SerializerUtil.attributesToJson(map);
 
         // note the reordered keys which unfortunately makes this test slightly brittle
         assertEquals("unexpected JSON", "{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\","
-                + "\"yield\":2.6,\"ratingValue\":99.1}", output.toString());
+                + "\"yield\":2.60,\"ratingValue\":99.1}", output.toString());
     }
 }

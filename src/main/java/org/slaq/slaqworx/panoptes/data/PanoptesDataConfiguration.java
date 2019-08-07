@@ -67,6 +67,8 @@ public class PanoptesDataConfiguration {
     public Config hazelcastConfig() {
         Config config = new Config();
 
+        config.getExecutorConfig("operation").setPoolSize(4);
+
         SerializationConfig serializationConfig = config.getSerializationConfig();
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setClass(PortfolioKeySerializer.class).setTypeClass(PortfolioKey.class));

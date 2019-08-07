@@ -51,6 +51,6 @@ public class RuleKey {
 
     @Override
     public String toString() {
-        return "RuleKey[" + id + "]";
+        return id;
     }
 }

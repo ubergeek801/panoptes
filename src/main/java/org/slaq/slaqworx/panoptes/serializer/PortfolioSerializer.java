@@ -17,15 +17,21 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleProxy;
 
+/**
+ * <code>PortfolioSerializer</code> (de)serializes the state of a <code>Portfolio</code> using
+ * Protobuf.
+ *
+ * @author jeremy
+ */
 public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
-    private final ProxyFactory proxyFactory;
+    private ProxyFactory proxyFactory;
 
     /**
      * Creates a new PortfolioSerializer which uses the current ApplicationContext to resolve a
      * ProxyFactory.
      */
     public PortfolioSerializer() {
-        proxyFactory = Panoptes.getApplicationContext().getBean(ProxyFactory.class);
+        // nothing to do
     }
 
     /**
@@ -50,6 +56,10 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
 
     @Override
     public Portfolio read(byte[] buffer) throws IOException {
+        if (proxyFactory == null) {
+            proxyFactory = Panoptes.getApplicationContext().getBean(ProxyFactory.class);
+        }
+
         PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);
         IdVersionKeyMsg keyMsg = portfolioMsg.getKey();
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());

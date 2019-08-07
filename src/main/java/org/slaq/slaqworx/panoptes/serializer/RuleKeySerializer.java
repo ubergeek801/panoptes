@@ -8,6 +8,11 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
+/**
+ * <code>RuleKeySerializer</code> (de)serializes the state of a <code>RuleKey</code> using Protobuf.
+ *
+ * @author jeremy
+ */
 public class RuleKeySerializer implements ByteArraySerializer<RuleKey> {
     @Override
     public void destroy() {

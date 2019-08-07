@@ -2,16 +2,15 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.slaq.slaqworx.panoptes.serializer.SerializerUtil;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 import groovy.lang.MissingPropertyException;
@@ -25,11 +24,11 @@ import groovy.lang.MissingPropertyException;
  * @author jeremy
  */
 public class Security implements Keyed<SecurityKey> {
-    private SecurityKey key;
+    private final SecurityKey key;
 
     // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule
     // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
-    private ArrayList<? super Object> attributeValues = new ArrayList<>();
+    private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
     /**
      * Creates a new Security with the given key and SecurityAttribute values. The ID is calculated
@@ -39,8 +38,6 @@ public class Security implements Keyed<SecurityKey> {
      *            a (possibly empty) Map of SecurityAttribute to attribute value
      */
     public Security(Map<SecurityAttribute<?>, ? super Object> attributes) {
-        key = new SecurityKey(hash(attributes));
-
         attributes.forEach((a, v) -> {
             attributeValues.ensureCapacity(a.getIndex() + 1);
             while (attributeValues.size() < a.getIndex() + 1) {
@@ -48,6 +45,8 @@ public class Security implements Keyed<SecurityKey> {
             }
             attributeValues.set(a.getIndex(), v);
         });
+
+        key = new SecurityKey(hash(attributeValues));
     }
 
     @Override
@@ -139,31 +138,27 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
-     * Produces a hash of the given attributes.
+     * Produces a hash of the given attribute values.
      *
-     * @param attributes
-     *            the SecurityAttributes from which to compute the hash
+     * @param attributeValues
+     *            the SecurityAttribute values from which to compute the hash
      * @return the calculated hash value
      */
-    protected String hash(Map<SecurityAttribute<?>, ? super Object> attributes) {
-        // sort the attributes in a stable order
-        TreeMap<SecurityAttribute<?>, ? super Object> sortedAttributes =
-                new TreeMap<>((a1, a2) -> a1.getName().compareTo(a2.getName()));
-        sortedAttributes.putAll(attributes);
-
-        // serialize the attribute map contents, using Java serialization only where necessary
+    protected String hash(ArrayList<Object> attributeValues) {
+        // serialize the attribute collection contents
         ByteArrayOutputStream attributeBytes = new ByteArrayOutputStream();
-        sortedAttributes.forEach((a, v) -> {
+        for (int i = 0; i < attributeValues.size(); i++) {
+            Object v = (attributeValues.get(i) == null ? "" : attributeValues.get(i));
+
             try {
-                attributeBytes.write(a.getName().getBytes());
-                attributeBytes.write('=');
-                new ObjectOutputStream(attributeBytes).writeObject(v);
+                attributeBytes
+                        .write(SerializerUtil.defaultJsonMapper().writeValueAsString(v).getBytes());
             } catch (IOException e) {
                 // TODO throw a better exception
                 throw new RuntimeException("could not serialize " + v.getClass(), e);
             }
             attributeBytes.write(';');
-        });
+        }
 
         // compute the hash on the serialized data
         MessageDigest sha256;

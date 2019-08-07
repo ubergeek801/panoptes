@@ -13,7 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  */
 public class RuleProxy implements Rule {
     private final RuleKey key;
-    private final transient RuleProvider ruleProvider;
+    private final RuleProvider ruleProvider;
 
     /**
      * Creates a new RuleProxy of the given key, delegating to the given Rule provider.

@@ -82,8 +82,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     }
 
     @Override
-    protected String getIdColumnNames() {
-        return "id";
+    protected String[] getKeyColumnNames() {
+        return new String[] { "id" };
     }
 
     @Override
@@ -92,14 +92,14 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     }
 
     @Override
-    protected Object[] getLoadParameters(RuleKey key) {
+    protected Object[] getKeyComponents(RuleKey key) {
         return new Object[] { key.getId() };
     }
 
     @Override
-    protected String getLoadQuery() {
+    protected String getLoadSelect() {
         return "select id, description, type, configuration, filter, classifier_type,"
-                + " classifier_configuration from " + getTableName() + " where id = ?";
+                + " classifier_configuration from " + getTableName();
     }
 
     @Override

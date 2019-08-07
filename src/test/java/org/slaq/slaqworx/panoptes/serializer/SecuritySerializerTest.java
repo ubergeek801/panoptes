@@ -2,6 +2,8 @@ package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
@@ -19,6 +21,28 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  */
 public class SecuritySerializerTest {
     /**
+     * Tests that (de)serialization works with the values specified in a test file.
+     */
+    @Test
+    public void testMoreSerialization() throws Exception {
+        SecuritySerializer serializer = new SecuritySerializer();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader()
+                .getResourceAsStream("SecurityAttributeTestValues.txt")));
+        String json;
+        while ((json = reader.readLine()) != null) {
+            Map<SecurityAttribute<?>, Object> attributes = SerializerUtil.jsonToAttributes(json);
+            Security fromJson = new Security(attributes);
+            byte[] serialized = serializer.write(fromJson);
+            Security fromSerialized = serializer.read(serialized);
+            assertEquals("JSON and serialized versions should be equal", fromJson, fromSerialized);
+            serialized = serializer.write(fromSerialized);
+            fromSerialized = serializer.read(serialized);
+            assertEquals("JSON and serialized versions should be equal", fromJson, fromSerialized);
+        }
+    }
+
+    /**
      * Tests that (de)serialization works as expected.
      */
     @Test
@@ -26,8 +50,8 @@ public class SecuritySerializerTest {
         SecuritySerializer serializer = new SecuritySerializer();
 
         Map<SecurityAttribute<?>, ? super Object> attributes = Map.of(TestUtil.country, "US",
-                TestUtil.coupon, new BigDecimal("4.0"), TestUtil.currency, "USD",
-                TestUtil.maturityDate, LocalDate.now(), TestUtil.duration, 3.0);
+                TestUtil.coupon, new BigDecimal("4.00"), TestUtil.currency, "USD",
+                TestUtil.maturityDate, LocalDate.now(), TestUtil.duration, 3.1);
         Security security = new Security(attributes);
 
         byte[] buffer = serializer.write(security);

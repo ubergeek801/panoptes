@@ -13,6 +13,12 @@ import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
+/**
+ * <code>RuleSerializer</code> (de)serializes the state of a <code>Rule</code> (actually a
+ * <code>MaterializedRule</code> using Protobuf.
+ *
+ * @author jeremy
+ */
 public class RuleSerializer implements ByteArraySerializer<MaterializedRule> {
     public static MaterializedRule constructRule(String id, String description, String ruleTypeName,
             String configuration, String groovyFilter, String classifierTypeName,

@@ -28,7 +28,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleProxy;
  */
 @Service
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
-    private transient ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     /**
      * Creates a new PortfolioMapStore. Restricted because instances of this class should be created
@@ -118,8 +118,13 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     }
 
     @Override
-    protected String getIdColumnNames() {
-        return "id, version";
+    protected String[] getKeyColumnNames() {
+        return new String[] { "id", "version" };
+    }
+
+    @Override
+    protected Object[] getKeyComponents(PortfolioKey key) {
+        return new Object[] { key.getId(), key.getVersion() };
     }
 
     @Override
@@ -128,14 +133,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     }
 
     @Override
-    protected Object[] getLoadParameters(PortfolioKey key) {
-        return new Object[] { key.getId(), key.getVersion() };
-    }
-
-    @Override
-    protected String getLoadQuery() {
-        return "select id, version, name, benchmark_id, benchmark_version from " + getTableName()
-                + " where id = ? and version = ?";
+    protected String getLoadSelect() {
+        return "select id, version, name, benchmark_id, benchmark_version from " + getTableName();
     }
 
     /**

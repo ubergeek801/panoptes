@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.lang.reflect.Constructor;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -19,8 +20,11 @@ import groovy.lang.GroovyClassLoader;
 public class GroovyPositionFilter implements Predicate<PositionEvaluationContext> {
     private static final GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
 
+    private static final ConcurrentHashMap<String, Predicate<PositionEvaluationContext>> expressionFilterMap =
+            new ConcurrentHashMap<>();
+
     private final String expression;
-    private transient final Predicate<PositionEvaluationContext> groovyFilter;
+    private final Predicate<PositionEvaluationContext> groovyFilter;
 
     /**
      * Creates a new GroovyPositionFilter using the given Groovy expression.
@@ -33,30 +37,36 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     public GroovyPositionFilter(String expression) {
         this.expression = expression;
 
-        StringBuilder classDef = new StringBuilder("import " + Predicate.class.getName() + "\n");
-        classDef.append("import " + Position.class.getName() + "\n");
-        classDef.append("import " + PositionEvaluationContext.class.getName() + "\n");
-        classDef.append("import " + Security.class.getName() + "\n");
-        classDef.append("import " + SecurityAttribute.class.getName() + "\n");
-        classDef.append("import " + SecurityProvider.class.getName() + "\n");
-        classDef.append("class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
-        classDef.append(" boolean test(PositionEvaluationContext ctx) {\n");
-        classDef.append("  Position p = ctx.position\n");
-        classDef.append("  Security s = p.getSecurity(ctx.evaluationContext.securityProvider)\n");
-        classDef.append("  return " + expression);
-        classDef.append(" }");
-        classDef.append("}");
+        groovyFilter = expressionFilterMap.computeIfAbsent(expression, e -> {
+            StringBuilder classDef =
+                    new StringBuilder("import " + Predicate.class.getName() + "\n");
+            classDef.append("import " + Position.class.getName() + "\n");
+            classDef.append("import " + PositionEvaluationContext.class.getName() + "\n");
+            classDef.append("import " + Security.class.getName() + "\n");
+            classDef.append("import " + SecurityAttribute.class.getName() + "\n");
+            classDef.append("import " + SecurityProvider.class.getName() + "\n");
+            classDef.append(
+                    "class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
+            classDef.append(" boolean test(PositionEvaluationContext ctx) {\n");
+            classDef.append("  Position p = ctx.position\n");
+            classDef.append(
+                    "  Security s = p.getSecurity(ctx.evaluationContext.securityProvider)\n");
+            classDef.append("  return " + expression);
+            classDef.append(" }");
+            classDef.append("}");
 
-        Class<Predicate<PositionEvaluationContext>> filterClass =
-                groovyClassLoader.parseClass(classDef.toString());
-        try {
-            Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
-                    filterClass.getConstructor();
-            groovyFilter = filterClassConstructor.newInstance();
-        } catch (Exception e) {
-            // TODO throw a better exception
-            throw new RuntimeException("could not instantaite Groovy filter", e);
-        }
+            Class<Predicate<PositionEvaluationContext>> filterClass =
+                    groovyClassLoader.parseClass(classDef.toString());
+
+            try {
+                Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
+                        filterClass.getConstructor();
+                return filterClassConstructor.newInstance();
+            } catch (Exception ex) {
+                // TODO throw a better exception
+                throw new RuntimeException("could not instantaite Groovy filter", ex);
+            }
+        });
     }
 
     /**

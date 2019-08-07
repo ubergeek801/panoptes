@@ -49,6 +49,6 @@ public class PositionKey {
 
     @Override
     public String toString() {
-        return "SecurityKey[" + id + "]";
+        return id;
     }
 }

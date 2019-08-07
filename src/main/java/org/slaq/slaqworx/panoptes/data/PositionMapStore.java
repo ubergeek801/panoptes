@@ -54,8 +54,8 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Materialize
     }
 
     @Override
-    protected String getIdColumnNames() {
-        return "id";
+    protected String[] getKeyColumnNames() {
+        return new String[] { "id" };
     }
 
     @Override
@@ -64,13 +64,13 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Materialize
     }
 
     @Override
-    protected Object[] getLoadParameters(PositionKey key) {
+    protected Object[] getKeyComponents(PositionKey key) {
         return new Object[] { key.getId() };
     }
 
     @Override
-    protected String getLoadQuery() {
-        return "select id, amount, security_id from " + getTableName() + " where id = ?";
+    protected String getLoadSelect() {
+        return "select id, amount, security_id from " + getTableName();
     }
 
     @Override

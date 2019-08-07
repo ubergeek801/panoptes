@@ -46,8 +46,22 @@ public class Panoptes implements ApplicationContextAware {
         SpringApplication.run(Panoptes.class, args);
 
         PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
+
+        portfolioCache.getSecurityCache().loadAll(false);
+        int numSecurities = portfolioCache.getSecurityCache().size();
+        LOG.info("{} Securities in cache", numSecurities);
+
+        portfolioCache.getPositionCache().loadAll(false);
+        int numPositions = portfolioCache.getPositionCache().size();
+        LOG.info("{} Positions in cache", numPositions);
+
+        portfolioCache.getRuleCache().loadAll(false);
+        int numRules = portfolioCache.getRuleCache().size();
+        LOG.info("{} Rules in cache", numRules);
+
+        portfolioCache.getPortfolioCache().loadAll(false);
         int numPortfolios = portfolioCache.getPortfolioCache().size();
-        LOG.info("{} Portfolios to process", numPortfolios);
+        LOG.info("{} Portfolios in cache", numPortfolios);
 
         long startTime = System.currentTimeMillis();
         PortfolioEvaluator evaluator = new PortfolioEvaluator();

@@ -8,6 +8,12 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 
+/**
+ * <code>PositionKeySerializer</code> (de)serializes the state of a <code>PositionKey</code> using
+ * Protobuf.
+ *
+ * @author jeremy
+ */
 public class PositionKeySerializer implements ByteArraySerializer<PositionKey> {
     @Override
     public void destroy() {

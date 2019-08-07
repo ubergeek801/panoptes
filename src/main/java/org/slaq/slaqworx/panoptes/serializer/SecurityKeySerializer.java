@@ -8,6 +8,12 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 
+/**
+ * <code>SecurityKeySerializer</code> (de)serializes the state of a <code>SecurityKey</code> using
+ * Protobuf.
+ *
+ * @author jeremy
+ */
 public class SecurityKeySerializer implements ByteArraySerializer<SecurityKey> {
     @Override
     public void destroy() {
