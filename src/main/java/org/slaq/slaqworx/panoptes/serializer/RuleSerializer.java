@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * <code>RuleSerializer</code> (de)serializes the state of a <code>Rule</code> (actually a
- * <code>MaterializedRule</code> using Protobuf.
+ * {@code RuleSerializer} (de)serializes the state of a {@code Rule} (actually a
+ * {@code MaterializedRule} using Protobuf.
  *
  * @author jeremy
  */

@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleProxy;
 
 /**
- * <code>PortfolioSerializer</code> (de)serializes the state of a <code>Portfolio</code> using
+ * {@code PortfolioSerializer} (de)serializes the state of a {@code Portfolio} using
  * Protobuf.
  *
  * @author jeremy

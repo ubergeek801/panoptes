@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.rule;
+package org.slaq.slaqworx.panoptes.evaluator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,6 +22,17 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.rule.AbstractRule;
+import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
+import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleProvider;
+import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
+import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
+import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
  * PortfolioEvaluatorTest tests the functionality of the PortfolioEvaluator.
@@ -89,7 +100,7 @@ public class PortfolioEvaluatorTest {
      * TopNSecurityAttributeAggregator).
      */
     @Test
-    public void testEvaluateAggregation() {
+    public void testEvaluateAggregation() throws Exception {
         Security iss1Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
         Security iss1Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
         Security iss1Sec3 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
@@ -145,18 +156,18 @@ public class PortfolioEvaluatorTest {
                 new Portfolio(null, "test", positions, (PortfolioKey)null, rules.values());
 
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
-        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> allResults = evaluator
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = evaluator
                 .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider));
 
         assertEquals("number of results should equal number of Rules", rules.size(),
                 allResults.size());
 
         Map<EvaluationGroup<?>, EvaluationResult> top2IssuerResults =
-                allResults.get(top2issuerRule);
+                allResults.get(top2issuerRule.getKey());
         Map<EvaluationGroup<?>, EvaluationResult> top3IssuerResults =
-                allResults.get(top3issuerRule);
+                allResults.get(top3issuerRule.getKey());
         Map<EvaluationGroup<?>, EvaluationResult> top10IssuerResults =
-                allResults.get(top10issuerRule);
+                allResults.get(top10issuerRule.getKey());
 
         assertNotNull("should have found results for top 2 issuer rule", top2IssuerResults);
         assertNotNull("should have found results for top 3 issuer rule", top3IssuerResults);
@@ -250,18 +261,18 @@ public class PortfolioEvaluatorTest {
         MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results =
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
                 new PortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
                         new EvaluationContext(null, securityProvider, ruleProvider));
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
         assertTrue("always-pass rule should have passed",
-                results.get(passRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
         assertFalse("always-fail rule should have failed",
-                results.get(failRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(failRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
         assertFalse("exception-throwing rule should have failed",
-                results.get(exceptionRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(exceptionRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
     }
 
     /**
@@ -269,7 +280,7 @@ public class PortfolioEvaluatorTest {
      * EvaluationGroups. This also implicitly tests ConcentrationRule and WeightedAverageRule.
      */
     @Test
-    public void testEvaluateGroups() {
+    public void testEvaluateGroups() throws Exception {
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes = Map.of(TestUtil.currency, "USD",
@@ -323,8 +334,8 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions,
                 (PortfolioKey)null, rules.values());
 
-        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator.evaluate(portfolio,
-                new EvaluationContext(null, securityProvider, ruleProvider));
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator
+                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider));
 
         // all rules should have entries
         assertEquals("number of evaluated rules should match number of portfolio rules",
@@ -332,12 +343,14 @@ public class PortfolioEvaluatorTest {
 
         // each rule's entry should have a number of results equal to the number of distinct groups
         // for that rule
-        Map<EvaluationGroup<?>, EvaluationResult> durationResults = results.get(durationRule);
+        Map<EvaluationGroup<?>, EvaluationResult> durationResults =
+                results.get(durationRule.getKey());
         assertEquals("number of duration rule results should match number of currencies", 3,
                 durationResults.size());
-        Map<EvaluationGroup<?>, EvaluationResult> qualityResults = results.get(qualityRule);
+        Map<EvaluationGroup<?>, EvaluationResult> qualityResults =
+                results.get(qualityRule.getKey());
         assertEquals("quality rule results should have a single group", 1, qualityResults.size());
-        Map<EvaluationGroup<?>, EvaluationResult> issuerResults = results.get(issuerRule);
+        Map<EvaluationGroup<?>, EvaluationResult> issuerResults = results.get(issuerRule.getKey());
         assertEquals("number of issuer rule results should match number of issuers", 2,
                 issuerResults.size());
 
@@ -369,7 +382,7 @@ public class PortfolioEvaluatorTest {
      * Tests that evaluate() behaves as expected when overrides are applied.
      */
     @Test
-    public void testEvaluateOverrides() {
+    public void testEvaluateOverrides() throws Exception {
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
 
         MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
@@ -404,17 +417,19 @@ public class PortfolioEvaluatorTest {
                 portfolioBenchmark, portfolioRules.values());
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator.evaluate(portfolio,
-                new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+                evaluator.evaluate(portfolio,
+                        new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals("unexpected number of results", 3, results.size());
         assertTrue("always-pass rule should have passed",
-                results.get(passRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
         assertFalse("always-fail rule should have failed",
-                results.get(failRule).get(EvaluationGroup.defaultGroup()).isPassed());
-        assertTrue("portfolio benchmark should have been used", results
-                .get(usePortfolioBenchmarkRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(failRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
+        assertTrue("portfolio benchmark should have been used",
+                results.get(usePortfolioBenchmarkRule.getKey()).get(EvaluationGroup.defaultGroup())
+                        .isPassed());
 
         // test the form of evaluate() that should override the portfolio benchmark
         results = evaluator.evaluate(portfolio, overrideBenchmark,
@@ -422,11 +437,12 @@ public class PortfolioEvaluatorTest {
 
         assertEquals("unexpected number of results", 3, results.size());
         assertTrue("always-pass rule should have passed",
-                results.get(passRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
         assertFalse("always-fail rule should have failed",
-                results.get(failRule).get(EvaluationGroup.defaultGroup()).isPassed());
-        assertFalse("override benchmark should have been used", results
-                .get(usePortfolioBenchmarkRule).get(EvaluationGroup.defaultGroup()).isPassed());
+                results.get(failRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed());
+        assertFalse("override benchmark should have been used",
+                results.get(usePortfolioBenchmarkRule.getKey()).get(EvaluationGroup.defaultGroup())
+                        .isPassed());
 
         HashSet<Rule> overrideRules = new HashSet<>();
         overrideRules.add(usePortfolioBenchmarkRule);
@@ -436,15 +452,17 @@ public class PortfolioEvaluatorTest {
                 new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
 
         assertEquals("unexpected number of results", 1, results.size());
-        assertTrue("portfolio benchmark should have been used", results
-                .get(usePortfolioBenchmarkRule).get(EvaluationGroup.defaultGroup()).isPassed());
+        assertTrue("portfolio benchmark should have been used",
+                results.get(usePortfolioBenchmarkRule.getKey()).get(EvaluationGroup.defaultGroup())
+                        .isPassed());
 
         // test the form of evaluate() that should override the portfolio rules and benchmark
         results = evaluator.evaluate(overrideRules.stream(), portfolio, overrideBenchmark,
                 new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
 
         assertEquals("unexpected number of results", 1, results.size());
-        assertFalse("override benchmark should have been used", results
-                .get(usePortfolioBenchmarkRule).get(EvaluationGroup.defaultGroup()).isPassed());
+        assertFalse("override benchmark should have been used",
+                results.get(usePortfolioBenchmarkRule.getKey()).get(EvaluationGroup.defaultGroup())
+                        .isPassed());
     }
 }

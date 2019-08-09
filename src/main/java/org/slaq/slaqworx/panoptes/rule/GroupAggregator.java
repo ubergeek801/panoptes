@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  *            the EvaluationGroup key on which the function operates
  */
 @FunctionalInterface
-public interface GroupAggregator<K> {
+public interface GroupAggregator<K extends Serializable> {
     /**
      * Aggregates the given Position classifications into zero or more new classifications. For
      * example, a GroupAggregator may select Positions held in the top five issuers and create a new

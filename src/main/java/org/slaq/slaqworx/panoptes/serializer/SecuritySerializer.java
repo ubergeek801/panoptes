@@ -14,8 +14,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.SecurityMsg;
 
 /**
- * <code>SecuritySerializer</code> (de)serializes the state of a <code>Security</code> using
- * Protobuf.
+ * {@code SecuritySerializer} (de)serializes the state of a {@code Security} using Protobuf.
  *
  * @author jeremy
  */

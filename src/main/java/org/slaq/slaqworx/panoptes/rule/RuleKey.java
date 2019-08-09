@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
+
 import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
 
 /**
@@ -7,7 +9,9 @@ import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
  *
  * @author jeremy
  */
-public class RuleKey {
+public class RuleKey implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final String id;
 
     /**

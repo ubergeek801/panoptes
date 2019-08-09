@@ -12,9 +12,9 @@ import com.hazelcast.core.MapStoreFactory;
 import org.slaq.slaqworx.panoptes.Panoptes;
 
 /**
- * <code>HazelcastMapStoreFactory</code> is a <code>MapStoreFactory</code> that provides
- * <code>MapStore</code>s for the cached <code>Map</code>s (e.g. <code>Portiofolio</code>,
- * <code>Position</code>, <code>Rule</code>, <code>Security</code>).
+ * {@code HazelcastMapStoreFactory} is a {@code MapStoreFactory} that provides
+ * {@code MapStore}s for the cached {@code Map}s (e.g. {@code Portiofolio},
+ * {@code Position}, {@code Rule}, {@code Security}).
  *
  * @author jeremy
  */

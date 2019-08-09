@@ -36,7 +36,7 @@ public class TradeEvaluatorTest {
      * Tests that evaluate() behaves as expected.
      */
     @Test
-    public void testEvaluate() {
+    public void testEvaluate() throws Exception {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         Security s1 = securityProvider.newSecurity(Map.of(TestUtil.duration, 3.0));
@@ -84,25 +84,25 @@ public class TradeEvaluatorTest {
         TradeEvaluationResult result = evaluator.evaluate(trade);
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =
-                result.getImpacts().get(new PortfolioRuleKey(p1, p1Rule1));
+                result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
         assertNotNull("should have found impact for p1Rule1", p1r1Impact);
         assertEquals("p1Rule1 should have failed", Impact.NEGATIVE,
                 p1r1Impact.get(EvaluationGroup.defaultGroup()));
 
         Map<EvaluationGroup<?>, Impact> p1r2Impact =
-                result.getImpacts().get(new PortfolioRuleKey(p1, p1Rule2));
+                result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule2.getKey()));
         assertNotNull("should have found impact for p1Rule2", p1r2Impact);
         assertEquals("p1Rule2 should have failed", Impact.NEGATIVE,
                 p1r2Impact.get(EvaluationGroup.defaultGroup()));
 
         Map<EvaluationGroup<?>, Impact> p1r3Impact =
-                result.getImpacts().get(new PortfolioRuleKey(p1, p1Rule3));
+                result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule3.getKey()));
         assertNotNull("should have found impact for p1Rule3", p1r3Impact);
         assertEquals("p1Rule3 should have passed", Impact.POSITIVE,
                 p1r3Impact.get(EvaluationGroup.defaultGroup()));
 
         Map<EvaluationGroup<?>, Impact> p1r4Impact =
-                result.getImpacts().get(new PortfolioRuleKey(p1, p1Rule4));
+                result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule4.getKey()));
         assertNotNull("should have found impact for p1Rule4", p1r4Impact);
         assertEquals("p1Rule4 should have passed", Impact.NEUTRAL,
                 p1r4Impact.get(EvaluationGroup.defaultGroup()));

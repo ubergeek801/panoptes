@@ -10,8 +10,8 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A Portfolio is a set of Positions held by some entity, which may be (for example) a customer
- * account, a hypothetical model, or something more abstract such as a benchmark.
+ * A {@code Portfolio} is a set of {@code Position}s held by some entity, which may be (for example)
+ * a customer account, a hypothetical model, or something more abstract such as a benchmark.
  *
  * @author jeremy
  */
@@ -24,33 +24,36 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     private final PositionSet positionSet;
 
     /**
-     * Creates a new Portfolio with the given key, name and Positions, with no associated Benchmark
-     * or Rules.
+     * Creates a new {@code Portfolio} with the given key, name and {@code Position}s, with no
+     * associated benchmark or {@code Rule}s.
      *
      * @param id
-     *            the unique Portfolio key
+     *            the unique {@code Portfolio} key
      * @param name
-     *            the Portfolio name/description
+     *            the {@code Portfolio} name/description
      * @param positions
-     *            the Positions comprising the Portfolio
+     *            the {@code Positions} comprising the {@code Portfolio}
      */
     public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions) {
         this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
     }
 
     /**
-     * Creates a new Portfolio with the given key, name, Positions, Benchmark and Rules.
+     * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
+     * {@code Rule}s.
      *
      * @param id
-     *            the unique Portfolio key
+     *            the unique {@code Portfolio} key
      * @param name
-     *            the Portfolio name/description
+     *            the {@code Portfolio} name/description
      * @param positions
-     *            the Positions comprising the Portfolio
+     *            the {@code Position}s comprising the {@code Portfoli}o
      * @param benchmark
-     *            the (possibly null) Portfolio that acts a benchmark for the Portfolio
+     *            the (possibly null) {@code Portfoli}o that acts a benchmark for the
+     *            {@code Portfolio}
      * @param rules
-     *            the (possibly empty) Collection of Rules associated with the Portfolio
+     *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
+     *            {@code Portfolio}
      */
     public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions,
             Portfolio benchmark, Collection<? extends Rule> rules) {
@@ -58,18 +61,21 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     }
 
     /**
-     * Creates a new Portfolio with the given key, name, Positions, Benchmark and Rules.
+     * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
+     * {@code Rule}s.
      *
      * @param id
-     *            the unique Portfolio key
+     *            the unique {@code Portfolio} key
      * @param name
-     *            the Portfolio name/description
+     *            the {@code Portfolio} name/description
      * @param positions
-     *            the Positions comprising the Portfolio
+     *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmarkKey
-     *            the (possibly null) Portfolio that acts a benchmark for the Portfolio
+     *            the (possibly null) {@code Portfolio} that acts a benchmark for the
+     *            {@code Portfolio}
      * @param rules
-     *            the (possibly empty) Collection of Rules associated with the Portfolio
+     *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
+     *            {@code Portfolio}
      */
     public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions,
             PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
@@ -103,11 +109,11 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     }
 
     /**
-     * Obtains this Portfolio's benchmark, if any.
+     * Obtains this {@code Portfolio}'s benchmark, if any.
      *
      * @param portfolioProvider
-     *            the PortfolioProvider from which to obtain the benchmark Portfolio
-     * @return this Portfolio's benchmark, or null if one is not associated
+     *            the {@code PortfolioProvider} from which to obtain the benchmark {@code Portfolio}
+     * @return this {@code Portfolio}'s benchmark, or {@code null} if one is not associated
      */
     public Portfolio getBenchmark(PortfolioProvider portfolioProvider) {
         if (benchmarkKey == null) {
@@ -131,9 +137,9 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     }
 
     /**
-     * Obtains the name/description of this Portfolio.
+     * Obtains the name/description of this {@code Portfolio}.
      *
-     * @return the Portfolio name
+     * @return the {@code Portfolio} name
      */
     public String getName() {
         return name;
@@ -147,15 +153,6 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     @Override
     public Stream<Position> getPositions() {
         return positionSet.getPositions();
-    }
-
-    /**
-     * Obtains this Portfolio's Positions as a PositionSet.
-     *
-     * @return a PositionSet
-     */
-    public PositionSet getPositionSet() {
-        return positionSet;
     }
 
     public Stream<Rule> getRules() {

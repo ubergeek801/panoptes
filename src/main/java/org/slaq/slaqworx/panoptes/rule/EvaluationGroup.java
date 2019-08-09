@@ -1,14 +1,17 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
+
 /**
  * EvaluationGroup is a value type used as a key when classifying rule evaluation results.
  *
  * @author jeremy
- *
  * @param <K>
  *            the aggregation key type, e.g. SecurityAttribute
  */
-public class EvaluationGroup<K> {
+public class EvaluationGroup<K extends Serializable> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static final String DEFAULT_EVALUATION_GROUP_ID = "portfolio";
 
     private static final EvaluationGroup<?> DEFAULT_GROUP =

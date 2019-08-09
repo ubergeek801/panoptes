@@ -14,5 +14,5 @@ public interface PositionProvider {
      *            the key identifying the Position to be obtained
      * @return the Position corresponding to the given key, or null if it could not be located
      */
-    public Position getPosition(PositionKey key);
+    public MaterializedPosition getPosition(PositionKey key);
 }

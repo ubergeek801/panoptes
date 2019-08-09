@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @param <T>
  *            the type which values of this attribute implement
  */
-public class SecurityAttribute<T> {
+public class SecurityAttribute<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static final Map<String, SecurityAttribute<?>> attributesByName =
             new HashMap<>(100, 0.5f);
     private static final Map<Integer, SecurityAttribute<?>> attributesByIndex =

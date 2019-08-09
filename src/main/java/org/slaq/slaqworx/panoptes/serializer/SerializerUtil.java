@@ -15,7 +15,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * <code>SerializerUtil</code> provides utilities for performing various types of serialization
+ * {@code SerializerUtil} provides utilities for performing various types of serialization
  * (particularly JSON).
  *
  * @author jeremy
@@ -101,9 +101,9 @@ public class SerializerUtil {
     }
 
     /**
-     * Obtains a JSON <code>ObjectMapper</code> suitable for most purposes.
+     * Obtains a JSON {@code ObjectMapper} suitable for most purposes.
      *
-     * @return an <code>ObjectMapper</code>
+     * @return an {@code ObjectMapper}
      */
     public static ObjectMapper defaultJsonMapper() {
         return defaultJsonMapper;
@@ -139,7 +139,7 @@ public class SerializerUtil {
     }
 
     /**
-     * Creates a new <code>SerializerUtil</code>. Restricted to enforce class utility semantics.
+     * Creates a new {@code SerializerUtil}. Restricted to enforce class utility semantics.
      */
     private SerializerUtil() {
         // nothing to do

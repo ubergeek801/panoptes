@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.rule;
+package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -13,6 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.data.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;

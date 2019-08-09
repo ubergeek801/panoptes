@@ -18,8 +18,8 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 /**
  * HazelcastMapStore is a partial implementation of a MapStore.
  * <p>
- * HazelcastMapStore provides default implementations for the <code>*All</code> methods (e.g.
- * <code>loadAll()</code>) which delegate to the single-key operations, but subclasses may override
+ * HazelcastMapStore provides default implementations for the {@code *All} methods (e.g.
+ * {@code loadAll()}) which delegate to the single-key operations, but subclasses may override
  * these if they are able to implement these operations more efficiently.
  *
  * @author jeremy
@@ -125,7 +125,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
      *
      * @param key
      *            the key from which to extract component values
-     * @return the component values as an <code>Object</code> array
+     * @return the component values as an {@code Object} array
      */
     protected abstract Object[] getKeyComponents(K key);
 
@@ -137,8 +137,8 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     protected abstract RowMapper<K> getKeyMapper();
 
     /**
-     * Obtains the <code>select</code> portion of the SQL query to be used to load row(s) by ID(s).
-     * This portion of the query should not include a <code>where</code> clause.
+     * Obtains the {@code select} portion of the SQL query to be used to load row(s) by ID(s).
+     * This portion of the query should not include a {@code where} clause.
      *
      * @return a partial SQL query
      */

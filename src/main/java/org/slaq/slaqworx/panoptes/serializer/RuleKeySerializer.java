@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * <code>RuleKeySerializer</code> (de)serializes the state of a <code>RuleKey</code> using Protobuf.
+ * {@code RuleKeySerializer} (de)serializes the state of a {@code RuleKey} using Protobuf.
  *
  * @author jeremy
  */

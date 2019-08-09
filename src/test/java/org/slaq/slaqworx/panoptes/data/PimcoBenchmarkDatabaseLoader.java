@@ -86,7 +86,7 @@ public class PimcoBenchmarkDatabaseLoader {
 
             PositionMapStore positionMapStore = appContext.getBean(PositionMapStore.class);
             portfolios.stream().forEach(pf -> {
-                LOG.info("persisting {} Positions for Portfolio {}", pf.getPositionSet().size(),
+                LOG.info("persisting {} Positions for Portfolio {}", pf.getPositions().count(),
                         pf.getName());
                 txTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override

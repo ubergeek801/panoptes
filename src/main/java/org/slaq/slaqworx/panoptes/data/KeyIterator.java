@@ -10,9 +10,9 @@ import java.util.Iterator;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
- * KeyIterator is an <code>Iterator</code> (which is itself <code>Iterable</code>) which facilitates
- * loading of keys iteratively (rather than loading the complete set as a <code>List</code>). A
- * <code>HazelcastMapStore</code> could use it in the following way:
+ * KeyIterator is an {@code Iterator} (which is itself {@code Iterable}) which facilitates
+ * loading of keys iteratively (rather than loading the complete set as a {@code List}). A
+ * {@code HazelcastMapStore} could use it in the following way:
  *
  * <pre>
  * &#64;Override

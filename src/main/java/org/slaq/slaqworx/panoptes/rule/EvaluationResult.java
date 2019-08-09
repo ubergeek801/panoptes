@@ -1,12 +1,14 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
+
 /**
  * EvaluationResult encapsulates the results of a Rule evaluation. Currently this class contains
  * aspects of Boolean- and value-based evaluations, which possibly should be separated.
  *
  * @author jeremy
  */
-public class EvaluationResult {
+public class EvaluationResult implements Serializable {
     /**
      * Impact describes the impact of some change (such as a proposed Trade) on a Rule, as evaluated
      * before and after the proposed changes are considered.
@@ -39,6 +41,8 @@ public class EvaluationResult {
     public static enum Threshold {
         BELOW, WITHIN, ABOVE
     }
+
+    private static final long serialVersionUID = 1L;
 
     private final boolean isPassed;
     private final Threshold threshold;

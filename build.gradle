@@ -1,8 +1,9 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.1.6.RELEASE'
-    id 'com.google.protobuf' version '0.8.10'
     id 'com.google.cloud.tools.jib' version '1.4.0'
+    id 'com.google.protobuf' version '0.8.10'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.springframework.boot' version '2.1.6.RELEASE'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -18,13 +19,14 @@ def globalJvmArgs = ['-XX:+UseG1GC', '-XX:+UseStringDeduplication', '-XX:MaxGCPa
         '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
         '--add-opens', 'java.management/sun.management=ALL-UNNAMED',
         '--add-opens', 'jdk.management/com.sun.management.internal=ALL-UNNAMED']
-def k8sJvmArgs = ['-Xmx3328m', '-Dhazelcast.jmx=true', '-noverify', '-XX:TieredStopAtLevel=1']
+def k8sJvmArgs = ['-Xmx2560m', '-Dhazelcast.jmx=true', '-noverify', '-XX:TieredStopAtLevel=1',
+        '-Djava.util.concurrent.ForkJoinPool.common.parallelism=6']
 k8sJvmArgs.addAll(globalJvmArgs) 
 
 repositories {
     mavenCentral()
 }
-
+   
 ext {
     set('vaadinVersion', '13.0.11')
 }
@@ -32,8 +34,9 @@ ext {
 dependencies {
     implementation 'ch.qos.logback:logback-classic'
     implementation 'com.google.protobuf:protobuf-javalite:3.9.0'
-    implementation 'com.hazelcast:hazelcast'
+    implementation 'com.hazelcast:hazelcast:3.12.2'
     implementation 'com.hazelcast:hazelcast-kubernetes:1.5.1'
+    implementation 'com.hazelcast:hazelcast-spring:3.12.2'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation 'io.hawt:hawtio-springboot:2.7.0'
     implementation 'org.apache.commons:commons-lang3'

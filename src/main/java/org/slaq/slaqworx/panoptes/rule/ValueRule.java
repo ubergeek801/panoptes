@@ -66,19 +66,7 @@ public abstract class ValueRule extends MaterializedRule {
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions, evaluationContext);
         if (benchmarkPositions != null) {
-            // Caching the previously-calculated benchmark value should theoretically provide a
-            // performance benefit to trade evaluation, as the Rule is evaluated against the current
-            // Portfolio composition and again with the proposed (post-trade) composition, but the
-            // benchmark value will not have changed. The measured performance difference, however,
-            // seems to be a wash.
-            Double previousBenchmarkValue = evaluationContext.getPreviousBenchmarkValue(this);
-            double benchmarkValue;
-            if (previousBenchmarkValue == null) {
-                benchmarkValue = getValue(benchmarkPositions, evaluationContext);
-                evaluationContext.setPreviousBenchmarkValue(this, benchmarkValue);
-            } else {
-                benchmarkValue = previousBenchmarkValue;
-            }
+            double benchmarkValue = getValue(benchmarkPositions, evaluationContext);
             // rescale the value to the benchmark; this may result in NaN, which means that the
             // Position's portfolio concentration is infinitely greater than the benchmark
             value /= benchmarkValue;

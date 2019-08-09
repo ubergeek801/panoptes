@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,11 +13,11 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
-import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
 /**
@@ -55,8 +56,10 @@ public class TradeEvaluator {
      * @param trade
      *            the Trade to be evaluated
      * @return a TradeEvaluationResult describing the results of the evaluation
+     * @throws InterruptedException
+     *             if the Thread was interrupted while awaiting results
      */
-    public TradeEvaluationResult evaluate(Trade trade) {
+    public TradeEvaluationResult evaluate(Trade trade) throws InterruptedException {
         LOG.info("evaluating trade {} with {} allocations", trade.getId(),
                 trade.getAllocationCount());
         // group the Transactions by Portfolio; the result is a Map of Portfolio to the Trade
@@ -65,35 +68,40 @@ public class TradeEvaluator {
                 .collect(Collectors.toMap(t -> t.getPortfolio(), t -> t.getPositions()));
 
         // evaluate the impact on each Portfolio
+        // FIXME use the appropriate ExecutorService
         PortfolioEvaluator evaluator = new PortfolioEvaluator();
         TradeEvaluationResult evaluationResult = new TradeEvaluationResult();
-        portfolioAllocationsMap.forEach((portfolio, tradePositions) -> {
+        for (Entry<Portfolio, Stream<Position>> portfolioAllocationEntry : portfolioAllocationsMap
+                .entrySet()) {
+            Portfolio portfolio = portfolioAllocationEntry.getKey();
+            Stream<Position> tradePositions = portfolioAllocationEntry.getValue();
+
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
             EvaluationContext evaluationContext =
                     new EvaluationContext(portfolioProvider, securityProvider, ruleProvider);
-            Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
                     evaluator.evaluate(portfolio, evaluationContext);
-            Map<Rule, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
                     evaluator.evaluate(portfolio,
                             new PositionSet(Stream.concat(portfolio.getPositions(), tradePositions),
                                     portfolio),
                             evaluationContext);
 
             proposedState.entrySet().parallelStream().forEach(ruleEntry -> {
-                Rule rule = ruleEntry.getKey();
+                RuleKey ruleKey = ruleEntry.getKey();
                 Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults =
                         ruleEntry.getValue();
                 Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
-                        currentState.get(rule);
+                        currentState.get(ruleKey);
 
                 proposedGroupResults.forEach((group, proposedResult) -> {
                     EvaluationResult currentResult = currentGroupResults.get(group);
-                    evaluationResult.addImpact(portfolio, rule, group,
+                    evaluationResult.addImpact(portfolio.getKey(), ruleKey, group,
                             proposedResult.compare(currentResult));
                 });
             });
-        });
+        }
 
         return evaluationResult;
     }

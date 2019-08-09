@@ -12,8 +12,8 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 
 /**
- * <code>PositionSerializer</code> (de)serializes the state of a <code>Position</code> (actually a
- * <code>MaterializedPosition</code> using Protobuf.
+ * {@code PositionSerializer} (de)serializes the state of a {@code Position} (actually a
+ * {@code MaterializedPosition} using Protobuf.
  *
  * @author jeremy
  */

@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  * @author jeremy
  */
 public class TestPositionProvider implements PositionProvider {
-    private final HashMap<PositionKey, Position> positionMap = new HashMap<>();
+    private final HashMap<PositionKey, MaterializedPosition> positionMap = new HashMap<>();
 
     /**
      * Creates a new TestPositionProvider. Restricted because instances of this class should be
@@ -25,7 +25,7 @@ public class TestPositionProvider implements PositionProvider {
     }
 
     @Override
-    public Position getPosition(PositionKey key) {
+    public MaterializedPosition getPosition(PositionKey key) {
         return positionMap.get(key);
     }
 

@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes;
 
+import java.util.concurrent.ForkJoinPool;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -11,8 +13,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.PortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.evaluator.RuleEvaluationMessageConsumer;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -26,9 +27,9 @@ public class Panoptes implements ApplicationContextAware {
     private static ApplicationContext applicationContext;
 
     /**
-     * Obtains the ApplicationContext of the running Panoptes application. This should only be used
-     * in cases where dependency injection isn't possible, e.g. from Hazelcast <code>MapStore</code>
-     * classes which are instantiated directly by Hazelcast.
+     * Obtains the {@code ApplicationContext} of the running Panoptes application. This should only
+     * be used in cases where dependency injection isn't possible, e.g. from Hazelcast
+     * {@code MapStore} classes which are instantiated directly by Hazelcast.
      *
      * @return the current ApplicationContext
      */
@@ -37,41 +38,13 @@ public class Panoptes implements ApplicationContextAware {
     }
 
     /**
-     * The entry point for the Panoptes application. Currently the app doesn't do anything useful.
+     * The entry point for the Panoptes application.
      *
      * @param args
      *            the program arguments
      */
     public static void main(String[] args) {
         SpringApplication.run(Panoptes.class, args);
-
-        PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
-
-        portfolioCache.getSecurityCache().loadAll(false);
-        int numSecurities = portfolioCache.getSecurityCache().size();
-        LOG.info("{} Securities in cache", numSecurities);
-
-        portfolioCache.getPositionCache().loadAll(false);
-        int numPositions = portfolioCache.getPositionCache().size();
-        LOG.info("{} Positions in cache", numPositions);
-
-        portfolioCache.getRuleCache().loadAll(false);
-        int numRules = portfolioCache.getRuleCache().size();
-        LOG.info("{} Rules in cache", numRules);
-
-        portfolioCache.getPortfolioCache().loadAll(false);
-        int numPortfolios = portfolioCache.getPortfolioCache().size();
-        LOG.info("{} Portfolios in cache", numPortfolios);
-
-        long startTime = System.currentTimeMillis();
-        PortfolioEvaluator evaluator = new PortfolioEvaluator();
-        portfolioCache.getPortfolioCache().values().forEach(p -> {
-            LOG.info("evaluating Portfolio {}", p.getName());
-            evaluator.evaluate(p,
-                    new EvaluationContext(portfolioCache, portfolioCache, portfolioCache));
-        });
-        long endTime = System.currentTimeMillis();
-        LOG.info("evaluated {} Portfolios in {} ms", numPortfolios, endTime - startTime);
     }
 
     @Override
@@ -80,16 +53,46 @@ public class Panoptes implements ApplicationContextAware {
     }
 
     /**
-     * Provides an ApplicationRunner to be executed upon Panoptes startup.
+     * Provides an {@code ApplicationRunner} to be executed upon Panoptes startup.
      *
-     * @param appContext
-     *            the Spring ApplicationContext
-     * @return an ApplicationRunner which initializes Panoptes
+     * @param applicationContext
+     *            the Spring {@code ApplicationContext}
+     * @return an {@code ApplicationRunner} which initializes Panoptes
      */
     @Bean
-    public ApplicationRunner startupRunner(ApplicationContext appContext) {
+    public ApplicationRunner startupRunner(ApplicationContext applicationContext) {
         return args -> {
-            LOG.info("Panoptes started");
+            PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
+
+            // use the same number of threads as the common ForkJoinPool
+            // TODO there's probably a better way to create a listener pool
+            int numThreads = ForkJoinPool.getCommonPoolParallelism();
+            for (int i = 1; i <= numThreads; i++) {
+                Thread ruleEvaluationMessageConsumerThread =
+                        new Thread(new RuleEvaluationMessageConsumer(portfolioCache),
+                                "RuleEvaluationMessageConsumer" + i);
+                ruleEvaluationMessageConsumerThread.setDaemon(true);
+                ruleEvaluationMessageConsumerThread.start();
+            }
+            LOG.info("started {} RuleEvaluationMessageConsumer threads", numThreads);
+
+            portfolioCache.getSecurityCache().loadAll(false);
+            int numSecurities = portfolioCache.getSecurityCache().size();
+            LOG.info("{} Securities in cache", numSecurities);
+
+            portfolioCache.getPositionCache().loadAll(false);
+            int numPositions = portfolioCache.getPositionCache().size();
+            LOG.info("{} Positions in cache", numPositions);
+
+            portfolioCache.getRuleCache().loadAll(false);
+            int numRules = portfolioCache.getRuleCache().size();
+            LOG.info("{} Rules in cache", numRules);
+
+            portfolioCache.getPortfolioCache().loadAll(false);
+            int numPortfolios = portfolioCache.getPortfolioCache().size();
+            LOG.info("{} Portfolios in cache", numPortfolios);
+
+            LOG.info("Panoptes ready");
         };
     }
 }

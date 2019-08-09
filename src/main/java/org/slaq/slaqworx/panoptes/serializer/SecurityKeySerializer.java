@@ -9,8 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 
 /**
- * <code>SecurityKeySerializer</code> (de)serializes the state of a <code>SecurityKey</code> using
- * Protobuf.
+ * {@code SecurityKeySerializer} (de)serializes the state of a {@code SecurityKey} using Protobuf.
  *
  * @author jeremy
  */

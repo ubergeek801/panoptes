@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
  * TradeEvaluationResult encapsulates the results of a trade evaluation. For a given Portfolio and
@@ -21,68 +21,75 @@ public class TradeEvaluationResult {
      * Rule.
      */
     public static class PortfolioRuleKey {
-        private final Portfolio portfolio;
-        private final Rule rule;
+        private final PortfolioKey portfolioKey;
+        private final RuleKey ruleKey;
 
         /**
-         * Creates a new PortfolioRuleKey for the given Portfolio and Rule.
+         * Creates a new PortfolioRuleKey for the given Portfolio and Rule keys.
          *
-         * @param portfolio
-         *            the referenced Portfolio
-         * @param rule
-         *            the referenced Rule
+         * @param portfolioKey
+         *            the key of the referenced Portfolio
+         * @param ruleKey
+         *            the key of the referenced Rule
          */
-        public PortfolioRuleKey(Portfolio portfolio, Rule rule) {
-            this.portfolio = portfolio;
-            this.rule = rule;
+        public PortfolioRuleKey(PortfolioKey portfolioKey, RuleKey ruleKey) {
+            this.portfolioKey = portfolioKey;
+            this.ruleKey = ruleKey;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             PortfolioRuleKey other = (PortfolioRuleKey)obj;
-            if (portfolio == null) {
-                if (other.portfolio != null)
+            if (portfolioKey == null) {
+                if (other.portfolioKey != null) {
                     return false;
-            } else if (!portfolio.equals(other.portfolio))
+                }
+            } else if (!portfolioKey.equals(other.portfolioKey)) {
                 return false;
-            if (rule == null) {
-                if (other.rule != null)
+            }
+            if (ruleKey == null) {
+                if (other.ruleKey != null) {
                     return false;
-            } else if (!rule.equals(other.rule))
+                }
+            } else if (!ruleKey.equals(other.ruleKey)) {
                 return false;
+            }
             return true;
         }
 
         /**
-         * Obtains the Portfolio referenced by this key.
+         * Obtains the key of the Portfolio referenced by this key.
          *
-         * @return a Portfolio
+         * @return a Portfolio key
          */
-        public Portfolio getPortfolio() {
-            return portfolio;
+        public PortfolioKey getPortfolioKey() {
+            return portfolioKey;
         }
 
         /**
-         * Obtains the Rule referenced by this key.
+         * Obtains the key of the Rule referenced by this key.
          *
-         * @return a Rule
+         * @return a Rule key
          */
-        public Rule getRule() {
-            return rule;
+        public RuleKey getRuleKey() {
+            return ruleKey;
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((portfolio == null) ? 0 : portfolio.hashCode());
-            result = prime * result + ((rule == null) ? 0 : rule.hashCode());
+            result = prime * result + ((portfolioKey == null) ? 0 : portfolioKey.hashCode());
+            result = prime * result + ((ruleKey == null) ? 0 : ruleKey.hashCode());
             return result;
         }
     }
@@ -100,19 +107,19 @@ public class TradeEvaluationResult {
     /**
      * Records an impact corresponding to the given Portfolio, Rule and EvaluationGroup.
      *
-     * @param portfolio
-     *            the Portfolio on which the impact occurred
-     * @param rule
-     *            the Rule for which the impact occurred
+     * @param portfolioKey
+     *            the key identifying the Portfolio on which the impact occurred
+     * @param ruleKey
+     *            the key identifying the Rule for which the impact occurred
      * @param evaluationGroup
      *            the EvalautionGroup on which the impact occurred
      * @param impact
      *            the impact that was determined during evaluation
      */
-    public void addImpact(Portfolio portfolio, Rule rule, EvaluationGroup<?> evaluationGroup,
-            Impact impact) {
+    public void addImpact(PortfolioKey portfolioKey, RuleKey ruleKey,
+            EvaluationGroup<?> evaluationGroup, Impact impact) {
         Map<EvaluationGroup<?>, Impact> groupImpactMap = ruleImpactMap
-                .computeIfAbsent(new PortfolioRuleKey(portfolio, rule), r -> new HashMap<>());
+                .computeIfAbsent(new PortfolioRuleKey(portfolioKey, ruleKey), r -> new HashMap<>());
         groupImpactMap.put(evaluationGroup, impact);
     }
 
