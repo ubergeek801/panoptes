@@ -9,7 +9,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.MapStoreConfig.InitialLoadMode;
-import com.hazelcast.config.MultiMapConfig.ValueCollectionType;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
@@ -89,7 +88,7 @@ public class PanoptesCacheConfiguration {
     @Bean
     @DependsOn("securityAttributeLoader")
     protected Config hazelcastConfig() {
-        Config config = new Config();
+        Config config = new Config("panoptes");
 
         // allow Spring dependencies to be injected into deserialized objects
         config.setManagedContext(managedContext());
@@ -119,12 +118,16 @@ public class PanoptesCacheConfiguration {
         createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME);
         createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME);
 
-        // set up the queue for rule evaluation processing
-        config.getQueueConfig(PortfolioCache.RULE_EVALUATION_QUEUE_NAME).setBackupCount(3);
+        // set up the (local) queue for portfolio evaluation
+        config.getQueueConfig(PortfolioCache.PORTFOLIO_EVALUATION_QUEUE_NAME).setBackupCount(0);
 
-        // set up a map to act as the rule evaluation result "topic"
-        config.getMultiMapConfig(PortfolioCache.RULE_EVALUATION_RESULT_MAP_NAME).setBinary(false)
-                .setValueCollectionType(ValueCollectionType.SET);
+        // set up the map for portfolio evaluation processing input
+        config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_MAP_NAME).setBackupCount(0)
+                .setInMemoryFormat(InMemoryFormat.BINARY);
+
+        // set up a map to act as the portfolio evaluation result "topic"
+        config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
+                .setInMemoryFormat(InMemoryFormat.BINARY);
 
         // set up cluster join discovery appropriate for the detected environment
         if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {

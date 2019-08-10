@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes;
 
-import java.util.concurrent.ForkJoinPool;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -13,7 +11,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
-import org.slaq.slaqworx.panoptes.evaluator.RuleEvaluationMessageConsumer;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -64,17 +62,7 @@ public class Panoptes implements ApplicationContextAware {
         return args -> {
             PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
 
-            // use the same number of threads as the common ForkJoinPool
-            // TODO there's probably a better way to create a listener pool
-            int numThreads = ForkJoinPool.getCommonPoolParallelism();
-            for (int i = 1; i <= numThreads; i++) {
-                Thread ruleEvaluationMessageConsumerThread =
-                        new Thread(new RuleEvaluationMessageConsumer(portfolioCache),
-                                "RuleEvaluationMessageConsumer" + i);
-                ruleEvaluationMessageConsumerThread.setDaemon(true);
-                ruleEvaluationMessageConsumerThread.start();
-            }
-            LOG.info("started {} RuleEvaluationMessageConsumer threads", numThreads);
+            new PortfolioEvaluationRequestListener(portfolioCache).start();
 
             portfolioCache.getSecurityCache().loadAll(false);
             int numSecurities = portfolioCache.getSecurityCache().size();

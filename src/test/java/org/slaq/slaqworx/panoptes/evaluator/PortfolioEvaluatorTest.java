@@ -155,7 +155,7 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio =
                 new Portfolio(null, "test", positions, (PortfolioKey)null, rules.values());
 
-        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = evaluator
                 .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider));
 
@@ -246,7 +246,7 @@ public class PortfolioEvaluatorTest {
      * unexpected!).
      */
     @Test
-    public void testEvaluateException() {
+    public void testEvaluateException() throws Exception {
         DummyRule passRule = new DummyRule("testPass", true);
         DummyRule failRule = new DummyRule("testFail", false);
         ExceptionThrowingRule exceptionRule = new ExceptionThrowingRule("exceptionThrowingRule");
@@ -262,7 +262,7 @@ public class PortfolioEvaluatorTest {
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                new PortfolioEvaluator().evaluate(rules.values().stream(),
+                new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
                         new EvaluationContext(null, securityProvider, ruleProvider));
         // 3 distinct rules should result in 3 evaluations
@@ -281,7 +281,7 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateGroups() throws Exception {
-        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes = Map.of(TestUtil.currency, "USD",
                 TestUtil.ratingValue, 90d, TestUtil.duration, 3d, TestUtil.issuer, "ISSFOO");
@@ -383,7 +383,7 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateOverrides() throws Exception {
-        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
 
         MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);

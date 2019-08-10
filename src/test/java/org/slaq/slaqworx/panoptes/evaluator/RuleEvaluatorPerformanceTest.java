@@ -51,7 +51,7 @@ public class RuleEvaluatorPerformanceTest {
         PimcoBenchmarkDataSource dataSource = PimcoBenchmarkDataSource.getInstance();
 
         // perform evaluation on each Portfolio
-        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
         DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
         long portfolioStartTime = System.currentTimeMillis();
         ArrayList<Portfolio> portfolios = new ArrayList<>();

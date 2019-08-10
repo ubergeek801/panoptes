@@ -6,14 +6,13 @@ import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 import groovy.lang.GroovyClassLoader;
 
 /**
- * GroovyPositionFilter is a Position-based Predicate that can be used as a Position filter for Rule
- * evaluation. Currently it is the only such filter that can be persisted.
+ * {@code GroovyPositionFilter} is a {@code Position}-based {@code Predicate} that can be used as a
+ * {@code Position} filter for {@code Rule} evaluation. Currently it is the only such filter that
+ * can be persisted.
  *
  * @author jeremy
  */
@@ -38,13 +37,11 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
         this.expression = expression;
 
         groovyFilter = expressionFilterMap.computeIfAbsent(expression, e -> {
-            StringBuilder classDef =
-                    new StringBuilder("import " + Predicate.class.getName() + "\n");
+            StringBuilder classDef = new StringBuilder("package org.slaq.slaqworx.panoptes.rule\n");
+            classDef.append("import " + Predicate.class.getName() + "\n");
             classDef.append("import " + Position.class.getName() + "\n");
             classDef.append("import " + PositionEvaluationContext.class.getName() + "\n");
             classDef.append("import " + Security.class.getName() + "\n");
-            classDef.append("import " + SecurityAttribute.class.getName() + "\n");
-            classDef.append("import " + SecurityProvider.class.getName() + "\n");
             classDef.append(
                     "class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
             classDef.append(" boolean test(PositionEvaluationContext ctx) {\n");
@@ -64,7 +61,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
                 return filterClassConstructor.newInstance();
             } catch (Exception ex) {
                 // TODO throw a better exception
-                throw new RuntimeException("could not instantaite Groovy filter", ex);
+                throw new RuntimeException("could not instantiate Groovy filter", ex);
             }
         });
     }

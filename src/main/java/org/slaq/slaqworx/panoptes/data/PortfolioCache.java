@@ -3,13 +3,11 @@ package org.slaq.slaqworx.panoptes.data;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
-import com.hazelcast.core.MultiMap;
 
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -20,7 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.evaluator.RuleEvaluationMessage;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
@@ -36,8 +34,11 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 @Service
 public class PortfolioCache
         implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
-    public static final String RULE_EVALUATION_QUEUE_NAME = "ruleEvaluationQueue";
-    public static final String RULE_EVALUATION_RESULT_MAP_NAME = "ruleEvaluationResultMap";
+    protected static final String PORTFOLIO_EVALUATION_QUEUE_NAME = "portfolioEvaluationQueue";
+    protected static final String PORTFOLIO_EVALUATION_REQUEST_MAP_NAME =
+            "portfolioEvaluationRequestMap";
+    protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
+            "portfolioEvaluationResultMap";
 
     protected static final String PORTFOLIO_CACHE_NAME = "portfolio";
     protected static final String POSITION_CACHE_NAME = "position";
@@ -78,6 +79,34 @@ public class PortfolioCache
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
     }
 
+    /**
+     * Obtains the local queue for incoming {@code PortfolioEvaluationRequest}s.
+     *
+     * @return the {@code PortfolioEvaluationRequest} queue
+     */
+    public IQueue<PortfolioEvaluationRequest> getPortfolioEvaluationQueue() {
+        return hazelcastInstance.getQueue(PORTFOLIO_EVALUATION_QUEUE_NAME);
+    }
+
+    /**
+     * Obtains the map which acts as the queue for incoming {@code PortfolioEvaluationRequest}s.
+     *
+     * @return the {@code PortfolioEvaluationRequest} map
+     */
+    public IMap<UUID, PortfolioEvaluationRequest> getPortfolioEvaluationRequestMap() {
+        return hazelcastInstance.getMap(PORTFOLIO_EVALUATION_REQUEST_MAP_NAME);
+    }
+
+    /**
+     * Obtains the map which provides {@code Portfolio} evaluation results.
+     *
+     * @return a {@code Map} correlating an evaluation request message ID to its results
+     */
+    public IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+            getPortfolioEvaluationResultMap() {
+        return hazelcastInstance.getMap(PORTFOLIO_EVALUATION_RESULT_MAP_NAME);
+    }
+
     @Override
     public MaterializedPosition getPosition(PositionKey key) {
         return getPositionCache().get(key);
@@ -104,25 +133,6 @@ public class PortfolioCache
      */
     public IMap<RuleKey, Rule> getRuleCache() {
         return hazelcastInstance.getMap(RULE_CACHE_NAME);
-    }
-
-    /**
-     * Obtains the queue which provides {@code RuleEvaluationMessage}s.
-     *
-     * @return the {@code RuleEvaluationMessage} queue
-     */
-    public IQueue<RuleEvaluationMessage> getRuleEvaluationQueue() {
-        return hazelcastInstance.getQueue(RULE_EVALUATION_QUEUE_NAME);
-    }
-
-    /**
-     * Obtains the map which provides rule evaluation results.
-     *
-     * @return the rule evaluation result map
-     */
-    public MultiMap<UUID, Pair<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            getRuleEvaluationResultMap() {
-        return hazelcastInstance.getMultiMap(RULE_EVALUATION_RESULT_MAP_NAME);
     }
 
     @Override

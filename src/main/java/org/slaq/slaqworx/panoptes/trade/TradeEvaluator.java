@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,7 +14,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -21,8 +22,9 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
 /**
- * A TradeEvaluator determines the impact of Trades on Portfolios by evaluating and comparing the
- * Portfolio's current and proposed states.
+ * {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
+ * evaluating and comparing the {@code Portfolio}'s current (pre-trade) and proposed (post-trade)
+ * states.
  *
  * @author jeremy
  */
@@ -34,14 +36,14 @@ public class TradeEvaluator {
     private final RuleProvider ruleProvider;
 
     /**
-     * Creates a new TradeEvaluator.
+     * Creates a new {@code TradeEvaluator}.
      *
      * @param portfolioProvider
-     *            the PortfolioProvider to use to obtain Portfolio information
+     *            the {@code PortfolioProvider} to use to obtain {@code Portfolio} information
      * @param securityProvider
-     *            the SecurityProvider to use to obtain Security information
+     *            the {@code SecurityProvider} to use to obtain {@code Security} information
      * @param ruleProvider
-     *            the RuleProvider to use to obtain Rule information
+     *            the {@code RuleProvider} to use to obtain {@code Rule} information
      */
     public TradeEvaluator(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
             RuleProvider ruleProvider) {
@@ -51,15 +53,19 @@ public class TradeEvaluator {
     }
 
     /**
-     * Evaluates a Trade against the Portfolios impacted by its Transactions.
+     * Evaluates a {@code Trade} against the {@code Portfolio}s impacted by its
+     * {@code Transaction}s.
      *
      * @param trade
-     *            the Trade to be evaluated
-     * @return a TradeEvaluationResult describing the results of the evaluation
+     *            the {@code Trade} to be evaluated
+     * @return a {@code TradeEvaluationResult} describing the results of the evaluation
      * @throws InterruptedException
-     *             if the Thread was interrupted while awaiting results
+     *             if the {@code Thread} was interrupted during processing
+     * @throws ExcecutionException
+     *             if the {@code Trade} could not be processed
      */
-    public TradeEvaluationResult evaluate(Trade trade) throws InterruptedException {
+    public TradeEvaluationResult evaluate(Trade trade)
+            throws ExecutionException, InterruptedException {
         LOG.info("evaluating trade {} with {} allocations", trade.getId(),
                 trade.getAllocationCount());
         // group the Transactions by Portfolio; the result is a Map of Portfolio to the Trade
@@ -69,7 +75,7 @@ public class TradeEvaluator {
 
         // evaluate the impact on each Portfolio
         // FIXME use the appropriate ExecutorService
-        PortfolioEvaluator evaluator = new PortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
         TradeEvaluationResult evaluationResult = new TradeEvaluationResult();
         for (Entry<Portfolio, Stream<Position>> portfolioAllocationEntry : portfolioAllocationsMap
                 .entrySet()) {

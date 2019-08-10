@@ -56,7 +56,7 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
 
     @Override
     public Map<EvaluationGroup<?>, EvaluationResult> call() {
-        LOG.info("evaluating rule {} (\"{}\") on {} positions for portfolio {}", rule.getKey(),
+        LOG.debug("evaluating rule {} (\"{}\") on {} positions for portfolio {}", rule.getKey(),
                 rule.getDescription(), portfolioPositions.size(),
                 portfolioPositions.getPortfolio());
 
