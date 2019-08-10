@@ -19,8 +19,14 @@ def globalJvmArgs = ['-XX:+UseG1GC', '-XX:+UseStringDeduplication', '-XX:MaxGCPa
         '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
         '--add-opens', 'java.management/sun.management=ALL-UNNAMED',
         '--add-opens', 'jdk.management/com.sun.management.internal=ALL-UNNAMED']
+// note that -Djava.rmi.server.hostname=xxx is set in the container spec so environment variable
+// expansion actually works
 def k8sJvmArgs = ['-Xmx2560m', '-Dhazelcast.jmx=true', '-noverify', '-XX:TieredStopAtLevel=1',
-        '-Djava.util.concurrent.ForkJoinPool.common.parallelism=6']
+        '-Djava.util.concurrent.ForkJoinPool.common.parallelism=6',
+        '-Dcom.sun.management.jmxremote.rmi.port=8000', '-Dcom.sun.management.jmxremote=true',
+        '-Dcom.sun.management.jmxremote.port=8000', '-Dcom.sun.management.jmxremote.ssl=false',
+        '-Dcom.sun.management.jmxremote.authenticate=false',
+        '-Dcom.sun.management.jmxremote.local.only=false']
 k8sJvmArgs.addAll(globalJvmArgs) 
 
 repositories {
@@ -58,7 +64,7 @@ dependencyManagement {
 
 protobuf {
     protoc {
-        // The artifact spec for the Protobuf Compiler
+        // the artifact spec for the Protobuf Compiler
         artifact = 'com.google.protobuf:protoc:3.9.0'
     }
     generateProtoTasks {

@@ -26,9 +26,18 @@ spec:
       containers:
       - name: panoptes
         image: ubergeek801/slaqworx
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: JAVA_TOOL_OPTIONS
+          value: "-Djava.rmi.server.hostname=$(HOST_IP)"
         ports:
         - containerPort: 8080
           hostPort: 8080
+        - containerPort: 8000
+          hostPort: 8000
       - name: panoptes-telegraf
         image: telegraf:1.11.3
         env:
