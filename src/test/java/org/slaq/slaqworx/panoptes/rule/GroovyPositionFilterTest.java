@@ -55,5 +55,19 @@ public class GroovyPositionFilterTest {
                 filterCountryNZ.test(new PositionEvaluationContext(p3, evaluationContext)));
         assertTrue("Position with country NZ should have passed",
                 filterCountryNZ.test(new PositionEvaluationContext(p4, evaluationContext)));
+
+        // create a filter which should include Positions in a Security with a country = "US" or
+        // country = "NZ"
+
+        MaterializedPosition p5 = new MaterializedPosition(1_000_000, TestUtil.s3.getKey());
+
+        GroovyPositionFilter filterCountryUSorNZ =
+                new GroovyPositionFilter("s.country == \"US\" || s.country == \"NZ\"");
+        assertFalse("Position with country CA should not have passed",
+                filterCountryUSorNZ.test(new PositionEvaluationContext(p5, evaluationContext)));
+        assertTrue("Position with country US should have passed",
+                filterCountryUSorNZ.test(new PositionEvaluationContext(p3, evaluationContext)));
+        assertTrue("Position with country NZ should have passed",
+                filterCountryUSorNZ.test(new PositionEvaluationContext(p4, evaluationContext)));
     }
 }

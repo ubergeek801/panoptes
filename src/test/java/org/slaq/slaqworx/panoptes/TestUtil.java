@@ -43,9 +43,9 @@ public class TestUtil {
             SecurityAttribute.of("yield", 11, BigDecimal.class);
     public static SecurityAttribute<Double> duration =
             SecurityAttribute.of("duration", 12, Double.class);
-
     public static SecurityAttribute<String> issuer =
             SecurityAttribute.of("issuer", 13, String.class);
+
     public static final SecurityAttribute<Double> moovyRating =
             SecurityAttribute.of("Moovy", 14, Double.class);
     public static final SecurityAttribute<Double> npRating =
@@ -59,12 +59,16 @@ public class TestUtil {
 
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
             Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d, country, "US");
-
     public static final Security s1 = securityProvider.newSecurity(s1Attributes);
+
     public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
             Map.of(moovyRating, 85d, npRating, 78d, duration, 4d, country, "NZ");
-
     public static final Security s2 = securityProvider.newSecurity(s2Attributes);
+
+    public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes =
+            Map.of(moovyRating, 80d, npRating, 82d, duration, 2.1d, country, "CA");
+    public static final Security s3 = securityProvider.newSecurity(s3Attributes);
+
     public static final Set<Position> p1Positions =
             Set.of(positionProvider.newPosition(null, 1000, s1.getKey()),
                     positionProvider.newPosition(null, 500, s2.getKey()));

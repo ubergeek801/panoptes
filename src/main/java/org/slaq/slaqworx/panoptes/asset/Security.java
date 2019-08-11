@@ -16,26 +16,27 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 import groovy.lang.MissingPropertyException;
 
 /**
- * A Security is an investable instrument. Unlike most other asset-related entities, a Security is
- * implicitly "versioned" by hashing its attributes: the resulting hash is used as the primary key.
- * Thus when a Security changes (due to a change in some analytic field such as yield or rating),
- * the new version will use a different hash as the ID.
+ * A {@code Security} is an investable instrument. Unlike most other asset-related entities, a
+ * {@code Security} is implicitly "versioned" by hashing its attributes: the resulting hash is used
+ * as the primary key. Thus when a {@code Security} changes (due to a change in some analytic field
+ * such as yield or rating), the new version will use a different hash as the ID.
  *
  * @author jeremy
  */
 public class Security implements Keyed<SecurityKey> {
     private final SecurityKey key;
 
-    // while the Map is more convenient, attribute lookups are a very hot piece of code during Rule
-    // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
+    // while the {@code Map} is more convenient, attribute lookups are a very hot piece of code
+    // during {@code Rule} evaluation, and an array lookup speeds things up by ~13%, so an {@code
+    // ArrayList} is used for lookups
     private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
     /**
-     * Creates a new Security with the given key and SecurityAttribute values. The ID is calculated
-     * from a hash of the attributes.
+     * Creates a new {@code Security} with the given key and {@code SecurityAttribute} values. The
+     * ID is calculated from a hash of the attributes.
      *
      * @param attributes
-     *            a (possibly empty) Map of SecurityAttribute to attribute value
+     *            a (possibly empty) {@code Map} of {@code SecurityAttribute} to attribute value
      */
     public Security(Map<SecurityAttribute<?>, ? super Object> attributes) {
         attributes.forEach((a, v) -> {
@@ -65,11 +66,11 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
-     * Obtains this Security's attributes as a Map. This can be a somewhat expensive operation if
-     * there are a lot of attributes; currently its only expected use is when serializing a
-     * Security.
+     * Obtains this {@code Security}'s attributes as a {@code Map}. This can be a somewhat expensive
+     * operation if there are a lot of attributes; currently its only expected use is when
+     * serializing a {@code Security}.
      *
-     * @return a Map of SecurityAttribute to value
+     * @return a {@code Map} of {@code SecurityAttribute} to value
      */
     public Map<SecurityAttribute<?>, ? super Object> getAttributes() {
         return IntStream.range(0, attributeValues.size()).boxed()
@@ -78,32 +79,43 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
+     * Obtains the value of the specified attribute index. This form of {@code getAttributeValue()}
+     * is intended for the rare cases when the index is already known.
+     *
+     * @param attributeIndex
+     *            the index corresponding to the associated {@code SecurityAttribute}
+     * @return the value of the given attribute, or {@code null} if not assigned
+     */
+    public Object getAttributeValue(int attributeIndex) {
+        try {
+            return attributeValues.get(attributeIndex);
+        } catch (IndexOutOfBoundsException e) {
+            // this attribute must not exist; prevent future IndexOutOfBoundsExceptions
+            attributeValues.ensureCapacity(attributeIndex + 1);
+            while (attributeValues.size() < attributeIndex + 1) {
+                attributeValues.add(null);
+            }
+            return null;
+        }
+    }
+
+    /**
      * Obtains the value of the specified attribute.
      *
      * @param <T>
      *            the expected type of the attribute value
      * @param attribute
-     *            the SecurityAttribute identifying the attribute
-     * @return the value of the given attribute, or null if not assigned
+     *            the {@code SecurityAttribute} identifying the attribute
+     * @return the value of the given attribute, or {@code null} if not assigned
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
         if (attribute == null) {
             return null;
         }
 
-        try {
-            @SuppressWarnings("unchecked")
-            T attributeValue = (T)attributeValues.get(attribute.getIndex());
-
-            return attributeValue;
-        } catch (IndexOutOfBoundsException e) {
-            // this attribute must not exist; prevent future IndexOutOfBoundsExceptions
-            attributeValues.ensureCapacity(attribute.getIndex() + 1);
-            while (attributeValues.size() < attribute.getIndex() + 1) {
-                attributeValues.add(null);
-            }
-            return null;
-        }
+        @SuppressWarnings("unchecked")
+        T attributeValue = (T)getAttributeValue(attribute.getIndex());
+        return attributeValue;
     }
 
     @Override
@@ -117,11 +129,12 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
-     * Provided as a convenience to Groovy filters to allow shorthand SecurityAttribute access.
+     * Provided as a convenience to Groovy filters to allow shorthand {@code SecurityAttribute}
+     * access. Mostly obviated by compile-time optimizations that have been made to filters.
      *
      * @param name
-     *            the name of the SecurityAttribute to resolve
-     * @return the value of the attribute if it exists, or null if it does not
+     *            the name of the {@code SecurityAttribute} to resolve
+     * @return the value of the attribute if it exists, or {@code null} if it does not
      */
     public Object propertyMissing(String name) {
         SecurityAttribute<?> attribute = SecurityAttribute.of(name);
@@ -141,7 +154,7 @@ public class Security implements Keyed<SecurityKey> {
      * Produces a hash of the given attribute values.
      *
      * @param attributeValues
-     *            the SecurityAttribute values from which to compute the hash
+     *            the {@code SecurityAttribute} values from which to compute the hash
      * @return the calculated hash value
      */
     protected String hash(ArrayList<Object> attributeValues) {
