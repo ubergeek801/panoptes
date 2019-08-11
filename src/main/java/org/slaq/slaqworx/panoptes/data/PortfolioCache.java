@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
 
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -34,7 +33,6 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 @Service
 public class PortfolioCache
         implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
-    protected static final String PORTFOLIO_EVALUATION_QUEUE_NAME = "portfolioEvaluationQueue";
     protected static final String PORTFOLIO_EVALUATION_REQUEST_MAP_NAME =
             "portfolioEvaluationRequestMap";
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
@@ -77,15 +75,6 @@ public class PortfolioCache
      */
     public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
-    }
-
-    /**
-     * Obtains the local queue for incoming {@code PortfolioEvaluationRequest}s.
-     *
-     * @return the {@code PortfolioEvaluationRequest} queue
-     */
-    public IQueue<PortfolioEvaluationRequest> getPortfolioEvaluationQueue() {
-        return hazelcastInstance.getQueue(PORTFOLIO_EVALUATION_QUEUE_NAME);
     }
 
     /**

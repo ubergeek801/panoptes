@@ -118,9 +118,6 @@ public class PanoptesCacheConfiguration {
         createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME);
         createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME);
 
-        // set up the (local) queue for portfolio evaluation
-        config.getQueueConfig(PortfolioCache.PORTFOLIO_EVALUATION_QUEUE_NAME).setBackupCount(0);
-
         // set up the map for portfolio evaluation processing input
         config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_MAP_NAME).setBackupCount(0)
                 .setInMemoryFormat(InMemoryFormat.BINARY);
