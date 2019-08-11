@@ -23,8 +23,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PortfolioEvaluationRequestListener} is an {@code EntryAddedListener} that listens for new
- * local entries in the {@code Portfolio} evaluation request map, consumes them and publishes
+ * {@code PortfolioEvaluationRequestListener} is {@code @JmsListener} that consumes
+ * {@code PortfolioEvaluationRequest}, delegates to a {@code LocalPortfolioEvaluator} and publishes
  * results to the {@code Portfolio} evaluation result map.
  *
  * @author jeremy
@@ -49,7 +49,7 @@ public class PortfolioEvaluationRequestListener {
         evaluationResultMap = portfolioCache.getPortfolioEvaluationResultMap();
 
         Thread resultProcessor = new Thread(() -> {
-            // continuously take a results from the local queue and publish to the result map
+            // continuously take results from the local queue and publish to the result map
             while (!Thread.interrupted()) {
                 Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result;
                 try {
@@ -65,6 +65,15 @@ public class PortfolioEvaluationRequestListener {
         resultProcessor.start();
     }
 
+    /**
+     * Receives a message from the {@code Portfolio} evaluation request queue, processes it and
+     * places the results on the internal result queue.
+     *
+     * @param message
+     *            the {@PortfolioEvaluationRequest} message to be processed
+     * @throws JMSException
+     *             if the message could not be deserialized
+     */
     @JmsListener(destination = "portfolioEvaluationRequestQueue", concurrency = "1")
     public void receiveMessage(final Message message) throws JMSException {
         if (message instanceof ObjectMessage) {
