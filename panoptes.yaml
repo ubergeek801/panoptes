@@ -31,11 +31,17 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: JAVA_TOOL_OPTIONS
           value: "-Djava.rmi.server.hostname=$(HOST_IP)"
         ports:
         - containerPort: 8080
           hostPort: 8080
+        - containerPort: 61616
+          hostPort: 61616
         - containerPort: 8000
           hostPort: 8000
       - name: panoptes-telegraf

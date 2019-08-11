@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
@@ -20,10 +22,12 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
+@Service
 public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterPortfolioEvaluator.class);
 
     private final PortfolioCache portfolioCache;
+    private final JmsTemplate jmsTemplate;
 
     /**
      * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code PortfolioCache} for
@@ -32,8 +36,9 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      * @param portfolioCache
      *            the {@code PortfolioCache} to use to obtain distributed resources
      */
-    public ClusterPortfolioEvaluator(PortfolioCache portfolioCache) {
+    protected ClusterPortfolioEvaluator(PortfolioCache portfolioCache, JmsTemplate jmsTemplate) {
         this.portfolioCache = portfolioCache;
+        this.jmsTemplate = jmsTemplate;
     }
 
     @Override
@@ -55,9 +60,10 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
                 .addEntryListener(resultListener, requestId, true);
         try {
             // publish a message to the evaluation queue
-            PortfolioEvaluationRequest request =
+            PortfolioEvaluationRequest message =
                     new PortfolioEvaluationRequest(requestId, portfolio.getKey());
-            portfolioCache.getPortfolioEvaluationRequestMap().setAsync(requestId, request);
+            // FIXME enqueue the message
+            jmsTemplate.convertAndSend("portfolioEvaluationRequestQueue", message);
 
             // wait for the result
             resultListener.join();

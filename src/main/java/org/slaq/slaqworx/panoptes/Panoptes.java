@@ -9,9 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jms.annotation.EnableJms;
 
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
-import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -19,6 +19,7 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
  * @author jeremy
  */
 @SpringBootApplication
+@EnableJms
 public class Panoptes implements ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
@@ -61,8 +62,6 @@ public class Panoptes implements ApplicationContextAware {
     public ApplicationRunner startupRunner(ApplicationContext applicationContext) {
         return args -> {
             PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
-
-            new PortfolioEvaluationRequestListener(portfolioCache).start();
 
             portfolioCache.getSecurityCache().loadAll(false);
             int numSecurities = portfolioCache.getSecurityCache().size();

@@ -17,7 +17,6 @@ import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
@@ -33,8 +32,6 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 @Service
 public class PortfolioCache
         implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
-    protected static final String PORTFOLIO_EVALUATION_REQUEST_MAP_NAME =
-            "portfolioEvaluationRequestMap";
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
             "portfolioEvaluationResultMap";
 
@@ -75,15 +72,6 @@ public class PortfolioCache
      */
     public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
-    }
-
-    /**
-     * Obtains the map which acts as the queue for incoming {@code PortfolioEvaluationRequest}s.
-     *
-     * @return the {@code PortfolioEvaluationRequest} map
-     */
-    public IMap<UUID, PortfolioEvaluationRequest> getPortfolioEvaluationRequestMap() {
-        return hazelcastInstance.getMap(PORTFOLIO_EVALUATION_REQUEST_MAP_NAME);
     }
 
     /**

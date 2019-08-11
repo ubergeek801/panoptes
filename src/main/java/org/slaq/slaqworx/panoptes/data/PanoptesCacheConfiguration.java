@@ -1,9 +1,19 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import javax.jms.ConnectionFactory;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQPrefetchPolicy;
+import org.apache.activemq.broker.BrokerService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
@@ -49,13 +59,39 @@ public class PanoptesCacheConfiguration {
         // nothing to do
     }
 
-    /**
-     * Provides a {@code ManagedContext} which enables {@code @SpringAware} annotation for objects
-     * deserialized by Hazelcast.
-     */
     @Bean
-    public ManagedContext managedContext() {
-        return new SpringManagedContext();
+    @Profile("default")
+    protected Void brokerService() throws Exception {
+        // TODO make ActiveMQ broker configuration a little more portable
+        if ("uberkube02".equals(System.getenv("HOSTNAME"))) {
+            final BrokerService broker = new BrokerService();
+            broker.addConnector("tcp://0.0.0.0:61616");
+            broker.addConnector("vm://localhost?broker.persistent=false");
+            broker.setPersistent(false);
+            broker.start();
+        }
+
+        return null;
+    }
+
+    @Bean
+    @Profile("default")
+    @DependsOn("brokerService")
+    protected ConnectionFactory connectionFactory() throws URISyntaxException {
+        ActiveMQConnectionFactory factory;
+        // TODO make ActiveMQ broker configuration a little more portable
+        if ("uberkube02".equals(System.getenv("HOSTNAME"))) {
+            factory = new ActiveMQConnectionFactory(
+                    new URI("vm://localhost?broker.persistent=false"));
+        } else {
+            factory = new ActiveMQConnectionFactory(new URI("tcp://uberkube02:61616"));
+        }
+        ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
+        prefetchPolicy.setQueuePrefetch(3);
+        factory.setPrefetchPolicy(prefetchPolicy);
+        factory.setTrustedPackages(List.of("org.slaq.slaqworx", "java.util"));
+
+        return factory;
     }
 
     /**
@@ -118,10 +154,6 @@ public class PanoptesCacheConfiguration {
         createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME);
         createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME);
 
-        // set up the map for portfolio evaluation processing input
-        config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_MAP_NAME).setBackupCount(0)
-                .setInMemoryFormat(InMemoryFormat.BINARY);
-
         // set up a map to act as the portfolio evaluation result "topic"
         config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
                 .setInMemoryFormat(InMemoryFormat.BINARY);
@@ -139,6 +171,15 @@ public class PanoptesCacheConfiguration {
         }
 
         return config;
+    }
+
+    /**
+     * Provides a {@code ManagedContext} which enables {@code @SpringAware} annotation for objects
+     * deserialized by Hazelcast.
+     */
+    @Bean
+    protected ManagedContext managedContext() {
+        return new SpringManagedContext();
     }
 
     /**

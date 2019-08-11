@@ -25,7 +25,7 @@ public class MainView extends VerticalLayout {
 
     private Button runComplianceButton;
 
-    protected MainView(PortfolioCache portfolioCache) {
+    protected MainView(PortfolioCache portfolioCache, ClusterPortfolioEvaluator portfolioEvaluator) {
         statusTextField = new TextField();
         statusTextField.setReadOnly(true);
         statusTextField.setWidthFull();
@@ -34,14 +34,13 @@ public class MainView extends VerticalLayout {
         runComplianceButton = new Button("Run Compliance", VaadinIcon.EYE.create());
         runComplianceButton.addClickListener(e -> {
             long startTime = System.currentTimeMillis();
-            ClusterPortfolioEvaluator evaluator = new ClusterPortfolioEvaluator(portfolioCache);
             int numPortfolios;
             try {
                 numPortfolios = portfolioEvaluationThreadPool.submit(() -> portfolioCache
                         .getPortfolioCache().values().parallelStream().map(p -> {
                             setStatus("evaluating Portfolio " + p.getName());
                             try {
-                                evaluator.evaluate(p, new EvaluationContext(portfolioCache,
+                                portfolioEvaluator.evaluate(p, new EvaluationContext(portfolioCache,
                                         portfolioCache, portfolioCache));
                             } catch (InterruptedException ex) {
                                 setStatus("evaluation thread was interrupted");
