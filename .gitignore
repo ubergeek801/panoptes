@@ -3,6 +3,9 @@ bin/
 build/
 .gradle/
 
+# ignore Maven artifacts
+target/
+
 # ignore Eclipse artifacts
 .classpath
 .project

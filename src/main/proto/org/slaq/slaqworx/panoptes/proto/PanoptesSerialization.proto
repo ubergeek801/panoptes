@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package org.slaq.slaqworx.panoptes.proto;
 
-option optimize_for = LITE_RUNTIME;
-
 message IdVersionKeyMsg {
     string id = 1;
     int64 version = 2;

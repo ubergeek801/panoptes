@@ -1,0 +1,215 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.slaq</groupId>
+    <artifactId>panoptes</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.7.RELEASE</version>
+    </parent>
+
+    <name>panoptes</name>
+    <url>https://github.com/ubergeek801/panoptes</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>11</java.version>
+
+        <vaadin.version>13.0.11</vaadin.version>
+
+        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
+            --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+            --add-opens
+            java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/java.nio=ALL-UNNAMED
+            --add-opens
+            java.base/sun.nio.ch=ALL-UNNAMED
+            --add-opens java.management/sun.management=ALL-UNNAMED
+            --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED</globalJvmArgs>
+    </properties>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.6.2</version>
+            </extension>
+        </extensions>
+
+        <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <allowInsecureRegistries>true</allowInsecureRegistries>
+                    <from>
+                        <image>bellsoft/liberica-openjdk-alpine:12.0.2-aarch64</image>
+                    </from>
+                    <to>
+                        <image>ubergeek801/slaqworx</image>
+                    </to>
+                    <container>
+                        <!-- TODO figure out a way to DRY the global JVM flags -->
+                        <jvmFlags>
+                            <jvmFlag>-XX:+UseG1GC</jvmFlag>
+                            <jvmFlag>-XX:+UseStringDeduplication</jvmFlag>
+                            <jvmFlag>-XX:MaxGCPauseMillis=5000</jvmFlag>
+                            <jvmFlag>--add-modules</jvmFlag>
+                            <jvmFlag>java.se</jvmFlag>
+                            <jvmFlag>--add-exports</jvmFlag>
+                            <jvmFlag>java.base/jdk.internal.ref=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.base/java.lang=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.base/java.nio=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.base/sun.nio.ch=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
+
+                            <jvmFlag>-Xmx2560m</jvmFlag>
+                            <jvmFlag>-Dhazelcast.jmx=true</jvmFlag>
+                            <jvmFlag>-noverify</jvmFlag>
+                            <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>
+                            <jvmFlag>-Djava.util.concurrent.ForkJoinPool.common.parallelism=6</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.port=8000</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.local.only=false</jvmFlag>
+                        </jvmFlags>
+                    </container>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>${globalJvmArgs}</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>
+                        ${globalJvmArgs}
+                    </jvmArguments>
+                    <arguments>--spring.profiles.active=standalone</arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-kubernetes</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+        <!-- FIXME change back to protobuf-java-lite when supported by plugin -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.hawt</groupId>
+            <artifactId>hawtio-springboot</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-activemq</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
