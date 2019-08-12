@@ -179,6 +179,13 @@
             <groupId>io.hawt</groupId>
             <artifactId>hawtio-springboot</artifactId>
             <version>2.7.0</version>
+            <exclusions>
+                <!-- conflicts with Vaadin requirement -->
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
