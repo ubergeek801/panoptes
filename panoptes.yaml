@@ -31,7 +31,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
-        - name: HOSTNAME
+        - name: NODENAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName

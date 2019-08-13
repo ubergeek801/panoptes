@@ -219,11 +219,12 @@ public class PanoptesCacheConfiguration {
     protected ServerLocator messagingServerLocator() throws Exception {
         ServerLocator locator;
         // TODO make ActiveMQ broker configuration a little more portable
-        if ("uberkube02".equals(System.getenv("HOSTNAME"))) {
+        if ("uberkube02".equals(System.getenv("NODENAME"))) {
             createMessagingService(true);
             locator = ActiveMQClient.createServerLocator("vm://0");
         } else {
-            locator = ActiveMQClient.createServerLocator("tcp://uberkube02:61616");
+            locator = ActiveMQClient.createServerLocator("tcp://uberkube02:61616")
+                    .setInitialConnectAttempts(10);
         }
         // don't prefetch too much, or work will pile up unevenly on busier nodes (note that this
         // number is in bytes, not messages)
