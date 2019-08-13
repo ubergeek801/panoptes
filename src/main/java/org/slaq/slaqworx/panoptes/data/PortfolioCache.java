@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.data;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
+import javax.inject.Singleton;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -29,9 +29,11 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  *
  * @author jeremy
  */
-@Service
+@Singleton
 public class PortfolioCache
         implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
+    protected static final String PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME =
+            "portfolioEvaluationRequestQueue";
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
             "portfolioEvaluationResultMap";
 
@@ -44,7 +46,7 @@ public class PortfolioCache
 
     /**
      * Creates a new {@code PortfolioCache}. Restricted because instances of this class should be
-     * obtained through Spring.
+     * obtained through the {@code ApplicationContext}.
      *
      * @param hazelcastInstance
      *            the {@code HazelcastInstance} through which to access cached data

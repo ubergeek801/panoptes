@@ -19,7 +19,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 public class PositionMapStore extends HazelcastMapStore<PositionKey, MaterializedPosition> {
     /**
      * Creates a new PositionMapStore. Restricted because instances of this class should be created
-     * through Spring.
+     * through the {@code ApplicationContext}.
      *
      * @param dataSource
      *            the DataSource through which to access the database
@@ -59,13 +59,13 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Materialize
     }
 
     @Override
-    protected RowMapper<PositionKey> getKeyMapper() {
-        return (rs, rowNum) -> new PositionKey(rs.getString(1));
+    protected Object[] getKeyComponents(PositionKey key) {
+        return new Object[] { key.getId() };
     }
 
     @Override
-    protected Object[] getKeyComponents(PositionKey key) {
-        return new Object[] { key.getId() };
+    protected RowMapper<PositionKey> getKeyMapper() {
+        return (rs, rowNum) -> new PositionKey(rs.getString(1));
     }
 
     @Override

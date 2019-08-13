@@ -1,10 +1,10 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
@@ -35,22 +35,22 @@ public class RuleSerializerTest {
         byte[] buffer = serializer.write(rule);
         MaterializedRule deserialized = serializer.read(buffer);
 
-        assertEquals("deserialized value should equals() original value", rule, deserialized);
-        assertEquals("deserialized value should have same description as original",
-                rule.getDescription(), deserialized.getDescription());
-        assertEquals("deserialized value should have same filter as original",
-                rule.getGroovyFilter(), deserialized.getGroovyFilter());
-        assertEquals("deserialized value should have same configuration as original",
-                rule.getJsonConfiguration(), deserialized.getJsonConfiguration());
+        assertEquals(rule, deserialized, "deserialized value should equals() original value");
+        assertEquals(rule.getDescription(), deserialized.getDescription(),
+                "deserialized value should have same description as original");
+        assertEquals(rule.getGroovyFilter(), deserialized.getGroovyFilter(),
+                "deserialized value should have same filter as original");
+        assertEquals(rule.getJsonConfiguration(), deserialized.getJsonConfiguration(),
+                "deserialized value should have same configuration as original");
         if (rule.getGroupClassifier() != null
                 && rule.getGroupClassifier() instanceof JsonConfigurable) {
-            assertNotNull("deserialized value should have group classifier",
-                    deserialized.getGroupClassifier());
-            assertTrue("deserialized group classifier should implement JsonConfigurable",
-                    deserialized.getGroupClassifier() instanceof JsonConfigurable);
-            assertEquals("deserialized group classifier should have same configuration as original",
-                    ((JsonConfigurable)rule.getGroupClassifier()).getJsonConfiguration(),
-                    ((JsonConfigurable)deserialized.getGroupClassifier()).getJsonConfiguration());
+            assertNotNull(deserialized.getGroupClassifier(),
+                    "deserialized value should have group classifier");
+            assertTrue(deserialized.getGroupClassifier() instanceof JsonConfigurable,
+                    "deserialized group classifier should implement JsonConfigurable");
+            assertEquals(((JsonConfigurable)rule.getGroupClassifier()).getJsonConfiguration(),
+                    ((JsonConfigurable)deserialized.getGroupClassifier()).getJsonConfiguration(),
+                    "deserialized group classifier should have same configuration as original");
         }
 
         rule = new WeightedAverageRule(new RuleKey("foo"), "test rule",
@@ -60,22 +60,22 @@ public class RuleSerializerTest {
         buffer = serializer.write(rule);
         deserialized = serializer.read(buffer);
 
-        assertEquals("deserialized value should equals() original value", rule, deserialized);
-        assertEquals("deserialized value should have same description as original",
-                rule.getDescription(), deserialized.getDescription());
-        assertEquals("deserialized value should have same filter as original",
-                rule.getGroovyFilter(), deserialized.getGroovyFilter());
-        assertEquals("deserialized value should have same configuration as original",
-                rule.getJsonConfiguration(), deserialized.getJsonConfiguration());
+        assertEquals(rule, deserialized, "deserialized value should equals() original value");
+        assertEquals(rule.getDescription(), deserialized.getDescription(),
+                "deserialized value should have same description as original");
+        assertEquals(rule.getGroovyFilter(), deserialized.getGroovyFilter(),
+                "deserialized value should have same filter as original");
+        assertEquals(rule.getJsonConfiguration(), deserialized.getJsonConfiguration(),
+                "deserialized value should have same configuration as original");
         if (rule.getGroupClassifier() != null
                 && rule.getGroupClassifier() instanceof JsonConfigurable) {
-            assertNotNull("deserialized value should have group classifier",
-                    deserialized.getGroupClassifier());
-            assertTrue("deserialized group classifier should implement JsonConfigurable",
-                    deserialized.getGroupClassifier() instanceof JsonConfigurable);
-            assertEquals("deserialized group classifier should have same configuration as original",
-                    ((JsonConfigurable)rule.getGroupClassifier()).getJsonConfiguration(),
-                    ((JsonConfigurable)deserialized.getGroupClassifier()).getJsonConfiguration());
+            assertNotNull(deserialized.getGroupClassifier(),
+                    "deserialized value should have group classifier");
+            assertTrue(deserialized.getGroupClassifier() instanceof JsonConfigurable,
+                    "deserialized group classifier should implement JsonConfigurable");
+            assertEquals(((JsonConfigurable)rule.getGroupClassifier()).getJsonConfiguration(),
+                    ((JsonConfigurable)deserialized.getGroupClassifier()).getJsonConfiguration(),
+                    "deserialized group classifier should have same configuration as original");
         }
     }
 }

@@ -1,6 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import org.springframework.context.ApplicationContext;
+import io.micronaut.context.ApplicationContext;
 
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;

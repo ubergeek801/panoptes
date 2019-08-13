@@ -3,10 +3,10 @@ package org.slaq.slaqworx.panoptes.data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
@@ -19,11 +19,11 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  *
  * @author jeremy
  */
-@Service
+@Singleton
 public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     /**
      * Creates a new RuleMapStore. Restricted because instances of this class should be created
-     * through Spring.
+     * through the {@code ApplicationContext}.
      *
      * @param dataSource
      *            the DataSource through which to access the database
@@ -87,13 +87,13 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     }
 
     @Override
-    protected RowMapper<RuleKey> getKeyMapper() {
-        return (rs, rowNum) -> new RuleKey(rs.getString(1));
+    protected Object[] getKeyComponents(RuleKey key) {
+        return new Object[] { key.getId() };
     }
 
     @Override
-    protected Object[] getKeyComponents(RuleKey key) {
-        return new Object[] { key.getId() };
+    protected RowMapper<RuleKey> getKeyMapper() {
+        return (rs, rowNum) -> new RuleKey(rs.getString(1));
     }
 
     @Override

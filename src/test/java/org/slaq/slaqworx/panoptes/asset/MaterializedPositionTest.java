@@ -1,12 +1,12 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -61,10 +61,10 @@ public class MaterializedPositionTest {
         positions.add(p1);
         positions.add(p3);
 
-        assertEquals("unexpected number of Positions", 4, positions.size());
-        assertTrue("Positions should have contained p1", positions.contains(p1));
-        assertTrue("Positions should have contained p2", positions.contains(p2));
-        assertTrue("Positions should have contained p3", positions.contains(p3));
-        assertTrue("Positions should have contained p4", positions.contains(p4));
+        assertEquals(4, positions.size(), "unexpected number of Positions");
+        assertTrue(positions.contains(p1), "Positions should have contained p1");
+        assertTrue(positions.contains(p2), "Positions should have contained p2");
+        assertTrue(positions.contains(p3), "Positions should have contained p3");
+        assertTrue(positions.contains(p4), "Positions should have contained p4");
     }
 }

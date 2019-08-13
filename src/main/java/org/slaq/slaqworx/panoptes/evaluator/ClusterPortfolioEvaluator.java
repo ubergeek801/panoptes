@@ -4,10 +4,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Singleton;
+
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
@@ -22,12 +27,13 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
-@Service
+@Singleton
 public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterPortfolioEvaluator.class);
 
     private final PortfolioCache portfolioCache;
-    private final JmsTemplate jmsTemplate;
+    private final ClientSession portfolioEvaluationRequestQueueSession;
+    private final ClientProducer portfolioEvaluationRequestQueueProducer;
 
     /**
      * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code PortfolioCache} for
@@ -36,9 +42,12 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      * @param portfolioCache
      *            the {@code PortfolioCache} to use to obtain distributed resources
      */
-    protected ClusterPortfolioEvaluator(PortfolioCache portfolioCache, JmsTemplate jmsTemplate) {
+    protected ClusterPortfolioEvaluator(PortfolioCache portfolioCache,
+            Pair<ClientSession, ClientProducer> portfolioEvaluationRequestQueueProducer) {
         this.portfolioCache = portfolioCache;
-        this.jmsTemplate = jmsTemplate;
+        portfolioEvaluationRequestQueueSession = portfolioEvaluationRequestQueueProducer.getLeft();
+        this.portfolioEvaluationRequestQueueProducer =
+                portfolioEvaluationRequestQueueProducer.getRight();
     }
 
     @Override
@@ -60,10 +69,16 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
                 .addEntryListener(resultListener, requestId, true);
         try {
             // publish a message to the evaluation queue
-            PortfolioEvaluationRequest message =
-                    new PortfolioEvaluationRequest(requestId, portfolio.getKey());
-            // FIXME enqueue the message
-            jmsTemplate.convertAndSend("portfolioEvaluationRequestQueue", message);
+            ClientMessage message =
+                    portfolioEvaluationRequestQueueSession.createMessage(Message.TEXT_TYPE, false);
+            message.getBodyBuffer()
+                    .writeString(requestId.toString() + ":" + portfolio.getKey().toString());
+            try {
+                portfolioEvaluationRequestQueueProducer.send(message);
+            } catch (Exception e) {
+                // TODO throw a real exception
+                throw new RuntimeException("could not send message", e);
+            }
 
             // wait for the result
             resultListener.join();

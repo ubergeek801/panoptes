@@ -1,11 +1,11 @@
 package org.slaq.slaqworx.panoptes.calc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -41,6 +41,6 @@ public class TotalAmountPositionCalculatorTest {
         double totalAmount = calculator.calculate(portfolio,
                 new EvaluationContext(null, securityProvider, null));
         // the total should merely be the sum of the amounts
-        assertEquals("unexpected total amount", 600, totalAmount, TestUtil.EPSILON);
+        assertEquals(600, totalAmount, TestUtil.EPSILON, "unexpected total amount");
     }
 }

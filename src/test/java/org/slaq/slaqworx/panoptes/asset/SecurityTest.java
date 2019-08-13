@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -31,14 +31,14 @@ public class SecurityTest {
                 "abcde", TestUtil.duration, 3.1, TestUtil.coupon, new BigDecimal("4.00"),
                 TestUtil.maturityDate, LocalDate.of(2019, 8, 5)));
         Map<SecurityAttribute<?>, ? super Object> attributes = s.getAttributes();
-        assertEquals("country value should have matched", "US", attributes.get(TestUtil.country));
-        assertEquals("cusip value should have matched", "abcde", attributes.get(TestUtil.cusip));
-        assertEquals("duration value should have matched", 3.1,
-                (double)attributes.get(TestUtil.duration), TestUtil.EPSILON);
-        assertEquals("coupon value should have matched", new BigDecimal("4.00"),
-                attributes.get(TestUtil.coupon));
-        assertEquals("maturity date value should have matched", LocalDate.of(2019, 8, 5),
-                attributes.get(TestUtil.maturityDate));
+        assertEquals("US", attributes.get(TestUtil.country), "country value should have matched");
+        assertEquals("abcde", attributes.get(TestUtil.cusip), "cusip value should have matched");
+        assertEquals(3.1, (double)attributes.get(TestUtil.duration), TestUtil.EPSILON,
+                "duration value should have matched");
+        assertEquals(new BigDecimal("4.00"), attributes.get(TestUtil.coupon),
+                "coupon value should have matched");
+        assertEquals(LocalDate.of(2019, 8, 5), attributes.get(TestUtil.maturityDate),
+                "maturity date value should have matched");
     }
 
     /**
@@ -81,10 +81,10 @@ public class SecurityTest {
         securities.add(s1);
         securities.add(s3);
 
-        assertEquals("unexpected number of Securities", 4, securities.size());
-        assertTrue("Securities should have contained s1", securities.contains(s1));
-        assertTrue("Securities should have contained s2", securities.contains(s2));
-        assertTrue("Securities should have contained s3", securities.contains(s3));
-        assertTrue("Securities should have contained s4", securities.contains(s4));
+        assertEquals(4, securities.size(), "unexpected number of Securities");
+        assertTrue(securities.contains(s1), "Securities should have contained s1");
+        assertTrue(securities.contains(s2), "Securities should have contained s2");
+        assertTrue(securities.contains(s3), "Securities should have contained s3");
+        assertTrue(securities.contains(s4), "Securities should have contained s4");
     }
 }

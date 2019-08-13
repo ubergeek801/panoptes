@@ -1,11 +1,11 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 
@@ -30,25 +30,25 @@ public class RatingScaleTest {
         RatingScale scale = new RatingScale(ratingNotches, 10);
 
         // a rating below the scale should translate to the minimum rating
-        assertEquals("unexpected below-scale rating", "F", scale.getRatingNotch(-1).getSymbol());
+        assertEquals("F", scale.getRatingNotch(-1).getSymbol(), "unexpected below-scale rating");
         // as should the very bottom rating
-        assertEquals("unexpected bottom-scale rating", "F", scale.getRatingNotch(0).getSymbol());
+        assertEquals("F", scale.getRatingNotch(0).getSymbol(), "unexpected bottom-scale rating");
         // a handful of mid-scale ratings
-        assertEquals("unexpected rating for 0.5", "F", scale.getRatingNotch(0.5).getSymbol());
-        assertEquals("unexpected rating for 5", "E", scale.getRatingNotch(5).getSymbol());
-        assertEquals("unexpected rating for 8.5", "B", scale.getRatingNotch(8.5).getSymbol());
+        assertEquals("F", scale.getRatingNotch(0.5).getSymbol(), "unexpected rating for 0.5");
+        assertEquals("E", scale.getRatingNotch(5).getSymbol(), "unexpected rating for 5");
+        assertEquals("B", scale.getRatingNotch(8.5).getSymbol(), "unexpected rating for 8.5");
         // ratings at the top and above the scale should translate to the maximum rating
-        assertEquals("unexpected top-scale rating", "A", scale.getRatingNotch(10).getSymbol());
-        assertEquals("unexpected above-scale rating", "A", scale.getRatingNotch(10.25).getSymbol());
+        assertEquals("A", scale.getRatingNotch(10).getSymbol(), "unexpected top-scale rating");
+        assertEquals("A", scale.getRatingNotch(10.25).getSymbol(), "unexpected above-scale rating");
 
         // also test symbol lookups
 
         RatingNotch notch = scale.getRatingNotch("B");
-        assertEquals("unexpected symbol for notch B", "B", notch.getSymbol());
-        assertEquals("unexpected lower value for notch B", 8, notch.getLower(), TestUtil.EPSILON);
-        assertEquals("unexpected middle value for notch B", 8.5, notch.getMiddle(),
-                TestUtil.EPSILON);
+        assertEquals("B", notch.getSymbol(), "unexpected symbol for notch B");
+        assertEquals(8, notch.getLower(), TestUtil.EPSILON, "unexpected lower value for notch B");
+        assertEquals(8.5, notch.getMiddle(), TestUtil.EPSILON,
+                "unexpected middle value for notch B");
 
-        assertNull("should not have found notch for bogus symbol", scale.getRatingNotch("Q"));
+        assertNull(scale.getRatingNotch("Q"), "should not have found notch for bogus symbol");
     }
 }

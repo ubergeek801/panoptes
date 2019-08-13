@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
@@ -26,10 +26,10 @@ public class PositionSerializerTest {
         byte[] buffer = serializer.write(position);
         MaterializedPosition deserialized = serializer.read(buffer);
 
-        assertEquals("deserialized value should equals() original value", position, deserialized);
-        assertEquals("deserialized value should have same amount as original", position.getAmount(),
-                deserialized.getAmount(), TestUtil.EPSILON);
-        assertEquals("deserialized value should have same security as original",
-                position.getSecurityKey(), deserialized.getSecurityKey());
+        assertEquals(position, deserialized, "deserialized value should equals() original value");
+        assertEquals(position.getAmount(), deserialized.getAmount(), TestUtil.EPSILON,
+                "deserialized value should have same amount as original");
+        assertEquals(position.getSecurityKey(), deserialized.getSecurityKey(),
+                "deserialized value should have same security as original");
     }
 }

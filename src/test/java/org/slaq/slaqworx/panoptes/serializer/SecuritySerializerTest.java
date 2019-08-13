@@ -1,6 +1,6 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -35,10 +35,10 @@ public class SecuritySerializerTest {
             Security fromJson = new Security(attributes);
             byte[] serialized = serializer.write(fromJson);
             Security fromSerialized = serializer.read(serialized);
-            assertEquals("JSON and serialized versions should be equal", fromJson, fromSerialized);
+            assertEquals(fromJson, fromSerialized, "JSON and serialized versions should be equal");
             serialized = serializer.write(fromSerialized);
             fromSerialized = serializer.read(serialized);
-            assertEquals("JSON and serialized versions should be equal", fromJson, fromSerialized);
+            assertEquals(fromJson, fromSerialized, "JSON and serialized versions should be equal");
         }
     }
 
@@ -59,6 +59,6 @@ public class SecuritySerializerTest {
 
         // because the key is a hash of the attribute contents, equality of the key suffices for our
         // purposes
-        assertEquals("deserialized value should equals() original value", security, deserialized);
+        assertEquals(security, deserialized, "deserialized value should equals() original value");
     }
 }

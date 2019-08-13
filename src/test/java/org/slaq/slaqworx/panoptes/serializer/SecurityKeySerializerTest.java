@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
@@ -23,6 +23,6 @@ public class SecurityKeySerializerTest {
         byte[] buffer = serializer.write(key);
         SecurityKey deserialized = serializer.read(buffer);
 
-        assertEquals("deserialized value should equals() original value", key, deserialized);
+        assertEquals(key, deserialized, "deserialized value should equals() original value");
     }
 }

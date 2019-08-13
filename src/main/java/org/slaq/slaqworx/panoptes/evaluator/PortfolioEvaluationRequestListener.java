@@ -4,16 +4,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.jms.annotation.JmsListener;
-import org.springframework.stereotype.Service;
+import javax.inject.Singleton;
 
 import com.hazelcast.core.IMap;
+
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
@@ -23,15 +23,19 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PortfolioEvaluationRequestListener} is {@code @JmsListener} that consumes
- * {@code PortfolioEvaluationRequest}, delegates to a {@code LocalPortfolioEvaluator} and publishes
- * results to the {@code Portfolio} evaluation result map.
+ * {@code PortfolioEvaluationRequestListener} consumes messages from the {@code Portfolio}
+ * evaluation request queue, delegates to a {@code LocalPortfolioEvaluator} and publishes results to
+ * the {@code Portfolio} evaluation result map.
  *
  * @author jeremy
  */
-@Service
+@Singleton
 public class PortfolioEvaluationRequestListener {
+    private static final Logger LOG =
+            LoggerFactory.getLogger(PortfolioEvaluationRequestListener.class);
+
     private final PortfolioCache portfolioCache;
+    private final ClientConsumer portfolioEvaluationRequestConsumer;
 
     private final LinkedBlockingQueue<Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> evaluationResultQueue =
             new LinkedBlockingQueue<>();
@@ -39,52 +43,79 @@ public class PortfolioEvaluationRequestListener {
 
     /**
      * Creates a new {@code RuleEvaluationRequestListener} which uses the given
-     * {@code PortfolioCache} to resolve cache resources.
+     * {@code PortfolioCache} to resolve cache resources. The listener remains idle until
+     * {@code start()} is invoked.
      *
      * @param portfolioCache
      *            the {@code PortfolioCache} to use
      */
-    protected PortfolioEvaluationRequestListener(PortfolioCache portfolioCache) {
+    protected PortfolioEvaluationRequestListener(PortfolioCache portfolioCache,
+            ClientConsumer portfolioEvaluationRequestConsumer) {
         this.portfolioCache = portfolioCache;
+        this.portfolioEvaluationRequestConsumer = portfolioEvaluationRequestConsumer;
         evaluationResultMap = portfolioCache.getPortfolioEvaluationResultMap();
+    }
+
+    /**
+     * Starts this listener.
+     */
+    public void start() {
+        Thread requestProcessor = new Thread(() -> {
+            // continuously consume messages from the request queue and process
+            while (!Thread.interrupted()) {
+                try {
+                    ClientMessage message = portfolioEvaluationRequestConsumer.receive();
+                    String stringMessage = message.getBodyBuffer().readString();
+                    String[] components = stringMessage.split(":");
+                    String requestId = components[0];
+                    String portfolioId = components[1];
+                    String portfolioVersion = components[2];
+                    PortfolioKey portfolioKey =
+                            new PortfolioKey(portfolioId, Integer.valueOf(portfolioVersion));
+                    Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+                            evaluatePortfolio(portfolioKey);
+                    evaluationResultQueue
+                            .add(new ImmutablePair<>(UUID.fromString(requestId), results));
+                } catch (Exception e) {
+                    // TODO handle this in some reasonable way
+                    LOG.error("could not process message", e);
+                    try {
+                        Thread.sleep(5000);
+                        continue;
+                    } catch (InterruptedException ex) {
+                        // hang it up
+                        return;
+                    }
+                }
+            }
+        }, "PortfolioEvaluationRequestProcessor");
+        requestProcessor.setDaemon(true);
+        requestProcessor.start();
 
         Thread resultProcessor = new Thread(() -> {
             // continuously take results from the local queue and publish to the result map
             while (!Thread.interrupted()) {
-                Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result;
                 try {
+                    Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result;
                     result = evaluationResultQueue.take();
+                    evaluationResultMap.set(result.getLeft(), result.getRight());
                 } catch (InterruptedException e) {
-                    // shut it down
                     return;
+                } catch (Exception e) {
+                    // TODO handle this in some reasonable way
+                    LOG.error("could not process message", e);
+                    try {
+                        Thread.sleep(5000);
+                        continue;
+                    } catch (InterruptedException ex) {
+                        // hang it up
+                        return;
+                    }
                 }
-                evaluationResultMap.set(result.getLeft(), result.getRight());
             }
         }, "PortfolioEvaluationResultProcessor");
         resultProcessor.setDaemon(true);
         resultProcessor.start();
-    }
-
-    /**
-     * Receives a message from the {@code Portfolio} evaluation request queue, processes it and
-     * places the results on the internal result queue.
-     *
-     * @param message
-     *            the {@PortfolioEvaluationRequest} message to be processed
-     * @throws JMSException
-     *             if the message could not be deserialized
-     */
-    @JmsListener(destination = "portfolioEvaluationRequestQueue", concurrency = "1")
-    public void receiveMessage(final Message message) throws JMSException {
-        if (message instanceof ObjectMessage) {
-            ObjectMessage textMessage = (ObjectMessage)message;
-            PortfolioEvaluationRequest request =
-                    (PortfolioEvaluationRequest)textMessage.getObject();
-
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                    evaluatePortfolio(request.getPortfolioKey());
-            evaluationResultQueue.add(new ImmutablePair<>(request.getRequestId(), results));
-        }
     }
 
     /**

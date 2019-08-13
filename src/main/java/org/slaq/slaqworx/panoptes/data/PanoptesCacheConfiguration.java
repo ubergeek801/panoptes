@@ -1,29 +1,39 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import javax.jms.ConnectionFactory;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.ActiveMQPrefetchPolicy;
-import org.apache.activemq.broker.BrokerService;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Profile;
+import javax.inject.Named;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.MapStoreConfig.InitialLoadMode;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.core.ManagedContext;
-import com.hazelcast.spring.context.SpringManagedContext;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Bean;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Requires;
+
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
+import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -44,90 +54,105 @@ import org.slaq.slaqworx.panoptes.serializer.SecurityKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
 
 /**
- * {@code PanoptesCacheConfiguration} is a Spring {@code Configuration} that provides {@code Bean}s
+ * {@code PanoptesCacheConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
  * related to the Hazelcast cache.
  *
  * @author jeremy
  */
-@Configuration
+@Factory
 public class PanoptesCacheConfiguration {
+    private static final Logger LOG = LoggerFactory.getLogger(PanoptesCacheConfiguration.class);
+
+    private static final Object activeMQBrokerMutex = new Object();
+    private static EmbeddedActiveMQ activeMQServer;
+
     /**
      * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
-     * should be obtained through Spring (if it is needed at all).
+     * should be obtained through the {@code ApplicationContext} (if it is needed at all).
      */
     protected PanoptesCacheConfiguration() {
         // nothing to do
     }
 
-    @Bean
-    @Profile("default")
-    protected Void brokerService() throws Exception {
-        // TODO make ActiveMQ broker configuration a little more portable
-        if ("uberkube02".equals(System.getenv("HOSTNAME"))) {
-            final BrokerService broker = new BrokerService();
-            broker.addConnector("tcp://0.0.0.0:61616");
-            broker.addConnector("vm://localhost?broker.persistent=false");
-            broker.setPersistent(false);
-            broker.start();
-        }
-
-        return null;
-    }
-
-    @Bean
-    @Profile("default")
-    @DependsOn("brokerService")
-    protected ConnectionFactory connectionFactory() throws URISyntaxException {
-        ActiveMQConnectionFactory factory;
-        // TODO make ActiveMQ broker configuration a little more portable
-        if ("uberkube02".equals(System.getenv("HOSTNAME"))) {
-            factory = new ActiveMQConnectionFactory(
-                    new URI("vm://localhost?broker.persistent=false"));
-        } else {
-            factory = new ActiveMQConnectionFactory(new URI("tcp://uberkube02:61616"));
-        }
-        ActiveMQPrefetchPolicy prefetchPolicy = new ActiveMQPrefetchPolicy();
-        prefetchPolicy.setQueuePrefetch(3);
-        factory.setPrefetchPolicy(prefetchPolicy);
-        factory.setTrustedPackages(List.of("org.slaq.slaqworx", "java.util"));
-
-        return factory;
-    }
-
     /**
-     * Creates a {@code MapConfig} for the specified map and adds it to the given Hazelcast
+     * Provides a {@code MapConfig} for the specified map and adds it to the given Hazelcast
      * {@code Config}.
      *
-     * @param config
-     *            the Hazelcast {@code Config} to which to add the {@code MapConfig}
+     * @param mapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to use to create the {@code MapStore}
      * @param cacheName
-     *            the name of the map being configured
+     *            the name of the map/cache being created
+     * @return a {@code MapConfig} configured for the given map
      */
-    protected void createMapConfiguration(Config config, String cacheName) {
-        MapStoreConfig mapStoreConfig =
-                new MapStoreConfig().setFactoryClassName(HazelcastMapStoreFactory.class.getName())
-                        .setWriteDelaySeconds(15).setWriteBatchSize(1000)
-                        .setInitialLoadMode(InitialLoadMode.LAZY);
+    protected MapConfig createMapConfiguration(HazelcastMapStoreFactory mapStoreFactory,
+            String cacheName) {
+        MapStoreConfig mapStoreConfig = new MapStoreConfig()
+                .setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
+                .setWriteBatchSize(1000).setInitialLoadMode(InitialLoadMode.LAZY);
         NearCacheConfig nearCacheConfig = new NearCacheConfig().setName("near-" + cacheName)
                 .setInMemoryFormat(InMemoryFormat.OBJECT).setCacheLocalEntries(true);
-        config.getMapConfig(cacheName).setBackupCount(3).setReadBackupData(true)
+        MapConfig mapConfig = new MapConfig(cacheName).setBackupCount(3).setReadBackupData(true)
                 .setInMemoryFormat(InMemoryFormat.BINARY).setMapStoreConfig(mapStoreConfig)
                 .setNearCacheConfig(nearCacheConfig);
+
+        return mapConfig;
+    }
+
+    protected void createMessagingService(boolean isUseTcp) throws Exception {
+        synchronized (activeMQBrokerMutex) {
+            if (activeMQServer == null) {
+                LOG.info("creating messaging service on local node");
+
+                Configuration config = new ConfigurationImpl();
+
+                config.addAcceptorConfiguration("in-vm", "vm://0");
+                if (isUseTcp) {
+                    config.addAcceptorConfiguration("tcp", "tcp://0.0.0.0:61616");
+                }
+                config.setPersistenceEnabled(false);
+                config.setSecurityEnabled(false);
+
+                CoreQueueConfiguration portfolioEvaluationRequestQueueConfig =
+                        new CoreQueueConfiguration()
+                                .setAddress(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME)
+                                .setName(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME)
+                                .setRoutingType(RoutingType.ANYCAST);
+                config.addQueueConfiguration(portfolioEvaluationRequestQueueConfig);
+
+                activeMQServer = new EmbeddedActiveMQ();
+                activeMQServer.setConfiguration(config);
+                activeMQServer.start();
+            }
+        }
     }
 
     /**
-     * Provides a Hazelcast configuration suitable for the detected runtime environment. Spring Boot
-     * will automatically use this configuration when it creates the {@code HazelcastInstance}.
+     * Provides a Hazelcast configuration suitable for the detected runtime environment.
      *
+     * @param securityAttributeLoader
+     *            the {@SecurityAttributeLoader} used to initialize {@code SecurityAttribute}s
+     * @param hazelcastMapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to be used to create the
+     *            {@code MapStoreConfig}s
      * @return a Hazelcast {@code Config}
      */
     @Bean
-    @DependsOn("securityAttributeLoader")
-    protected Config hazelcastConfig() {
-        Config config = new Config("panoptes");
+    protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
+            HazelcastMapStoreFactory hazelcastMapStoreFactory,
+            @Named("portfolio") MapConfig portfolioMapConfig,
+            @Named("position") MapConfig positionMapConfig,
+            @Named("security") MapConfig securityMapConfig,
+            @Named("rule") MapConfig ruleMapConfig) {
+        securityAttributeLoader.loadSecurityAttributes();
 
-        // allow Spring dependencies to be injected into deserialized objects
-        config.setManagedContext(managedContext());
+        boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
+
+        Config config = new Config("panoptes");
+        config.setProperty("hazelcast.logging.type", "slf4j");
+        // this probably isn't good for fault tolerance but it improves startup time
+        if (isClustered) {
+            config.setProperty("hazelcast.initial.min.cluster.size", "4");
+        }
 
         // set up the entity caches (Portfolio, Position, etc.)
 
@@ -149,37 +174,115 @@ public class PanoptesCacheConfiguration {
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setClass(SecuritySerializer.class).setTypeClass(Security.class));
 
-        createMapConfiguration(config, PortfolioCache.PORTFOLIO_CACHE_NAME);
-        createMapConfiguration(config, PortfolioCache.POSITION_CACHE_NAME);
-        createMapConfiguration(config, PortfolioCache.SECURITY_CACHE_NAME);
-        createMapConfiguration(config, PortfolioCache.RULE_CACHE_NAME);
+        config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
+                .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig);
 
         // set up a map to act as the portfolio evaluation result "topic"
         config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
                 .setInMemoryFormat(InMemoryFormat.BINARY);
 
         // set up cluster join discovery appropriate for the detected environment
-        if (System.getenv("KUBERNETES_SERVICE_HOST") == null) {
-            // not running in Kubernetes; run standalone
-            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-        } else {
+        if (isClustered) {
             // use Kubernetes discovery
             // TODO parameterize the cluster DNS property
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
                     .setProperty("service-dns", "panoptes-hazelcast.default.svc.cluster.local");
+        } else {
+            // not running in Kubernetes; run standalone
+            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
         }
 
         return config;
     }
 
     /**
-     * Provides a {@code ManagedContext} which enables {@code @SpringAware} annotation for objects
-     * deserialized by Hazelcast.
+     * Provides a {@code HazelcastInstance} configured with the given configuration.
+     *
+     * @param hazelcastConfiguration
+     *            the Hazelcast {@Config} with which to configure the instance
+     * @return a {@HazelcastInstance}
      */
     @Bean
-    protected ManagedContext managedContext() {
-        return new SpringManagedContext();
+    protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
+        return Hazelcast.newHazelcastInstance(hazelcastConfiguration);
+    }
+
+    @Bean
+    protected ClientSessionFactory messagingClientSessionFactory(ServerLocator serverLocator)
+            throws Exception {
+        return serverLocator.createSessionFactory();
+    }
+
+    @Bean
+    @Requires(notEnv = "standalone")
+    protected ServerLocator messagingServerLocator() throws Exception {
+        ServerLocator locator;
+        // TODO make ActiveMQ broker configuration a little more portable
+        if ("uberkube02".equals(System.getenv("HOSTNAME"))) {
+            createMessagingService(true);
+            locator = ActiveMQClient.createServerLocator("vm://0");
+        } else {
+            locator = ActiveMQClient.createServerLocator("tcp://uberkube02:61616");
+        }
+        // don't prefetch too much, or work will pile up unevenly on busier nodes (note that this
+        // number is in bytes, not messages)
+        locator.setConsumerWindowSize(2048);
+
+        return locator;
+    }
+
+    @Bean
+    @Requires(env = "standalone")
+    protected ServerLocator messagingServerLocatorStandalone() throws Exception {
+        createMessagingService(false);
+
+        return ActiveMQClient.createServerLocator("vm://0");
+    }
+
+    @Bean
+    protected ClientConsumer portfolioEvaluationRequestConsumer(ClientSessionFactory sessionFactory)
+            throws ActiveMQException {
+        ClientSession session = sessionFactory.createSession();
+        ClientConsumer consumer =
+                session.createConsumer(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME);
+        session.start();
+
+        return consumer;
+    }
+
+    @Bean
+    protected Pair<ClientSession, ClientProducer> portfolioEvaluationRequestProducer(
+            ClientSessionFactory sessionFactory) throws ActiveMQException {
+        ClientSession session = sessionFactory.createSession();
+        return new ImmutablePair<>(session,
+                session.createProducer(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME));
+    }
+
+    /**
+     * Provides a {@code MapConfig} for the {@code Portfolio} cache.
+     *
+     * @param mapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     * @return a {@code MapConfig}
+     */
+    @Named("portfolio")
+    @Bean
+    protected MapConfig portfolioMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
+        return createMapConfiguration(mapStoreFactory, PortfolioCache.PORTFOLIO_CACHE_NAME);
+    }
+
+    /**
+     * Provides a {@code MapConfig} for the {@code Position} cache.
+     *
+     * @param mapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     * @return a {@code MapConfig}
+     */
+    @Named("position")
+    @Bean
+    protected MapConfig positionMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
+        return createMapConfiguration(mapStoreFactory, PortfolioCache.POSITION_CACHE_NAME);
     }
 
     /**
@@ -193,5 +296,31 @@ public class PanoptesCacheConfiguration {
     @Bean
     protected ProxyFactory proxyFactory(ApplicationContext applicationContext) {
         return new ProxyFactory(applicationContext);
+    }
+
+    /**
+     * Provides a {@code MapConfig} for the {@code Rule} cache.
+     *
+     * @param mapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     * @return a {@code MapConfig}
+     */
+    @Named("rule")
+    @Bean
+    protected MapConfig ruleMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
+        return createMapConfiguration(mapStoreFactory, PortfolioCache.RULE_CACHE_NAME);
+    }
+
+    /**
+     * Provides a {@code MapConfig} for the {@code Security} cache.
+     *
+     * @param mapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     * @return a {@code MapConfig}
+     */
+    @Named("security")
+    @Bean
+    protected MapConfig securityMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
+        return createMapConfiguration(mapStoreFactory, PortfolioCache.SECURITY_CACHE_NAME);
     }
 }

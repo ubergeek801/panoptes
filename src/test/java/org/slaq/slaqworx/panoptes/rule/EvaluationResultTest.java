@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
@@ -21,28 +21,28 @@ public class EvaluationResultTest {
         EvaluationResult original = new EvaluationResult(true);
         EvaluationResult proposed = new EvaluationResult(false);
         Impact impact = proposed.compare(original);
-        assertEquals("true->false should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "true->false should be a negative impact");
 
         original = new EvaluationResult(true);
         proposed = new EvaluationResult(true);
         impact = proposed.compare(original);
-        assertEquals("true->true should be a neutral impact", Impact.NEUTRAL, impact);
+        assertEquals(Impact.NEUTRAL, impact, "true->true should be a neutral impact");
 
         original = new EvaluationResult(false);
         proposed = new EvaluationResult(false);
         impact = proposed.compare(original);
-        assertEquals("false->false should be a neutral impact", Impact.NEUTRAL, impact);
+        assertEquals(Impact.NEUTRAL, impact, "false->false should be a neutral impact");
 
         original = new EvaluationResult(false);
         proposed = new EvaluationResult(true);
         impact = proposed.compare(original);
-        assertEquals("false->true should be a positive impact", Impact.POSITIVE, impact);
+        assertEquals(Impact.POSITIVE, impact, "false->true should be a positive impact");
 
         // bonus null test
         original = null;
         proposed = new EvaluationResult(true);
         impact = proposed.compare(original);
-        assertEquals("*->null should be a null impact", Impact.UNKNOWN, impact);
+        assertEquals(Impact.UNKNOWN, impact, "*->null should be a null impact");
     }
 
     /**
@@ -53,68 +53,68 @@ public class EvaluationResultTest {
         EvaluationResult original = new EvaluationResult(Threshold.ABOVE, 10);
         EvaluationResult proposed = new EvaluationResult(Threshold.ABOVE, 11);
         Impact impact = proposed.compare(original);
-        assertEquals("ABOVE->more ABOVE should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "ABOVE->more ABOVE should be a negative impact");
 
         original = new EvaluationResult(Threshold.ABOVE, 10);
         proposed = new EvaluationResult(Threshold.ABOVE, 9);
         impact = proposed.compare(original);
-        assertEquals("ABOVE->less ABOVE should be a positive impact", Impact.POSITIVE, impact);
+        assertEquals(Impact.POSITIVE, impact, "ABOVE->less ABOVE should be a positive impact");
 
         original = new EvaluationResult(Threshold.ABOVE, 10);
         proposed = new EvaluationResult(Threshold.ABOVE, 10);
         impact = proposed.compare(original);
-        assertEquals("ABOVE->equal ABOVE should be a neutral impact", Impact.NEUTRAL, impact);
+        assertEquals(Impact.NEUTRAL, impact, "ABOVE->equal ABOVE should be a neutral impact");
 
         original = new EvaluationResult(Threshold.ABOVE, 10);
         proposed = new EvaluationResult(Threshold.WITHIN, 9);
         impact = proposed.compare(original);
-        assertEquals("ABOVE->WITHIN should be a positive impact", Impact.POSITIVE, impact);
+        assertEquals(Impact.POSITIVE, impact, "ABOVE->WITHIN should be a positive impact");
 
         original = new EvaluationResult(Threshold.BELOW, 10);
         proposed = new EvaluationResult(Threshold.BELOW, 9);
         impact = proposed.compare(original);
-        assertEquals("BELOW->more BELOW should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "BELOW->more BELOW should be a negative impact");
 
         original = new EvaluationResult(Threshold.BELOW, 10);
         proposed = new EvaluationResult(Threshold.BELOW, 11);
         impact = proposed.compare(original);
-        assertEquals("BELOW->less BELOW should be a positive impact", Impact.POSITIVE, impact);
+        assertEquals(Impact.POSITIVE, impact, "BELOW->less BELOW should be a positive impact");
 
         original = new EvaluationResult(Threshold.BELOW, 10);
         proposed = new EvaluationResult(Threshold.BELOW, 10);
         impact = proposed.compare(original);
-        assertEquals("BELOW->equal BELOW should be a neutral impact", Impact.NEUTRAL, impact);
+        assertEquals(Impact.NEUTRAL, impact, "BELOW->equal BELOW should be a neutral impact");
 
         original = new EvaluationResult(Threshold.BELOW, 10);
         proposed = new EvaluationResult(Threshold.WITHIN, 11);
         impact = proposed.compare(original);
-        assertEquals("BELOW->WITHIN should be a positive impact", Impact.POSITIVE, impact);
+        assertEquals(Impact.POSITIVE, impact, "BELOW->WITHIN should be a positive impact");
 
         original = new EvaluationResult(Threshold.WITHIN, 10);
         proposed = new EvaluationResult(Threshold.BELOW, 9);
         impact = proposed.compare(original);
-        assertEquals("WITHIN->BELOW should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "WITHIN->BELOW should be a negative impact");
 
         original = new EvaluationResult(Threshold.WITHIN, 10);
         proposed = new EvaluationResult(Threshold.ABOVE, 11);
         impact = proposed.compare(original);
-        assertEquals("WITHIN->ABOVE should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "WITHIN->ABOVE should be a negative impact");
 
         original = new EvaluationResult(Threshold.WITHIN, 10);
         proposed = new EvaluationResult(Threshold.WITHIN, 10);
         impact = proposed.compare(original);
-        assertEquals("WITHIN->WITHIN should be a neutral impact", Impact.NEUTRAL, impact);
+        assertEquals(Impact.NEUTRAL, impact, "WITHIN->WITHIN should be a neutral impact");
 
         // oddball cases but behavior still specified
 
         original = new EvaluationResult(Threshold.BELOW, 9);
         proposed = new EvaluationResult(Threshold.ABOVE, 11);
         impact = proposed.compare(original);
-        assertEquals("BELOW->ABOVE should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "BELOW->ABOVE should be a negative impact");
 
         original = new EvaluationResult(Threshold.ABOVE, 11);
         proposed = new EvaluationResult(Threshold.BELOW, 9);
         impact = proposed.compare(original);
-        assertEquals("ABOVE->BELOW should be a negative impact", Impact.NEGATIVE, impact);
+        assertEquals(Impact.NEGATIVE, impact, "ABOVE->BELOW should be a negative impact");
     }
 }

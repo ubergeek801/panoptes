@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.trade;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -85,26 +85,26 @@ public class TradeEvaluatorTest {
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
-        assertNotNull("should have found impact for p1Rule1", p1r1Impact);
-        assertEquals("p1Rule1 should have failed", Impact.NEGATIVE,
-                p1r1Impact.get(EvaluationGroup.defaultGroup()));
+        assertNotNull(p1r1Impact, "should have found impact for p1Rule1");
+        assertEquals(Impact.NEGATIVE, p1r1Impact.get(EvaluationGroup.defaultGroup()),
+                "p1Rule1 should have failed");
 
         Map<EvaluationGroup<?>, Impact> p1r2Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule2.getKey()));
-        assertNotNull("should have found impact for p1Rule2", p1r2Impact);
-        assertEquals("p1Rule2 should have failed", Impact.NEGATIVE,
-                p1r2Impact.get(EvaluationGroup.defaultGroup()));
+        assertNotNull(p1r2Impact, "should have found impact for p1Rule2");
+        assertEquals(Impact.NEGATIVE, p1r2Impact.get(EvaluationGroup.defaultGroup()),
+                "p1Rule2 should have failed");
 
         Map<EvaluationGroup<?>, Impact> p1r3Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule3.getKey()));
-        assertNotNull("should have found impact for p1Rule3", p1r3Impact);
-        assertEquals("p1Rule3 should have passed", Impact.POSITIVE,
-                p1r3Impact.get(EvaluationGroup.defaultGroup()));
+        assertNotNull(p1r3Impact, "should have found impact for p1Rule3");
+        assertEquals(Impact.POSITIVE, p1r3Impact.get(EvaluationGroup.defaultGroup()),
+                "p1Rule3 should have passed");
 
         Map<EvaluationGroup<?>, Impact> p1r4Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule4.getKey()));
-        assertNotNull("should have found impact for p1Rule4", p1r4Impact);
-        assertEquals("p1Rule4 should have passed", Impact.NEUTRAL,
-                p1r4Impact.get(EvaluationGroup.defaultGroup()));
+        assertNotNull(p1r4Impact, "should have found impact for p1Rule4");
+        assertEquals(Impact.NEUTRAL, p1r4Impact.get(EvaluationGroup.defaultGroup()),
+                "p1Rule4 should have passed");
     }
 }

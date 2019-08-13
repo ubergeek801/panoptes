@@ -1,11 +1,11 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collection;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -34,11 +34,11 @@ public class PortfolioSerializerTest {
         byte[] buffer = serializer.write(TestUtil.p1);
         Portfolio deserialized = serializer.read(buffer);
 
-        assertEquals("deserialized value should equals() original value", portfolio, deserialized);
-        assertEquals("deserialized value should have same benchmark key as original",
-                portfolio.getBenchmarkKey(), deserialized.getBenchmarkKey());
-        assertEquals("deserialized value should have same name as original", portfolio.getName(),
-                deserialized.getName());
+        assertEquals(portfolio, deserialized, "deserialized value should equals() original value");
+        assertEquals(portfolio.getBenchmarkKey(), deserialized.getBenchmarkKey(),
+                "deserialized value should have same benchmark key as original");
+        assertEquals(portfolio.getName(), deserialized.getName(),
+                "deserialized value should have same name as original");
         // TOOD assert same Positions and Rules
 
         Set<? extends Position> positions = TestUtil.p1Positions;
@@ -49,10 +49,10 @@ public class PortfolioSerializerTest {
         buffer = serializer.write(portfolio);
         deserialized = serializer.read(buffer);
 
-        assertEquals("deserialized value should equals() original value", portfolio, deserialized);
-        assertEquals("deserialized value should have same benchmark key as original",
-                portfolio.getBenchmarkKey(), deserialized.getBenchmarkKey());
-        assertEquals("deserialized value should have same name as original", portfolio.getName(),
-                deserialized.getName());
+        assertEquals(portfolio, deserialized, "deserialized value should equals() original value");
+        assertEquals(portfolio.getBenchmarkKey(), deserialized.getBenchmarkKey(),
+                "deserialized value should have same benchmark key as original");
+        assertEquals(portfolio.getName(), deserialized.getName(),
+                "deserialized value should have same name as original");
     }
 }

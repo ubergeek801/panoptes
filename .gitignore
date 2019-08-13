@@ -8,5 +8,6 @@ target/
 
 # ignore Eclipse artifacts
 .classpath
+.factorypath
 .project
 .settings/

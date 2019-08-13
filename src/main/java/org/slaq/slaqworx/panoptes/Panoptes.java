@@ -1,29 +1,33 @@
 package org.slaq.slaqworx.panoptes;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import javax.inject.Singleton;
+
+import io.micronaut.context.BeanContext;
+import io.micronaut.context.event.StartupEvent;
+import io.micronaut.runtime.Micronaut;
+import io.micronaut.runtime.event.annotation.EventListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
-import org.springframework.jms.annotation.EnableJms;
 
 import org.slaq.slaqworx.panoptes.data.PortfolioCache;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
  *
  * @author jeremy
  */
-@SpringBootApplication
-@EnableJms
-public class Panoptes implements ApplicationContextAware {
+@Singleton
+public class Panoptes {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
-    private static ApplicationContext applicationContext;
+    private static BeanContext applicationContext;
 
     /**
      * Obtains the {@code ApplicationContext} of the running Panoptes application. This should only
@@ -32,7 +36,7 @@ public class Panoptes implements ApplicationContextAware {
      *
      * @return the current ApplicationContext
      */
-    public static ApplicationContext getApplicationContext() {
+    public static BeanContext getApplicationContext() {
         return applicationContext;
     }
 
@@ -43,43 +47,62 @@ public class Panoptes implements ApplicationContextAware {
      *            the program arguments
      */
     public static void main(String[] args) {
-        SpringApplication.run(Panoptes.class, args);
-    }
+        InputStream bannerStream =
+                Panoptes.class.getClassLoader().getResourceAsStream("banner.txt");
+        if (bannerStream != null) {
+            try (BufferedReader bannerReader =
+                    new BufferedReader(new InputStreamReader(bannerStream))) {
+                String line;
+                while ((line = bannerReader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                // never mind
+            }
+        }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        Panoptes.applicationContext = applicationContext;
+        Micronaut.run(Panoptes.class, args);
     }
 
     /**
-     * Provides an {@code ApplicationRunner} to be executed upon Panoptes startup.
-     *
-     * @param applicationContext
-     *            the Spring {@code ApplicationContext}
-     * @return an {@code ApplicationRunner} which initializes Panoptes
+     * Creates a new instance of the Panoptes application.
      */
-    @Bean
-    public ApplicationRunner startupRunner(ApplicationContext applicationContext) {
-        return args -> {
-            PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
+    protected Panoptes() {
+        // nothing to do
+    }
 
-            portfolioCache.getSecurityCache().loadAll(false);
-            int numSecurities = portfolioCache.getSecurityCache().size();
-            LOG.info("{} Securities in cache", numSecurities);
+    /**
+     * Initializes the Panoptes application upon startup.
+     *
+     * @param event
+     *            a {@code StartupEvent}
+     */
+    @EventListener
+    protected void onStartup(StartupEvent event) {
+        applicationContext = event.getSource();
+        PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
 
-            portfolioCache.getPositionCache().loadAll(false);
-            int numPositions = portfolioCache.getPositionCache().size();
-            LOG.info("{} Positions in cache", numPositions);
+        portfolioCache.getSecurityCache().loadAll(false);
+        int numSecurities = portfolioCache.getSecurityCache().size();
+        LOG.info("{} Securities in cache", numSecurities);
 
-            portfolioCache.getRuleCache().loadAll(false);
-            int numRules = portfolioCache.getRuleCache().size();
-            LOG.info("{} Rules in cache", numRules);
+        portfolioCache.getPositionCache().loadAll(false);
+        int numPositions = portfolioCache.getPositionCache().size();
+        LOG.info("{} Positions in cache", numPositions);
 
-            portfolioCache.getPortfolioCache().loadAll(false);
-            int numPortfolios = portfolioCache.getPortfolioCache().size();
-            LOG.info("{} Portfolios in cache", numPortfolios);
+        portfolioCache.getRuleCache().loadAll(false);
+        int numRules = portfolioCache.getRuleCache().size();
+        LOG.info("{} Rules in cache", numRules);
 
-            LOG.info("Panoptes ready");
-        };
+        portfolioCache.getPortfolioCache().loadAll(false);
+        int numPortfolios = portfolioCache.getPortfolioCache().size();
+        LOG.info("{} Portfolios in cache", numPortfolios);
+
+        LOG.info("starting PortfolioEvaluationRequestListener");
+        PortfolioEvaluationRequestListener portfolioEvaluationRequestListener =
+                applicationContext.getBean(PortfolioEvaluationRequestListener.class);
+        portfolioEvaluationRequestListener.start();
+
+        LOG.info("Panoptes ready");
     }
 }

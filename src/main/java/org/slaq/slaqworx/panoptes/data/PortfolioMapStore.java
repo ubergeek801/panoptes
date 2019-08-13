@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 
-import org.springframework.context.ApplicationContext;
+import io.micronaut.context.ApplicationContext;
+
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -26,13 +27,13 @@ import org.slaq.slaqworx.panoptes.rule.RuleProxy;
  *
  * @author jeremy
  */
-@Service
+@Singleton
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
     private ApplicationContext applicationContext;
 
     /**
-     * Creates a new PortfolioMapStore. Restricted because instances of this class should be created
-     * through Spring.
+     * Creates a new PortfolioMapStore. Restricted because instances of this class should be
+     * obtained through the {@code ApplicationContext}.
      *
      * @param applicationContext
      *            the ApplicationConext from which to resolve dependent Beans

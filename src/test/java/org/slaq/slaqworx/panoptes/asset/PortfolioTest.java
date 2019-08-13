@@ -1,15 +1,15 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -38,10 +38,10 @@ public class PortfolioTest {
 
         try (Stream<Position> stream1 = portfolio.getPositions();
                 Stream<Position> stream2 = portfolio.getPositions()) {
-            assertFalse("position streams should be distinct", stream1 == stream2);
-            assertFalse("position streams should be distinct", stream1.equals(stream2));
-            assertEquals("unexpected count for stream 1", 4, stream1.count());
-            assertEquals("unexpected count for stream 2", 4, stream2.count());
+            assertFalse(stream1 == stream2, "position streams should be distinct");
+            assertFalse(stream1.equals(stream2), "position streams should be distinct");
+            assertEquals(4, stream1.count(), "unexpected count for stream 1");
+            assertEquals(4, stream2.count(), "unexpected count for stream 2");
 
             // ensure that both streams can be iterated independently/simultaneously
             Iterator<Position> iter1 = portfolio.getPositions().iterator();
@@ -52,8 +52,8 @@ public class PortfolioTest {
                 iter2.next();
                 itemCount++;
             }
-            assertFalse("stream 2 should be exhausted", iter2.hasNext());
-            assertEquals("unexpected count for parallel stream iteration", 4, itemCount);
+            assertFalse(iter2.hasNext(), "stream 2 should be exhausted");
+            assertEquals(4, itemCount, "unexpected count for parallel stream iteration");
         }
     }
 
@@ -71,7 +71,7 @@ public class PortfolioTest {
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
         // the total amount is merely the sum of the amounts 100 + 200 + 300 + 400 = 1000
-        assertEquals("unexpected total amount", 1000, portfolio.getTotalAmount(), TestUtil.EPSILON);
+        assertEquals(1000, portfolio.getTotalAmount(), TestUtil.EPSILON, "unexpected total amount");
     }
 
     /**
@@ -107,10 +107,10 @@ public class PortfolioTest {
         portfolios.add(p1);
         portfolios.add(p3);
 
-        assertEquals("unexpected number of Portfolios", 4, portfolios.size());
-        assertTrue("Portfolios should have contained p1", portfolios.contains(p1));
-        assertTrue("Portfolios should have contained p2", portfolios.contains(p2));
-        assertTrue("Portfolios should have contained p3", portfolios.contains(p3));
-        assertTrue("Portfolios should have contained p4", portfolios.contains(p4));
+        assertEquals(4, portfolios.size(), "unexpected number of Portfolios");
+        assertTrue(portfolios.contains(p1), "Portfolios should have contained p1");
+        assertTrue(portfolios.contains(p2), "Portfolios should have contained p2");
+        assertTrue(portfolios.contains(p3), "Portfolios should have contained p3");
+        assertTrue(portfolios.contains(p4), "Portfolios should have contained p4");
     }
 }

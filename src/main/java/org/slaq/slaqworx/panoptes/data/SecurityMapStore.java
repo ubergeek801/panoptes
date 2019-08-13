@@ -19,7 +19,7 @@ import org.slaq.slaqworx.panoptes.serializer.SerializerUtil;
 public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     /**
      * Creates a new SecurityMapStore. Restricted because instances of this class should be created
-     * through Spring.
+     * through the {@code ApplicationContext}.
      *
      * @param dataSource
      *            the DataSource through which to access the database

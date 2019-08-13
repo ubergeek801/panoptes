@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * PortfolioKey is a key used to reference Portfolios.
+ * {@code PortfolioKey} is a key used to reference {@code Portfolio}s.
  *
  * @author jeremy
  */
@@ -9,10 +9,10 @@ public class PortfolioKey extends IdVersionKey {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates a new PortfolioKey with the given ID and version.
+     * Creates a new {@code PortfolioKey} with the given ID and version.
      *
      * @param id
-     *            the ID to assign to the key, or null to generate one
+     *            the ID to assign to the key, or {@code null} to generate one
      * @param version
      *            the version to assign to the key
      */
