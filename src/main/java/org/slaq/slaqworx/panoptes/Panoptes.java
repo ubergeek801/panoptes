@@ -15,7 +15,7 @@ import io.micronaut.runtime.event.annotation.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.data.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
 
 /**

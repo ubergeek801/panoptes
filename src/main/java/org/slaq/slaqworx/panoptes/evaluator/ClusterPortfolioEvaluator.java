@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.data.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;

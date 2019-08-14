@@ -10,6 +10,8 @@ import com.hazelcast.core.MapStoreFactory;
 
 import io.micronaut.context.ApplicationContext;
 
+import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+
 /**
  * {@code HazelcastMapStoreFactory} is a {@code MapStoreFactory} that provides {@code MapStore}s for
  * the cached {@code Map}s (e.g. {@code Portiofolio}, {@code Position}, {@code Rule},

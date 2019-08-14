@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.data;
+package org.slaq.slaqworx.panoptes.cache;
 
 import java.util.Map;
 import java.util.UUID;
@@ -32,15 +32,13 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 @Singleton
 public class PortfolioCache
         implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
-    protected static final String PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME =
-            "portfolioEvaluationRequestQueue";
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
             "portfolioEvaluationResultMap";
 
-    protected static final String PORTFOLIO_CACHE_NAME = "portfolio";
-    protected static final String POSITION_CACHE_NAME = "position";
-    protected static final String SECURITY_CACHE_NAME = "security";
-    protected static final String RULE_CACHE_NAME = "rule";
+    public static final String PORTFOLIO_CACHE_NAME = "portfolio";
+    public static final String POSITION_CACHE_NAME = "position";
+    public static final String SECURITY_CACHE_NAME = "security";
+    public static final String RULE_CACHE_NAME = "rule";
 
     private final HazelcastInstance hazelcastInstance;
 

@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.data;
+package org.slaq.slaqworx.panoptes.cache;
 
 import javax.inject.Named;
 
@@ -16,24 +16,6 @@ import com.hazelcast.core.HazelcastInstance;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.annotation.Requires;
-
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -42,6 +24,8 @@ import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.ProxyFactory;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.data.HazelcastMapStoreFactory;
+import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
@@ -61,11 +45,6 @@ import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
  */
 @Factory
 public class PanoptesCacheConfiguration {
-    private static final Logger LOG = LoggerFactory.getLogger(PanoptesCacheConfiguration.class);
-
-    private static final Object activeMQBrokerMutex = new Object();
-    private static EmbeddedActiveMQ activeMQServer;
-
     /**
      * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
      * should be obtained through the {@code ApplicationContext} (if it is needed at all).
@@ -96,34 +75,6 @@ public class PanoptesCacheConfiguration {
                 .setNearCacheConfig(nearCacheConfig);
 
         return mapConfig;
-    }
-
-    protected void createMessagingService(boolean isUseTcp) throws Exception {
-        synchronized (activeMQBrokerMutex) {
-            if (activeMQServer == null) {
-                LOG.info("creating messaging service on local node");
-
-                Configuration config = new ConfigurationImpl();
-
-                config.addAcceptorConfiguration("in-vm", "vm://0");
-                if (isUseTcp) {
-                    config.addAcceptorConfiguration("tcp", "tcp://0.0.0.0:61616");
-                }
-                config.setPersistenceEnabled(false);
-                config.setSecurityEnabled(false);
-
-                CoreQueueConfiguration portfolioEvaluationRequestQueueConfig =
-                        new CoreQueueConfiguration()
-                                .setAddress(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME)
-                                .setName(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME)
-                                .setRoutingType(RoutingType.ANYCAST);
-                config.addQueueConfiguration(portfolioEvaluationRequestQueueConfig);
-
-                activeMQServer = new EmbeddedActiveMQ();
-                activeMQServer.setConfiguration(config);
-                activeMQServer.start();
-            }
-        }
     }
 
     /**
@@ -206,61 +157,6 @@ public class PanoptesCacheConfiguration {
     @Bean
     protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
         return Hazelcast.newHazelcastInstance(hazelcastConfiguration);
-    }
-
-    @Bean
-    protected ClientSessionFactory messagingClientSessionFactory(ServerLocator serverLocator)
-            throws Exception {
-        return serverLocator.createSessionFactory();
-    }
-
-    @Bean
-    @Requires(notEnv = "standalone")
-    @SuppressWarnings("resource")
-    protected ServerLocator messagingServerLocator() throws Exception {
-        ServerLocator locator;
-        // TODO make ActiveMQ broker configuration a little more portable
-        if ("uberkube02".equals(System.getenv("NODENAME"))) {
-            createMessagingService(true);
-            locator = ActiveMQClient.createServerLocator("vm://0");
-        } else {
-            locator = ActiveMQClient.createServerLocator("tcp://uberkube02:61616")
-                    .setInitialConnectAttempts(10);
-        }
-        // don't prefetch too much, or work will pile up unevenly on busier nodes (note that this
-        // number is in bytes, not messages)
-        locator.setConsumerWindowSize(2048);
-
-        return locator;
-    }
-
-    @Bean
-    @Requires(env = "standalone")
-    protected ServerLocator messagingServerLocatorStandalone() throws Exception {
-        createMessagingService(false);
-
-        return ActiveMQClient.createServerLocator("vm://0");
-    }
-
-    @Bean
-    @SuppressWarnings("resource")
-    protected ClientConsumer portfolioEvaluationRequestConsumer(ClientSessionFactory sessionFactory)
-            throws ActiveMQException {
-        ClientSession session = sessionFactory.createSession();
-        ClientConsumer consumer =
-                session.createConsumer(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME);
-        session.start();
-
-        return consumer;
-    }
-
-    @Bean
-    @SuppressWarnings("resource")
-    protected Pair<ClientSession, ClientProducer> portfolioEvaluationRequestProducer(
-            ClientSessionFactory sessionFactory) throws ActiveMQException {
-        ClientSession session = sessionFactory.createSession();
-        return new ImmutablePair<>(session,
-                session.createProducer(PortfolioCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME));
     }
 
     /**

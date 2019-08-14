@@ -2,7 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import io.micronaut.context.ApplicationContext;
 
-import org.slaq.slaqworx.panoptes.data.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.RuleProxy;
