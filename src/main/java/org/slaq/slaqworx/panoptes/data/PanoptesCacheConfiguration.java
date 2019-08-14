@@ -216,6 +216,7 @@ public class PanoptesCacheConfiguration {
 
     @Bean
     @Requires(notEnv = "standalone")
+    @SuppressWarnings("resource")
     protected ServerLocator messagingServerLocator() throws Exception {
         ServerLocator locator;
         // TODO make ActiveMQ broker configuration a little more portable
@@ -242,6 +243,7 @@ public class PanoptesCacheConfiguration {
     }
 
     @Bean
+    @SuppressWarnings("resource")
     protected ClientConsumer portfolioEvaluationRequestConsumer(ClientSessionFactory sessionFactory)
             throws ActiveMQException {
         ClientSession session = sessionFactory.createSession();
@@ -253,6 +255,7 @@ public class PanoptesCacheConfiguration {
     }
 
     @Bean
+    @SuppressWarnings("resource")
     protected Pair<ClientSession, ClientProducer> portfolioEvaluationRequestProducer(
             ClientSessionFactory sessionFactory) throws ActiveMQException {
         ClientSession session = sessionFactory.createSession();

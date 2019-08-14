@@ -50,6 +50,7 @@ public class PimcoBenchmarkDatabaseLoader {
      */
     @EventListener
     void onStartup(StartupEvent event) throws Exception {
+        @SuppressWarnings("resource")
         BeanContext beanContext = event.getSource();
 
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
