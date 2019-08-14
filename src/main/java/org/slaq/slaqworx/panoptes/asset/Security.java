@@ -26,9 +26,8 @@ import groovy.lang.MissingPropertyException;
 public class Security implements Keyed<SecurityKey> {
     private final SecurityKey key;
 
-    // while the {@code Map} is more convenient, attribute lookups are a very hot piece of code
-    // during {@code Rule} evaluation, and an array lookup speeds things up by ~13%, so an {@code
-    // ArrayList} is used for lookups
+    // while a Map is more convenient, attribute lookups are a very hot piece of code during Rule
+    // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
     private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
     /**
@@ -129,8 +128,10 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
-     * Provided as a convenience to Groovy filters to allow shorthand {@code SecurityAttribute}
-     * access. Mostly obviated by compile-time optimizations that have been made to filters.
+     * Obtains the value of the {@code SecurityAttribute} with the given name. Provided as a
+     * convenience to Groovy filters (and named accordingly) to allow shorthand
+     * {@code SecurityAttribute} access. Mostly obviated by compile-time optimizations that have
+     * since been made to Groovy filters.
      *
      * @param name
      *            the name of the {@code SecurityAttribute} to resolve

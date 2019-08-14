@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * SecurityKey is a key used to reference Securities.
+ * {@code SecurityKey} is a key used to reference {@code Securities}.
  *
  * @author jeremy
  */
@@ -9,7 +9,7 @@ public class SecurityKey {
     private final String id;
 
     /**
-     * Creates a new SecurityKey with the given ID.
+     * Creates a new {@code SecurityKey} with the given ID.
      *
      * @param id
      *            the ID to assign to the key
@@ -34,7 +34,7 @@ public class SecurityKey {
     }
 
     /**
-     * Obtains this SecurityKey's ID.
+     * Obtains this {@code SecurityKey}'s ID.
      *
      * @return the ID underlying this key
      */

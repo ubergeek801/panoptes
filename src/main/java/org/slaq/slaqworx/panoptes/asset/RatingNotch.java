@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A RatingNotch describes a single step of a RatingScale.
+ * A {@code RatingNotch} describes an individual step of a {@code RatingScale}.
  *
  * @author jeremy
  */
@@ -11,7 +11,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
     private double middle;
 
     /**
-     * Creates a new RatingNotch with the given symbol and lower bound.
+     * Creates a new {@code RatingNotch} with the given symbol and lower bound.
      *
      * @param symbol
      *            the rating symbol (e.g. AAA, Baa2)
@@ -39,7 +39,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
 
     /**
      * Obtains the middle value of this notch, calculated as the average of this notch's lower bound
-     * and the lower bound of the next-highest notch (or the top of the RatingScale).
+     * and the lower bound of the next-highest notch (or the top of the {@code RatingScale}).
      *
      * @return the middle value
      */
@@ -57,8 +57,8 @@ public class RatingNotch implements Comparable<RatingNotch> {
     }
 
     /**
-     * Sets the (calculated) middle value of this notch. Normally should be set only by RatingScale
-     * during creation.
+     * Sets the (calculated) middle value of this notch. Normally should be set only by
+     * {@code RatingScale} during creation.
      *
      * @param middle
      *            the middle value of the notch

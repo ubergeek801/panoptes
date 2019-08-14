@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * IdVersionKey is a key used to reference some asset types (using trivial subclasses).
+ * {@code IdVersionKey} is a key used to reference some asset types (using trivial subclasses).
  *
  * @author jeremy
  */
@@ -12,7 +12,7 @@ public abstract class IdVersionKey implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Obtains a generated ID of the form used by an IdVersionKey.
+     * Obtains a generated ID of the form used by an {@code IdVersionKey}.
      *
      * @return a generated ID
      */
@@ -24,10 +24,10 @@ public abstract class IdVersionKey implements Serializable {
     private long version;
 
     /**
-     * Creates a new IdVersionKey with the given ID and version.
+     * Creates a new {@code IdVersionKey} with the given ID and version.
      *
      * @param id
-     *            the ID to assign to the key, or null to generate one
+     *            the ID to assign to the key, or {@code null} to generate one
      * @param version
      *            the version to assign to the key
      */

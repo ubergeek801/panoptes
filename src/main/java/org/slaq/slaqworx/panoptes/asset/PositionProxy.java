@@ -1,9 +1,9 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A PositionProxy is a proxy for a concrete Position implementation, where only the key is known at
- * creation time. Subsequent operations on the PositionProxy are delegated to the Position resolved
- * by the specified PositionProvider.
+ * A {@code PositionProxy} is a proxy for a concrete {@code Position} implementation, where only the
+ * key is known at creation time. Subsequent operations on the {@code PositionProxy} are delegated
+ * to the {@code Position} resolved by the specified {@code PositionProvider}.
  *
  * @author jeremy
  */
@@ -13,12 +13,13 @@ public class PositionProxy implements Position {
     private final PositionProvider positionProvider;
 
     /**
-     * Creates a new PositionProxy of the given key, delegating to the given Position provider.
+     * Creates a new {@code PositionProxy} of the given key, delegating to the given
+     * {@code Position} provider.
      *
      * @param key
-     *            the key of the proxied Position
+     *            the key of the proxied {@code Position}
      * @param positionProvider
-     *            the PositionProvider by which to resolve the Position
+     *            the {@code PositionProvider} by which to resolve the {@code Position}
      */
     public PositionProxy(PositionKey key, PositionProvider positionProvider) {
         this.key = key;
@@ -66,9 +67,9 @@ public class PositionProxy implements Position {
     }
 
     /**
-     * Obtains the Position proxied by this PositionProxy.
+     * Obtains the {@code Position} proxied by this {@code PositionProxy}.
      *
-     * @return the proxied Position
+     * @return the proxied {@code Position}
      */
     protected Position getPosition() {
         if (position == null) {

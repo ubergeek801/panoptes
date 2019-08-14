@@ -8,7 +8,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.RuleProxy;
 
 /**
- * ProxyFactory is a service which provides Proxy types (e.g. PositionProxy, RuleProxy).
+ * {@code ProxyFactory} is a service which provides Proxy types (e.g. {@code PositionProxy},
+ * {@code RuleProxy}).
  *
  * @author jeremy
  */
@@ -18,23 +19,23 @@ public class ProxyFactory {
     private final ApplicationContext applicationContext;
 
     /**
-     * Creates a new ProxyFactory which uses the PortfolioCache as provided by the specified
-     * ApplicationContext when creating Proxies.
+     * Creates a new {@code ProxyFactory} which uses the {@code PortfolioCache} as provided by the
+     * specified {@code ApplicationContext} when creating Proxies.
      *
      * @param applicationContext
-     *            the ApplicationContext through which to resolve the PortfolioCache
+     *            the {@code ApplicationContext} through which to resolve the {@code PortfolioCache}
      */
     public ProxyFactory(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
     /**
-     * Creates a new ProxyFactory which uses the specified Providers when creating Proxies.
+     * Creates a new {@code ProxyFactory} which uses the specified Providers when creating Proxies.
      *
      * @param positionProvider
-     *            the PositionProvider to assign to Proxies
+     *            the {@code PositionProvider} to assign to Proxies
      * @param ruleProvider
-     *            the RuleProvider to assign to Proxies
+     *            the {@code RuleProvider} to assign to Proxies
      */
     public ProxyFactory(PositionProvider positionProvider, RuleProvider ruleProvider) {
         this.positionProvider = positionProvider;
@@ -43,53 +44,54 @@ public class ProxyFactory {
     }
 
     /**
-     * Creates a new PositionProxy for the given PositionKey.
+     * Creates a new {@code PositionProxy} for the given {@code PositionKey}.
      *
      * @param key
-     *            the key for which to create a Proxy
-     * @return a new PositionProxy
+     *            the key for which to create a {@code Proxy}
+     * @return a new {@code PositionProxy}
      */
     public PositionProxy positionProxy(PositionKey key) {
         return new PositionProxy(key, getPositionProvider());
     }
 
     /**
-     * Creates a new PositionProxy for the given Position ID.
+     * Creates a new {@code PositionProxy} for the given {@code Position} ID.
      *
      * @param id
      *            the ID for which to create a Proxy
-     * @return a new PositionProxy
+     * @return a new {@code PositionProxy}
      */
     public PositionProxy positionProxy(String id) {
         return positionProxy(new PositionKey(id));
     }
 
     /**
-     * Creates a new RuleProxy for the given RuleKey.
+     * Creates a new {@code RuleProxy} for the given {@code RuleKey}.
      *
      * @param key
      *            the key for which to create a Proxy
-     * @return a new RuleProxy
+     * @return a new {@code RuleProxy}
      */
     public RuleProxy ruleProxy(RuleKey key) {
         return new RuleProxy(key, getRuleProvider());
     }
 
     /**
-     * Creates a new RuleProxy for the given Rule ID.
+     * Creates a new {@code RuleProxy} for the given {@code Rule} ID.
      *
      * @param id
      *            the ID for which to create a Proxy
-     * @return a new RuleProxy
+     * @return a new {@code RuleProxy}
      */
     public RuleProxy ruleProxy(String id) {
         return ruleProxy(new RuleKey(id));
     }
 
     /**
-     * Obtains the PositionProvider, resolving it from the ApplicationContext if not available.
+     * Obtains the {@code PositionProvider}, resolving it from the {@code ApplicationContext} if not
+     * available.
      *
-     * @return the PositionProvider to use
+     * @return the {@code PositionProvider} to use
      */
     protected PositionProvider getPositionProvider() {
         if (positionProvider == null) {
@@ -100,9 +102,10 @@ public class ProxyFactory {
     }
 
     /**
-     * Obtains the RuleProvider, resolving it from the ApplicationContext if not available.
+     * Obtains the {@code RuleProvider}, resolving it from the {@code ApplicationContext} if not
+     * available.
      *
-     * @return the RuleProvider to use
+     * @return the {@code RuleProvider} to use
      */
     protected RuleProvider getRuleProvider() {
         if (ruleProvider == null) {

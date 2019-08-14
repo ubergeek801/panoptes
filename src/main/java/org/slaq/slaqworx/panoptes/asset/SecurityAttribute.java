@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * A SecurityAttribute identifies a particular attribute of a Security.
+ * A {@code SecurityAttribute} identifies a particular attribute of a {@code Security}.
  *
  * @author jeremy
  * @param <T>
@@ -23,22 +23,25 @@ public class SecurityAttribute<T> implements Serializable {
             new HashMap<>(100, 0.5f);
 
     /**
-     * Obtains the SecurityAttribute corresponding to the given index, if it exists.
+     * Obtains the {@code SecurityAttribute} corresponding to the given index, if it exists. For
+     * most purposes, the name should be used, as indices may change over time.
      *
      * @param index
-     *            the index of the SecurityAttribute to obtain
-     * @return the SecurityAttribute corresponding to the given index, or null if it does not exist
+     *            the index of the {@code SecurityAttribute} to obtain
+     * @return the {@code SecurityAttribute} corresponding to the given index, or {@code null} if it
+     *         does not exist
      */
     public static SecurityAttribute<?> of(int index) {
         return attributesByIndex.get(index);
     }
 
     /**
-     * Obtains the SecurityAttribute corresponding to the given name, if it exists.
+     * Obtains the {@code SecurityAttribute} corresponding to the given name, if it exists.
      *
      * @param name
-     *            the name of the SecurityAttribute to obtain
-     * @return the SecurityAttribute corresponding to the given name, or null if it does not exist
+     *            the name of the {@code SecurityAttribute} to obtain
+     * @return the {@code SecurityAttribute} corresponding to the given name, or {@code null} if it
+     *         does not exist
      */
     @JsonCreator
     public static SecurityAttribute<?> of(String name) {
@@ -46,17 +49,18 @@ public class SecurityAttribute<T> implements Serializable {
     }
 
     /**
-     * Obtains (or creates) a SecurityAttribute with the given name and value type.
+     * Obtains (or creates) a {@code SecurityAttribute} with the given name and value type.
      *
      * @param <T>
-     *            the value type of the SecurityAttribute
+     *            the value type of the {@code SecurityAttribute}
      * @param name
-     *            the unique name of the SecurityAttribute
+     *            the unique name of the {@code SecurityAttribute}
      * @param index
-     *            the index of the SecurityAttribute in an attributes array
+     *            the index of the {@code SecurityAttribute} in an attributes array
      * @param type
-     *            the Class of the value type
-     * @return an existing SecurityAttribute if already defined, otherwise a new SecurityAttribute
+     *            the {@code Class} of the value type
+     * @return an existing {@code SecurityAttribute} if already defined, otherwise a new
+     *         {@code SecurityAttribute}
      */
     public static <T> SecurityAttribute<T> of(String name, int index, Class<T> type) {
         @SuppressWarnings("unchecked")
@@ -73,15 +77,15 @@ public class SecurityAttribute<T> implements Serializable {
     private final Class<T> type;
 
     /**
-     * Creates a new SecurityAttribute with the given name and index. Restricted to enforce use of
-     * the of() factory method.
+     * Creates a new {@code SecurityAttribute} with the given name and index. Restricted to enforce
+     * use of the {@code of()} factory method.
      *
      * @param name
-     *            the unique name of the SecurityAttribute
+     *            the unique name of the {@code SecurityAttribute}
      * @param index
-     *            the index of the SecurityAttribute in an attributes array
+     *            the index of the {@code SecurityAttribute} in an attributes array
      * @param type
-     *            the Class of the value type
+     *            the {@code Class} of the value type
      */
     private SecurityAttribute(String name, int index, Class<T> type) {
         this.name = name;
@@ -106,16 +110,17 @@ public class SecurityAttribute<T> implements Serializable {
     }
 
     /**
-     * Obtains the index at which this SecurityAttribute may be found in an attributes array.
+     * Obtains the index at which this {@code SecurityAttribute} may be found in an attributes
+     * array.
      *
-     * @return the array index for this SecurityAttribute
+     * @return the array index for this {@code SecurityAttribute}
      */
     public int getIndex() {
         return index;
     }
 
     /**
-     * Obtains the name of this SecurityAttribute.
+     * Obtains the name of this {@code SecurityAttribute}.
      *
      * @return the attribute name
      */
@@ -124,9 +129,9 @@ public class SecurityAttribute<T> implements Serializable {
     }
 
     /**
-     * Obtains the type implemented by values of this SecurityAttribute.
+     * Obtains the type implemented by values of this {@code SecurityAttribute}.
      *
-     * @return the SecurityAttribute value type
+     * @return the {@code SecurityAttribute} value type
      */
     public Class<T> getType() {
         return type;

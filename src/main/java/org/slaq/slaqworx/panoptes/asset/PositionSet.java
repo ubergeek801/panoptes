@@ -9,14 +9,16 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A PositionSet encapsulates a set of Positions, optionally related to a parent Portfolio. If the
- * parent is specified, it should not be assumed that the members of this PositionSet are also
- * members of the Portfolio's Positions; rather, the relationship exists only so that Position
- * processing logic may access Portfolio-level data if necessary.
+ * A {@code PositionSet} encapsulates a set of {@code Positions}, optionally related to a parent
+ * {@code Portfolio}. If the parent is specified, it should not be assumed that the members of this
+ * {@code PositionSet} are also members of the {@code Portfolio}'s {@code Positions}; rather, the
+ * relationship exists only so that {@code Position} processing logic may access
+ * {@code Portfolio}-level data if necessary.
  * <p>
- * Note that the Positions within a PositionSet should generally be unique, but for performance
- * reasons, this is not enforced by PositionSet. While this class does not depend on uniqueness, any
- * calculations based on the Positions will be skewed if duplicate Positions are present.
+ * Note that the {@code Position}s within a {@code PositionSet} should generally be unique, but for
+ * performance reasons, this is not enforced by {@code PositionSet}. While this class does not
+ * depend on uniqueness, any calculations based on the {@code Position}s may be skewed if duplicate
+ * {@code Position}s are present.
  *
  * @author jeremy
  */
@@ -28,22 +30,25 @@ public class PositionSet implements PositionSupplier {
     private Double totalAmount;
 
     /**
-     * Creates a new PositionSet consisting of the given Positions, with no parent Portfolio.
+     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with no parent
+     * {@code Portfolio}.
      *
      * @param positions
-     *            the Positions that will comprise this PositionSet
+     *            the {@code Position}s that will comprise this {@code PositionSet}
      */
     public PositionSet(Collection<? extends Position> positions) {
         this(positions, null);
     }
 
     /**
-     * Creates a new PositionSet consisting of the given Positions, with the given parent Portfolio.
+     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
+     * parent {@code Portfolio}.
      *
      * @param positions
-     *            the Positions that will comprise this PositionSet
+     *            the {@code Position}s that will comprise this {@code PositionSet}
      * @param portfolio
-     *            the (possibly null) Portfolio associated with this PositionSet
+     *            the (possibly {@code null}) {@code Portfolio} associated with this
+     *            {@code PositionSet}
      */
     public PositionSet(Collection<? extends Position> positions, Portfolio portfolio) {
         this.positions = new ArrayList<>(positions);
@@ -51,12 +56,13 @@ public class PositionSet implements PositionSupplier {
     }
 
     /**
-     * Creates a new PositionSet consisting of the given Positions, with the given parent Portfolio.
+     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
+     * parent {@code Portfolio}.
      *
      * @param positions
-     *            the Positions that will comprise this PositionSet
-     * @param portfolio
-     *            the (possibly null) Portfolio associated with this PositionSet
+     *            the {@code Positions that will comprise this {@code PositionSet} @param portfolio
+     *            the (possibly {@code null}) {@code Portfolio} associated with this
+     *            {@code PositionSet}
      */
     public PositionSet(Stream<? extends Position> positions, Portfolio portfolio) {
         this(positions.collect(Collectors.toList()), portfolio);

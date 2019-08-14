@@ -1,9 +1,9 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A MaterializedPosition is a basic implementation of the Position interface. A
- * MaterializedPosition may be durable (e.g. sourced from a database/cache) or ephemeral (e.g.
- * supplied by a proposed Trade or even a unit test).
+ * A {@code MaterializedPosition} is a basic implementation of the {@code Position} interface. A
+ * {@code MaterializedPosition} may be durable (e.g. sourced from a database/cache) or ephemeral
+ * (e.g. supplied by a proposed {@code Trade} or even a unit test).
  *
  * @author jeremy
  */
@@ -14,26 +14,29 @@ public class MaterializedPosition implements Position {
     private Security security;
 
     /**
-     * Creates a new Position with a generated key and the specified amount and Security.
+     * Creates a new {@code MaterializedPosition} with a generated key and the specified amount and
+     * {@code Security}.
      *
      * @param amount
-     *            the amount of the Security held in this Position
+     *            the amount of the {@code Security} held in this {@code Position}
      * @param securityKey
-     *            the key of the held Security
+     *            the key of the held {@code Security}
      */
     public MaterializedPosition(double amount, SecurityKey securityKey) {
         this(null, amount, securityKey);
     }
 
     /**
-     * Creates a new Position with the specified ID, amount and Security.
+     * Creates a new {@code MaterializedPosition} with the specified ID, amount and
+     * {@code Security}.
      *
      * @param key
-     *            the unique key to assign to this Position, or null to generate one
+     *            the unique key to assign to this {@code MaterializedPosition}, or {@code null} to
+     *            generate one
      * @param amount
-     *            the amount of the Security held in this Position
+     *            the amount of the {@code Security} held in this {@code Position}
      * @param securityKey
-     *            the key of the held Security
+     *            the key of the held {@code Security}
      */
     public MaterializedPosition(PositionKey key, double amount, SecurityKey securityKey) {
         this.key = (key == null ? new PositionKey(null) : key);

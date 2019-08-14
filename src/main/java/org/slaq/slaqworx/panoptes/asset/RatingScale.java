@@ -7,8 +7,9 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * A RatingScale encapsulates an ordered list of RatingNotches which are used by a particular rater,
- * and provides operations to convert between numeric and symbolic ratings within the scale.
+ * A {@code RatingScale} encapsulates an ordered list of {@code RatingNotch}es which are used by a
+ * particular rater, and provides operations to convert between numeric and symbolic ratings within
+ * the scale.
  *
  * @author jeremy
  */
@@ -18,12 +19,13 @@ public class RatingScale {
     private final HashMap<String, RatingNotch> symbolRatingMap;
 
     /**
-     * Creates a new RatingScale of the given notches and the given maximum scale value.
+     * Creates a new {@code RatingScale} of the given notches and the given maximum scale value.
      *
      * @param ratings
-     *            the RatingNotches (in no particular order) comprising this RatingScale
+     *            the {@code RatingNotch}es (in no particular order) comprising this
+     *            {@code RatingScale}
      * @param max
-     *            the maximum value of the RatingScale
+     *            the maximum value of the {@code RatingScale}
      */
     public RatingScale(Collection<RatingNotch> ratings, double max) {
         notches = new ArrayList<>(ratings);
@@ -48,14 +50,14 @@ public class RatingScale {
     }
 
     /**
-     * Obtains the RatingNotch corresponding to the given rating value: that is, notch <i>i</i> such
-     * that <i>i</i>.lower <= value < (<i>i</i> + 1).lower. If value is lower or higher than the
-     * minimum or maximum value of the scale, the lowest or highest RatingNotch, respectively, is
-     * returned.
+     * Obtains the {@code RatingNotch} corresponding to the given rating value: that is, notch
+     * <i>i</i> such that <i>i</i>.lower <= value < (<i>i</i> + 1).lower. If value is lower or
+     * higher than the minimum or maximum value of the scale, the lowest or highest
+     * {@code RatingNotch}, respectively, is returned.
      *
      * @param value
-     *            the value for which to find the corresponding RatingNotch
-     * @return the RatingNotch corresponding to the given value
+     *            the value for which to find the corresponding {@code RatingNotch}
+     * @return the {@code RatingNotch} corresponding to the given value
      */
     public RatingNotch getRatingNotch(double value) {
         int index = Arrays.binarySearch(notchValues, value);
@@ -76,11 +78,12 @@ public class RatingScale {
     }
 
     /**
-     * Obtains the RatingNotch corresponding to the given symbol.
+     * Obtains the {@code RatingNotch} corresponding to the given symbol.
      *
      * @param symbol
-     *            the symbol for which to find the RatingNotch
-     * @return the RatingNotch corresponding to the given symbol, or null if it does not exist
+     *            the symbol for which to find the {@code RatingNotch}
+     * @return the {@code RatingNotch} corresponding to the given symbol, or null if it does not
+     *         exist
      */
     public RatingNotch getRatingNotch(String symbol) {
         return symbolRatingMap.get(symbol);

@@ -6,33 +6,34 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * A PositionSupplier supplies Positions. An implementor might be a customer portfolio or a "raw"
- * set of Positions. A PositionSupplier may provide access to a related Portfolio (which may be
- * itself), but note that the PositionSupplier's members may not be the same as the related
- * Portfolio's (the supplier may, for example, provide access to a filtered set).
+ * A {@code PositionSupplier} supplies {@code Position}s. An implementor might be a customer
+ * {@code Portfolio} or a "raw" set of {@code Position}s. A {@code PositionSupplier} may provide
+ * access to a related {@code Portfolio} (which may be the supplier itself), but note that the
+ * {@code PositionSupplier}'s members may not be the same as the related {@code Portfolio}'s (the
+ * supplier may, for example, provide access to a filtered set).
  *
  * @author jeremy
  */
 public interface PositionSupplier {
     /**
-     * Obtains this PositionSupplier's related Portfolio, if any.
+     * Obtains this {@code PositionSupplier}'s related {@code Portfolio}, if any.
      *
-     * @return the related Portfolio, or null if it does not exist
+     * @return the related {@code Portfolio}, or {@code null} if none is associated
      */
     public Portfolio getPortfolio();
 
     /**
-     * Obtains this PositionSupplier's Positions as a (new) Stream.
+     * Obtains this {@code PositionSupplier}'s {@code Position}s as a (new) {@code Stream}.
      *
-     * @return a Stream of Positions
+     * @return a {@code Stream} of {@code Position}s
      */
     public Stream<Position> getPositions();
 
     /**
-     * Given an EvaluationContext, obtains this PositionSupplier's Positions as a (new) Stream of
-     * PositionEvaluationContexts.
+     * Given an {@code EvaluationContext}, obtains this {@code PositionSupplier}'s {@code Position}s
+     * as a (new) {@code Stream} of {@code PositionEvaluationContext}s.
      *
-     * @return a Stream of PositionEvaluationContexts
+     * @return a {@code Stream} of {@code PositionEvaluationContext}s
      */
     public default Stream<PositionEvaluationContext>
             getPositionsWithContext(EvaluationContext evaluationContext) {
@@ -40,16 +41,16 @@ public interface PositionSupplier {
     }
 
     /**
-     * Obtains the sum of the Position amounts of this PositionSupplier.
+     * Obtains the sum of the {@code Position} amounts of this {@code PositionSupplier}.
      *
-     * @return the sum of Position amounts
+     * @return the sum of {@code Position} amounts
      */
     public double getTotalAmount();
 
     /**
-     * Obtains the number of Positions in this PositionSupplier.
+     * Obtains the number of {@code Position}s in this {@code PositionSupplier}.
      *
-     * @return the number of Positions
+     * @return the number of {@code Position}s
      */
     public int size();
 }

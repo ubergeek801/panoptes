@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * PositionKey is a key used to reference Positions.
+ * {@code PositionKey} is a key used to reference {@code Position}s.
  *
  * @author jeremy
  */
@@ -9,10 +9,10 @@ public class PositionKey {
     private final String id;
 
     /**
-     * Creates a new PositionKey with the given ID.
+     * Creates a new {@code PositionKey} with the given ID.
      *
      * @param id
-     *            the ID to assign to the key, or null to generate one
+     *            the ID to assign to the key, or {@code null} to generate one
      */
     public PositionKey(String id) {
         this.id = (id == null ? IdVersionKey.generateId() : id);
@@ -34,7 +34,7 @@ public class PositionKey {
     }
 
     /**
-     * Obtains this PositionKey ID.
+     * Obtains this {@code PositionKey}'s ID.
      *
      * @return the ID underlying this key
      */

@@ -1,18 +1,20 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * SecurityProvider is the interface for a service that provides access to Security data.
+ * {@code SecurityProvider} is the interface for a service that provides access to {@code Security}
+ * data.
  *
  * @author jeremy
  */
 @FunctionalInterface
 public interface SecurityProvider {
     /**
-     * Obtains the Security corresponding to the given ID.
+     * Obtains the {@code Security} corresponding to the given ID.
      *
      * @param key
-     *            the key identifying the Security to be obtained
-     * @return the Security corresponding to the given key, or null if it could not be located
+     *            the key identifying the {@code Security} to be obtained
+     * @return the {@code Security} corresponding to the given key, or {@code null} if it could not
+     *         be located
      */
     public Security getSecurity(SecurityKey key);
 }
