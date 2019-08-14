@@ -16,27 +16,31 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * WeightedAveragePositionCalculator is a PositionCalculator that determines the weighted average of
- * a Position collection.
+ * {@code WeightedAveragePositionCalculator} is a {@code PositionCalculator} that determines the
+ * weighted average of a {@code Position} collection with respect to some {@code SecurityAttribute}.
  *
  * @author jeremy
  */
 public class WeightedAveragePositionCalculator extends PositionCalculator<Double> {
+    /**
+     * {@code AccountAccumulator} accumulates the weighted and raw sums from the visited
+     * {@code Position}s.
+     */
     private static class AmountAccumulator {
         DoubleAdder weightedAmount = new DoubleAdder();
         DoubleAdder amount = new DoubleAdder();
     }
 
     /**
-     * WeightedAveragePositionCollector is a Collector that operates on a Stream<Position> to
-     * calculate a weighted average of the given attribute.
+     * {@code WeightedAveragePositionCollector} is a {@code Collector} that operates on a
+     * {@code Stream} of {@code Position}s to calculate a weighted average of the given attribute.
      *
      * @author jeremy
      */
     private class WeightedAveragePositionCollector
             implements Collector<PositionEvaluationContext, AmountAccumulator, Double> {
         /**
-         * Creates a new WeightedAveragePositionCollector.
+         * Creates a new {@code WeightedAveragePositionCollector}.
          */
         public WeightedAveragePositionCollector() {
             // nothing to do
@@ -86,10 +90,9 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     }
 
     /**
-     * Creates a new WeightedAveragePositionCalculator which calculates on the given attribute.
+     * Creates a new {@code WeightedAveragePositionCalculator} which calculates on the given
+     * attribute.
      *
-     * @param securityProvider
-     *            the SecurityProvider from which to obtain Security information
      * @param calculationAttribute
      *            the attribute on which to calculate
      */

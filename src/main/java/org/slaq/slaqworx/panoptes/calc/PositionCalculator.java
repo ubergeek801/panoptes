@@ -8,13 +8,14 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * PositionCalculator is the parent of classes which perform calculations on Positions, typically to
- * be employed in the implementation of Rules.
+ * {@code PositionCalculator} is the parent of classes which perform calculations on
+ * {@code Position}s, typically to be employed in the implementation of {@code Rule}s.
  * <p>
- * Note that a PositionCalculator may employ a Position filters, for example to compute a
- * concentration of Positions matching the filter with respect to an entire Portfolio. This should
- * not be confused with a Rule-level Position filter which, while employing an identical mechanism,
- * serves the purpose of limiting Rule evaluations to a subset of a Portfolio's Positions.
+ * Note that a {@code PositionCalculator} may employ a {@code Position} filters, for example to
+ * compute a concentration of {@code Position}s matching the filter in proportion to an entire
+ * {@code Portfolio}. This should not be confused with a {@code Rule}-level {@code Position} filter
+ * which, while employing an identical mechanism, serves the purpose of limiting {@code Rule}
+ * evaluations to a subset of a {@code Portfolio}'s {@code Position}s.
  *
  * @author jeremy
  * @param <T>
@@ -24,23 +25,24 @@ public abstract class PositionCalculator<T> {
     private final SecurityAttribute<T> calculationAttribute;
 
     /**
-     * Creates a new PositionCalculator which operates on the given SecurityAttribute. This may be
-     * null if the concrete implementation does not use a calculation attribute.
+     * Creates a new {@code PositionCalculator} which operates on the given
+     * {@code SecurityAttribute}. This may be {@code null} if the concrete implementation does not
+     * use a calculation attribute.
      *
      * @param calculationAttribute
-     *            the (possibly null) SecurityAttriute type on which to calculate
+     *            the (possibly {@code null}) {@code SecurityAttriute} type on which to calculate
      */
     protected PositionCalculator(SecurityAttribute<T> calculationAttribute) {
         this.calculationAttribute = calculationAttribute;
     }
 
     /**
-     * Performs a calculation against the given Positions, using no filter.
+     * Performs a calculation against the given {@code Position}s, using no filter.
      *
      * @param positions
-     *            the Positions on which to perform a calculation
+     *            the {@code Position}s on which to perform a calculation
      * @param evaluationContext
-     *            the EvaluationContext under which to calculate
+     *            the {@code EvaluationContext} under which to calculate
      * @return the result of the calculation
      */
     public final double calculate(PositionSupplier positions, EvaluationContext evaluationContext) {
@@ -48,14 +50,14 @@ public abstract class PositionCalculator<T> {
     }
 
     /**
-     * Performs a calculation against the given Positions, first applying the given filter.
+     * Performs a calculation against the given {@code Position}s, first applying the given filter.
      *
      * @param positions
-     *            the Positions on which to perform a calculation
+     *            the {@code Position}s on which to perform a calculation
      * @param positionFilter
-     *            the (possibly null) filter to be applied
+     *            the (possibly {@code null}) filter to be applied
      * @param evaluationContext
-     *            the EvaluationContext under which to calculate
+     *            the {@code EvaluationContext} under which to calculate
      * @return the result of the calculation
      */
     public final double calculate(PositionSupplier positions,
@@ -66,15 +68,15 @@ public abstract class PositionCalculator<T> {
     }
 
     /**
-     * Performs a calculation against the given Positions, first applying the given filter. Public
-     * calculate() methods ultimately delegate to this method.
+     * Performs a calculation against the given {@code Position}s, first applying the given filter.
+     * Public {@code calculate(}) methods ultimately delegate to this method.
      *
      * @param positions
-     *            the Positions on which to perform a calculation
+     *            the {@code Position}s on which to perform a calculation
      * @param positionFilter
-     *            the (never null) filter to be applied
+     *            the (never {@code null}) filter to be applied
      * @param evaluationContext
-     *            the EvaluationContext under which to calculate
+     *            the {@code EvaluationContext} under which to calculate
      * @return the result of the calculation
      */
     protected abstract double calc(PositionSupplier positions,
@@ -82,9 +84,9 @@ public abstract class PositionCalculator<T> {
             EvaluationContext evaluationContext);
 
     /**
-     * Obtains the SecurityAttribute type to be used in calculations.
+     * Obtains the {@code SecurityAttribute} type to be used in calculations.
      *
-     * @return a (possibly null) SecurityAttribute
+     * @return a (possibly {@code null}) {@code SecurityAttribute}
      */
     protected SecurityAttribute<T> getCalculationAttribute() {
         return calculationAttribute;
