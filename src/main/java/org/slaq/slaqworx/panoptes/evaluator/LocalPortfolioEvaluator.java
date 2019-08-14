@@ -2,8 +2,10 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,14 +22,14 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
  * {@code LocalPortfolioEvaluator} is a {@code PortfolioEvaluator} which performs processing on the
- * local node.
+ * local node. This is where parallelization of {@code Rule} processing occurs.
  *
  * @author jeremy
  */
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
 
-    // too few threads and the pipeline stalls; too many and there's contention
+    // TODO thread pool tuning is a work in progress
     private static final ForkJoinPool ruleEvaluationThreadPool =
             new ForkJoinPool(ForkJoinPool.getCommonPoolParallelism() + 2);
 
@@ -40,21 +42,23 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
-            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException {
+    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+            evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
+                    throws InterruptedException, ExecutionException {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
-            return Collections.emptyMap();
+            return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
         long startTime = System.currentTimeMillis();
         try {
-            LOG.info("locally evaluating Portfolio {} with {} Rules", portfolio.getName(),
-                    numRules);
-            return evaluate(portfolio.getRules(), portfolio,
+            LOG.info("locally evaluating Portfolio {} with {} Rules over {} Positions",
+                    portfolio.getName(), numRules, portfolio.getPositions().count());
+            // TODO maybe make evaluate() return a Future as well
+            return CompletableFuture.completedFuture(evaluate(portfolio.getRules(), portfolio,
                     portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
-                    evaluationContext);
+                    evaluationContext));
         } finally {
             LOG.info("evaluated Portfolio {} in {} ms", portfolio.getName(),
                     System.currentTimeMillis() - startTime);

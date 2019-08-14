@@ -87,7 +87,7 @@ public class TradeEvaluator {
             EvaluationContext evaluationContext =
                     new EvaluationContext(portfolioProvider, securityProvider, ruleProvider);
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
-                    evaluator.evaluate(portfolio, evaluationContext);
+                    evaluator.evaluate(portfolio, evaluationContext).get();
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
                     evaluator.evaluate(portfolio,
                             new PositionSet(Stream.concat(portfolio.getPositions(), tradePositions),

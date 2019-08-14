@@ -157,7 +157,8 @@ public class PortfolioEvaluatorTest {
 
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = evaluator
-                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider));
+                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider))
+                .get();
 
         assertEquals(rules.size(), allResults.size(),
                 "number of results should equal number of Rules");
@@ -336,7 +337,8 @@ public class PortfolioEvaluatorTest {
                 (PortfolioKey)null, rules.values());
 
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator
-                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider));
+                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider))
+                .get();
 
         // all rules should have entries
         assertEquals(rules.size(), results.size(),
@@ -418,9 +420,10 @@ public class PortfolioEvaluatorTest {
                 portfolioBenchmark, portfolioRules.values());
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                evaluator.evaluate(portfolio,
-                        new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator
+                .evaluate(portfolio,
+                        new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider))
+                .get();
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");

@@ -42,7 +42,7 @@ public class PortfolioEvaluationRequestListener {
     private final IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluationResultMap;
 
     /**
-     * Creates a new {@code RuleEvaluationRequestListener} which uses the given
+     * Creates a new {@code PortfolioEvaluationRequestListener} which uses the given
      * {@code PortfolioCache} to resolve cache resources. The listener remains idle until
      * {@code start()} is invoked.
      *
@@ -128,8 +128,10 @@ public class PortfolioEvaluationRequestListener {
     protected Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>
             evaluatePortfolio(PortfolioKey portfolioKey) {
         try {
-            return new LocalPortfolioEvaluator().evaluate(portfolioCache.getPortfolio(portfolioKey),
-                    new EvaluationContext(portfolioCache, portfolioCache, portfolioCache));
+            return new LocalPortfolioEvaluator()
+                    .evaluate(portfolioCache.getPortfolio(portfolioKey),
+                            new EvaluationContext(portfolioCache, portfolioCache, portfolioCache))
+                    .get();
         } catch (Exception e) {
             // TODO throw a real exception
             throw new RuntimeException("could not process PortfolioEvaluationRequest", e);

@@ -2,12 +2,11 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import javax.inject.Singleton;
 
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.commons.lang3.tuple.Pair;
@@ -41,6 +40,9 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      *
      * @param portfolioCache
      *            the {@code PortfolioCache} to use to obtain distributed resources
+     * @param portfolioEvaluationRequestQueueProducer
+     *            a {@code Pair} containing the {@code ClientSession} and {@code ClientProducer}
+     *            corresponding to the {@code Portfolio} evaluation request queue
      */
     protected ClusterPortfolioEvaluator(PortfolioCache portfolioCache,
             Pair<ClientSession, ClientProducer> portfolioEvaluationRequestQueueProducer) {
@@ -51,47 +53,20 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
-            EvaluationContext evaluationContext) throws InterruptedException {
+    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
+            Portfolio portfolio, EvaluationContext evaluationContext) throws InterruptedException {
         // TODO try not to duplicate processing prologue/epilogue
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
-            return Collections.emptyMap();
+            return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
-        long startTime = System.currentTimeMillis();
-        LOG.info("delegating request to evaluate Portfolio {}", portfolio.getName(), numRules);
-        UUID requestId = UUID.randomUUID();
-        PortfolioEvaluationResultListener resultListener =
-                new PortfolioEvaluationResultListener(requestId, portfolio.getKey());
-        String listenerRegistration = portfolioCache.getPortfolioEvaluationResultMap()
-                .addEntryListener(resultListener, requestId, true);
-        try {
-            // publish a message to the evaluation queue
-            ClientMessage message =
-                    portfolioEvaluationRequestQueueSession.createMessage(Message.TEXT_TYPE, false);
-            message.getBodyBuffer()
-                    .writeString(requestId.toString() + ":" + portfolio.getKey().toString());
-            try {
-                portfolioEvaluationRequestQueueProducer.send(message);
-            } catch (Exception e) {
-                // TODO throw a real exception
-                throw new RuntimeException("could not send message", e);
-            }
+        ClusterPortfolioEvaluatorMessenger resultListener = new ClusterPortfolioEvaluatorMessenger(
+                portfolioCache.getPortfolioEvaluationResultMap(),
+                portfolioEvaluationRequestQueueSession, portfolioEvaluationRequestQueueProducer,
+                portfolio.getKey());
 
-            // wait for the result
-            resultListener.join();
-
-            return resultListener.getResults();
-        } finally {
-            // clean up the listener and result map
-            portfolioCache.getPortfolioEvaluationResultMap()
-                    .removeEntryListener(listenerRegistration);
-            portfolioCache.getPortfolioEvaluationResultMap().delete(resultListener.getRequestId());
-
-            LOG.info("received evaluation for Portfolio {} in {} ms", portfolio.getName(),
-                    System.currentTimeMillis() - startTime);
-        }
+        return resultListener.getResults();
     }
 }
