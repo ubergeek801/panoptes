@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import io.micronaut.core.serialize.JdkSerializer;
+
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
@@ -26,6 +28,8 @@ public class SerializerUtil {
                     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                     .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
                     .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
+
+    private static final JdkSerializer defaultJdkSerializer = new JdkSerializer();
 
     /**
      * Serializes the given SecurityAttributes values to JSON.
@@ -98,6 +102,15 @@ public class SerializerUtil {
             // TODO throw a better exception
             throw new RuntimeException("could not parse value " + value, e);
         }
+    }
+
+    /**
+     * Obtains a {@code JdkSerializer} suitable for most purposes.
+     *
+     * @return a {@code JdkSerializer}
+     */
+    public static JdkSerializer defaultJdkSerializer() {
+        return defaultJdkSerializer;
     }
 
     /**

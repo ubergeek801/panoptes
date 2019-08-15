@@ -105,7 +105,7 @@ public class ClusterPortfolioEvaluatorMessenger implements
                     }
 
                     try {
-                        resultMonitor.wait(250);
+                        resultMonitor.wait(500);
                     } catch (InterruptedException e) {
                         return null;
                     }
