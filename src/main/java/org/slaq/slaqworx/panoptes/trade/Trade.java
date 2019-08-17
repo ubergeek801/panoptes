@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A Trade is an aggregate of Transactions that modify one or more Portfolios by altering
- * (increasing or decreasing) the net position of one or more Securities.
+ * A {@code Trade} is an aggregate of {@code Transaction}s that modify one or more
+ * {@code Portfolio}s by altering (increasing or decreasing) the net position of one or more
+ * {@code Securities}.
  *
  * @author jeremy
  */
@@ -17,22 +18,24 @@ public class Trade {
     private final ArrayList<Transaction> transactions = new ArrayList<>();
 
     /**
-     * Creates a new Trade with a generated ID and consisting of the given Transactions.
+     * Creates a new {@code Trade} with a generated ID and consisting of the given
+     * {@code Transaction}s.
      *
      * @param transactions
-     *            the Transactions comprising this Trade
+     *            the {@code Transaction}s comprising this {@code Trade}
      */
     public Trade(Collection<Transaction> transactions) {
         this(null, transactions);
     }
 
     /**
-     * Creates a new Trade with the given ID and consisting of the given Transactions.
+     * Creates a new {@code Trade} with the given ID and consisting of the given
+     * {@code Transaction}s.
      *
      * @param id
-     *            the unique ID to assign to this Trade, or null to generate one
+     *            the unique ID to assign to this {@code Trade}, or null to generate one
      * @param transactions
-     *            the Transactions comprising this Trade
+     *            the {@code Transaction}s comprising this {@code Trade}
      */
     public Trade(String id, Collection<Transaction> transactions) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
@@ -40,7 +43,7 @@ public class Trade {
     }
 
     /**
-     * Obtains the total number of allocations over all Transactions.
+     * Obtains the total number of allocations over all {@code Transaction}s.
      *
      * @return the total allocation count
      */
@@ -49,7 +52,7 @@ public class Trade {
     }
 
     /**
-     * Obtains this Trade's unique ID.
+     * Obtains this {@code Trade}'s unique ID.
      *
      * @return the ID
      */
@@ -58,9 +61,9 @@ public class Trade {
     }
 
     /**
-     * Obtains the Transactions comprising this Trade.
-     * 
-     * @return a Stream of Transactions comprising this Trade
+     * Obtains the {@code Transaction}s comprising this {@code Trade}.
+     *
+     * @return a {@code Stream} of {@code Transaction}s comprising this {@code Trade}
      */
     public Stream<Transaction> getTransactions() {
         return transactions.stream();

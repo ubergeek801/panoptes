@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
- * TestSecurityProvider is a SecurityProvider suitable for testing purposes.
+ * {@code TestSecurityProvider} is a {@code SecurityProvider} suitable for testing purposes.
  *
  * @author jeremy
  */
@@ -17,8 +17,8 @@ public class TestSecurityProvider implements SecurityProvider {
     private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
 
     /**
-     * Creates a new TestSecurityProvider. Restricted because instances of this class should be
-     * obtained through TestUtil.
+     * Creates a new {@code TestSecurityProvider}. Restricted because instances of this class should
+     * be obtained through {@code TestUtil}.
      */
     protected TestSecurityProvider() {
         // nothing to do
@@ -30,11 +30,11 @@ public class TestSecurityProvider implements SecurityProvider {
     }
 
     /**
-     * Creates a new Security and makes it available through this provider.
+     * Creates a new {@code Security} and makes it available through this provider.
      *
      * @param attributes
-     *            the attributes to associate with the Security
-     * @return the newly created Security
+     *            the attributes to associate with the {@code Security}
+     * @return the newly created {@code Security}
      */
     public Security newSecurity(Map<SecurityAttribute<?>, Object> attributes) {
         Security security = new Security(attributes);

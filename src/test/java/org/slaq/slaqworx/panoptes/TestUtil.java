@@ -12,7 +12,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * TestUtil provides common utilities to support Panoptes testing.
+ * {@code TestUtil} provides common utilities to support Panoptes testing.
  *
  * @author jeremy
  */
@@ -54,8 +54,9 @@ public class TestUtil {
     public static final SecurityAttribute<Double> fetchRating =
             SecurityAttribute.of("Fetch", 16, Double.class);
 
-    private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
+    private static final TestPortfolioProvider portfolioProvider = new TestPortfolioProvider();
     private static final TestPositionProvider positionProvider = new TestPositionProvider();
+    private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
 
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
             Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d, country, "US");
@@ -83,25 +84,37 @@ public class TestUtil {
             new Portfolio(new PortfolioKey("TestUtilP2", 1), "TestUtilP2", p2Positions);
 
     /**
-     * Obtains a PositionProvider suitable for unit testing using Positions created by TestUtil.
+     * Obtains a {@code PortfolioProvider} suitable for unit testing using {@code Portfolio}s
+     * created by {@code TestUtil}.
      *
-     * @return a SecurityProvider
+     * @return a {@code PortfolioProvider} }
+     */
+    public static TestPortfolioProvider testPortfolioProvider() {
+        return portfolioProvider;
+    }
+
+    /**
+     * Obtains a {@code PositionProvider} suitable for unit testing using {@code Position}s created
+     * by {@code TestUtil}.
+     *
+     * @return a {@code PositionProvider}
      */
     public static TestPositionProvider testPositionProvider() {
         return positionProvider;
     }
 
     /**
-     * Obtains a SecurityProvider suitable for unit testing using Securities created by TestUtil.
+     * Obtains a {@code SecurityProvider} suitable for unit testing using {@code Securities} created
+     * by {@code TestUtil}.
      *
-     * @return a SecurityProvider
+     * @return a {@code SecurityProvider}
      */
     public static TestSecurityProvider testSecurityProvider() {
         return securityProvider;
     }
 
     /**
-     * Creates a new TestUtil. Restricted to enforce class utility semantics.
+     * Creates a new {@code TestUtil}. Restricted to enforce class utility semantics.
      */
     private TestUtil() {
         // nothing to do

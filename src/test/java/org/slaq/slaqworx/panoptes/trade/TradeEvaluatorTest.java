@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,9 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.Rule;
@@ -27,13 +31,13 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
 
 /**
- * TradeEvaluatorTest tests the functionality of the TradeEvaluator.
+ * {@code TradeEvaluatorTest} tests the functionality of the {@TradeEvaluator}.
  *
  * @author jeremy
  */
 public class TradeEvaluatorTest {
     /**
-     * Tests that evaluate() behaves as expected.
+     * Tests that {@code evaluate()} behaves as expected.
      */
     @Test
     public void testEvaluate() throws Exception {
@@ -106,5 +110,44 @@ public class TradeEvaluatorTest {
         assertNotNull(p1r4Impact, "should have found impact for p1Rule4");
         assertEquals(Impact.NEUTRAL, p1r4Impact.get(EvaluationGroup.defaultGroup()),
                 "p1Rule4 should have passed");
+    }
+
+    /**
+     * Tests that {@code evaluateRoom()} behaves as expected.
+     */
+    @Test
+    public void testEvaluateRoom() throws Exception {
+        Map<SecurityAttribute<?>, ? super Object> security1Attributes =
+                Map.of(TestUtil.duration, 3d);
+        Security security1 = TestUtil.testSecurityProvider().newSecurity(security1Attributes);
+
+        Position position1 =
+                TestUtil.testPositionProvider().newPosition(null, 1_000_000, security1.getKey());
+        Set<Position> p1Positions = Set.of(position1);
+
+        WeightedAverageRule rule1 = new WeightedAverageRule(null,
+                "weighted average: duration <= 3.5", null, TestUtil.duration, null, 3.5, null);
+        List<Rule> p1Rules = List.of(rule1);
+
+        Map<SecurityAttribute<?>, ? super Object> security2Attributes =
+                Map.of(TestUtil.duration, 4d);
+        Security trialSecurity = TestUtil.testSecurityProvider().newSecurity(security2Attributes);
+
+        Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(null, "test 1",
+                p1Positions, (Portfolio)null, p1Rules);
+
+        // The Portfolio has a weighted average rule requiring maximum duration = 3.5. Its current
+        // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
+        // 4.0, so the Portfolio should have room for 1_000_000.
+        EvaluationContext evaluationContext = new EvaluationContext(
+                TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider(), null);
+        assertEquals(3.0,
+                new WeightedAveragePositionCalculator(TestUtil.duration).calculate(portfolio,
+                        evaluationContext),
+                TestUtil.EPSILON, "unexpected current Portfolio duration");
+        assertEquals(1_000_000, new TradeEvaluator(evaluationContext.getPortfolioProvider(),
+                evaluationContext.getSecurityProvider(), evaluationContext.getRuleProvider())
+                        .evaluateRoom(portfolio, trialSecurity, 3_000_000),
+                TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }
 }

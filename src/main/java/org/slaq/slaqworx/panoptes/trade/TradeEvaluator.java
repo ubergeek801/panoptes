@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
@@ -9,10 +10,12 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -30,6 +33,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  */
 public class TradeEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
+
+    protected static final double ROOM_TOLERANCE = 1000;
+    protected static final double MIN_ALLOCATION = 1000;
+    private static final double LOG_2 = Math.log(2);
 
     private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
@@ -110,5 +117,77 @@ public class TradeEvaluator {
         }
 
         return evaluationResult;
+    }
+
+    /**
+     * Computes the amount of "room" available to accept the specified {@code Security} into the
+     * specified {@code Portfolio}.
+     * <p>
+     * This method uses a binary search algorithm to attempt to converge on an approximate maximum.
+     * It will iterate until:
+     * <ul>
+     * <li>an iteration produces a result within {@code ROOM_TOLERANCE} of the previous result,</li>
+     * <li>the attempted amount falls below {@code MIN_ALLOCATION}, or</li>
+     * <li>the maximum number of iterations (approximately log2({@code targetAmount}) /
+     * {@code ROOM_TOLERANCE}) is exceeded.
+     * </ul>
+     * There is probably a more suitable numerical method; binary search is limited in that:
+     * <ul>
+     * <li>convergence on an exact solution is slow (hence the cutoff once within
+     * {@code ROOM_TOLERANCE};
+     * <li>the algorithm is not guaranteed to find a solution even if one exists; and
+     * <li>the opportunity to employ parallelism is limited.
+     * </ul>
+     * FIXME room calculation should take cash (which presumably would be used to acquire the
+     * {@code Security}) into account
+     *
+     * @param portfolio
+     *            the {@code Portfolio} in which to find room
+     * @param security
+     *            the {@code Security} for which to find room
+     * @param targetAmount
+     *            the desired investment amount
+     * @return the (approximate) maximum amount of the given {@code Security}, less than or equal to
+     *         {@code targetAmount}, that can be accepted by the {@code Portfolio} without violating
+     *         compliance
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
+     * @throws ExcecutionException
+     *             if the calculation could not be processed
+     */
+    public double evaluateRoom(Portfolio portfolio, Security security, double targetAmount)
+            throws InterruptedException, ExecutionException {
+        double minCompliantAmount = 0;
+        double trialAmount = targetAmount;
+        double minNoncompliantAmount = trialAmount;
+        int maxRoomIterations = (int)Math.ceil(Math.log(targetAmount / ROOM_TOLERANCE) / LOG_2) + 1;
+        for (int i = 0; i < maxRoomIterations; i++) {
+            MaterializedPosition trialAllocation =
+                    new MaterializedPosition(trialAmount, security.getKey());
+            Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
+            Trade trialTrade = new Trade(List.of(trialTransaction));
+            TradeEvaluationResult evaluationResult = evaluate(trialTrade);
+            if (evaluationResult.isCompliant()) {
+                if (minCompliantAmount < trialAmount) {
+                    // we have a new low-water mark for what is compliant
+                    minCompliantAmount = trialAmount;
+
+                    // now try an amount halfway between the current amount and the lowest amount
+                    // known to be noncompliant
+                    trialAmount = (trialAmount + minNoncompliantAmount) / 2;
+                    if (Math.abs(trialAmount - minCompliantAmount) < ROOM_TOLERANCE) {
+                        return minCompliantAmount;
+                    }
+                }
+            } else {
+                minNoncompliantAmount = trialAmount;
+                trialAmount = (minCompliantAmount + trialAmount) / 2;
+                if (trialAmount < MIN_ALLOCATION) {
+                    return 0;
+                }
+            }
+        }
+
+        return minCompliantAmount;
     }
 }

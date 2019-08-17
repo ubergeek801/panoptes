@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import javax.inject.Singleton;
 
 import io.micronaut.context.BeanContext;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
@@ -24,6 +25,7 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
  * @author jeremy
  */
 @Singleton
+@Requires(notEnv = "TEST")
 public class Panoptes {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 

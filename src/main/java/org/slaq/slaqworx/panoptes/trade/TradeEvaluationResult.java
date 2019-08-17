@@ -10,27 +10,29 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * TradeEvaluationResult encapsulates the results of a trade evaluation. For a given Portfolio and
- * Rule, impacts are recorded by EvaluationGroup.
+ * {@code TradeEvaluationResult} encapsulates the results of a {@code Trade} evaluation. For a given
+ * {@code Portfolio} and {@code Rule}, impacts on the proposed {@code Trade} are recorded by
+ * {@code EvaluationGroup}.
  *
  * @author jeremy
  */
 public class TradeEvaluationResult {
     /**
-     * PortfolioRuleKey is used as a key to specify or retrieve evaluation results by Portfolio and
-     * Rule.
+     * {@code PortfolioRuleKey} is used as a key to specify or retrieve evaluation results by
+     * {@code Portfolio} and {@code Rule}.
      */
     public static class PortfolioRuleKey {
         private final PortfolioKey portfolioKey;
         private final RuleKey ruleKey;
 
         /**
-         * Creates a new PortfolioRuleKey for the given Portfolio and Rule keys.
+         * Creates a new {@code PortfolioRuleKey} for the given {@code Portfolio} and {@code Rule}
+         * keys.
          *
          * @param portfolioKey
-         *            the key of the referenced Portfolio
+         *            the key of the referenced {@code Portfolio}
          * @param ruleKey
-         *            the key of the referenced Rule
+         *            the key of the referenced {@code Rule}
          */
         public PortfolioRuleKey(PortfolioKey portfolioKey, RuleKey ruleKey) {
             this.portfolioKey = portfolioKey;
@@ -67,18 +69,18 @@ public class TradeEvaluationResult {
         }
 
         /**
-         * Obtains the key of the Portfolio referenced by this key.
+         * Obtains the key of the {@code Portfolio} referenced by this key.
          *
-         * @return a Portfolio key
+         * @return a {@code Portfolio} key
          */
         public PortfolioKey getPortfolioKey() {
             return portfolioKey;
         }
 
         /**
-         * Obtains the key of the Rule referenced by this key.
+         * Obtains the key of the {@code Rule} referenced by this key.
          *
-         * @return a Rule key
+         * @return a {@code Rule} key
          */
         public RuleKey getRuleKey() {
             return ruleKey;
@@ -94,25 +96,28 @@ public class TradeEvaluationResult {
         }
     }
 
+    private Impact aggregateImpact = Impact.POSITIVE;
+
     private final ConcurrentHashMap<PortfolioRuleKey, Map<EvaluationGroup<?>, Impact>> ruleImpactMap =
             new ConcurrentHashMap<>();
 
     /**
-     * Creates a new, empty TradeEvaluationResult.
+     * Creates a new, empty {@code TradeEvaluationResult}.
      */
     public TradeEvaluationResult() {
         // nothing to do
     }
 
     /**
-     * Records an impact corresponding to the given Portfolio, Rule and EvaluationGroup.
+     * Records an impact corresponding to the given {@code Portfolio}, {@code Rule} and
+     * {@code EvaluationGroup}.
      *
      * @param portfolioKey
-     *            the key identifying the Portfolio on which the impact occurred
+     *            the key identifying the {@code Portfolio} on which the impact occurred
      * @param ruleKey
-     *            the key identifying the Rule for which the impact occurred
+     *            the key identifying the {@code Rule} for which the impact occurred
      * @param evaluationGroup
-     *            the EvalautionGroup on which the impact occurred
+     *            the {@code EvalautionGroup} on which the impact occurred
      * @param impact
      *            the impact that was determined during evaluation
      */
@@ -121,15 +126,39 @@ public class TradeEvaluationResult {
         Map<EvaluationGroup<?>, Impact> groupImpactMap = ruleImpactMap
                 .computeIfAbsent(new PortfolioRuleKey(portfolioKey, ruleKey), r -> new HashMap<>());
         groupImpactMap.put(evaluationGroup, impact);
+
+        // update the aggregate impact; it can only be downgraded
+        if (impact == Impact.NEUTRAL) {
+            if (aggregateImpact == Impact.POSITIVE) {
+                aggregateImpact = Impact.NEUTRAL;
+            }
+        } else if (impact == Impact.UNKNOWN) {
+            if (aggregateImpact != Impact.NEGATIVE) {
+                aggregateImpact = Impact.UNKNOWN;
+            }
+        } else if (impact == Impact.NEGATIVE) {
+            aggregateImpact = Impact.NEGATIVE;
+        }
     }
 
     /**
-     * Obtains the impacts recorded in this result.
+     * Obtains the {@code Impact}s recorded in this result.
      *
-     * @return a Map associating a Portfolio and Rule with another Map associating an individual
-     *         EvaluationGroup with its measured impact
+     * @return a {@code Map} associating a {@code Portfolio} and {@code Rule} with another
+     *         {@code Map} associating an individual {@code EvaluationGroup} with its measured
+     *         impact
      */
     public Map<PortfolioRuleKey, Map<EvaluationGroup<?>, Impact>> getImpacts() {
         return ruleImpactMap;
+    }
+
+    /**
+     * Indicates whether the evaluated {@code Trade} is compliant, which means that no {@code Rule}
+     * evaluations resulted in a {@code NEGATIVE} or {@code UNKNOWN} {@code Impact}.
+     *
+     * @return true if the evaluation results indicate {@code Trade} compliance, false otherwise
+     */
+    public boolean isCompliant() {
+        return aggregateImpact != Impact.NEGATIVE && aggregateImpact != Impact.UNKNOWN;
     }
 }

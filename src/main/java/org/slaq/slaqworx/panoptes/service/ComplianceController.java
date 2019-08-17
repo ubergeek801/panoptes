@@ -1,8 +1,9 @@
 package org.slaq.slaqworx.panoptes.service;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Future;
 
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -11,9 +12,12 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -31,11 +35,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 public class ComplianceController implements FlowableOnSubscribe<String> {
     private static final Logger LOG = LoggerFactory.getLogger(ComplianceController.class);
 
-    // need enough threads to keep the processing pipeline full in a limited-CPU environment
-    private static final ForkJoinPool evaluatorPool = new ForkJoinPool(50);
+    // this needs to be somewhat unreasonably high to keep the processing pipeline full
+    private static final ForkJoinPool evaluatorPool = new ForkJoinPool(30);
 
     private final PortfolioCache portfolioCache;
-
     private final ClusterPortfolioEvaluator portfolioEvaluator;
 
     /**
@@ -67,45 +70,47 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
     public void subscribe(FlowableEmitter<String> emitter) throws Exception {
         FlowableEmitter<String> serialEmitter = emitter.serialize();
 
+        ExecutorCompletionService<Pair<Portfolio, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> completionService =
+                new ExecutorCompletionService<>(evaluatorPool);
+
         long startTime = System.currentTimeMillis();
-        evaluatorPool.submit(() -> portfolioCache.getPortfolioCache().values().parallelStream()
-                .forEach(portfolio -> {
-                    StringBuilder output = new StringBuilder();
-                    Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> futureResults;
-                    try {
-                        futureResults =
-                                portfolioEvaluator.evaluate(portfolio, new EvaluationContext(
-                                        portfolioCache, portfolioCache, portfolioCache));
-                    } catch (InterruptedException e) {
-                        serialEmitter.onNext("thread interrupted");
-                        return;
-                    }
-                    output.append("Portfolio " + portfolio.getName() + "\n");
-                    try {
-                        futureResults.get().forEach((ruleKey, resultMap) -> {
-                            output.append("  * Rule " + ruleKey + "\n");
-                            boolean[] isFirst = new boolean[1];
-                            isFirst[0] = true;
-                            resultMap.forEach((group, result) -> {
-                                if (isFirst[0]) {
-                                    output.append("    * Group " + group.getAggregationKey() + " = "
-                                            + group.getId() + "\n");
-                                    isFirst[0] = false;
-                                    output.append("      -> result: " + result.isPassed() + " ("
-                                            + result.getValue() + ")\n");
-                                }
-                            });
-                        });
-                    } catch (Exception e) {
-                        LOG.error("could not complete portfolio evaluation", e);
-                        serialEmitter.onNext("could not complete evaluation");
-                    }
+        Collection<Portfolio> portfolios = portfolioCache.getPortfolioCache().values();
+        portfolios.forEach(p -> {
+            completionService.submit(() -> new ImmutablePair<>(p,
+                    portfolioEvaluator.evaluate(p,
+                            new EvaluationContext(portfolioCache, portfolioCache, portfolioCache))
+                            .get()));
+        });
 
-                    serialEmitter.onNext(output.toString());
-                })).join();
+        for (int i = 0; i < portfolios.size(); i++) {
+            Pair<Portfolio, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioResults =
+                    completionService.take().get();
+            Portfolio portfolio = portfolioResults.getLeft();
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+                    portfolioResults.getRight();
+            StringBuilder output = new StringBuilder(
+                    "Portfolio " + portfolio.getName() + " (" + portfolio.getKey().getId() + ")\n");
+            results.forEach((ruleKey, resultMap) -> {
+                output.append("  * Rule " + ruleKey + "\n");
+                boolean[] isFirst = new boolean[1];
+                isFirst[0] = true;
+                resultMap.forEach((group, result) -> {
+                    if (isFirst[0]) {
+                        output.append("    * Group " + group.getAggregationKey() + " = "
+                                + group.getId() + "\n");
+                        isFirst[0] = false;
+                        output.append("      -> result: " + result.isPassed() + " ("
+                                + result.getValue() + ")\n");
+                    }
+                });
+            });
+            serialEmitter.onNext(output.toString());
+        }
 
-        serialEmitter.onNext(
-                "compliance run completed in " + (System.currentTimeMillis() - startTime) + " ms");
+        String message =
+                "compliance run completed in " + (System.currentTimeMillis() - startTime) + " ms";
+        serialEmitter.onNext(message);
+        LOG.info(message);
         serialEmitter.onComplete();
     }
 }

@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
- * TestSecurityPTestPositionProviderrovider is a PositionProvider suitable for testing purposes.
+ * {@code TestPositionProvider} is a {@code PositionProvider} suitable for testing purposes.
  *
  * @author jeremy
  */
@@ -17,8 +17,8 @@ public class TestPositionProvider implements PositionProvider {
     private final HashMap<PositionKey, MaterializedPosition> positionMap = new HashMap<>();
 
     /**
-     * Creates a new TestPositionProvider. Restricted because instances of this class should be
-     * obtained through TestUtil.
+     * Creates a new {@code TestPositionProvider}. Restricted because instances of this class should
+     * be obtained through {@code TestUtil}.
      */
     protected TestPositionProvider() {
         // nothing to do
@@ -30,15 +30,15 @@ public class TestPositionProvider implements PositionProvider {
     }
 
     /**
-     * Creates a new Position and makes it available through this provider.
+     * Creates a new {@code Position} and makes it available through this provider.
      *
      * @param id
-     *            the ID of the Position to create, or null to generate an ID
+     *            the ID of the {@code Position} to create, or {@code null} to generate an ID
      * @param amount
-     *            the amount of the Position
+     *            the amount of the {@code Position}
      * @param securityKey
-     *            the key identifying the Security held by the Position
-     * @return the newly created Position
+     *            the key identifying the {@code Security} held by the {@code Position}
+     * @return the newly created {@code Position}
      */
     public Position newPosition(String id, double amount, SecurityKey securityKey) {
         MaterializedPosition position =

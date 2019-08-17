@@ -6,6 +6,8 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * {@code PanoptesDataConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
@@ -33,5 +35,19 @@ public class PanoptesDataConfiguration {
     @Bean
     protected JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    /**
+     * Provides a {@code TransactionTemplate} using the specified
+     * {@code PlatformTransactionManager}.
+     * 
+     * @param transactionManager
+     *            the {@code PlatformTransactionManager} to use to manage template transactions
+     * @return a {@code TransactionTemplate} that uses the given transaction manager
+     */
+    @Bean
+    protected TransactionTemplate
+            transactionTemplate(PlatformTransactionManager transactionManager) {
+        return new TransactionTemplate(transactionManager);
     }
 }

@@ -10,9 +10,9 @@ import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
- * A Transaction is a component of a Trade which modifies a single Portfolio by altering (increasing
- * or decreasing) the net position of one or more of its Securities. The Positions of a Trade are
- * also known as allocations.
+ * A {@code Transaction} is a component of a {@code Trade} which modifies a single {@code Portfolio}
+ * by altering (increasing or decreasing) the net position of one or more of its {@code Securities}.
+ * The {@code Positions} of a {@code Trade} are also known as allocations.
  *
  * @author jeremy
  */
@@ -23,28 +23,28 @@ public class Transaction implements PositionSupplier {
     private final PositionSet positions;
 
     /**
-     * Creates a new Transaction, with a generated ID, acting on the given Portfolio with the given
-     * allocations.
+     * Creates a new {@code Transaction}, with a generated ID, acting on the given {@code Portfolio}
+     * with the given allocations.
      *
      * @param portfolio
-     *            the Portfolio impacted by this Transaction
+     *            the {@code Portfolio} affected by this {@code Transaction}
      * @param allocations
-     *            the allocations of the Transaction
+     *            the allocations of the {@code Transaction}
      */
     public Transaction(Portfolio portfolio, Collection<Position> allocations) {
         this(null, portfolio, allocations);
     }
 
     /**
-     * Creates a new Transaction with the given ID, acting on the given Portfolio with the given
-     * allocations.
+     * Creates a new {@code Transaction} with the given ID, acting on the given {@code Portfolio}
+     * with the given allocations.
      *
      * @param id
-     *            the unique ID of the Transaction
+     *            the unique ID of the {@code Transaction}
      * @param portfolio
-     *            the Portfolio impacted by this Transaction
+     *            the {@code Portfolio} affected by this {@code Transaction}
      * @param allocations
-     *            the allocations of the Transaction
+     *            the allocations of the {@code Transaction}
      */
     public Transaction(String id, Portfolio portfolio, Collection<Position> allocations) {
         this.id = (id == null ? UUID.randomUUID().toString() : id);
@@ -53,7 +53,7 @@ public class Transaction implements PositionSupplier {
     }
 
     /**
-     * Obtains this Transaction's unique ID.
+     * Obtains this {@code Transaction}'s unique ID.
      *
      * @return the ID
      */
@@ -86,10 +86,10 @@ public class Transaction implements PositionSupplier {
     }
 
     /**
-     * Specifies the Trade associated with this Transaction.
+     * Specifies the {@code Trade} associated with this {@code Transaction}.
      *
      * @param trade
-     *            the Trade containing this Transaction
+     *            the {@code Trade} containing this {@code Transaction}
      */
     protected void setTrade(Trade trade) {
         this.trade = trade;
