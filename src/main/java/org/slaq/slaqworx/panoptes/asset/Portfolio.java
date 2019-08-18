@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -145,6 +147,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
         return name;
     }
 
+    @JsonIgnore
     @Override
     public Portfolio getPortfolio() {
         return this;

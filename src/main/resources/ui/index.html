@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <p><b>{{portfolio.name}}</b> MV={{portfolio.totalAmount | currency}}
+                (id={{portfolio.key.id}}:{{portfolio.key.version}})
+            <template v-if="portfolio.benchmarkKey != null"><br/>Benchmark:
+                    {{portfolio.benchmarkKey.id}}:{{portfolio.benchmarkKey.version}}</template>
+        </p>
+        <p>Positions</p>
+        <ul>
+        <li v-for="position in portfolio.positions">{{position.amount | currency}} in
+                {{position.securityKey.id}} (id={{position.key.id}})</li>
+        </ul>
+        <p>Rules</p>
+        <ul>
+        <li v-for="rule in portfolio.rules">{{rule.description}} on
+                {{rule.groupClassifier.securityAttribute}} (id={{rule.key.id}})</li>
+        </ul>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
