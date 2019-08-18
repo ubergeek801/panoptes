@@ -1,11 +1,10 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
- * DefaultEvaluationGroupClassifier is the default EvaluationGroupClassifier; it merely classifies
- * all Positions into the default group.
+ * {@code DefaultEvaluationGroupClassifier} is the default {@code EvaluationGroupClassifier}; it
+ * merely classifies all {@code Position}s into the default group.
  *
  * @author jeremy
  */
@@ -18,7 +17,7 @@ public class DefaultEvaluationGroupClassifier implements EvaluationGroupClassifi
     }
 
     @Override
-    public EvaluationGroup<?> classify(SecurityProvider securityProvider, Position position) {
+    public EvaluationGroup<?> classify(Position position) {
         return EvaluationGroup.defaultGroup();
     }
 }

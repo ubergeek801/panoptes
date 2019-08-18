@@ -64,9 +64,7 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
         // GroupClassifier
         Map<EvaluationGroup<?>, Collection<Position>> classifiedPortfolioPositions =
                 portfolioPositions.getPositions()
-                        .collect(Collectors.groupingBy(
-                                p -> rule.getGroupClassifier()
-                                        .classify(evaluationContext.getSecurityProvider(), p),
+                        .collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
                                 Collectors.toCollection(ArrayList::new)));
 
         // do the same for the benchmark, if specified
@@ -75,9 +73,7 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
             classifiedBenchmarkPositions = null;
         } else {
             classifiedBenchmarkPositions = benchmarkPositions.getPositions()
-                    .collect(Collectors.groupingBy(
-                            p -> rule.getGroupClassifier()
-                                    .classify(evaluationContext.getSecurityProvider(), p),
+                    .collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
                             Collectors.toCollection(ArrayList::new)));
         }
 

@@ -8,19 +8,19 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import com.hazelcast.core.MapStore;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import com.hazelcast.core.MapStore;
 
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * HazelcastMapStore is a partial implementation of a MapStore.
+ * {@code HazelcastMapStore} is a partial implementation of a {@code MapStore}.
  * <p>
  * HazelcastMapStore provides default implementations for the {@code *All} methods (e.g.
- * {@code loadAll()}) which delegate to the single-key operations, but subclasses may override
- * these if they are able to implement these operations more efficiently.
+ * {@code loadAll()}) which delegate to the single-key operations, but subclasses may override these
+ * if they are able to implement these operations more efficiently.
  *
  * @author jeremy
  * @param <K>
@@ -33,10 +33,10 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Creates a new HazelcastMapStore which uses the given DataSource.
+     * Creates a new {@code HazelcastMapStore} which uses the given {@code DataSource}.
      *
      * @param dataSource
-     *            the DataSource to use for database operations
+     *            the {@code DataSource} to use for database operations
      */
     protected HazelcastMapStore(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -105,16 +105,16 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     }
 
     /**
-     * Obtains the JdbcTemplate to use for database operations.
+     * Obtains the {@code JdbcTemplate} to use for database operations.
      *
-     * @return a JdbcTemplate
+     * @return a {@code JdbcTemplate}
      */
     protected JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
 
     /**
-     * Obtains the key column(s) for this MapStore's table.
+     * Obtains the key column(s) for this {@code MapStore}'s table.
      *
      * @return the table's key column names
      */
@@ -130,24 +130,24 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     protected abstract Object[] getKeyComponents(K key);
 
     /**
-     * Obtains a RowMapper which can be used to fetch keys for the entity being mapped.
+     * Obtains a {@code RowMapper} which can be used to fetch keys for the entity being mapped.
      *
-     * @return a RowMapper
+     * @return a {@code RowMapper}
      */
     protected abstract RowMapper<K> getKeyMapper();
 
     /**
-     * Obtains the {@code select} portion of the SQL query to be used to load row(s) by ID(s).
-     * This portion of the query should not include a {@code where} clause.
+     * Obtains the {@code select} portion of the SQL query to be used to load row(s) by ID(s). This
+     * portion of the query should not include a {@code where} clause.
      *
      * @return a partial SQL query
      */
     protected abstract String getLoadSelect();
 
     /**
-     * Obtains this MapStore's table name.
+     * Obtains this {@code MapStore}'s table name.
      *
-     * @return the tableName corresponding to entities serviced by this MapStore
+     * @return the table name corresponding to entities serviced by this {@code MapStore}
      */
     protected abstract String getTableName();
 }

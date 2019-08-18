@@ -26,21 +26,6 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     private final PositionSet positionSet;
 
     /**
-     * Creates a new {@code Portfolio} with the given key, name and {@code Position}s, with no
-     * associated benchmark or {@code Rule}s.
-     *
-     * @param id
-     *            the unique {@code Portfolio} key
-     * @param name
-     *            the {@code Portfolio} name/description
-     * @param positions
-     *            the {@code Positions} comprising the {@code Portfolio}
-     */
-    public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions) {
-        this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
-    }
-
-    /**
      * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
      * {@code Rule}s.
      *
@@ -49,9 +34,9 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
      * @param name
      *            the {@code Portfolio} name/description
      * @param positions
-     *            the {@code Position}s comprising the {@code Portfoli}o
+     *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmark
-     *            the (possibly null) {@code Portfoli}o that acts a benchmark for the
+     *            the (possibly null) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
@@ -86,6 +71,21 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
         this.benchmarkKey = benchmarkKey;
         this.rules = (rules == null ? new HashSet<>() : new HashSet<>(rules));
         positionSet = new PositionSet(positions, this);
+    }
+
+    /**
+     * Creates a new {@code Portfolio} with the given key, name and {@code Position}s, with no
+     * associated benchmark or {@code Rule}s.
+     *
+     * @param id
+     *            the unique {@code Portfolio} key
+     * @param name
+     *            the {@code Portfolio} name/description
+     * @param positions
+     *            the {@code Positions} comprising the {@code Portfolio}
+     */
+    public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
+        this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
     }
 
     @Override

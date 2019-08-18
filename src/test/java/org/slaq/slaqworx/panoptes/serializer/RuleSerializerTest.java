@@ -8,15 +8,15 @@ import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
-import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * RuleSerializerTest tests the functionality of the RuleSerializer.
+ * {@code RuleSerializerTest} tests the functionality of the {@code RuleSerializer}.
  *
  * @author jeremy
  */
@@ -28,12 +28,12 @@ public class RuleSerializerTest {
     public void testSerialization() throws Exception {
         RuleSerializer serializer = new RuleSerializer();
 
-        MaterializedRule rule = new ConcentrationRule(new RuleKey("foo"), "test rule",
+        ConfigurableRule rule = new ConcentrationRule(new RuleKey("foo"), "test rule",
                 new GroovyPositionFilter("p.amount > 1_000_000"), 1d, 2d,
                 new TopNSecurityAttributeAggregator(TestUtil.country, 5));
 
         byte[] buffer = serializer.write(rule);
-        MaterializedRule deserialized = serializer.read(buffer);
+        ConfigurableRule deserialized = serializer.read(buffer);
 
         assertEquals(rule, deserialized, "deserialized value should equals() original value");
         assertEquals(rule.getDescription(), deserialized.getDescription(),

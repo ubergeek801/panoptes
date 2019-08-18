@@ -8,7 +8,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 
 /**
  * {@code TestPortfolioProvider} is a {@code PortfolioProvider} suitable for testing purposes.
@@ -48,7 +48,7 @@ public class TestPortfolioProvider implements PortfolioProvider {
      *            {@code Portfolio}
      */
     public Portfolio newPortfolio(String id, String name, Set<? extends Position> positions,
-            Portfolio benchmark, Collection<? extends Rule> rules) {
+            Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
         Portfolio portfolio =
                 new Portfolio(new PortfolioKey(id, 1), name, positions, benchmark, rules);
         portfolioMap.put(portfolio.getKey(), portfolio);

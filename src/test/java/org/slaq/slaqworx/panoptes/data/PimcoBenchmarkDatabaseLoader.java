@@ -18,11 +18,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
@@ -83,8 +83,8 @@ public class PimcoBenchmarkDatabaseLoader {
             txTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    Map<RuleKey, MaterializedRule> ruleMap = pf.getRules()
-                            .collect(Collectors.toMap(r -> r.getKey(), r -> (MaterializedRule)r));
+                    Map<RuleKey, ConfigurableRule> ruleMap = pf.getRules()
+                            .collect(Collectors.toMap(r -> r.getKey(), r -> (ConfigurableRule)r));
                     ruleMapStore.storeAll(ruleMap);
                 }
             });
@@ -97,8 +97,8 @@ public class PimcoBenchmarkDatabaseLoader {
             txTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    Map<PositionKey, MaterializedPosition> positionMap = pf.getPositions().collect(
-                            Collectors.toMap(p -> p.getKey(), p -> (MaterializedPosition)p));
+                    Map<PositionKey, Position> positionMap =
+                            pf.getPositions().collect(Collectors.toMap(p -> p.getKey(), p -> p));
                     positionMapStore.storeAll(positionMap);
                 }
             });

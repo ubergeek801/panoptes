@@ -46,7 +46,7 @@ public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object>
         case PortfolioCache.PORTFOLIO_CACHE_NAME:
             return new PortfolioMapStore(applicationContext, dataSource);
         case PortfolioCache.POSITION_CACHE_NAME:
-            return new PositionMapStore(dataSource);
+            return new PositionMapStore(applicationContext, dataSource);
         case PortfolioCache.RULE_CACHE_NAME:
             return new RuleMapStore(dataSource);
         case PortfolioCache.SECURITY_CACHE_NAME:

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
@@ -55,10 +54,9 @@ public class SecurityAttributeGroupClassifier
     }
 
     @Override
-    public EvaluationGroup<SecurityAttribute<?>> classify(SecurityProvider securityProvider,
-            Position position) {
-        return new EvaluationGroup<>(String.valueOf(
-                position.getSecurity(securityProvider).getAttributeValue(securityAttribute)),
+    public EvaluationGroup<SecurityAttribute<?>> classify(Position position) {
+        return new EvaluationGroup<>(
+                String.valueOf(position.getSecurity().getAttributeValue(securityAttribute)),
                 securityAttribute);
     }
 

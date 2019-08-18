@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -232,8 +231,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 Security security = new Security(attributes);
                 securityMap.put(security.getKey(), security);
 
-                positions.add(
-                        new MaterializedPosition(marketValueUsd.doubleValue(), security.getKey()));
+                positions.add(new Position(marketValueUsd.doubleValue(), security));
                 totalAmount += marketValueUsd.doubleValue();
             }
         }

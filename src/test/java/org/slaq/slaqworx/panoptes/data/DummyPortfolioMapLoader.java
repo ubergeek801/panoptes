@@ -14,14 +14,13 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.hazelcast.core.MapStore;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.core.MapStore;
-
 import org.slaq.slaqworx.panoptes.TestUtil;
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -31,7 +30,7 @@ import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
@@ -53,7 +52,7 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     private static final int NUM_RULES = 200;
 
     private final Portfolio[] benchmarks;
-    private final Map<RuleKey, Rule> ruleMap = new HashMap<>();
+    private final Map<RuleKey, ConfigurableRule> ruleMap = new HashMap<>();
 
     private final PimcoBenchmarkDataSource dataSource;
 
@@ -94,7 +93,7 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     }
 
     @Override
-    public Rule getRule(RuleKey key) {
+    public ConfigurableRule getRule(RuleKey key) {
         return ruleMap.get(key);
     }
 
@@ -118,7 +117,7 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
         List<Security> securityList =
                 Collections.unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
         Set<Position> positions = generatePositions(securityList, random);
-        Set<Rule> rules = generateRules(random);
+        Set<ConfigurableRule> rules = generateRules(random);
         Portfolio portfolio =
                 new Portfolio(key, "Test Portfolio " + RandomStringUtils.randomAlphabetic(40),
                         positions, benchmarks[random.nextInt(5)], rules);
@@ -196,7 +195,7 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
                             / 100d;
             // use a given security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
-            positions.add(new MaterializedPosition(amount, security.getKey()));
+            positions.add(new Position(amount, security));
         }
 
         return positions;
@@ -209,8 +208,8 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
      *            the random number generator to use
      * @return a new Set of random Rules
      */
-    protected Set<Rule> generateRules(Random random) {
-        HashSet<Rule> rules = new HashSet<>(NUM_RULES * 2);
+    protected Set<ConfigurableRule> generateRules(Random random) {
+        HashSet<ConfigurableRule> rules = new HashSet<>(NUM_RULES * 2);
 
         for (int i = 1; i <= NUM_RULES; i++) {
             Predicate<PositionEvaluationContext> filter = null;

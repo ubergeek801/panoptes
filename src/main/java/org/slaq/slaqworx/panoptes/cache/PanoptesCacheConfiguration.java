@@ -13,20 +13,18 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.asset.ProxyFactory;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.data.HazelcastMapStoreFactory;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
-import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer;
@@ -115,11 +113,11 @@ public class PanoptesCacheConfiguration {
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setClass(PositionKeySerializer.class).setTypeClass(PositionKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(PositionSerializer.class).setTypeClass(MaterializedPosition.class));
+                .setClass(PositionSerializer.class).setTypeClass(Position.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setClass(RuleKeySerializer.class).setTypeClass(RuleKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(RuleSerializer.class).setTypeClass(MaterializedRule.class));
+                .setClass(RuleSerializer.class).setTypeClass(ConfigurableRule.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setClass(SecurityKeySerializer.class).setTypeClass(SecurityKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
@@ -183,19 +181,6 @@ public class PanoptesCacheConfiguration {
     @Bean
     protected MapConfig positionMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
         return createMapConfiguration(mapStoreFactory, PortfolioCache.POSITION_CACHE_NAME);
-    }
-
-    /**
-     * Provides a {@code ProxyFactory} which uses the specified {@code ApplicationContext} to
-     * resolve references.
-     *
-     * @param applicationContext
-     *            the {@code ApplicationContext} to use when resolving references
-     * @return a {@code ProxyFactory}
-     */
-    @Bean
-    protected ProxyFactory proxyFactory(ApplicationContext applicationContext) {
-        return new ProxyFactory(applicationContext);
     }
 
     /**

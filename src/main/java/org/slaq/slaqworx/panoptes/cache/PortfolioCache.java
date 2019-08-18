@@ -8,10 +8,10 @@ import javax.inject.Singleton;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -19,7 +19,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
@@ -85,7 +85,7 @@ public class PortfolioCache
     }
 
     @Override
-    public MaterializedPosition getPosition(PositionKey key) {
+    public Position getPosition(PositionKey key) {
         return getPositionCache().get(key);
     }
 
@@ -94,12 +94,12 @@ public class PortfolioCache
      *
      * @return the Hazelcast {@code Position} cache
      */
-    public IMap<PositionKey, MaterializedPosition> getPositionCache() {
+    public IMap<PositionKey, Position> getPositionCache() {
         return hazelcastInstance.getMap(POSITION_CACHE_NAME);
     }
 
     @Override
-    public Rule getRule(RuleKey key) {
+    public ConfigurableRule getRule(RuleKey key) {
         return getRuleCache().get(key);
     }
 
@@ -108,7 +108,7 @@ public class PortfolioCache
      *
      * @return the Hazelcast {@code Rule} cache
      */
-    public IMap<RuleKey, Rule> getRuleCache() {
+    public IMap<RuleKey, ConfigurableRule> getRuleCache() {
         return hazelcastInstance.getMap(RULE_CACHE_NAME);
     }
 

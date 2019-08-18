@@ -57,6 +57,7 @@ public class TestUtil {
     private static final TestPortfolioProvider portfolioProvider = new TestPortfolioProvider();
     private static final TestPositionProvider positionProvider = new TestPositionProvider();
     private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
+    private static final TestRuleProvider ruleProvider = new TestRuleProvider();
 
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
             Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d, country, "US");
@@ -71,14 +72,14 @@ public class TestUtil {
     public static final Security s3 = securityProvider.newSecurity(s3Attributes);
 
     public static final Set<Position> p1Positions =
-            Set.of(positionProvider.newPosition(null, 1000, s1.getKey()),
-                    positionProvider.newPosition(null, 500, s2.getKey()));
+            Set.of(positionProvider.newPosition(null, 1000, s1),
+                    positionProvider.newPosition(null, 500, s2));
 
     public static final Portfolio p1 =
             new Portfolio(new PortfolioKey("TestUtilP1", 1), "TestUtilP1", p1Positions);
     public static final Set<Position> p2Positions =
-            Set.of(positionProvider.newPosition(null, 500, s1.getKey()),
-                    positionProvider.newPosition(null, 1000, s2.getKey()));
+            Set.of(positionProvider.newPosition(null, 500, s1),
+                    positionProvider.newPosition(null, 1000, s2));
 
     public static final Portfolio p2 =
             new Portfolio(new PortfolioKey("TestUtilP2", 1), "TestUtilP2", p2Positions);
@@ -87,7 +88,7 @@ public class TestUtil {
      * Obtains a {@code PortfolioProvider} suitable for unit testing using {@code Portfolio}s
      * created by {@code TestUtil}.
      *
-     * @return a {@code PortfolioProvider} }
+     * @return a {@code TestPortfolioProvider}
      */
     public static TestPortfolioProvider testPortfolioProvider() {
         return portfolioProvider;
@@ -97,17 +98,27 @@ public class TestUtil {
      * Obtains a {@code PositionProvider} suitable for unit testing using {@code Position}s created
      * by {@code TestUtil}.
      *
-     * @return a {@code PositionProvider}
+     * @return a {@code TestPositionProvider}
      */
     public static TestPositionProvider testPositionProvider() {
         return positionProvider;
     }
 
     /**
+     * Obtains a {@code RuleProvider} suitable for unit testing using {@code Rule}s created by
+     * {@code TestUtil}.
+     *
+     * @return a {@code TestRuleProvider}
+     */
+    public static TestRuleProvider testRuleProvider() {
+        return ruleProvider;
+    }
+
+    /**
      * Obtains a {@code SecurityProvider} suitable for unit testing using {@code Securities} created
      * by {@code TestUtil}.
      *
-     * @return a {@code SecurityProvider}
+     * @return a {@code TestSecurityProvider}
      */
     public static TestSecurityProvider testSecurityProvider() {
         return securityProvider;

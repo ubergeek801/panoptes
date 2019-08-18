@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 
 /**
@@ -19,17 +19,16 @@ public class PositionSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        PositionSerializer serializer = new PositionSerializer();
+        PositionSerializer serializer = new PositionSerializer(TestUtil.testSecurityProvider());
 
-        MaterializedPosition position =
-                new MaterializedPosition(new PositionKey("foo"), 123456.78, TestUtil.s1.getKey());
+        Position position = new Position(new PositionKey("foo"), 123456.78, TestUtil.s1);
         byte[] buffer = serializer.write(position);
-        MaterializedPosition deserialized = serializer.read(buffer);
+        Position deserialized = serializer.read(buffer);
 
         assertEquals(position, deserialized, "deserialized value should equals() original value");
         assertEquals(position.getAmount(), deserialized.getAmount(), TestUtil.EPSILON,
                 "deserialized value should have same amount as original");
-        assertEquals(position.getSecurityKey(), deserialized.getSecurityKey(),
+        assertEquals(position.getSecurity(), deserialized.getSecurity(),
                 "deserialized value should have same security as original");
     }
 }

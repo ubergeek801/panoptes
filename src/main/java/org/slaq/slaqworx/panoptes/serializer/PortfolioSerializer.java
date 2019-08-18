@@ -10,38 +10,46 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.Panoptes;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.PositionProxy;
-import org.slaq.slaqworx.panoptes.asset.ProxyFactory;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.asset.PositionProvider;
+import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
-import org.slaq.slaqworx.panoptes.rule.RuleProxy;
+import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
 /**
- * {@code PortfolioSerializer} (de)serializes the state of a {@code Portfolio} using
- * Protobuf.
+ * {@code PortfolioSerializer} (de)serializes the state of a {@code Portfolio} using Protobuf.
  *
  * @author jeremy
  */
 public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
-    private ProxyFactory proxyFactory;
+    private PositionProvider positionProvider;
+    private RuleProvider ruleProvider;
 
     /**
-     * Creates a new PortfolioSerializer which uses the current ApplicationContext to resolve a
-     * ProxyFactory.
+     * Creates a new {@code PortfolioSerializer} which uses the current {@code ApplicationContext}
+     * to resolve {@code Bean} references.
      */
     public PortfolioSerializer() {
         // nothing to do
     }
 
     /**
-     * Creates a new PortfolioSerializer which delegates to the given ProxyFactory.
+     * Creates a new {@code PortfolioSerializer} which delegates to the given
+     * {@code PositionProvider} and {@code RuleProvider}.
      *
-     * @param proxyFactory
-     *            the ProxyFactory to use when creating proxy entities
+     * @param positionProvider
+     *            the {@code PositionProvider} to use to resolve {@code Position}s
+     * @param ruleProvider
+     *            the {@code RuleProvider} to use to resolve {@code Rule}s
      */
-    public PortfolioSerializer(ProxyFactory proxyFactory) {
-        this.proxyFactory = proxyFactory;
+    public PortfolioSerializer(PositionProvider positionProvider, RuleProvider ruleProvider) {
+        this.positionProvider = positionProvider;
+        this.ruleProvider = ruleProvider;
     }
 
     @Override
@@ -56,8 +64,11 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
 
     @Override
     public Portfolio read(byte[] buffer) throws IOException {
-        if (proxyFactory == null) {
-            proxyFactory = Panoptes.getApplicationContext().getBean(ProxyFactory.class);
+        if (positionProvider == null) {
+            positionProvider = Panoptes.getApplicationContext().getBean(PortfolioCache.class);
+        }
+        if (ruleProvider == null) {
+            ruleProvider = Panoptes.getApplicationContext().getBean(PortfolioCache.class);
         }
 
         PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);
@@ -71,12 +82,13 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
             benchmarkKey = null;
         }
 
-        Set<PositionProxy> positionKeys = portfolioMsg.getPositionKeyList().stream()
-                .map(k -> proxyFactory.positionProxy(k.getId())).collect(Collectors.toSet());
-        Set<RuleProxy> ruleKeys = portfolioMsg.getRuleKeyList().stream()
-                .map(k -> proxyFactory.ruleProxy(k.getId())).collect(Collectors.toSet());
+        Set<Position> positions = portfolioMsg.getPositionKeyList().stream()
+                .map(k -> positionProvider.getPosition(new PositionKey(k.getId())))
+                .collect(Collectors.toSet());
+        Set<Rule> rules = portfolioMsg.getRuleKeyList().stream()
+                .map(k -> ruleProvider.getRule(new RuleKey(k.getId()))).collect(Collectors.toSet());
 
-        return new Portfolio(key, portfolioMsg.getName(), positionKeys, benchmarkKey, ruleKeys);
+        return new Portfolio(key, portfolioMsg.getName(), positions, benchmarkKey, rules);
     }
 
     @Override

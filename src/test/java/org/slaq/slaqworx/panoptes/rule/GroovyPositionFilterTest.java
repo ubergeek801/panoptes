@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
+import org.slaq.slaqworx.panoptes.asset.Position;
 
 /**
  * GroovyPositionFilterTest tests the functionality of the GroovyPositionFilter.
@@ -22,11 +22,11 @@ public class GroovyPositionFilterTest {
         // create a filter which should include Positions with an amount > 1MM
         GroovyPositionFilter filter1MM = new GroovyPositionFilter("p.amount > 1_000_000");
 
-        MaterializedPosition p1 = new MaterializedPosition(2_000_000, TestUtil.s1.getKey());
+        Position p1 = new Position(2_000_000, TestUtil.s1);
         assertTrue(filter1MM.test(new PositionEvaluationContext(p1, evaluationContext)),
                 "Position of 2MM should have passed");
 
-        MaterializedPosition p2 = new MaterializedPosition(500_000, TestUtil.s1.getKey());
+        Position p2 = new Position(500_000, TestUtil.s1);
         assertFalse(filter1MM.test(new PositionEvaluationContext(p2, evaluationContext)),
                 "Position of 500K should not have passed");
 
@@ -34,11 +34,11 @@ public class GroovyPositionFilterTest {
         GroovyPositionFilter filterMoovy88 = new GroovyPositionFilter(
                 "s.getAttributeValue(SecurityAttribute.of(\"Moovy\")) > 88");
 
-        MaterializedPosition p3 = new MaterializedPosition(1_000_000, TestUtil.s1.getKey());
+        Position p3 = new Position(1_000_000, TestUtil.s1);
         assertTrue(filterMoovy88.test(new PositionEvaluationContext(p3, evaluationContext)),
                 "Position with 90 rating should have passed");
 
-        MaterializedPosition p4 = new MaterializedPosition(1_000_000, TestUtil.s2.getKey());
+        Position p4 = new Position(1_000_000, TestUtil.s2);
         assertFalse(filterMoovy88.test(new PositionEvaluationContext(p4, evaluationContext)),
                 "Position with 85 rating should not have passed");
 
@@ -59,7 +59,7 @@ public class GroovyPositionFilterTest {
         // create a filter which should include Positions in a Security with a country = "US" or
         // country = "NZ"
 
-        MaterializedPosition p5 = new MaterializedPosition(1_000_000, TestUtil.s3.getKey());
+        Position p5 = new Position(1_000_000, TestUtil.s3);
         GroovyPositionFilter filterCountryUSorNZ =
                 new GroovyPositionFilter("s.country == \"US\" || s.country == \"NZ\"");
         assertFalse(filterCountryUSorNZ.test(new PositionEvaluationContext(p5, evaluationContext)),

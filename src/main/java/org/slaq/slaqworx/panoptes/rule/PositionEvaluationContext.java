@@ -3,9 +3,9 @@ package org.slaq.slaqworx.panoptes.rule;
 import org.slaq.slaqworx.panoptes.asset.Position;
 
 /**
- * A PositionEvaluationContext can be thought of as the EvaluationContext for a Position, as it is a
- * composite of the two; it mostly exists for the convenience of specifying Position filters as
- * Predicates.
+ * A {@code PositionEvaluationContext} can be thought of as the {@code EvaluationContext} for a
+ * {@code Position}, as it is a composite of the two; it mostly exists for the convenience of
+ * specifying {@code Position} filters as {@code Predicate}s.
  *
  * @author jeremy
  */
@@ -14,12 +14,13 @@ public class PositionEvaluationContext {
     private final EvaluationContext evaluationContext;
 
     /**
-     * Creates a new PositionEvaluationContext comprising the given Position and EvaluationContext.
+     * Creates a new {@code PositionEvaluationContext} comprising the given {@code Position} and
+     * {@code EvaluationContext}.
      *
      * @param position
-     *            the Position to be evaluated in the context
+     *            the {@code Position} to be evaluated in the context
      * @param evaluationContext
-     *            the context in which to evaluate the Position
+     *            the context in which to evaluate the {@code Position}
      */
     public PositionEvaluationContext(Position position, EvaluationContext evaluationContext) {
         this.position = position;
@@ -27,18 +28,18 @@ public class PositionEvaluationContext {
     }
 
     /**
-     * Obtains the EvaluationContext of this context.
-     * 
-     * @return an EvaluationContext
+     * Obtains the {@code EvaluationContext} of this context.
+     *
+     * @return an {@code EvaluationContext}
      */
     public EvaluationContext getEvaluationContext() {
         return evaluationContext;
     }
 
     /**
-     * Obtains the Position of this context.
+     * Obtains the {@code Position} of this context.
      *
-     * @return a Position
+     * @return a {@code Position}
      */
     public Position getPosition() {
         return position;

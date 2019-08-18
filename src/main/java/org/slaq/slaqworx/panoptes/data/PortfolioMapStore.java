@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 
 import io.micronaut.context.ApplicationContext;
@@ -17,29 +16,27 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.asset.PositionProxy;
 import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleProxy;
 
 /**
- * PortfolioMapStore is a Hazelcast MapStore that provides Portfolio persistence services.
+ * {@code PortfolioMapStore} is a Hazelcast {@code MapStore} that provides {@code Portfolio}
+ * persistence services.
  *
  * @author jeremy
  */
-@Singleton
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
     private ApplicationContext applicationContext;
 
     /**
      * Creates a new PortfolioMapStore. Restricted because instances of this class should be
-     * obtained through the {@code ApplicationContext}.
+     * obtained through the {@code HazelcastMapStoreFactory}.
      *
      * @param applicationContext
-     *            the ApplicationConext from which to resolve dependent Beans
+     *            the {@code ApplicationConext} from which to resolve dependent {@code Bean}s
      * @param dataSource
-     *            the DataSource through which to access the database
+     *            the {@code DataSource} through which to access the database
      */
     protected PortfolioMapStore(ApplicationContext applicationContext, DataSource dataSource) {
         super(dataSource);
@@ -72,9 +69,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         + " where portfolio_id = ? and portfolio_version = ?",
                 new Object[] { id, version },
                 (RowMapper<PositionKey>)(rsPos, rowNumPos) -> new PositionKey(rsPos.getString(1)));
-        // some unfortunate copying of Collections to Sets
-        Set<Position> positions = positionKeys.stream()
-                .map(k -> new PositionProxy(k, getPortfolioCache())).collect(Collectors.toSet());
+        Set<Position> positions = positionKeys.stream().map(k -> getPortfolioCache().getPosition(k))
+                .collect(Collectors.toSet());
 
         // get the keys for the related Rules
         List<RuleKey> ruleKeys = getJdbcTemplate().query(
@@ -82,7 +78,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         + " where portfolio_id = ? and portfolio_version = ?",
                 new Object[] { id, version },
                 (RowMapper<RuleKey>)(rsPos, rowNumPos) -> new RuleKey(rsPos.getString(1)));
-        Set<Rule> rules = ruleKeys.stream().map(k -> new RuleProxy(k, getPortfolioCache()))
+        Set<ConfigurableRule> rules = ruleKeys.stream().map(k -> getPortfolioCache().getRule(k))
                 .collect(Collectors.toSet());
 
         return new Portfolio(new PortfolioKey(id, version), name, positions,
@@ -140,11 +136,11 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     }
 
     /**
-     * Obtains the PortfolioCache to be used to resolve references. Lazily obtained to avoid a
-     * circular injection dependency.
+     * Obtains the {@code PortfolioCache} to be used to resolve references. Lazily obtained to avoid
+     * a circular injection dependency.
      *
      * @param portfolioCache
-     *            the PortfolioCache to use to obtain data
+     *            the {@code PortfolioCache} to use to obtain data
      */
     protected PortfolioCache getPortfolioCache() {
         return applicationContext.getBean(PortfolioCache.class);

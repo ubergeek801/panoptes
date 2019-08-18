@@ -15,7 +15,10 @@
         <p>Positions</p>
         <ul>
         <li v-for="position in portfolio.positions">{{position.amount | currency}} in
-                {{position.securityKey.id}} (id={{position.key.id}})</li>
+                <b>{{position.security.attributes.isin}}</b>
+                "{{position.security.attributes.description}}":
+                {{position.security.attributes.ratingSymbol}} (id={{position.key.id}})
+        </li>
         </ul>
         <p>Rules</p>
         <ul>

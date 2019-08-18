@@ -8,19 +8,19 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleMsg;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
-import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
  * {@code RuleSerializer} (de)serializes the state of a {@code Rule} (actually a
- * {@code MaterializedRule} using Protobuf.
+ * {@code ConfigurableRule} using Protobuf.
  *
  * @author jeremy
  */
-public class RuleSerializer implements ByteArraySerializer<MaterializedRule> {
-    public static MaterializedRule constructRule(String id, String description, String ruleTypeName,
+public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
+    public static ConfigurableRule constructRule(String id, String description, String ruleTypeName,
             String configuration, String groovyFilter, String classifierTypeName,
             String classifierConfiguration) {
         Class<EvaluationGroupClassifier> classifierType =
@@ -46,12 +46,12 @@ public class RuleSerializer implements ByteArraySerializer<MaterializedRule> {
             }
         }
 
-        Class<MaterializedRule> ruleType = resolveClass(ruleTypeName, "rule", id, description);
-        MaterializedRule rule;
+        Class<ConfigurableRule> ruleType = resolveClass(ruleTypeName, "rule", id, description);
+        ConfigurableRule rule;
         try {
             Method fromJsonMethod = ruleType.getMethod("fromJson", String.class, RuleKey.class,
                     String.class, String.class, EvaluationGroupClassifier.class);
-            rule = (MaterializedRule)fromJsonMethod.invoke(null, configuration, new RuleKey(id),
+            rule = (ConfigurableRule)fromJsonMethod.invoke(null, configuration, new RuleKey(id),
                     description, groovyFilter, classifier);
         } catch (Exception e) {
             // TODO throw a better exception
@@ -107,7 +107,7 @@ public class RuleSerializer implements ByteArraySerializer<MaterializedRule> {
     }
 
     @Override
-    public MaterializedRule read(byte[] buffer) throws IOException {
+    public ConfigurableRule read(byte[] buffer) throws IOException {
         RuleMsg ruleMsg = RuleMsg.parseFrom(buffer);
 
         return constructRule(ruleMsg.getKey().getId(), ruleMsg.getDescription(), ruleMsg.getType(),
@@ -116,7 +116,7 @@ public class RuleSerializer implements ByteArraySerializer<MaterializedRule> {
     }
 
     @Override
-    public byte[] write(MaterializedRule rule) throws IOException {
+    public byte[] write(ConfigurableRule rule) throws IOException {
         IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
         keyBuilder.setId(rule.getKey().getId());
         IdKeyMsg key = keyBuilder.build();

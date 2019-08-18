@@ -52,8 +52,7 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
             return (a, c) -> {
                 Position p = c.getPosition();
                 Double attributeValue =
-                        p.getSecurity(c.getEvaluationContext().getSecurityProvider())
-                                .getAttributeValue(getCalculationAttribute());
+                        p.getSecurity().getAttributeValue(getCalculationAttribute());
                 if (attributeValue == null) {
                     return;
                 }

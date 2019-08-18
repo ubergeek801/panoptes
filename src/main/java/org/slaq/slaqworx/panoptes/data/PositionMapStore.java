@@ -5,27 +5,36 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import io.micronaut.context.ApplicationContext;
+
 import org.springframework.jdbc.core.RowMapper;
 
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
 
 /**
- * PositionMapStore is a Hazelcast MapStore that provides Position persistence services.
+ * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
+ * persistence services.
  *
  * @author jeremy
  */
-public class PositionMapStore extends HazelcastMapStore<PositionKey, MaterializedPosition> {
+public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
+    private ApplicationContext applicationContext;
+
     /**
      * Creates a new PositionMapStore. Restricted because instances of this class should be created
-     * through the {@code ApplicationContext}.
+     * through the {@code HazelcastMapStoreFactory}.
      *
+     * @param applicationContext
+     *            the {@code ApplicationConext} from which to resolve dependent {@code Bean}s
      * @param dataSource
-     *            the DataSource through which to access the database
+     *            the {@code DataSource} through which to access the database
      */
-    protected PositionMapStore(DataSource dataSource) {
+    protected PositionMapStore(ApplicationContext applicationContext, DataSource dataSource) {
         super(dataSource);
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -36,21 +45,22 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Materialize
     }
 
     @Override
-    public MaterializedPosition mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public Position mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(1);
         double amount = rs.getDouble(2);
         String securityId = rs.getString(3);
 
-        return new MaterializedPosition(new PositionKey(id), amount, new SecurityKey(securityId));
+        return new Position(new PositionKey(id), amount,
+                getPortfolioCache().getSecurity(new SecurityKey(securityId)));
     }
 
     @Override
-    public void store(PositionKey key, MaterializedPosition position) {
+    public void store(PositionKey key, Position position) {
         getJdbcTemplate().update(
                 "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
                         + " on conflict on constraint position_pk do update"
                         + " set amount = excluded.amount, security_id = excluded.security_id",
-                key.getId(), position.getAmount(), position.getSecurityKey().getId());
+                key.getId(), position.getAmount(), position.getSecurity().getKey().getId());
     }
 
     @Override
@@ -71,6 +81,17 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Materialize
     @Override
     protected String getLoadSelect() {
         return "select id, amount, security_id from " + getTableName();
+    }
+
+    /**
+     * Obtains the {@code PortfolioCache} to be used to resolve references. Lazily obtained to avoid
+     * a circular injection dependency.
+     *
+     * @param portfolioCache
+     *            the {@code PortfolioCache} to use to obtain data
+     */
+    protected PortfolioCache getPortfolioCache() {
+        return applicationContext.getBean(PortfolioCache.class);
     }
 
     @Override

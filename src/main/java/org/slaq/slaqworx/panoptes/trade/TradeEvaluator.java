@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -162,8 +161,7 @@ public class TradeEvaluator {
         double minNoncompliantAmount = trialAmount;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetAmount / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            MaterializedPosition trialAllocation =
-                    new MaterializedPosition(trialAmount, security.getKey());
+            Position trialAllocation = new Position(trialAmount, security);
             Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
             Trade trialTrade = new Trade(List.of(trialTransaction));
             TradeEvaluationResult evaluationResult = evaluate(trialTrade);

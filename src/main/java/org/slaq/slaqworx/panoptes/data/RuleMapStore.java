@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.RowMapper;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
-import org.slaq.slaqworx.panoptes.rule.MaterializedRule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
@@ -20,7 +20,7 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * @author jeremy
  */
 @Singleton
-public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
+public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     /**
      * Creates a new RuleMapStore. Restricted because instances of this class should be created
      * through the {@code ApplicationContext}.
@@ -39,7 +39,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     }
 
     @Override
-    public MaterializedRule mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public ConfigurableRule mapRow(ResultSet rs, int rowNum) throws SQLException {
         String id = rs.getString(1);
         String description = rs.getString(2);
         String ruleTypeName = rs.getString(3);
@@ -53,7 +53,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, MaterializedRule> {
     }
 
     @Override
-    public void store(RuleKey key, MaterializedRule rule) {
+    public void store(RuleKey key, ConfigurableRule rule) {
         String classifierType;
         String classifierConfiguration;
         EvaluationGroupClassifier classifier = rule.getGroupClassifier();

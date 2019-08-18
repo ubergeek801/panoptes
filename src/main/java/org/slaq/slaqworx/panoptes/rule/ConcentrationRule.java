@@ -9,43 +9,50 @@ import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A ConcentrationRule stipulates limits on portfolio concentration in Securities matched by a given
- * Position filter, either in absolute terms or relative to a benchmark. Examples of absolute rules
- * include:
+ * A {@code ConcentrationRule} stipulates limits on {@code Portfolio} concentration in
+ * {@code Securities} matched by a given {@code Position} filter, either in absolute terms or
+ * relative to a benchmark. Examples of absolute rules include:
  * <ul>
- * <li>portfolio holdings in Securities from the Emerging Markets region may not exceed 10%
- * <li>portfolio holdings in US-domiciled Securities must be at least 50%
+ * <li>{@code Portfolio} holdings in {@code Securities} from the Emerging Markets region may not
+ * exceed 10%
+ * <li>{@code Portfolio} holdings in US-domiciled {@code Securities} must be at least 50%
  * </ul>
  * Examples of benchmark-relative rules include:
  * <ul>
- * <li>portfolio holdings in BRL-denominated Securities must be between 95% and 105% of the
- * benchmark
- * <li>portfolio holdings in Securities with duration < 5.0 must be less than 80% of the benchmark
+ * <li>{@code Portfolio} holdings in BRL-denominated {@code Securities} must be between 95% and 105%
+ * of the benchmark
+ * <li>{@code Portfolio} holdings in {@code Securities} with duration < 5.0 must be less than 80% of
+ * the benchmark
  * </ul>
  *
  * @author jeremy
  */
 public class ConcentrationRule extends ValueRule {
+    /**
+     * {@code Configuration} encapsulates the properties of a {@code ConcentrationRule} which are
+     * configurable via e.g. JSON.
+     */
     static class Configuration {
         public Double lowerLimit;
         public Double upperLimit;
     }
 
     /**
-     * Creates a new ConcentrationRule with the given JSON configuration, key, description, filter
-     * and classifier.
+     * Creates a new {@code ConcentrationRule} with the given JSON configuration, key, description,
+     * filter and classifier.
      *
      * @param jsonConfiguration
      *            the JSON configuration specifying lower and upper limits
      * @param key
-     *            the unique key of this rule, or null to generate one
+     *            the unique key of this {@code Rule}, or {@code null} to generate one
      * @param description
-     *            the rule description
+     *            the {@code Rule} description
      * @param groovyFilter
-     *            a (possibly null) Groovy expression to be used as a Position filter
+     *            a (possibly {@code null}) Groovy expression to be used as a {@code Position}
+     *            filter
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
-     *            GroupAggregator
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
      */
     public static ConcentrationRule fromJson(String jsonConfiguration, RuleKey key,
             String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
@@ -65,22 +72,22 @@ public class ConcentrationRule extends ValueRule {
     }
 
     /**
-     * Creates a new ConcentrationRule with the given key, description, filter, lower and upper
-     * limit.
+     * Creates a new {@code ConcentrationRule} with the given key, description, filter, lower and
+     * upper limit.
      *
      * @param key
-     *            the unique key of this rule, or null to generate one
+     *            the unique key of this {@code Rule}, or {@code null} to generate one
      * @param description
-     *            the rule description
+     *            the {@code Rule} description
      * @param positionFilter
-     *            the filter to be applied to Positions to determine concentration
+     *            the filter to be applied to {@code Position}s to determine concentration
      * @param lowerLimit
      *            the lower limit of acceptable concentration values
      * @param upperLimit
      *            the upper limit of acceptable concentration values
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
-     *            GroupAggregator
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
      */
     public ConcentrationRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
-import org.slaq.slaqworx.panoptes.asset.MaterializedPosition;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -22,8 +21,8 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.rule.AbstractRule;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -43,7 +42,7 @@ public class PortfolioEvaluatorTest {
     /**
      * DummyRule facilitates testing rule evaluation behavior by always passing or always failing.
      */
-    private static class DummyRule extends AbstractRule {
+    private static class DummyRule extends Rule {
         private final boolean isPass;
 
         public DummyRule(String description, boolean isPass) {
@@ -62,7 +61,7 @@ public class PortfolioEvaluatorTest {
      * ExceptionThrowingRule facilitates testing rule evaluation behavior by always throwing a
      * runtime exception.
      */
-    private static class ExceptionThrowingRule extends AbstractRule {
+    private static class ExceptionThrowingRule extends Rule {
         public ExceptionThrowingRule(String description) {
             super(description);
         }
@@ -78,7 +77,7 @@ public class PortfolioEvaluatorTest {
      * UseBenchmarkRule facilitates testing whether a specific benchmark was used during a rule
      * evaluation.
      */
-    private static class UseBenchmarkRule extends AbstractRule {
+    private static class UseBenchmarkRule extends Rule {
         private final Portfolio benchmark;
 
         public UseBenchmarkRule(String description, Portfolio benchmark) {
@@ -115,28 +114,28 @@ public class PortfolioEvaluatorTest {
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
         HashSet<Position> positions = new HashSet<>();
-        MaterializedPosition iss1Sec1Pos = new MaterializedPosition(100, iss1Sec1.getKey());
+        Position iss1Sec1Pos = new Position(100, iss1Sec1);
         positions.add(iss1Sec1Pos);
-        MaterializedPosition iss1Sec2Pos = new MaterializedPosition(100, iss1Sec2.getKey());
+        Position iss1Sec2Pos = new Position(100, iss1Sec2);
         positions.add(iss1Sec2Pos);
-        MaterializedPosition iss1Sec3Pos = new MaterializedPosition(100, iss1Sec3.getKey());
+        Position iss1Sec3Pos = new Position(100, iss1Sec3);
         positions.add(iss1Sec3Pos);
-        MaterializedPosition iss2Sec1Pos = new MaterializedPosition(100, iss2Sec1.getKey());
+        Position iss2Sec1Pos = new Position(100, iss2Sec1);
         positions.add(iss2Sec1Pos);
-        MaterializedPosition iss2Sec2Pos = new MaterializedPosition(100, iss2Sec2.getKey());
+        Position iss2Sec2Pos = new Position(100, iss2Sec2);
         positions.add(iss2Sec2Pos);
-        MaterializedPosition iss3Sec1Pos = new MaterializedPosition(100, iss3Sec1.getKey());
+        Position iss3Sec1Pos = new Position(100, iss3Sec1);
         positions.add(iss3Sec1Pos);
-        MaterializedPosition iss4Sec1Pos = new MaterializedPosition(100, iss4Sec1.getKey());
+        Position iss4Sec1Pos = new Position(100, iss4Sec1);
         positions.add(iss4Sec1Pos);
-        MaterializedPosition iss4Sec2Pos = new MaterializedPosition(100, iss4Sec2.getKey());
+        Position iss4Sec2Pos = new Position(100, iss4Sec2);
         positions.add(iss4Sec2Pos);
-        MaterializedPosition iss5Sec1Pos = new MaterializedPosition(100, iss5Sec1.getKey());
+        Position iss5Sec1Pos = new Position(100, iss5Sec1);
         positions.add(iss5Sec1Pos);
-        MaterializedPosition iss6Sec1Pos = new MaterializedPosition(100, iss6Sec1.getKey());
+        Position iss6Sec1Pos = new Position(100, iss6Sec1);
         positions.add(iss6Sec1Pos);
 
-        HashMap<RuleKey, Rule> rules = new HashMap<>();
+        HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
         ConcentrationRule top2issuerRule =
                 new ConcentrationRule(new RuleKey("top2"), "top 2 issuer concentration", null, null,
                         0.25, new TopNSecurityAttributeAggregator(TestUtil.issuer, 2));
@@ -259,7 +258,7 @@ public class PortfolioEvaluatorTest {
 
         RuleProvider ruleProvider = (k -> rules.get(k));
 
-        MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
+        Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
@@ -299,34 +298,35 @@ public class PortfolioEvaluatorTest {
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300
-        MaterializedPosition usdPosition1 = new MaterializedPosition(100, usdSecurity.getKey());
+        Position usdPosition1 = new Position(100, usdSecurity);
         positions.add(usdPosition1);
         // value = 200, weighted rating = 18_000, weighted duration = 600
-        MaterializedPosition usdPosition2 = new MaterializedPosition(200, usdSecurity.getKey());
+        Position usdPosition2 = new Position(200, usdSecurity);
         positions.add(usdPosition2);
         // value = 300, weighted rating = 24_000, weighted duration = 1_200
-        MaterializedPosition nzdPosition1 = new MaterializedPosition(300, nzdSecurity.getKey());
+        Position nzdPosition1 = new Position(300, nzdSecurity);
         positions.add(nzdPosition1);
         // value = 400, weighted rating = 32_000, weighted duration = 1_600
-        MaterializedPosition nzdPosition2 = new MaterializedPosition(400, nzdSecurity.getKey());
+        Position nzdPosition2 = new Position(400, nzdSecurity);
         positions.add(nzdPosition2);
         // value = 500, weighted rating = 37_500, weighted duration = 2_500
-        MaterializedPosition cadPosition1 = new MaterializedPosition(500, cadSecurity.getKey());
+        Position cadPosition1 = new Position(500, cadSecurity);
         positions.add(cadPosition1);
         // value = 600, weighted rating = 45_000, weighted duration = 3_000
-        MaterializedPosition cadPosition2 = new MaterializedPosition(600, cadSecurity.getKey());
+        Position cadPosition2 = new Position(600, cadSecurity);
         positions.add(cadPosition2);
 
-        HashMap<RuleKey, Rule> rules = new HashMap<>();
-        Rule durationRule = new WeightedAverageRule(null, "currency-grouped duration rule", null,
-                TestUtil.duration, null, 4d,
+        HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
+        ConfigurableRule durationRule = new WeightedAverageRule(null,
+                "currency-grouped duration rule", null, TestUtil.duration, null, 4d,
                 new SecurityAttributeGroupClassifier(TestUtil.currency));
         rules.put(durationRule.getKey(), durationRule);
-        Rule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
+        ConfigurableRule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
                 TestUtil.ratingValue, 80d, null, null);
         rules.put(qualityRule.getKey(), qualityRule);
-        Rule issuerRule = new ConcentrationRule(null, "issuer-grouped concentration rule", null,
-                null, 0.5, new SecurityAttributeGroupClassifier(TestUtil.issuer));
+        ConfigurableRule issuerRule =
+                new ConcentrationRule(null, "issuer-grouped concentration rule", null, null, 0.5,
+                        new SecurityAttributeGroupClassifier(TestUtil.issuer));
         rules.put(issuerRule.getKey(), issuerRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));
@@ -388,10 +388,10 @@ public class PortfolioEvaluatorTest {
     public void testEvaluateOverrides() throws Exception {
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
 
-        MaterializedPosition dummyPosition = new MaterializedPosition(1, TestUtil.s1.getKey());
+        Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        MaterializedPosition overridePosition = new MaterializedPosition(1, TestUtil.s2.getKey());
+        Position overridePosition = new Position(1, TestUtil.s2);
         Set<Position> overridePositions = Set.of(overridePosition);
 
         Portfolio portfolioBenchmark = new Portfolio(new PortfolioKey("testPortfolioBenchmark", 1),

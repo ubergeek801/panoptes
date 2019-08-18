@@ -1,18 +1,17 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
- * EvaluationGroupClassifier classifies Positions into EvaluationGroups for the purpose of grouping
- * rule evaluation results.
+ * {@code EvaluationGroupClassifier} classifies {@code Position}s into {@code EvaluationGroup}s for
+ * the purpose of grouping rule evaluation results.
  *
  * @author jeremy
  */
 @FunctionalInterface
 public interface EvaluationGroupClassifier {
     /**
-     * Obtains the default (Portfolio-level) classifier.
+     * Obtains the default ({@code Portfolio}-level) classifier.
      *
      * @return the default classifier
      */
@@ -21,14 +20,11 @@ public interface EvaluationGroupClassifier {
     }
 
     /**
-     * Classifies the given Position into an EvaluationGroup.
+     * Classifies the given {@code Position} into an {@code EvaluationGroup}.
      *
-     * @param securityProvider
-     *            the SecurityProvider to be used to obtain security information, or null if known
-     *            to be unnecessary
      * @param position
-     *            the Position to be classified
-     * @return the EvaluationGroup to be applied to the Position
+     *            the {@code Position} to be classified
+     * @return the {@code EvaluationGroup} to be applied to the {@code Position}
      */
-    public EvaluationGroup<?> classify(SecurityProvider securityProvider, Position position);
+    public EvaluationGroup<?> classify(Position position);
 }

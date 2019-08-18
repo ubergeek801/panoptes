@@ -7,26 +7,27 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
 
 /**
- * A ValueRule stipulates limits on values that can be calculated on a portfolio's composition,
- * either in absolute terms or relative to a benchmark.
+ * A {@code ValueRule} stipulates limits on values that can be calculated on a {@code Portfolio}'s
+ * composition, either in absolute terms or relative to a benchmark.
  *
  * @author jeremy
  */
-public abstract class ValueRule extends MaterializedRule {
+public abstract class ValueRule extends ConfigurableRule {
     private final Predicate<PositionEvaluationContext> positionFilter;
     private final SecurityAttribute<Double> calculationAttribute;
     private final Double lowerLimit;
     private final Double upperLimit;
 
     /**
-     * Creates a new ValueRule with the given parameters.
+     * Creates a new {@code ValueRule} with the given parameters.
      *
      * @param key
-     *            the unique key of this rule, or null to generate one
+     *            the unique key of this {@code Rule}, or {@code null} to generate one
      * @param description
-     *            the rule description
+     *            the {@code Rule} description
      * @param positionFilter
-     *            the (possibly null) filter to be applied to Positions
+     *            the (possibly {@code null}) filter to be applied to {@code Position}s during
+     *            evaluation of the {@code Rule}
      * @param calculationAttribute
      *            the attribute on which to calculate
      * @param lowerLimit
@@ -34,8 +35,8 @@ public abstract class ValueRule extends MaterializedRule {
      * @param upperLimit
      *            the upper limit of acceptable concentration values
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
-     *            GroupAggregator
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
      */
     protected ValueRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter,
@@ -84,16 +85,16 @@ public abstract class ValueRule extends MaterializedRule {
     }
 
     /**
-     * Obtains this Rule's (possibly null) calculation attribute.
+     * Obtains this {@code Rule}'s (possibly {@code null}) calculation attribute.
      *
-     * @return the SecurityAttribute on which to perform calculations
+     * @return the {@code SecurityAttribute} on which to perform calculations
      */
     protected SecurityAttribute<Double> getCalculationAttribute() {
         return calculationAttribute;
     }
 
     /**
-     * Obtains this Rule's (possibly null) lower limit.
+     * Obtains this {@code Rule}'s (possibly {@code null}) lower limit.
      *
      * @return the lower limit against which to evaluate
      */
@@ -102,16 +103,16 @@ public abstract class ValueRule extends MaterializedRule {
     }
 
     /**
-     * Obtains this rule's (possibly null) position filter.
+     * Obtains this {@code Rule}'s (possibly {@code null}) {@code Position} filter.
      *
-     * @return the Predicate encoding the position filter
+     * @return a {@code Predicate} realizing the position filter
      */
     protected Predicate<PositionEvaluationContext> getPositionFilter() {
         return positionFilter;
     }
 
     /**
-     * Obtains this Rule's (possibly null) upper limit.
+     * Obtains this {@code Rule}'s (possibly {@code null}) upper limit.
      *
      * @return the upper limit against which to evaluate
      */
@@ -120,13 +121,14 @@ public abstract class ValueRule extends MaterializedRule {
     }
 
     /**
-     * Evaluates the Rule calculation on the given Positions (which may be the Portfolio being
-     * evaluated, or its related benchmark).
+     * Evaluates the {@code Rule} calculation on the given {@code Position}s (which may be the
+     * {@code Portfolio} being evaluated, or its related benchmark).
      *
      * @param positions
-     *            the Positions on which to perform the appropriate calculations
+     *            a supplier of the {@code Position}s on which to perform the appropriate
+     *            calculations
      * @param evaluationContext
-     *            the EvaluationContext under which to calculate
+     *            the {@code EvaluationContext} under which to calculate
      * @return the calculation result
      */
     protected abstract double getValue(PositionSupplier positions,
