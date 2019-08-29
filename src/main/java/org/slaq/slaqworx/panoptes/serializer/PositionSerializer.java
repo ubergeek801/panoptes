@@ -10,7 +10,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 
@@ -54,7 +54,7 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
     @Override
     public Position read(byte[] buffer) throws IOException {
         if (securityProvider == null) {
-            securityProvider = Panoptes.getApplicationContext().getBean(PortfolioCache.class);
+            securityProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
         }
 
         PositionMsg positionMsg = PositionMsg.parseFrom(buffer);

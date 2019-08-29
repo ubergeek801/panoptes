@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,56 +18,32 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 public class TestUtil {
     public static final double EPSILON = 0.00001;
 
-    public static SecurityAttribute<String> cusip = SecurityAttribute.of("cusip", 0, String.class);
-    public static SecurityAttribute<String> isin = SecurityAttribute.of("isin", 1, String.class);
-    public static SecurityAttribute<String> description =
-            SecurityAttribute.of("description", 2, String.class);
-    public static SecurityAttribute<String> country =
-            SecurityAttribute.of("country", 3, String.class);
-    public static SecurityAttribute<String> region =
-            SecurityAttribute.of("region", 4, String.class);
-    public static SecurityAttribute<String> sector =
-            SecurityAttribute.of("sector", 5, String.class);
-    public static SecurityAttribute<String> currency =
-            SecurityAttribute.of("currency", 6, String.class);
-    public static SecurityAttribute<BigDecimal> coupon =
-            SecurityAttribute.of("coupon", 7, BigDecimal.class);
-    public static SecurityAttribute<LocalDate> maturityDate =
-            SecurityAttribute.of("maturityDate", 8, LocalDate.class);
-    public static SecurityAttribute<String> ratingSymbol =
-            SecurityAttribute.of("ratingSymbol", 9, String.class);
-    public static SecurityAttribute<Double> ratingValue =
-            SecurityAttribute.of("ratingValue", 10, Double.class);
-    public static SecurityAttribute<BigDecimal> yield =
-            SecurityAttribute.of("yield", 11, BigDecimal.class);
-    public static SecurityAttribute<Double> duration =
-            SecurityAttribute.of("duration", 12, Double.class);
-    public static SecurityAttribute<String> issuer =
-            SecurityAttribute.of("issuer", 13, String.class);
-
+    // additional SecurityAttributes used by test cases
     public static final SecurityAttribute<Double> moovyRating =
-            SecurityAttribute.of("Moovy", 14, Double.class);
+            SecurityAttribute.of("Moovy", 15, Double.class);
     public static final SecurityAttribute<Double> npRating =
-            SecurityAttribute.of("N&P", 15, Double.class);
-
+            SecurityAttribute.of("N&P", 16, Double.class);
     public static final SecurityAttribute<Double> fetchRating =
-            SecurityAttribute.of("Fetch", 16, Double.class);
+            SecurityAttribute.of("Fetch", 17, Double.class);
 
     private static final TestPortfolioProvider portfolioProvider = new TestPortfolioProvider();
     private static final TestPositionProvider positionProvider = new TestPositionProvider();
     private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
     private static final TestRuleProvider ruleProvider = new TestRuleProvider();
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
-            Map.of(moovyRating, 90d, npRating, 92d, fetchRating, 88d, duration, 4d, country, "US");
+    public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = Map.of(moovyRating,
+            90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration, 4d,
+            SecurityAttribute.country, "US", SecurityAttribute.price, new BigDecimal("1.00"));
     public static final Security s1 = securityProvider.newSecurity(s1Attributes);
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
-            Map.of(moovyRating, 85d, npRating, 78d, duration, 4d, country, "NZ");
+    public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes = Map.of(moovyRating,
+            85d, npRating, 78d, SecurityAttribute.duration, 4d, SecurityAttribute.country, "NZ",
+            SecurityAttribute.price, new BigDecimal("1.00"));
     public static final Security s2 = securityProvider.newSecurity(s2Attributes);
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes =
-            Map.of(moovyRating, 80d, npRating, 82d, duration, 2.1d, country, "CA");
+    public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes = Map.of(moovyRating,
+            80d, npRating, 82d, SecurityAttribute.duration, 2.1d, SecurityAttribute.country, "CA",
+            SecurityAttribute.price, new BigDecimal("1.00"));
     public static final Security s3 = securityProvider.newSecurity(s3Attributes);
 
     public static final Set<Position> p1Positions =

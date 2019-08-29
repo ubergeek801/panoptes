@@ -72,8 +72,8 @@ public class Transaction implements PositionSupplier {
     }
 
     @Override
-    public double getTotalAmount() {
-        return positions.getTotalAmount();
+    public double getTotalMarketValue() {
+        return positions.getTotalMarketValue();
     }
 
     public Trade getTrade() {

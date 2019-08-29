@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,7 @@ import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
- * PortfolioTest tests the functionality of Portfolio.
+ * {@code PortfolioTest} tests the functionality of {@code Portfolio}.
  *
  * @author jeremy
  */
@@ -23,10 +25,10 @@ public class PortfolioTest {
     private TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
     /**
-     * Tests that getPositions() behaves as expected.
+     * Tests that {@code getPositions()} behaves as expected.
      */
     @Test
-    public void getPositions() {
+    public void testGetPositions() {
         Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
@@ -58,11 +60,12 @@ public class PortfolioTest {
     }
 
     /**
-     * Tests that getTotalAmount() behaves as expected.
+     * Tests that {@code getTotalMarketValue()} behaves as expected.
      */
     @Test
-    public void testGetTotalAmount() {
-        Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
+    public void testGetTotalMarketValue() {
+        Security dummySecurity = securityProvider
+                .newSecurity(Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
         positions.add(new Position(200, dummySecurity));
@@ -70,12 +73,13 @@ public class PortfolioTest {
         positions.add(new Position(400, dummySecurity));
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
-        // the total amount is merely the sum of the amounts 100 + 200 + 300 + 400 = 1000
-        assertEquals(1000, portfolio.getTotalAmount(), TestUtil.EPSILON, "unexpected total amount");
+        // the total amount is merely the sum of the amounts (100 + 200 + 300 + 400) * 2.00 = 2000
+        assertEquals(2000, portfolio.getTotalMarketValue(), TestUtil.EPSILON,
+                "unexpected total amount");
     }
 
     /**
-     * Tests that Portfolios are hashed in a reasonable way.
+     * Tests that {@code Portfolios} are hashed in a reasonable way.
      */
     @Test
     public void testHash() {

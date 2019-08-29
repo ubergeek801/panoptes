@@ -16,7 +16,7 @@ import io.micronaut.runtime.event.annotation.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
 
 /**
@@ -82,22 +82,22 @@ public class Panoptes {
     @EventListener
     protected void onStartup(StartupEvent event) {
         applicationContext = event.getSource();
-        PortfolioCache portfolioCache = applicationContext.getBean(PortfolioCache.class);
+        AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
-        portfolioCache.getSecurityCache().loadAll(false);
-        int numSecurities = portfolioCache.getSecurityCache().size();
+        assetCache.getSecurityCache().loadAll(false);
+        int numSecurities = assetCache.getSecurityCache().size();
         LOG.info("{} Securities in cache", numSecurities);
 
-        portfolioCache.getPositionCache().loadAll(false);
-        int numPositions = portfolioCache.getPositionCache().size();
+        assetCache.getPositionCache().loadAll(false);
+        int numPositions = assetCache.getPositionCache().size();
         LOG.info("{} Positions in cache", numPositions);
 
-        portfolioCache.getRuleCache().loadAll(false);
-        int numRules = portfolioCache.getRuleCache().size();
+        assetCache.getRuleCache().loadAll(false);
+        int numRules = assetCache.getRuleCache().size();
         LOG.info("{} Rules in cache", numRules);
 
-        portfolioCache.getPortfolioCache().loadAll(false);
-        int numPortfolios = portfolioCache.getPortfolioCache().size();
+        assetCache.getPortfolioCache().loadAll(false);
+        int numPortfolios = assetCache.getPortfolioCache().size();
         LOG.info("{} Portfolios in cache", numPortfolios);
 
         LOG.info("starting PortfolioEvaluationRequestListener");

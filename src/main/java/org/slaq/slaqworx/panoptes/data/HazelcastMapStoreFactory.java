@@ -10,7 +10,7 @@ import com.hazelcast.core.MapStoreFactory;
 
 import io.micronaut.context.ApplicationContext;
 
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
  * {@code HazelcastMapStoreFactory} is a {@code MapStoreFactory} that provides {@code MapStore}s for
@@ -43,13 +43,13 @@ public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object>
     @Override
     public MapLoader newMapStore(String mapName, Properties properties) {
         switch (mapName) {
-        case PortfolioCache.PORTFOLIO_CACHE_NAME:
+        case AssetCache.PORTFOLIO_CACHE_NAME:
             return new PortfolioMapStore(applicationContext, dataSource);
-        case PortfolioCache.POSITION_CACHE_NAME:
+        case AssetCache.POSITION_CACHE_NAME:
             return new PositionMapStore(applicationContext, dataSource);
-        case PortfolioCache.RULE_CACHE_NAME:
+        case AssetCache.RULE_CACHE_NAME:
             return new RuleMapStore(dataSource);
-        case PortfolioCache.SECURITY_CACHE_NAME:
+        case AssetCache.SECURITY_CACHE_NAME:
             return new SecurityMapStore(dataSource);
         }
 

@@ -13,7 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProvider;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
@@ -65,10 +65,10 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
     @Override
     public Portfolio read(byte[] buffer) throws IOException {
         if (positionProvider == null) {
-            positionProvider = Panoptes.getApplicationContext().getBean(PortfolioCache.class);
+            positionProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
         }
         if (ruleProvider == null) {
-            ruleProvider = Panoptes.getApplicationContext().getBean(PortfolioCache.class);
+            ruleProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
         }
 
         PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
@@ -30,7 +30,7 @@ public class RuleSerializerTest {
 
         ConfigurableRule rule = new ConcentrationRule(new RuleKey("foo"), "test rule",
                 new GroovyPositionFilter("p.amount > 1_000_000"), 1d, 2d,
-                new TopNSecurityAttributeAggregator(TestUtil.country, 5));
+                new TopNSecurityAttributeAggregator(SecurityAttribute.country, 5));
 
         byte[] buffer = serializer.write(rule);
         ConfigurableRule deserialized = serializer.read(buffer);
@@ -54,8 +54,8 @@ public class RuleSerializerTest {
         }
 
         rule = new WeightedAverageRule(new RuleKey("foo"), "test rule",
-                new GroovyPositionFilter("p.amount > 1_000_000"), TestUtil.duration, 1d, 2d,
-                new TopNSecurityAttributeAggregator(TestUtil.duration, 10));
+                new GroovyPositionFilter("p.amount > 1_000_000"), SecurityAttribute.duration, 1d,
+                2d, new TopNSecurityAttributeAggregator(SecurityAttribute.duration, 10));
 
         buffer = serializer.write(rule);
         deserialized = serializer.read(buffer);

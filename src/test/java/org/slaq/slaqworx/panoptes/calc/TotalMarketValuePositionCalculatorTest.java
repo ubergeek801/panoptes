@@ -2,8 +2,9 @@ package org.slaq.slaqworx.panoptes.calc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Collections;
+import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,23 +14,26 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * TotalAmountPositionCalculatorTest tests the functionality of the TotalAmountPositionCalculator.
+ * {@code TotalMarketValuePositionCalculatorTest} tests the functionality of the
+ * {@code TotalMarketValuePositionCalculator}.
  *
  * @author jeremy
  */
-public class TotalAmountPositionCalculatorTest {
+public class TotalMarketValuePositionCalculatorTest {
     /**
-     * Tests that calculate() behaves as expected.
+     * Tests that {@code calculate()} behaves as expected.
      */
     @Test
     public void testCalculate() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        TotalAmountPositionCalculator calculator = new TotalAmountPositionCalculator();
-        Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
+        TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
+        Security dummySecurity = securityProvider
+                .newSecurity(Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
 
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
@@ -37,9 +41,9 @@ public class TotalAmountPositionCalculatorTest {
         positions.add(new Position(300, dummySecurity));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-        double totalAmount = calculator.calculate(portfolio,
+        double totalMarketValue = calculator.calculate(portfolio,
                 new EvaluationContext(null, securityProvider, null));
-        // the total should merely be the sum of the amounts
-        assertEquals(600, totalAmount, TestUtil.EPSILON, "unexpected total amount");
+        // the total should merely be the sum of the (amounts * price)
+        assertEquals(1200, totalMarketValue, TestUtil.EPSILON, "unexpected total market value");
     }
 }

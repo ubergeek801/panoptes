@@ -47,8 +47,12 @@ public class ClusterPortfolioEvaluatorMessenger implements
      * Creates a new {@code ClusterPortfolioEvaluatorMessenger} which submits an evaluation request
      * and listens for the results.
      *
-     * @param portfolioCache
-     *            the {@PortfolioCache} from which to obtain the result map
+     * @param portfolioEvaluationResultMap
+     *            the distributed {@IMap} from which to obtain result data
+     * @param portfolioEvaluationRequestQueueSession
+     *            the {@code ClientSession} to use to produce messages to the evaluation queue
+     * @param portfolioEvaluationRequestQueueProducer
+     *            the {@code ClientProducer} to use to produce messages to the evaluation queue
      * @param portfolioKey
      *            the key identifying the {@code Portfolio} to be evaluated
      */

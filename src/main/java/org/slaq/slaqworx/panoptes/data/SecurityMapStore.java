@@ -12,17 +12,18 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.serializer.SerializerUtil;
 
 /**
- * SecurityMapStore is a Hazelcast MapStore that provides Security persistence services.
+ * {@code SecurityMapStore} is a Hazelcast {@code MapStore} that provides {@code Security}
+ * persistence services.
  *
  * @author jeremy
  */
 public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     /**
-     * Creates a new SecurityMapStore. Restricted because instances of this class should be created
-     * through the {@code ApplicationContext}.
+     * Creates a new {@code SecurityMapStore}. Restricted because instances of this class should be
+     * created through the {@code HazelcastMapStoreFactory}.
      *
      * @param dataSource
-     *            the DataSource through which to access the database
+     *            the {@code DataSource} through which to access the database
      */
     protected SecurityMapStore(DataSource dataSource) {
         super(dataSource);

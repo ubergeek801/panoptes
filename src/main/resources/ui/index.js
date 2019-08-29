@@ -30,3 +30,11 @@ Vue.filter('currency', function(value) {
 
     return value.toLocaleString(navigator.language, { style: 'currency', currency: 'USD' })
 });
+
+Vue.filter('decimal', function(value) {
+    if (!value) {
+        return '';
+    }
+
+    return value.toLocaleString(navigator.language, { style: 'decimal' })
+});

@@ -17,20 +17,20 @@ import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
-import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
 /**
- * {@code PortfolioCache} provides operations for accessing {@code Portfolio} and related data (e.g.
+ * {@code AssetCache} provides operations for accessing {@code Portfolio} and related data (e.g.
  * {@code Position}s, {@code Securities}) from the distributed cache.
  *
  * @author jeremy
  */
 @Singleton
-public class PortfolioCache
+public class AssetCache
         implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
             "portfolioEvaluationResultMap";
@@ -43,13 +43,13 @@ public class PortfolioCache
     private final HazelcastInstance hazelcastInstance;
 
     /**
-     * Creates a new {@code PortfolioCache}. Restricted because instances of this class should be
+     * Creates a new {@code AssetCache}. Restricted because instances of this class should be
      * obtained through the {@code ApplicationContext}.
      *
      * @param hazelcastInstance
      *            the {@code HazelcastInstance} through which to access cached data
      */
-    protected PortfolioCache(HazelcastInstance hazelcastInstance) {
+    protected AssetCache(HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
     }
 

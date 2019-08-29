@@ -16,7 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
@@ -30,7 +30,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     private ApplicationContext applicationContext;
 
     /**
-     * Creates a new PortfolioMapStore. Restricted because instances of this class should be
+     * Creates a new {@code PortfolioMapStore}. Restricted because instances of this class should be
      * obtained through the {@code HazelcastMapStoreFactory}.
      *
      * @param applicationContext
@@ -69,7 +69,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         + " where portfolio_id = ? and portfolio_version = ?",
                 new Object[] { id, version },
                 (RowMapper<PositionKey>)(rsPos, rowNumPos) -> new PositionKey(rsPos.getString(1)));
-        Set<Position> positions = positionKeys.stream().map(k -> getPortfolioCache().getPosition(k))
+        Set<Position> positions = positionKeys.stream().map(k -> getAssetCache().getPosition(k))
                 .collect(Collectors.toSet());
 
         // get the keys for the related Rules
@@ -78,8 +78,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         + " where portfolio_id = ? and portfolio_version = ?",
                 new Object[] { id, version },
                 (RowMapper<RuleKey>)(rsPos, rowNumPos) -> new RuleKey(rsPos.getString(1)));
-        Set<ConfigurableRule> rules = ruleKeys.stream().map(k -> getPortfolioCache().getRule(k))
-                .collect(Collectors.toSet());
+        Set<ConfigurableRule> rules =
+                ruleKeys.stream().map(k -> getAssetCache().getRule(k)).collect(Collectors.toSet());
 
         return new Portfolio(new PortfolioKey(id, version), name, positions,
                 (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
@@ -115,6 +115,14 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         key.getId(), key.getVersion(), r.getKey().getId()));
     }
 
+    /**
+     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
+     * circular injection dependency.
+     */
+    protected AssetCache getAssetCache() {
+        return applicationContext.getBean(AssetCache.class);
+    }
+
     @Override
     protected String[] getKeyColumnNames() {
         return new String[] { "id", "version" };
@@ -133,17 +141,6 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     @Override
     protected String getLoadSelect() {
         return "select id, version, name, benchmark_id, benchmark_version from " + getTableName();
-    }
-
-    /**
-     * Obtains the {@code PortfolioCache} to be used to resolve references. Lazily obtained to avoid
-     * a circular injection dependency.
-     *
-     * @param portfolioCache
-     *            the {@code PortfolioCache} to use to obtain data
-     */
-    protected PortfolioCache getPortfolioCache() {
-        return applicationContext.getBean(PortfolioCache.class);
     }
 
     @Override

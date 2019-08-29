@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
  * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
@@ -21,7 +21,7 @@ import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
  * @author jeremy
  */
 public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
     /**
      * Creates a new PositionMapStore. Restricted because instances of this class should be created
@@ -51,7 +51,7 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
         String securityId = rs.getString(3);
 
         return new Position(new PositionKey(id), amount,
-                getPortfolioCache().getSecurity(new SecurityKey(securityId)));
+                getAssetCache().getSecurity(new SecurityKey(securityId)));
     }
 
     @Override
@@ -61,6 +61,14 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
                         + " on conflict on constraint position_pk do update"
                         + " set amount = excluded.amount, security_id = excluded.security_id",
                 key.getId(), position.getAmount(), position.getSecurity().getKey().getId());
+    }
+
+    /**
+     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
+     * circular injection dependency.
+     */
+    protected AssetCache getAssetCache() {
+        return applicationContext.getBean(AssetCache.class);
     }
 
     @Override
@@ -81,17 +89,6 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     @Override
     protected String getLoadSelect() {
         return "select id, amount, security_id from " + getTableName();
-    }
-
-    /**
-     * Obtains the {@code PortfolioCache} to be used to resolve references. Lazily obtained to avoid
-     * a circular injection dependency.
-     *
-     * @param portfolioCache
-     *            the {@code PortfolioCache} to use to obtain data
-     */
-    protected PortfolioCache getPortfolioCache() {
-        return applicationContext.getBean(PortfolioCache.class);
     }
 
     @Override

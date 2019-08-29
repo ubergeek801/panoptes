@@ -82,7 +82,7 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
                 sortedClassifiedPositions.add(new PositionSet(positions));
             });
             Collections.sort(sortedClassifiedPositions,
-                    (s1, s2) -> Double.compare(s2.getTotalAmount(), s1.getTotalAmount()));
+                    (s1, s2) -> Double.compare(s2.getTotalMarketValue(), s1.getTotalMarketValue()));
 
             // collect the first "count" PositionSuppliers into a single supplier
             for (int i = 0; i < count; i++) {

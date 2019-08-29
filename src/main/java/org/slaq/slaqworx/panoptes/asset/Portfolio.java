@@ -163,8 +163,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     }
 
     @Override
-    public double getTotalAmount() {
-        return positionSet.getTotalAmount();
+    public double getTotalMarketValue() {
+        return positionSet.getTotalMarketValue();
     }
 
     @Override

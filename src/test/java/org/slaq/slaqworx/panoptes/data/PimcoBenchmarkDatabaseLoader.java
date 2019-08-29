@@ -22,12 +22,13 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PimcoBenchmarkDatabaseLoader} populates the Hazelcast caches (and thus the database
- * implementing their {@code MapStores}) with data based on the PIMCO benchmarks.
+ * {@code PimcoBenchmarkDatabaseLoader} populates the Panoptes database (using Hazelcast
+ * {@code MapStores}) with data based on the PIMCO benchmarks.
  *
  * @author jeremy
  */
@@ -54,15 +55,19 @@ public class PimcoBenchmarkDatabaseLoader {
      *            a {@code StartupEvent}
      */
     @EventListener()
-    void onStartup(StartupEvent event) throws Exception {
+    protected void onStartup(StartupEvent event) throws Exception {
         @SuppressWarnings("resource")
         BeanContext beanContext = event.getSource();
 
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
         TransactionTemplate txTemplate = beanContext.getBean(TransactionTemplate.class);
+        HazelcastMapStoreFactory mapStoreFactory =
+                beanContext.getBean(HazelcastMapStoreFactory.class);
 
         LOG.info("persisting {} Securities", pimcoDataSource.getSecurityMap().size());
-        SecurityMapStore securityMapStore = beanContext.getBean(SecurityMapStore.class);
+        SecurityMapStore securityMapStore = (SecurityMapStore)mapStoreFactory
+                .newMapStore(AssetCache.SECURITY_CACHE_NAME, null);
+
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -77,7 +82,8 @@ public class PimcoBenchmarkDatabaseLoader {
             portfolios.add(portfolio);
         }
 
-        RuleMapStore ruleMapStore = beanContext.getBean(RuleMapStore.class);
+        RuleMapStore ruleMapStore =
+                (RuleMapStore)mapStoreFactory.newMapStore(AssetCache.RULE_CACHE_NAME, null);
         portfolios.stream().forEach(pf -> {
             LOG.info("persisting {} Rules for Portfolio {}", pf.getRules().count(), pf.getName());
             txTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -90,7 +96,8 @@ public class PimcoBenchmarkDatabaseLoader {
             });
         });
 
-        PositionMapStore positionMapStore = beanContext.getBean(PositionMapStore.class);
+        PositionMapStore positionMapStore = (PositionMapStore)mapStoreFactory
+                .newMapStore(AssetCache.POSITION_CACHE_NAME, null);
         portfolios.stream().forEach(pf -> {
             LOG.info("persisting {} Positions for Portfolio {}", pf.getPositions().count(),
                     pf.getName());
@@ -104,7 +111,8 @@ public class PimcoBenchmarkDatabaseLoader {
             });
         });
 
-        PortfolioMapStore portfolioMapStore = beanContext.getBean(PortfolioMapStore.class);
+        PortfolioMapStore portfolioMapStore = (PortfolioMapStore)mapStoreFactory
+                .newMapStore(AssetCache.PORTFOLIO_CACHE_NAME, null);
         // persist the benchmarks first
         LOG.info("persisting 4 benchmark Portfolios");
         txTemplate.execute(new TransactionCallbackWithoutResult() {

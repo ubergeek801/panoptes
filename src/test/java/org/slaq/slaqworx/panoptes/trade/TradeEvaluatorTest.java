@@ -20,10 +20,10 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
-import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
@@ -42,8 +42,8 @@ public class TradeEvaluatorTest {
     public void testEvaluate() throws Exception {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider.newSecurity(Map.of(TestUtil.duration, 3.0));
-        Security s2 = securityProvider.newSecurity(Map.of(TestUtil.duration, 4.0));
+        Security s1 = securityProvider.newSecurity(Map.of(SecurityAttribute.duration, 3.0));
+        Security s2 = securityProvider.newSecurity(Map.of(SecurityAttribute.duration, 4.0));
 
         HashSet<Position> p1Positions = new HashSet<>();
         p1Positions.add(new Position(1_000, s1));
@@ -53,23 +53,23 @@ public class TradeEvaluatorTest {
         HashMap<RuleKey, ConfigurableRule> p1Rules = new HashMap<>();
         // since the Portfolio is already within (at) the limit, and the Trade pushes it out, this
         // Rule should fail
-        ConfigurableRule p1Rule1 = new WeightedAverageRule(new RuleKey("p1Rule1"), "WeightedAverage<=3.0", null,
-                TestUtil.duration, null, 3d, null);
+        ConfigurableRule p1Rule1 = new WeightedAverageRule(new RuleKey("p1Rule1"),
+                "WeightedAverage<=3.0", null, SecurityAttribute.duration, null, 3d, null);
         p1Rules.put(p1Rule1.getKey(), p1Rule1);
         // since the Portfolio is already above the limit, and the Trade makes it worse, this Rule
         // should fail
-        ConfigurableRule p1Rule2 = new WeightedAverageRule(new RuleKey("p1Rule2"), "WeightedAverage<=2.0", null,
-                TestUtil.duration, null, 2d, null);
+        ConfigurableRule p1Rule2 = new WeightedAverageRule(new RuleKey("p1Rule2"),
+                "WeightedAverage<=2.0", null, SecurityAttribute.duration, null, 2d, null);
         p1Rules.put(p1Rule2.getKey(), p1Rule2);
         // since the Portfolio is already below the limit, and the Trade improves it, this Rule
         // should pass
-        ConfigurableRule p1Rule3 = new WeightedAverageRule(new RuleKey("p1Rule3"), "WeightedAverage>=4.0", null,
-                TestUtil.duration, 4d, null, null);
+        ConfigurableRule p1Rule3 = new WeightedAverageRule(new RuleKey("p1Rule3"),
+                "WeightedAverage>=4.0", null, SecurityAttribute.duration, 4d, null, null);
         p1Rules.put(p1Rule3.getKey(), p1Rule3);
         // since the Portfolio is already within the limit, and remains so with the Trade, this Rule
         // should pass
-        ConfigurableRule p1Rule4 = new WeightedAverageRule(new RuleKey("p1Rule4"), "WeightedAverage<=4.0", null,
-                TestUtil.duration, null, 4d, null);
+        ConfigurableRule p1Rule4 = new WeightedAverageRule(new RuleKey("p1Rule4"),
+                "WeightedAverage<=4.0", null, SecurityAttribute.duration, null, 4d, null);
         p1Rules.put(p1Rule4.getKey(), p1Rule4);
 
         RuleProvider ruleProvider = (k -> p1Rules.get(k));
@@ -117,19 +117,20 @@ public class TradeEvaluatorTest {
     @Test
     public void testEvaluateRoom() throws Exception {
         Map<SecurityAttribute<?>, ? super Object> security1Attributes =
-                Map.of(TestUtil.duration, 3d);
+                Map.of(SecurityAttribute.duration, 3d);
         Security security1 = TestUtil.testSecurityProvider().newSecurity(security1Attributes);
 
         Position position1 =
                 TestUtil.testPositionProvider().newPosition(null, 1_000_000, security1);
         Set<Position> p1Positions = Set.of(position1);
 
-        WeightedAverageRule rule1 = new WeightedAverageRule(null,
-                "weighted average: duration <= 3.5", null, TestUtil.duration, null, 3.5, null);
+        WeightedAverageRule rule1 =
+                new WeightedAverageRule(null, "weighted average: duration <= 3.5", null,
+                        SecurityAttribute.duration, null, 3.5, null);
         List<ConfigurableRule> p1Rules = List.of(rule1);
 
         Map<SecurityAttribute<?>, ? super Object> security2Attributes =
-                Map.of(TestUtil.duration, 4d);
+                Map.of(SecurityAttribute.duration, 4d);
         Security trialSecurity = TestUtil.testSecurityProvider().newSecurity(security2Attributes);
 
         Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(null, "test 1",
@@ -141,8 +142,8 @@ public class TradeEvaluatorTest {
         EvaluationContext evaluationContext = new EvaluationContext(
                 TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider(), null);
         assertEquals(3.0,
-                new WeightedAveragePositionCalculator(TestUtil.duration).calculate(portfolio,
-                        evaluationContext),
+                new WeightedAveragePositionCalculator(SecurityAttribute.duration)
+                        .calculate(portfolio, evaluationContext),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
         assertEquals(1_000_000, new TradeEvaluator(evaluationContext.getPortfolioProvider(),
                 evaluationContext.getSecurityProvider(), evaluationContext.getRuleProvider())

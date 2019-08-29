@@ -45,7 +45,7 @@ public interface PositionSupplier {
      *
      * @return the sum of {@code Position} amounts
      */
-    public double getTotalAmount();
+    public double getTotalMarketValue();
 
     /**
      * Obtains the number of {@code Position}s in this {@code PositionSupplier}.

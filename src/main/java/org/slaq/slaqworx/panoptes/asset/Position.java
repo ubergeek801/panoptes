@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.math.BigDecimal;
+
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -13,6 +15,7 @@ public class Position implements Keyed<PositionKey> {
     private final PositionKey key;
     private final double amount;
     private final Security security;
+    private final double marketValue;
 
     /**
      * Creates a new {@code Position} with a generated key and the specified amount and
@@ -41,6 +44,13 @@ public class Position implements Keyed<PositionKey> {
         this.key = (key == null ? new PositionKey(null) : key);
         this.amount = amount;
         this.security = security;
+        BigDecimal price = security.getAttributeValue(SecurityAttribute.price);
+        if (price == null) {
+            // TODO this shouldn't happen
+            marketValue = 0;
+        } else {
+            marketValue = price.multiply(BigDecimal.valueOf(amount)).doubleValue();
+        }
     }
 
     @Override
@@ -70,6 +80,15 @@ public class Position implements Keyed<PositionKey> {
     @Override
     public PositionKey getKey() {
         return key;
+    }
+
+    /**
+     * Obtains the market value of this {@code Position}.
+     *
+     * @return the market value
+     */
+    public double getMarketValue() {
+        return marketValue;
     }
 
     /**

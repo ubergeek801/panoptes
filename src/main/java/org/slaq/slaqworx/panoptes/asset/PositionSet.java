@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
+import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
@@ -27,7 +27,7 @@ public class PositionSet implements PositionSupplier {
     // calculation performance by 20%
     private final ArrayList<Position> positions;
     private final Portfolio portfolio;
-    private Double totalAmount;
+    private Double totalMarketValue;
 
     /**
      * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with no parent
@@ -79,13 +79,13 @@ public class PositionSet implements PositionSupplier {
     }
 
     @Override
-    public double getTotalAmount() {
-        if (totalAmount == null) {
-            totalAmount = new TotalAmountPositionCalculator().calculate(this,
+    public double getTotalMarketValue() {
+        if (totalMarketValue == null) {
+            totalMarketValue = new TotalMarketValuePositionCalculator().calculate(this,
                     new EvaluationContext(null, null, null));
         }
 
-        return totalAmount;
+        return totalMarketValue;
     }
 
     @Override

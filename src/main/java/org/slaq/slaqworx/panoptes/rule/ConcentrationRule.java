@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
-import org.slaq.slaqworx.panoptes.calc.TotalAmountPositionCalculator;
+import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
@@ -116,11 +116,11 @@ public class ConcentrationRule extends ValueRule {
         // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
         // have a related Portfolio.
 
-        TotalAmountPositionCalculator calculator = new TotalAmountPositionCalculator();
+        TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
 
         double subtotalAmount =
                 calculator.calculate(positions, getPositionFilter(), evaluationContext);
-        double totalAmount = positions.getPortfolio().getTotalAmount();
+        double totalAmount = positions.getPortfolio().getTotalMarketValue();
         return subtotalAmount / totalAmount;
     }
 }

@@ -15,51 +15,58 @@ import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
- * SecurityTest tests the functionality of Security.
+ * {@code SecurityTest} tests the functionality of {@code Security}.
  *
  * @author jeremy
  */
 public class SecurityTest {
     /**
-     * Tests that getAttributes() behaves as expected.
+     * Tests that {@code getAttributes()} behaves as expected.
      */
     @Test
     public void testGetAttributes() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s = securityProvider.newSecurity(Map.of(TestUtil.country, "US", TestUtil.cusip,
-                "abcde", TestUtil.duration, 3.1, TestUtil.coupon, new BigDecimal("4.00"),
-                TestUtil.maturityDate, LocalDate.of(2019, 8, 5)));
+        Security s = securityProvider.newSecurity(Map.of(SecurityAttribute.country, "US",
+                SecurityAttribute.cusip, "abcde", SecurityAttribute.duration, 3.1,
+                SecurityAttribute.coupon, new BigDecimal("4.00"), SecurityAttribute.maturityDate,
+                LocalDate.of(2019, 8, 5)));
         Map<SecurityAttribute<?>, ? super Object> attributes = s.getAttributes();
-        assertEquals("US", attributes.get(TestUtil.country), "country value should have matched");
-        assertEquals("abcde", attributes.get(TestUtil.cusip), "cusip value should have matched");
-        assertEquals(3.1, (double)attributes.get(TestUtil.duration), TestUtil.EPSILON,
+        assertEquals("US", attributes.get(SecurityAttribute.country),
+                "country value should have matched");
+        assertEquals("abcde", attributes.get(SecurityAttribute.cusip),
+                "cusip value should have matched");
+        assertEquals(3.1, (double)attributes.get(SecurityAttribute.duration), TestUtil.EPSILON,
                 "duration value should have matched");
-        assertEquals(new BigDecimal("4.00"), attributes.get(TestUtil.coupon),
+        assertEquals(new BigDecimal("4.00"), attributes.get(SecurityAttribute.coupon),
                 "coupon value should have matched");
-        assertEquals(LocalDate.of(2019, 8, 5), attributes.get(TestUtil.maturityDate),
+        assertEquals(LocalDate.of(2019, 8, 5), attributes.get(SecurityAttribute.maturityDate),
                 "maturity date value should have matched");
     }
 
     /**
-     * Tests that Securities are hashed in a reasonable way.
+     * Tests that {@code Securities} are hashed in a reasonable way.
      */
     @Test
     public void testHash() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         Security s1 = securityProvider
-                .newSecurity(Map.of(TestUtil.country, "US", TestUtil.cusip, "abcde"));
-        Security s2 = securityProvider.newSecurity(
-                Map.of(TestUtil.cusip, "abcde", TestUtil.currency, "USD", TestUtil.duration, 3d));
-        Security s3 = securityProvider.newSecurity(Map.of(TestUtil.description, "a security"));
+                .newSecurity(Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip,
+                        "abcde", SecurityAttribute.price, new BigDecimal("99.1234")));
+        Security s2 = securityProvider.newSecurity(Map.of(SecurityAttribute.cusip, "abcde",
+                SecurityAttribute.currency, "USD", SecurityAttribute.duration, 3d));
+        Security s3 = securityProvider.newSecurity(Map.of(SecurityAttribute.description,
+                "a security", SecurityAttribute.price, new BigDecimal("99.1000")));
         Security s4 = securityProvider.newSecurity(Collections.emptyMap());
         // these are the same as above, with the attributes permuted; these should hash to the same
         Security s1a = securityProvider
-                .newSecurity(Map.of(TestUtil.cusip, "abcde", TestUtil.country, "US"));
-        Security s2a = securityProvider.newSecurity(
-                Map.of(TestUtil.cusip, "abcde", TestUtil.duration, 3d, TestUtil.currency, "USD"));
-        Security s3a = securityProvider.newSecurity(Map.of(TestUtil.description, "a security"));
+                .newSecurity(Map.of(SecurityAttribute.cusip, "abcde", SecurityAttribute.price,
+                        new BigDecimal("99.1234"), SecurityAttribute.country, "US"));
+        Security s2a = securityProvider.newSecurity(Map.of(SecurityAttribute.cusip, "abcde",
+                SecurityAttribute.duration, 3d, SecurityAttribute.currency, "USD"));
+        Security s3a = securityProvider.newSecurity(Map.of(SecurityAttribute.price,
+                new BigDecimal("99.1000"), SecurityAttribute.description, "a security"));
         Security s4a = securityProvider.newSecurity(Collections.emptyMap());
 
         HashSet<Security> securities = new HashSet<>();

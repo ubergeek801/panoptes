@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
@@ -38,21 +38,21 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
     // this needs to be somewhat unreasonably high to keep the processing pipeline full
     private static final ForkJoinPool evaluatorPool = new ForkJoinPool(30);
 
-    private final PortfolioCache portfolioCache;
+    private final AssetCache assetCache;
     private final ClusterPortfolioEvaluator portfolioEvaluator;
 
     /**
      * Creates a new {@code ComplianceController} using the given resources. Restricted because
      * instances of this class should be obtained through the {@code ApplicationContext}.
      *
-     * @param portfolioCache
-     *            the {@code PortfolioCache} to use to obtain cached resources
+     * @param assetCache
+     *            the {@code AssetCache} to use to obtain cached resources
      * @param portfolioEvaluator
      *            the {@code ClusterPortfolioEvaluator} to use to evaluate {@code Portfolio}s
      */
-    protected ComplianceController(PortfolioCache portfolioCache,
+    protected ComplianceController(AssetCache assetCache,
             ClusterPortfolioEvaluator portfolioEvaluator) {
-        this.portfolioCache = portfolioCache;
+        this.assetCache = assetCache;
         this.portfolioEvaluator = portfolioEvaluator;
     }
 
@@ -74,12 +74,10 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
                 new ExecutorCompletionService<>(evaluatorPool);
 
         long startTime = System.currentTimeMillis();
-        Collection<Portfolio> portfolios = portfolioCache.getPortfolioCache().values();
+        Collection<Portfolio> portfolios = assetCache.getPortfolioCache().values();
         portfolios.forEach(p -> {
-            completionService.submit(() -> new ImmutablePair<>(p,
-                    portfolioEvaluator.evaluate(p,
-                            new EvaluationContext(portfolioCache, portfolioCache, portfolioCache))
-                            .get()));
+            completionService.submit(() -> new ImmutablePair<>(p, portfolioEvaluator
+                    .evaluate(p, new EvaluationContext(assetCache, assetCache, assetCache)).get()));
         });
 
         for (int i = 0; i < portfolios.size(); i++) {

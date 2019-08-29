@@ -1,6 +1,8 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,25 @@ public class SecurityAttribute<T> implements Serializable {
             new HashMap<>(100, 0.5f);
     private static final Map<Integer, SecurityAttribute<?>> attributesByIndex =
             new HashMap<>(100, 0.5f);
+
+    // the "standard" SecurityAttributes; there may be more defined in the database
+    public static final SecurityAttribute<String> cusip = of("cusip", 0, String.class);
+    public static final SecurityAttribute<String> isin = of("isin", 1, String.class);
+    public static final SecurityAttribute<String> description = of("description", 2, String.class);
+    public static final SecurityAttribute<String> country = of("country", 3, String.class);
+    public static final SecurityAttribute<String> region = of("region", 4, String.class);
+    public static final SecurityAttribute<String> sector = of("sector", 5, String.class);
+    public static final SecurityAttribute<String> currency = of("currency", 6, String.class);
+    public static final SecurityAttribute<BigDecimal> coupon = of("coupon", 7, BigDecimal.class);
+    public static final SecurityAttribute<LocalDate> maturityDate =
+            of("maturityDate", 8, LocalDate.class);
+    public static final SecurityAttribute<String> ratingSymbol =
+            of("ratingSymbol", 9, String.class);
+    public static final SecurityAttribute<Double> ratingValue = of("ratingValue", 10, Double.class);
+    public static final SecurityAttribute<BigDecimal> yield = of("yield", 11, BigDecimal.class);
+    public static final SecurityAttribute<Double> duration = of("duration", 12, Double.class);
+    public static final SecurityAttribute<String> issuer = of("issuer", 13, String.class);
+    public static final SecurityAttribute<BigDecimal> price = of("price", 14, BigDecimal.class);
 
     /**
      * Obtains the {@code SecurityAttribute} corresponding to the given index, if it exists. For

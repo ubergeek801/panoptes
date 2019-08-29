@@ -83,6 +83,14 @@ public class PanoptesCacheConfiguration {
      * @param hazelcastMapStoreFactory
      *            the {@code HazelcastMapStoreFactory} to be used to create the
      *            {@code MapStoreConfig}s
+     * @param portfolioMapConfig
+     *            the {@code MapConfig} to use for {@code Portfolio} data
+     * @param positionMapConfig
+     *            the {@code MapConfig} to use for {@code Position} data
+     * @param securityMapConfig
+     *            the {@code MapConfig} to use for {@code Security} data
+     * @param ruleMapConfig
+     *            the {@code MapConfig} to use for {@code Rule} data
      * @return a Hazelcast {@code Config}
      */
     @Bean
@@ -127,7 +135,7 @@ public class PanoptesCacheConfiguration {
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig);
 
         // set up a map to act as the portfolio evaluation result "topic"
-        config.getMapConfig(PortfolioCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
+        config.getMapConfig(AssetCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
                 .setInMemoryFormat(InMemoryFormat.BINARY);
 
         // set up cluster join discovery appropriate for the detected environment
@@ -167,7 +175,7 @@ public class PanoptesCacheConfiguration {
     @Named("portfolio")
     @Bean
     protected MapConfig portfolioMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, PortfolioCache.PORTFOLIO_CACHE_NAME);
+        return createMapConfiguration(mapStoreFactory, AssetCache.PORTFOLIO_CACHE_NAME);
     }
 
     /**
@@ -180,7 +188,7 @@ public class PanoptesCacheConfiguration {
     @Named("position")
     @Bean
     protected MapConfig positionMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, PortfolioCache.POSITION_CACHE_NAME);
+        return createMapConfiguration(mapStoreFactory, AssetCache.POSITION_CACHE_NAME);
     }
 
     /**
@@ -193,7 +201,7 @@ public class PanoptesCacheConfiguration {
     @Named("rule")
     @Bean
     protected MapConfig ruleMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, PortfolioCache.RULE_CACHE_NAME);
+        return createMapConfiguration(mapStoreFactory, AssetCache.RULE_CACHE_NAME);
     }
 
     /**
@@ -206,6 +214,6 @@ public class PanoptesCacheConfiguration {
     @Named("security")
     @Bean
     protected MapConfig securityMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, PortfolioCache.SECURITY_CACHE_NAME);
+        return createMapConfiguration(mapStoreFactory, AssetCache.SECURITY_CACHE_NAME);
     }
 }

@@ -10,12 +10,11 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * SecuritySerializerTest tests the functionality of the SecuritySerializer.
+ * {@code SecuritySerializerTest} tests the functionality of the {@code SecuritySerializer}.
  *
  * @author jeremy
  */
@@ -49,9 +48,10 @@ public class SecuritySerializerTest {
     public void testSerialization() throws Exception {
         SecuritySerializer serializer = new SecuritySerializer();
 
-        Map<SecurityAttribute<?>, ? super Object> attributes = Map.of(TestUtil.country, "US",
-                TestUtil.coupon, new BigDecimal("4.00"), TestUtil.currency, "USD",
-                TestUtil.maturityDate, LocalDate.now(), TestUtil.duration, 3.1);
+        Map<SecurityAttribute<?>, ? super Object> attributes = Map.of(SecurityAttribute.country,
+                "US", SecurityAttribute.coupon, new BigDecimal("4.00"), SecurityAttribute.currency,
+                "USD", SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration,
+                3.1, SecurityAttribute.price, new BigDecimal("99.0000"));
         Security security = new Security(attributes);
 
         byte[] buffer = serializer.write(security);

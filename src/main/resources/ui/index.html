@@ -7,14 +7,15 @@
 
 <body>
     <div id="app">
-        <p><b>{{portfolio.name}}</b> MV={{portfolio.totalAmount | currency}}
+        <p><b>{{portfolio.name}}</b> MV={{portfolio.totalMarketValue | currency}}
                 (id={{portfolio.key.id}}:{{portfolio.key.version}})
             <template v-if="portfolio.benchmarkKey != null"><br/>Benchmark:
                     {{portfolio.benchmarkKey.id}}:{{portfolio.benchmarkKey.version}}</template>
         </p>
         <p>Positions</p>
         <ul>
-        <li v-for="position in portfolio.positions">{{position.amount | currency}} in
+        <li v-for="position in portfolio.positions"><b>{{position.marketValue | currency}}</b>
+                ({{position.amount | decimal}}@{{position.security.attributes.price | currency}}) in
                 <b>{{position.security.attributes.isin}}</b>
                 "{{position.security.attributes.description}}":
                 {{position.security.attributes.ratingSymbol}} (id={{position.key.id}})

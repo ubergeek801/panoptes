@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -34,7 +34,7 @@ public class PortfolioEvaluationRequestListener {
     private static final Logger LOG =
             LoggerFactory.getLogger(PortfolioEvaluationRequestListener.class);
 
-    private final PortfolioCache portfolioCache;
+    private final AssetCache assetCache;
     private final ClientConsumer portfolioEvaluationRequestConsumer;
 
     private final LinkedBlockingQueue<Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> evaluationResultQueue =
@@ -43,17 +43,19 @@ public class PortfolioEvaluationRequestListener {
 
     /**
      * Creates a new {@code PortfolioEvaluationRequestListener} which uses the given
-     * {@code PortfolioCache} to resolve cache resources. The listener remains idle until
+     * {@code AssetCache} to resolve cache resources. The listener remains idle until
      * {@code start()} is invoked.
      *
-     * @param portfolioCache
-     *            the {@code PortfolioCache} to use
+     * @param assetCache
+     *            the {@code AssetCache} to use
+     * @param portfolioEvaluationRequestConsumer
+     *            the {@code ClientConsumer} to use to consume messages
      */
-    protected PortfolioEvaluationRequestListener(PortfolioCache portfolioCache,
+    protected PortfolioEvaluationRequestListener(AssetCache assetCache,
             ClientConsumer portfolioEvaluationRequestConsumer) {
-        this.portfolioCache = portfolioCache;
+        this.assetCache = assetCache;
         this.portfolioEvaluationRequestConsumer = portfolioEvaluationRequestConsumer;
-        evaluationResultMap = portfolioCache.getPortfolioEvaluationResultMap();
+        evaluationResultMap = assetCache.getPortfolioEvaluationResultMap();
     }
 
     /**
@@ -128,10 +130,8 @@ public class PortfolioEvaluationRequestListener {
     protected Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>
             evaluatePortfolio(PortfolioKey portfolioKey) {
         try {
-            return new LocalPortfolioEvaluator()
-                    .evaluate(portfolioCache.getPortfolio(portfolioKey),
-                            new EvaluationContext(portfolioCache, portfolioCache, portfolioCache))
-                    .get();
+            return new LocalPortfolioEvaluator().evaluate(assetCache.getPortfolio(portfolioKey),
+                    new EvaluationContext(assetCache, assetCache, assetCache)).get();
         } catch (Exception e) {
             // TODO throw a real exception
             throw new RuntimeException("could not process PortfolioEvaluationRequest", e);

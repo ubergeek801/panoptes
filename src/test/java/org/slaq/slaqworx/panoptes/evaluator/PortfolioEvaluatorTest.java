@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -100,16 +101,26 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
-        Security iss1Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
-        Security iss1Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
-        Security iss1Sec3 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSFOO"));
-        Security iss2Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSBAR"));
-        Security iss2Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSBAR"));
-        Security iss3Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSBAZ"));
-        Security iss4Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSABC"));
-        Security iss4Sec2 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSABC"));
-        Security iss5Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSDEF"));
-        Security iss6Sec1 = securityProvider.newSecurity(Map.of(TestUtil.issuer, "ISSGHI"));
+        Security iss1Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSFOO",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss1Sec2 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSFOO",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss1Sec3 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSFOO",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss2Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSBAR",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss2Sec2 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSBAR",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss3Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSBAZ",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss4Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSABC",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss4Sec2 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSABC",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss5Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSDEF",
+                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss6Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSGHI",
+                SecurityAttribute.price, new BigDecimal("1.00")));
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
@@ -138,15 +149,15 @@ public class PortfolioEvaluatorTest {
         HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
         ConcentrationRule top2issuerRule =
                 new ConcentrationRule(new RuleKey("top2"), "top 2 issuer concentration", null, null,
-                        0.25, new TopNSecurityAttributeAggregator(TestUtil.issuer, 2));
+                        0.25, new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
         rules.put(top2issuerRule.getKey(), top2issuerRule);
         ConcentrationRule top3issuerRule =
                 new ConcentrationRule(new RuleKey("top3"), "top 3 issuer concentration", null, null,
-                        0.75, new TopNSecurityAttributeAggregator(TestUtil.issuer, 3));
+                        0.75, new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
         rules.put(top3issuerRule.getKey(), top3issuerRule);
-        ConcentrationRule top10issuerRule =
-                new ConcentrationRule(new RuleKey("top10"), "top 10 issuer concentration", null,
-                        null, 0.999, new TopNSecurityAttributeAggregator(TestUtil.issuer, 10));
+        ConcentrationRule top10issuerRule = new ConcentrationRule(new RuleKey("top10"),
+                "top 10 issuer concentration", null, null, 0.999,
+                new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 10));
         rules.put(top10issuerRule.getKey(), top10issuerRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));
@@ -284,16 +295,22 @@ public class PortfolioEvaluatorTest {
     public void testEvaluateGroups() throws Exception {
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
 
-        Map<SecurityAttribute<?>, ? super Object> usdAttributes = Map.of(TestUtil.currency, "USD",
-                TestUtil.ratingValue, 90d, TestUtil.duration, 3d, TestUtil.issuer, "ISSFOO");
+        Map<SecurityAttribute<?>, ? super Object> usdAttributes =
+                Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
+                        SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
+                        SecurityAttribute.price, new BigDecimal("1.00"));
         Security usdSecurity = securityProvider.newSecurity(usdAttributes);
 
-        Map<SecurityAttribute<?>, ? super Object> nzdAttributes = Map.of(TestUtil.currency, "NZD",
-                TestUtil.ratingValue, 80d, TestUtil.duration, 4d, TestUtil.issuer, "ISSFOO");
+        Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
+                Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.ratingValue, 80d,
+                        SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
+                        SecurityAttribute.price, new BigDecimal("1.00"));
         Security nzdSecurity = securityProvider.newSecurity(nzdAttributes);
 
-        Map<SecurityAttribute<?>, ? super Object> cadAttributes = Map.of(TestUtil.currency, "CAD",
-                TestUtil.ratingValue, 75d, TestUtil.duration, 5d, TestUtil.issuer, "ISSBAR");
+        Map<SecurityAttribute<?>, ? super Object> cadAttributes =
+                Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.ratingValue, 75d,
+                        SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
+                        SecurityAttribute.price, new BigDecimal("1.00"));
         Security cadSecurity = securityProvider.newSecurity(cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();
@@ -318,15 +335,15 @@ public class PortfolioEvaluatorTest {
 
         HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
         ConfigurableRule durationRule = new WeightedAverageRule(null,
-                "currency-grouped duration rule", null, TestUtil.duration, null, 4d,
-                new SecurityAttributeGroupClassifier(TestUtil.currency));
+                "currency-grouped duration rule", null, SecurityAttribute.duration, null, 4d,
+                new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
         rules.put(durationRule.getKey(), durationRule);
         ConfigurableRule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
-                TestUtil.ratingValue, 80d, null, null);
+                SecurityAttribute.ratingValue, 80d, null, null);
         rules.put(qualityRule.getKey(), qualityRule);
         ConfigurableRule issuerRule =
                 new ConcentrationRule(null, "issuer-grouped concentration rule", null, null, 0.5,
-                        new SecurityAttributeGroupClassifier(TestUtil.issuer));
+                        new SecurityAttributeGroupClassifier(SecurityAttribute.issuer));
         rules.put(issuerRule.getKey(), issuerRule);
 
         RuleProvider ruleProvider = (k -> rules.get(k));

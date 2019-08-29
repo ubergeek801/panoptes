@@ -8,16 +8,16 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * {@code TotalAmountPositionCalculator} is a {@code PositionCalculator} that determines the sum of
- * amounts of a {@code Position} collection.
+ * {@code TotalMarketValuePositionCalculator} is a {@code PositionCalculator} that determines the
+ * sum of market values of a {@code Position} collection.
  *
  * @author jeremy
  */
-public class TotalAmountPositionCalculator extends PositionCalculator<Double> {
+public class TotalMarketValuePositionCalculator extends PositionCalculator<Double> {
     /**
-     * Creates a new {@code TotalAmountPositionCalculator}.
+     * Creates a new {@code TotalMarketValuePositionCalculator}.
      */
-    public TotalAmountPositionCalculator() {
+    public TotalMarketValuePositionCalculator() {
         super(null);
     }
 
@@ -26,6 +26,6 @@ public class TotalAmountPositionCalculator extends PositionCalculator<Double> {
             Predicate<PositionEvaluationContext> positionFilter,
             EvaluationContext evaluationContext) {
         return positions.getPositionsWithContext(evaluationContext).filter(positionFilter)
-                .collect(Collectors.summingDouble(c -> c.getPosition().getAmount()));
+                .collect(Collectors.summingDouble(c -> c.getPosition().getMarketValue()));
     }
 }

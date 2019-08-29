@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 /**
  * {@code HazelcastMapStore} is a partial implementation of a {@code MapStore}.
  * <p>
- * HazelcastMapStore provides default implementations for the {@code *All} methods (e.g.
+ * {@code HazelcastMapStore} provides default implementations for the {@code *All} methods (e.g.
  * {@code loadAll()}) which delegate to the single-key operations, but subclasses may override these
  * if they are able to implement these operations more efficiently.
  *

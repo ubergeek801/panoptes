@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.cache.PortfolioCache;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -30,23 +30,23 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterPortfolioEvaluator.class);
 
-    private final PortfolioCache portfolioCache;
+    private final AssetCache assetCache;
     private final ClientSession portfolioEvaluationRequestQueueSession;
     private final ClientProducer portfolioEvaluationRequestQueueProducer;
 
     /**
-     * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code PortfolioCache} for
+     * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code AssetCache} for
      * distributed {@code Portfolio} evaluation.
      *
-     * @param portfolioCache
-     *            the {@code PortfolioCache} to use to obtain distributed resources
+     * @param assetCache
+     *            the {@code AssetCache} to use to obtain distributed resources
      * @param portfolioEvaluationRequestQueueProducer
      *            a {@code Pair} containing the {@code ClientSession} and {@code ClientProducer}
      *            corresponding to the {@code Portfolio} evaluation request queue
      */
-    protected ClusterPortfolioEvaluator(PortfolioCache portfolioCache,
+    protected ClusterPortfolioEvaluator(AssetCache assetCache,
             Pair<ClientSession, ClientProducer> portfolioEvaluationRequestQueueProducer) {
-        this.portfolioCache = portfolioCache;
+        this.assetCache = assetCache;
         portfolioEvaluationRequestQueueSession = portfolioEvaluationRequestQueueProducer.getLeft();
         this.portfolioEvaluationRequestQueueProducer =
                 portfolioEvaluationRequestQueueProducer.getRight();
@@ -62,10 +62,10 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
-        ClusterPortfolioEvaluatorMessenger resultListener = new ClusterPortfolioEvaluatorMessenger(
-                portfolioCache.getPortfolioEvaluationResultMap(),
-                portfolioEvaluationRequestQueueSession, portfolioEvaluationRequestQueueProducer,
-                portfolio.getKey());
+        ClusterPortfolioEvaluatorMessenger resultListener =
+                new ClusterPortfolioEvaluatorMessenger(assetCache.getPortfolioEvaluationResultMap(),
+                        portfolioEvaluationRequestQueueSession,
+                        portfolioEvaluationRequestQueueProducer, portfolio.getKey());
 
         return resultListener.getResults();
     }

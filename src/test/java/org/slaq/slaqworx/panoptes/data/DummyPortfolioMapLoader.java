@@ -20,17 +20,16 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
@@ -38,8 +37,8 @@ import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
- * DummyPortfolioMapLoader is a MapStore that initializes the Hazelcast cache with random Portfolio
- * data.
+ * {@code DummyPortfolioMapLoader} is a {@code MapStore} that initializes the Hazelcast cache with
+ * random {@code Portfolio} data.
  *
  * @author jeremy
  */
@@ -62,10 +61,10 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     private final GroovyPositionFilter regionEmergingMarketFilter;
 
     /**
-     * Creates a new DummyPortfolioMapLoader.
+     * Creates a new {@code DummyPortfolioMapLoader}.
      *
      * @throws IOException
-     *             if Porfolio data could not be loaded
+     *             if {@code Porfolio} data could not be loaded
      */
     public DummyPortfolioMapLoader() throws IOException {
         dataSource = PimcoBenchmarkDataSource.getInstance();
@@ -175,13 +174,13 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     }
 
     /**
-     * Generates a random set of Positions from the given Securities.
+     * Generates a random set of {@code Position}s from the given {@code Securities}.
      *
      * @param securities
-     *            a List from which to source Securities
+     *            a {@code List} from which to source {@code Securities}
      * @param random
      *            the random number generator to use
-     * @return a new Set of random Positions
+     * @return a new {@code Set} of random {@code Positions}
      */
     protected Set<Position> generatePositions(List<Security> securities, Random random) {
         ArrayList<Security> securitiesCopy = new ArrayList<>(securities);
@@ -189,11 +188,11 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
         int numPositions = MIN_POSITIONS + random.nextInt(MAX_ADDITIONAL_POSITIONS + 1);
         HashSet<Position> positions = new HashSet<>(numPositions * 2);
         for (int i = 0; i < numPositions; i++) {
-            // generate an amount in the approximate range of 1_000.00 ~ 10_000_000.00
+            // generate an amount in the approximate range of 100.00 ~ 1_000_000.00
             double amount =
-                    1000 + (long)(Math.pow(10, 3 + random.nextInt(5)) * random.nextDouble() * 100)
+                    100 + (long)(Math.pow(10, 2 + random.nextInt(5)) * random.nextDouble() * 100)
                             / 100d;
-            // use a given security at most once
+            // use a given Security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
             positions.add(new Position(amount, security));
         }
@@ -202,11 +201,11 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     }
 
     /**
-     * Generates a random set of Rules.
+     * Generates a random set of {@code Rule}s.
      *
      * @param random
      *            the random number generator to use
-     * @return a new Set of random Rules
+     * @return a new {@code Set} of random {@code Rule}s
      */
     protected Set<ConfigurableRule> generateRules(Random random) {
         HashSet<ConfigurableRule> rules = new HashSet<>(NUM_RULES * 2);
@@ -228,38 +227,41 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
                 filter = regionEmergingMarketFilter;
                 break;
             case 4:
-                compareAttribute = TestUtil.ratingValue;
+                compareAttribute = SecurityAttribute.ratingValue;
                 break;
             default:
-                compareAttribute = TestUtil.duration;
+                compareAttribute = SecurityAttribute.duration;
             }
 
             EvaluationGroupClassifier groupClassifier;
             switch (random.nextInt(9)) {
             case 0:
-                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.currency);
+                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.currency);
                 break;
             case 1:
                 // description is a proxy for issuer
-                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.description);
+                groupClassifier =
+                        new SecurityAttributeGroupClassifier(SecurityAttribute.description);
                 break;
             case 2:
-                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.region);
+                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.region);
                 break;
             case 3:
-                groupClassifier = new SecurityAttributeGroupClassifier(TestUtil.country);
+                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.country);
                 break;
             case 4:
-                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.currency, 5);
+                groupClassifier =
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.currency, 5);
                 break;
             case 5:
-                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.description, 5);
+                groupClassifier =
+                        new TopNSecurityAttributeAggregator(SecurityAttribute.description, 5);
                 break;
             case 6:
-                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.region, 5);
+                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.region, 5);
                 break;
             case 7:
-                groupClassifier = new TopNSecurityAttributeAggregator(TestUtil.country, 5);
+                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.country, 5);
                 break;
             default:
                 groupClassifier = null;
