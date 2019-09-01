@@ -2,8 +2,11 @@ package org.slaq.slaqworx.panoptes.service;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ForkJoinPool;
+
+import com.hazelcast.query.Predicates;
 
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -18,12 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 
 /**
  * ComplianceController is a simple "Web service" that evaluates all {@code Portfolio}s and outputs
@@ -54,6 +60,21 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
             ClusterPortfolioEvaluator portfolioEvaluator) {
         this.assetCache = assetCache;
         this.portfolioEvaluator = portfolioEvaluator;
+    }
+
+    @Get("/room/{portfolioId}")
+    public String getRoom(String portfolioId, String assetId, double targetAmount)
+            throws InterruptedException, ExecutionException {
+        TradeEvaluator tradeEvaluator = new TradeEvaluator(assetCache, assetCache, assetCache);
+
+        // FIXME don't assume that these exist
+        Portfolio portfolio = assetCache.getPortfolio(new PortfolioKey(portfolioId, 1));
+        Collection<Security> securities =
+                assetCache.getSecurityCache().values(Predicates.equal("assetId", assetId));
+        Security security = securities.iterator().next();
+
+        double room = tradeEvaluator.evaluateRoom(portfolio, security, targetAmount);
+        return String.valueOf(room);
     }
 
     /**

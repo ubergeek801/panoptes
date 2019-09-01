@@ -25,6 +25,7 @@ import groovy.lang.MissingPropertyException;
  */
 public class Security implements Keyed<SecurityKey> {
     private final SecurityKey key;
+    private final String assetId;
 
     // while a Map is more convenient, attribute lookups are a very hot piece of code during Rule
     // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
@@ -47,6 +48,7 @@ public class Security implements Keyed<SecurityKey> {
         });
 
         key = new SecurityKey(hash(attributeValues));
+        assetId = (String)attributes.get(SecurityAttribute.isin);
     }
 
     @Override
@@ -62,6 +64,15 @@ public class Security implements Keyed<SecurityKey> {
         }
         Security other = (Security)obj;
         return key.equals(other.key);
+    }
+
+    /**
+     * Obtains the asset ID (currently defined to be the ISIN) of this {@code Security}.
+     *
+     * @return the asset ID
+     */
+    public String getAssetId() {
+        return assetId;
     }
 
     /**

@@ -144,48 +144,48 @@ public class TradeEvaluator {
      *            the {@code Portfolio} in which to find room
      * @param security
      *            the {@code Security} for which to find room
-     * @param targetAmount
-     *            the desired investment amount
-     * @return the (approximate) maximum amount of the given {@code Security}, less than or equal to
-     *         {@code targetAmount}, that can be accepted by the {@code Portfolio} without violating
-     *         compliance
+     * @param targetValue
+     *            the desired investment amount, as USD market value
+     * @return the (approximate) maximum market value of the given {@code Security}, less than or
+     *         equal to {@code targetValue}, that can be accepted by the {@code Portfolio} without
+     *         violating compliance
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the calculation could not be processed
      */
-    public double evaluateRoom(Portfolio portfolio, Security security, double targetAmount)
+    public double evaluateRoom(Portfolio portfolio, Security security, double targetValue)
             throws InterruptedException, ExecutionException {
-        double minCompliantAmount = 0;
-        double trialAmount = targetAmount;
-        double minNoncompliantAmount = trialAmount;
-        int maxRoomIterations = (int)Math.ceil(Math.log(targetAmount / ROOM_TOLERANCE) / LOG_2) + 1;
+        double minCompliantValue = 0;
+        double trialValue = targetValue;
+        double minNoncompliantValue = trialValue;
+        int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            Position trialAllocation = new Position(trialAmount, security);
+            Position trialAllocation = new Position(trialValue, security);
             Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
             Trade trialTrade = new Trade(List.of(trialTransaction));
             TradeEvaluationResult evaluationResult = evaluate(trialTrade);
             if (evaluationResult.isCompliant()) {
-                if (minCompliantAmount < trialAmount) {
+                if (minCompliantValue < trialValue) {
                     // we have a new low-water mark for what is compliant
-                    minCompliantAmount = trialAmount;
+                    minCompliantValue = trialValue;
 
                     // now try an amount halfway between the current amount and the lowest amount
                     // known to be noncompliant
-                    trialAmount = (trialAmount + minNoncompliantAmount) / 2;
-                    if (Math.abs(trialAmount - minCompliantAmount) < ROOM_TOLERANCE) {
-                        return minCompliantAmount;
+                    trialValue = (trialValue + minNoncompliantValue) / 2;
+                    if (Math.abs(trialValue - minCompliantValue) < ROOM_TOLERANCE) {
+                        return minCompliantValue;
                     }
                 }
             } else {
-                minNoncompliantAmount = trialAmount;
-                trialAmount = (minCompliantAmount + trialAmount) / 2;
-                if (trialAmount < MIN_ALLOCATION) {
+                minNoncompliantValue = trialValue;
+                trialValue = (minCompliantValue + trialValue) / 2;
+                if (trialValue < MIN_ALLOCATION) {
                     return 0;
                 }
             }
         }
 
-        return minCompliantAmount;
+        return minCompliantValue;
     }
 }
