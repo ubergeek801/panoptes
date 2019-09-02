@@ -13,6 +13,7 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 
+import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +79,11 @@ public class Panoptes {
      *
      * @param event
      *            a {@code StartupEvent}
+     * @throws Exception
+     *             if initialization could not be completed
      */
     @EventListener
-    protected void onStartup(StartupEvent event) {
+    protected void onStartup(StartupEvent event) throws Exception {
         applicationContext = event.getSource();
         AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
@@ -104,6 +107,9 @@ public class Panoptes {
         PortfolioEvaluationRequestListener portfolioEvaluationRequestListener =
                 applicationContext.getBean(PortfolioEvaluationRequestListener.class);
         portfolioEvaluationRequestListener.start();
+
+        Server servletServer = applicationContext.getBean(Server.class);
+        servletServer.start();
 
         LOG.info("Panoptes ready");
     }

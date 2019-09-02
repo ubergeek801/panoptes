@@ -1,8 +1,3 @@
-# ignore Gradle artifacts
-bin/
-build/
-.gradle/
-
 # ignore Maven artifacts
 target/
 
@@ -11,3 +6,10 @@ target/
 .factorypath
 .project
 .settings/
+
+# ignore Vaadin artifacts
+package-lock.json
+package.json
+webpack.config.js
+webpack.generated.js
+node_modules/

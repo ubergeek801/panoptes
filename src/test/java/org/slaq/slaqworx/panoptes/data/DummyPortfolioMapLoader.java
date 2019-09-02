@@ -1,6 +1,8 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +18,6 @@ import java.util.stream.Collectors;
 
 import com.hazelcast.core.MapStore;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,15 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio>, RuleProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioMapLoader.class);
 
+    private static final String PORTFOLIO_NAMES_FILE = "portfolionames.txt";
+
     private static final int NUM_PORTFOLIOS = 500;
     private static final int MIN_POSITIONS = 1000;
     private static final int MAX_ADDITIONAL_POSITIONS = 1000;
     private static final int NUM_RULES = 200;
 
     private final Portfolio[] benchmarks;
+    private final ArrayList<String> portfolioNames;
     private final Map<RuleKey, ConfigurableRule> ruleMap = new HashMap<>();
 
     private final PimcoBenchmarkDataSource dataSource;
@@ -59,6 +63,8 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     private final GroovyPositionFilter currencyBrlFilter;
     private final GroovyPositionFilter duration3Filter;
     private final GroovyPositionFilter regionEmergingMarketFilter;
+
+    private int portfolioIndex;
 
     /**
      * Creates a new {@code DummyPortfolioMapLoader}.
@@ -79,6 +85,15 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
         currencyBrlFilter = new GroovyPositionFilter("s.currency == \"BRL\"");
         duration3Filter = new GroovyPositionFilter("s.duration > 3.0");
         regionEmergingMarketFilter = new GroovyPositionFilter("s.region == \"Emerging Markets\"");
+
+        portfolioNames = new ArrayList<>(1000);
+        try (BufferedReader portfolioNameReader = new BufferedReader(new InputStreamReader(
+                getClass().getClassLoader().getResourceAsStream(PORTFOLIO_NAMES_FILE)))) {
+            String portfolioName;
+            while ((portfolioName = portfolioNameReader.readLine()) != null) {
+                portfolioNames.add(portfolioName);
+            }
+        }
     }
 
     @Override
@@ -117,9 +132,8 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
                 Collections.unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
         Set<Position> positions = generatePositions(securityList, random);
         Set<ConfigurableRule> rules = generateRules(random);
-        Portfolio portfolio =
-                new Portfolio(key, "Test Portfolio " + RandomStringUtils.randomAlphabetic(40),
-                        positions, benchmarks[random.nextInt(5)], rules);
+        Portfolio portfolio = new Portfolio(key, portfolioNames.get(portfolioIndex++), positions,
+                benchmarks[random.nextInt(5)], rules);
         LOG.info("created Portfolio {} with {} Positions", key, portfolio.size());
 
         return portfolio;

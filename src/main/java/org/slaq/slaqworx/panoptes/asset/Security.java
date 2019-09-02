@@ -146,7 +146,9 @@ public class Security implements Keyed<SecurityKey> {
      *
      * @param name
      *            the name of the {@code SecurityAttribute} to resolve
-     * @return the value of the attribute if it exists, or {@code null} if it does not
+     * @return the value of the attribute if it exists
+     * @throws MissingPropertyException
+     *             if the specified attribute name is not defined
      */
     public Object propertyMissing(String name) {
         SecurityAttribute<?> attribute = SecurityAttribute.of(name);

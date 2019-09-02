@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.slaq</groupId>
+    <groupId>org.slaq.slaqworx</groupId>
     <artifactId>panoptes</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -16,7 +16,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
+        <jetty.version>9.4.20.v20190813</jetty.version>
         <micronaut.version>1.2.0</micronaut.version>
+        <vaadin.version>14.0.2</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
             --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
@@ -31,13 +33,38 @@
 
     <build>
         <plugins>
+            <!-- compile protobuf definitions for serialization -->
+            <plugin>
+                <groupId>com.github.os72</groupId>
+                <artifactId>protoc-jar-maven-plugin</artifactId>
+                <version>3.8.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <protocVersion>3.9.1</protocVersion>
+                            <outputTargets>
+                                <outputTarget>
+                                    <type>java</type>
+                                    <outputOptions>lite</outputOptions>
+                                    <outputDirectorySuffix>protobuf</outputDirectorySuffix>
+                                </outputTarget>
+                            </outputTargets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- create a Docker image for the application -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>1.5.1</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <phase>install</phase>
                         <goals>
                             <goal>build</goal>
                         </goals>
@@ -87,6 +114,21 @@
                     </container>
                 </configuration>
             </plugin>
+            <!-- perform the Vaadin voodoo -->
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-frontend</goal>
+                            <goal>build-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- process the Micronaut annotations -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -104,6 +146,28 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <!-- patch protoc output to make ECJ happy (compiles fine with javac) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-patch-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <originalFile>target/generated-sources/protobuf/org/slaq/slaqworx/panoptes/proto/PanoptesSerialization.java</originalFile>
+                    <patches>
+                        <patch>protobuf.patch</patch>
+                    </patches>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>patch-protobuf</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- set the desired environment when running unit tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -112,6 +176,7 @@
                     <argLine>${globalJvmArgs} -Dmicronaut.environments=standalone,TEST</argLine>
                 </configuration>
             </plugin>
+            <!-- produce build-info to include in the application package -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -132,27 +197,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.github.os72</groupId>
-                <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>3.8.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <outputTargets>
-                                <outputTarget>
-                                    <type>java</type>
-                                    <outputOptions>lite</outputOptions>
-                                </outputTarget>
-                            </outputTargets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!-- produce git-info to include in the application package -->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
@@ -185,6 +230,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${vaadin.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.micronaut</groupId>
                 <artifactId>micronaut-bom</artifactId>
                 <version>${micronaut.version}</version>
@@ -211,6 +263,10 @@
             <version>1.5.1</version>
         </dependency>
         <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
         </dependency>
@@ -231,6 +287,16 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-annotations</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -260,6 +326,18 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-spring</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-continuation</artifactId>
+            <version>${jetty.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>javax-websocket-server-impl</artifactId>
+            <version>${jetty.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

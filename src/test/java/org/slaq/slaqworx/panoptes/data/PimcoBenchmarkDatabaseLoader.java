@@ -65,8 +65,8 @@ public class PimcoBenchmarkDatabaseLoader {
                 beanContext.getBean(HazelcastMapStoreFactory.class);
 
         LOG.info("persisting {} Securities", pimcoDataSource.getSecurityMap().size());
-        SecurityMapStore securityMapStore = (SecurityMapStore)mapStoreFactory
-                .newMapStore(AssetCache.SECURITY_CACHE_NAME, null);
+        SecurityMapStore securityMapStore =
+                (SecurityMapStore)mapStoreFactory.newMapStore(AssetCache.SECURITY_CACHE_NAME, null);
 
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -85,7 +85,8 @@ public class PimcoBenchmarkDatabaseLoader {
         RuleMapStore ruleMapStore =
                 (RuleMapStore)mapStoreFactory.newMapStore(AssetCache.RULE_CACHE_NAME, null);
         portfolios.stream().forEach(pf -> {
-            LOG.info("persisting {} Rules for Portfolio {}", pf.getRules().count(), pf.getName());
+            LOG.info("persisting {} Rules for Portfolio \"{}\"", pf.getRules().count(),
+                    pf.getName());
             txTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -96,10 +97,10 @@ public class PimcoBenchmarkDatabaseLoader {
             });
         });
 
-        PositionMapStore positionMapStore = (PositionMapStore)mapStoreFactory
-                .newMapStore(AssetCache.POSITION_CACHE_NAME, null);
+        PositionMapStore positionMapStore =
+                (PositionMapStore)mapStoreFactory.newMapStore(AssetCache.POSITION_CACHE_NAME, null);
         portfolios.stream().forEach(pf -> {
-            LOG.info("persisting {} Positions for Portfolio {}", pf.getPositions().count(),
+            LOG.info("persisting {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
                     pf.getName());
             txTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
