@@ -28,8 +28,6 @@ public class PositionSerializerTest {
         assertEquals(position, deserialized, "deserialized value should equals() original value");
         assertEquals(position.getAmount(), deserialized.getAmount(), TestUtil.EPSILON,
                 "deserialized value should have same amount as original");
-        System.err.println("position=" + position.getSecurity().getAttributes());
-        System.err.println("deserialized=" + deserialized.getSecurity().getAttributes());
         assertEquals(position.getSecurity(), deserialized.getSecurity(),
                 "deserialized value should have same security as original");
     }

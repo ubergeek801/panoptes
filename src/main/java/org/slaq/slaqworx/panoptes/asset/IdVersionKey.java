@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -8,9 +7,7 @@ import java.util.UUID;
  *
  * @author jeremy
  */
-public abstract class IdVersionKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public abstract class IdVersionKey {
     /**
      * Obtains a generated ID of the form used by an {@code IdVersionKey}.
      *
