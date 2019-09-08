@@ -202,9 +202,9 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
         int numPositions = MIN_POSITIONS + random.nextInt(MAX_ADDITIONAL_POSITIONS + 1);
         HashSet<Position> positions = new HashSet<>(numPositions * 2);
         for (int i = 0; i < numPositions; i++) {
-            // generate an amount in the approximate range of 100.00 ~ 100_000.00
+            // generate an amount in the approximate range of 100.00 ~ 10_000.00
             double amount =
-                    100 + (long)(Math.pow(10, 2 + random.nextInt(4)) * random.nextDouble() * 100)
+                    100 + (long)(Math.pow(10, 2 + random.nextInt(3)) * random.nextDouble() * 100)
                             / 100d;
             // use a given Security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));

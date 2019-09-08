@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -28,7 +29,7 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
      * through the {@code HazelcastMapStoreFactory}.
      *
      * @param applicationContext
-     *            the {@code ApplicationConext} from which to resolve dependent {@code Bean}s
+     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
      * @param dataSource
      *            the {@code DataSource} through which to access the database
      */
@@ -52,15 +53,6 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
         return new Position(new PositionKey(id), amount,
                 getAssetCache().getSecurity(new SecurityKey(securityId)));
-    }
-
-    @Override
-    public void store(PositionKey key, Position position) {
-        getJdbcTemplate().update(
-                "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
-                        + " on conflict on constraint position_pk do update"
-                        + " set amount = excluded.amount, security_id = excluded.security_id",
-                key.getId(), position.getAmount(), position.getSecurity().getKey().getId());
     }
 
     /**
@@ -92,7 +84,21 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     }
 
     @Override
+    protected String getStoreSql() {
+        return "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
+                + " on conflict on constraint position_pk do update"
+                + " set amount = excluded.amount, security_id = excluded.security_id";
+    }
+
+    @Override
     protected String getTableName() {
         return "position";
+    }
+
+    @Override
+    protected void setValues(PreparedStatement ps, Position position) throws SQLException {
+        ps.setString(1, position.getKey().getId());
+        ps.setDouble(2, position.getAmount());
+        ps.setString(3, position.getSecurity().getKey().getId());
     }
 }

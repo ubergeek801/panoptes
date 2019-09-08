@@ -40,7 +40,7 @@ public class PanoptesDataConfiguration {
     /**
      * Provides a {@code TransactionTemplate} using the specified
      * {@code PlatformTransactionManager}.
-     * 
+     *
      * @param transactionManager
      *            the {@code PlatformTransactionManager} to use to manage template transactions
      * @return a {@code TransactionTemplate} that uses the given transaction manager

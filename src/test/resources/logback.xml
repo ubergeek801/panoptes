@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="p6spy" level="error" />
+    <logger name="p6spy" level="warn" />
 
     <root level="info">
         <appender-ref ref="stdout" />

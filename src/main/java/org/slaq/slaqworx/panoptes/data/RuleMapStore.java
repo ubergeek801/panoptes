@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -8,8 +9,8 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
@@ -53,35 +54,6 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     }
 
     @Override
-    public void store(RuleKey key, ConfigurableRule rule) {
-        String classifierType;
-        String classifierConfiguration;
-        EvaluationGroupClassifier classifier = rule.getGroupClassifier();
-        if (classifier == null) {
-            classifierType = null;
-            classifierConfiguration = null;
-        } else {
-            classifierType = classifier.getClass().getName();
-            classifierConfiguration = (classifier instanceof JsonConfigurable
-                    ? ((JsonConfigurable)classifier).getJsonConfiguration()
-                    : null);
-        }
-
-        getJdbcTemplate().update(
-                "insert into " + getTableName()
-                        + " (id, description, type, configuration, filter, classifier_type,"
-                        + " classifier_configuration) values (?, ?, ?, ?::json, ?, ?, ?::json)"
-                        + " on conflict on constraint rule_pk do update"
-                        + " set description = excluded.description, type = excluded.type,"
-                        + " configuration = excluded.configuration, filter = excluded.filter,"
-                        + " classifier_type = excluded.classifier_type,"
-                        + " classifier_configuration = excluded.classifier_configuration",
-                key.getId(), rule.getDescription(), rule.getClass().getName(),
-                rule.getJsonConfiguration(), rule.getGroovyFilter(), classifierType,
-                classifierConfiguration);
-    }
-
-    @Override
     protected String[] getKeyColumnNames() {
         return new String[] { "id" };
     }
@@ -103,7 +75,43 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     }
 
     @Override
+    protected String getStoreSql() {
+        return "insert into " + getTableName()
+                + " (id, description, type, configuration, filter, classifier_type,"
+                + " classifier_configuration) values (?, ?, ?, ?::json, ?, ?, ?::json)"
+                + " on conflict on constraint rule_pk do update"
+                + " set description = excluded.description, type = excluded.type,"
+                + " configuration = excluded.configuration, filter = excluded.filter,"
+                + " classifier_type = excluded.classifier_type,"
+                + " classifier_configuration = excluded.classifier_configuration";
+    }
+
+    @Override
     protected String getTableName() {
         return "rule";
+    }
+
+    @Override
+    protected void setValues(PreparedStatement ps, ConfigurableRule rule) throws SQLException {
+        String classifierType;
+        String classifierConfiguration;
+        EvaluationGroupClassifier classifier = rule.getGroupClassifier();
+        if (classifier == null) {
+            classifierType = null;
+            classifierConfiguration = null;
+        } else {
+            classifierType = classifier.getClass().getName();
+            classifierConfiguration = (classifier instanceof JsonConfigurable
+                    ? ((JsonConfigurable)classifier).getJsonConfiguration()
+                    : null);
+        }
+
+        ps.setString(1, rule.getKey().getId());
+        ps.setString(2, rule.getDescription());
+        ps.setString(3, rule.getClass().getName());
+        ps.setString(4, rule.getJsonConfiguration());
+        ps.setString(5, rule.getGroovyFilter());
+        ps.setString(6, classifierType);
+        ps.setString(7, classifierConfiguration);
     }
 }

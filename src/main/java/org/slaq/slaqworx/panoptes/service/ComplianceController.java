@@ -6,8 +6,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ForkJoinPool;
 
-import com.hazelcast.query.Predicates;
-
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.reactivex.BackpressureStrategy;
@@ -23,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -69,9 +68,7 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
 
         // FIXME don't assume that these exist
         Portfolio portfolio = assetCache.getPortfolio(new PortfolioKey(portfolioId, 1));
-        Collection<Security> securities =
-                assetCache.getSecurityCache().values(Predicates.equal("assetId", assetId));
-        Security security = securities.iterator().next();
+        Security security = assetCache.getSecurityCache().get(new SecurityKey(assetId));
 
         double room = tradeEvaluator.evaluateRoom(portfolio, security, targetAmount);
         return String.valueOf(room);

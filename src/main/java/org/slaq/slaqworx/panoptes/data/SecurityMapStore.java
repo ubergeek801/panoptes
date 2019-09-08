@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -43,20 +44,6 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     }
 
     @Override
-    public void store(SecurityKey key, Security security) {
-        try {
-            getJdbcTemplate().update("insert into " + getTableName() + " (id, hash, attributes) "
-                    + "values (?, ?, ?::json) on conflict on constraint security_pk do update "
-                    + "set hash = excluded.hash, attributes = excluded.attributes", key.getId(),
-                    security.getAttributes().hash(),
-                    SerializerUtil.attributesToJson(security.getAttributes().asMap()));
-        } catch (Exception e) {
-            // TODO throw a better exception
-            throw new RuntimeException("could not serialize SecurityAttributes for " + key, e);
-        }
-    }
-
-    @Override
     protected String[] getKeyColumnNames() {
         return new String[] { "id" };
     }
@@ -77,7 +64,30 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     }
 
     @Override
+    protected String getStoreSql() {
+        return "insert into " + getTableName() + " (id, hash, attributes) "
+                + "values (?, ?, ?::json) on conflict on constraint security_pk do update "
+                + "set hash = excluded.hash, attributes = excluded.attributes";
+    }
+
+    @Override
     protected String getTableName() {
         return "security";
+    }
+
+    @Override
+    protected void setValues(PreparedStatement ps, Security security) throws SQLException {
+        String jsonAttributes;
+        try {
+            jsonAttributes = SerializerUtil.attributesToJson(security.getAttributes().asMap());
+        } catch (Exception e) {
+            // TODO throw a better exception
+            throw new SQLException(
+                    "could not serialize SecurityAttributes for " + security.getKey(), e);
+        }
+
+        ps.setString(1, security.getKey().getId());
+        ps.setString(2, security.getAttributes().hash());
+        ps.setString(3, jsonAttributes);
     }
 }

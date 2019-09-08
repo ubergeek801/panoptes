@@ -1,7 +1,9 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,17 +12,16 @@ import javax.sql.DataSource;
 
 import com.hazelcast.core.MapStore;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code HazelcastMapStore} is a partial implementation of a {@code MapStore}.
- * <p>
- * {@code HazelcastMapStore} provides default implementations for the {@code *All} methods (e.g.
- * {@code loadAll()}) which delegate to the single-key operations, but subclasses may override these
- * if they are able to implement these operations more efficiently.
+ * {@code HazelcastMapStore} is a partial implementation of a {@code MapStore} which provides
+ * efficient implementations for {@code loadAll()} and {@code storeAll()} (using SQL {@code IN}
+ * clauses for the former and JDBC batching for the latter).
  *
  * @author jeremy
  * @param <K>
@@ -100,8 +101,26 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     }
 
     @Override
+    public final void store(K key, V value) {
+        storeAll(Map.of(key, value));
+    }
+
+    @Override
     public void storeAll(Map<K, V> map) {
-        map.forEach((k, v) -> store(k, v));
+        preStoreAll(map);
+        Iterator<V> valueIter = map.values().iterator();
+        jdbcTemplate.batchUpdate(getStoreSql(), new BatchPreparedStatementSetter() {
+            @Override
+            public int getBatchSize() {
+                return map.size();
+            }
+
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                HazelcastMapStore.this.setValues(ps, valueIter.next());
+            }
+        });
+        postStoreAll(map);
     }
 
     /**
@@ -145,9 +164,50 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     protected abstract String getLoadSelect();
 
     /**
+     * Obtains the insert/update SQL to be used in a store operation. This will be used in
+     * conjunction with {@code setValues()} to batch individual operations.
+     *
+     * @return the SQL to be used for insert/update operations
+     */
+    protected abstract String getStoreSql();
+
+    /**
      * Obtains this {@code MapStore}'s table name.
      *
      * @return the table name corresponding to entities serviced by this {@code MapStore}
      */
     protected abstract String getTableName();
+
+    /**
+     * Invoked prior to {@code storeAll()}.
+     *
+     * @param map
+     *            a {@code Map} of entity key to entity value, of entities being stored
+     */
+    protected void postStoreAll(Map<K, V> map) {
+        // default is to do nothing
+    }
+
+    /**
+     * Invoked following {@code storeAll()}.
+     *
+     * @param map
+     *            a {@code Map} of entity key to entity value, of entities being stored
+     */
+    protected void preStoreAll(Map<K, V> map) {
+        // default is to do nothing
+    }
+
+    /**
+     * Sets the values to be inserted/updated for the given value, as part of a batch store
+     * operation (with SQL provided by {@code getStoreSql()}.
+     *
+     * @param ps
+     *            the {@code PreparedStatement} on which to set the values
+     * @param value
+     *            the entity value for which to set the values
+     * @throws SQLException
+     *             if the values could not be set
+     */
+    protected abstract void setValues(PreparedStatement ps, V value) throws SQLException;
 }
