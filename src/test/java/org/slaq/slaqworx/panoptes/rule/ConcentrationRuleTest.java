@@ -40,10 +40,10 @@ public class ConcentrationRuleTest {
                 null, 0.1, null);
 
         Security emergingMarketSecurity =
-                securityProvider.newSecurity(Map.of(SecurityAttribute.region, "Emerging Markets",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security usSecurity = securityProvider.newSecurity(Map.of(SecurityAttribute.region, "US",
-                SecurityAttribute.price, new BigDecimal("1.00")));
+                securityProvider.newSecurity("em", Map.of(SecurityAttribute.region,
+                        "Emerging Markets", SecurityAttribute.price, new BigDecimal("1.00")));
+        Security usSecurity = securityProvider.newSecurity("us", Map.of(SecurityAttribute.region,
+                "US", SecurityAttribute.price, new BigDecimal("1.00")));
 
         // create a portfolio with 50% concentration in Emerging Markets
         HashSet<Position> positions = new HashSet<>();
@@ -123,10 +123,12 @@ public class ConcentrationRuleTest {
                 c.getPosition().getSecurity().getAttributeValue(SecurityAttribute.currency)), 0.95,
                 1.05, null);
 
-        Security brlSecurity = securityProvider.newSecurity(Map.of(SecurityAttribute.currency,
-                "BRL", SecurityAttribute.price, new BigDecimal("1.00")));
-        Security nzdSecurity = securityProvider.newSecurity(Map.of(SecurityAttribute.currency,
-                "NZD", SecurityAttribute.price, new BigDecimal("1.00")));
+        Security brlSecurity =
+                securityProvider.newSecurity("brl", Map.of(SecurityAttribute.currency, "BRL",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security nzdSecurity =
+                securityProvider.newSecurity("nzd", Map.of(SecurityAttribute.currency, "NZD",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
 
         // create a benchmark with 50% concentration in BRL
         HashSet<Position> benchmarkPositions = new HashSet<>();

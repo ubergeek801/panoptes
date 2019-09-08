@@ -101,26 +101,36 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
-        Security iss1Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSFOO",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss1Sec2 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSFOO",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss1Sec3 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSFOO",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss2Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSBAR",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss2Sec2 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSBAR",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss3Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSBAZ",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss4Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSABC",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss4Sec2 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSABC",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss5Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSDEF",
-                SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss6Sec1 = securityProvider.newSecurity(Map.of(SecurityAttribute.issuer, "ISSGHI",
-                SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss1Sec1 =
+                securityProvider.newSecurity("iss1Sec1", Map.of(SecurityAttribute.issuer, "ISSFOO",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss1Sec2 =
+                securityProvider.newSecurity("iss1Sec2", Map.of(SecurityAttribute.issuer, "ISSFOO",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss1Sec3 =
+                securityProvider.newSecurity("iss1Sec3", Map.of(SecurityAttribute.issuer, "ISSFOO",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss2Sec1 =
+                securityProvider.newSecurity("iss2Sec1", Map.of(SecurityAttribute.issuer, "ISSBAR",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss2Sec2 =
+                securityProvider.newSecurity("iss2Sec2", Map.of(SecurityAttribute.issuer, "ISSBAR",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss3Sec1 =
+                securityProvider.newSecurity("iss3Sec1", Map.of(SecurityAttribute.issuer, "ISSBAZ",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss4Sec1 =
+                securityProvider.newSecurity("iss4Sec1", Map.of(SecurityAttribute.issuer, "ISSABC",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss4Sec2 =
+                securityProvider.newSecurity("iss4Sec2", Map.of(SecurityAttribute.issuer, "ISSABC",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss5Sec1 =
+                securityProvider.newSecurity("iss5Sec1", Map.of(SecurityAttribute.issuer, "ISSDEF",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security iss6Sec1 =
+                securityProvider.newSecurity("iss6Sec1", Map.of(SecurityAttribute.issuer, "ISSGHI",
+                        SecurityAttribute.price, new BigDecimal("1.00")));
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
@@ -299,19 +309,19 @@ public class PortfolioEvaluatorTest {
                 Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
                         SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security usdSecurity = securityProvider.newSecurity(usdAttributes);
+        Security usdSecurity = securityProvider.newSecurity("usd", usdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
                 Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.ratingValue, 80d,
                         SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security nzdSecurity = securityProvider.newSecurity(nzdAttributes);
+        Security nzdSecurity = securityProvider.newSecurity("nzd", nzdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> cadAttributes =
                 Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.ratingValue, 75d,
                         SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security cadSecurity = securityProvider.newSecurity(cadAttributes);
+        Security cadSecurity = securityProvider.newSecurity("cad", cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300

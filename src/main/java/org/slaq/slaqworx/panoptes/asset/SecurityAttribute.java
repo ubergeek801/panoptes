@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @param <T>
  *            the type which values of this attribute implement
  */
-public class SecurityAttribute<T> implements Serializable {
+public class SecurityAttribute<T> implements Serializable, Comparable<SecurityAttribute<?>> {
     private static final long serialVersionUID = 1L;
 
     private static final Map<String, SecurityAttribute<?>> attributesByName =
@@ -112,6 +112,12 @@ public class SecurityAttribute<T> implements Serializable {
         this.name = name;
         this.index = index;
         this.type = type;
+    }
+
+    @Override
+    public int compareTo(SecurityAttribute<?> o) {
+        // sort by attribute name for diagnostic-friendly behavior (e.g. toString() output)
+        return name.compareTo(o.name);
     }
 
     @Override

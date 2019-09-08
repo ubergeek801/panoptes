@@ -252,7 +252,11 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                         pimcoRatingScale.getRatingNotch(ratingSymbol).getMiddle());
                 attributes.put(SecurityAttribute.yield, yield);
                 attributes.put(SecurityAttribute.duration, duration.doubleValue());
-                attributes.put(SecurityAttribute.issuer, description);
+                // use the description as the issuer unless the sector is Currency, in which case
+                // don't set the issuer
+                if (!("Currency".equals(sector))) {
+                    attributes.put(SecurityAttribute.issuer, description);
+                }
                 BigDecimal price = calculatePrice(asOfDate, maturityDate, yield);
                 attributes.put(SecurityAttribute.price, price);
                 Security security =

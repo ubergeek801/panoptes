@@ -24,7 +24,7 @@ public class PositionTest {
     public void testHash() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security dummySecurity = securityProvider.newSecurity(Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity("dummy", Collections.emptyMap());
         Position p1 = new Position(new PositionKey("p1"), 100, dummySecurity);
         Position p2 = new Position(new PositionKey("p2"), 100, dummySecurity);
         Position p3 = new Position(new PositionKey("p3"), 100, dummySecurity);

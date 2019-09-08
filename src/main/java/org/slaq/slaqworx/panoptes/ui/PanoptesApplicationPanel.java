@@ -6,11 +6,20 @@ import java.util.Collections;
 import java.util.Locale;
 
 import com.hazelcast.core.IMap;
+import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.LocalDateRenderer;
@@ -30,19 +39,43 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 @Route("")
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-public class TestView extends VerticalLayout {
+public class PanoptesApplicationPanel extends AppLayout {
     private static final long serialVersionUID = 1L;
 
-    public TestView() {
-        setSizeFull();
+    public PanoptesApplicationPanel() {
+        Icon applicationIcon = new Icon(VaadinIcon.EYE);
+        applicationIcon.getStyle().set("position", "relative").set("top", "-0.05em");
+        Span applicationTitle = new Span("Panoptes");
+        applicationTitle.getStyle().set("font-weight", "bold").set("font-size", "120%")
+                .set("padding-left", "0.3em").set("padding-right", "0.3em");
+        Span applicationTagline = new Span("watchful portfolio compliance");
+        applicationTagline.getStyle().set("font-style", "italic").set("font-size", "80%");
+        Span applicationInfo = new Span();
+        applicationInfo.getStyle().set("vertical-align", "baseline");
+        applicationInfo.add(applicationTitle, applicationTagline);
 
-        Grid<Security> securityGrid = new Grid<>();
+        addToNavbar(new DrawerToggle(), applicationIcon, applicationInfo);
+
+        Tabs tabs = new Tabs(new Tab("Home"), new Tab("About"));
+        tabs.setOrientation(Tabs.Orientation.VERTICAL);
+        addToDrawer(tabs);
+
+        VerticalLayout mainLayout = new VerticalLayout();
+        setContent(mainLayout);
+        mainLayout.setSizeFull();
+
+        SecurityFilterPanel securityFilter = new SecurityFilterPanel();
+        Details securityFilterDetail = new Details("Security Filter", securityFilter);
+        securityFilterDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
+                DetailsVariant.SMALL);
+        mainLayout.add(securityFilterDetail);
+
         AssetCache assetCache = Panoptes.getApplicationContext().getBean(AssetCache.class);
         IMap<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
 
         // unfortunately there's not a very good way to page through entries of an IMap
         ArrayList<Security> securityList = new ArrayList<>(securityCache.values());
-        Collections.sort(securityList, (s1, s2) -> s1.getAssetId().compareTo(s2.getAssetId()));
+        Collections.sort(securityList, (s1, s2) -> s1.getKey().compareTo(s2.getKey()));
 
         CallbackDataProvider<Security, Void> securityProvider =
                 DataProvider
@@ -52,9 +85,14 @@ public class TestView extends VerticalLayout {
                                                 securityList.size()))
                                         .stream(),
                                 query -> securityList.size());
+
+        Grid<Security> securityGrid = new Grid<>();
+        securityGrid.setColumnReorderingAllowed(true);
+        securityGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_ROW_BORDERS,
+                GridVariant.LUMO_COMPACT);
         securityGrid.setDataProvider(securityProvider);
 
-        securityGrid.addColumn(Security::getAssetId).setAutoWidth(true).setFrozen(true)
+        securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
         securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip)).setAutoWidth(true)
                 .setHeader("CUSIP");
@@ -98,13 +136,8 @@ public class TestView extends VerticalLayout {
                         "$%(,.4f", Locale.US))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Price");
 
-        securityGrid.setColumnReorderingAllowed(true);
-        securityGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
-                GridVariant.LUMO_NO_ROW_BORDERS);
+        mainLayout.add(securityGrid);
 
-        add(securityGrid);
-
-        Grid<Portfolio> portfolioGrid = new Grid<>();
         IMap<PortfolioKey, Portfolio> portfolioCache = assetCache.getPortfolioCache();
 
         // unfortunately there's not a very good way to page through entries of an IMap
@@ -118,20 +151,21 @@ public class TestView extends VerticalLayout {
                                         portfolioList.size()))
                                 .stream(),
                         query -> portfolioList.size());
-        portfolioGrid.setDataProvider(portfolioProvider);
 
-        portfolioGrid.addColumn(Portfolio::getName).setAutoWidth(true).setHeader("Name");
-        portfolioGrid
-                .addColumn(
-                        new NumberRenderer<>(Portfolio::getTotalMarketValue, "$%(,.2f", Locale.US))
-                .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Market Value");
-        portfolioGrid.addColumn(Portfolio::getBenchmarkKey).setAutoWidth(true)
-                .setHeader("Benchmark");
-
+        Grid<Portfolio> portfolioGrid = new Grid<>();
         portfolioGrid.setColumnReorderingAllowed(true);
         portfolioGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
-                GridVariant.LUMO_NO_ROW_BORDERS);
+                GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_COMPACT);
+        portfolioGrid.setDataProvider(portfolioProvider);
 
-        add(portfolioGrid);
+        portfolioGrid.addColumn(p -> p.getKey().getId()).setAutoWidth(true).setFrozen(true)
+                .setHeader("ID");
+        portfolioGrid.addColumn(p -> p.getName()).setAutoWidth(true).setHeader("Name");
+        portfolioGrid
+                .addColumn(new NumberRenderer<>(p -> p.getTotalMarketValue(), "$%(,.2f", Locale.US))
+                .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Market Value");
+        portfolioGrid.addColumn(p -> p.getBenchmarkKey()).setAutoWidth(true).setHeader("Benchmark");
+
+        mainLayout.add(portfolioGrid);
     }
 }

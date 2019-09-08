@@ -108,6 +108,7 @@ public class Panoptes {
                 applicationContext.getBean(PortfolioEvaluationRequestListener.class);
         portfolioEvaluationRequestListener.start();
 
+        LOG.info("starting Web application service");
         Server servletServer = applicationContext.getBean(Server.class);
         servletServer.start();
 

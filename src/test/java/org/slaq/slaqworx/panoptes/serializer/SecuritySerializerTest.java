@@ -48,17 +48,19 @@ public class SecuritySerializerTest {
     public void testSerialization() throws Exception {
         SecuritySerializer serializer = new SecuritySerializer();
 
-        Map<SecurityAttribute<?>, ? super Object> attributes = Map.of(SecurityAttribute.country,
-                "US", SecurityAttribute.coupon, new BigDecimal("4.00"), SecurityAttribute.currency,
-                "USD", SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration,
-                3.1, SecurityAttribute.price, new BigDecimal("99.0000"));
+        Map<SecurityAttribute<?>, ? super Object> attributes = Map.of(SecurityAttribute.isin,
+                "dummy", SecurityAttribute.country, "US", SecurityAttribute.coupon,
+                new BigDecimal("4.00"), SecurityAttribute.currency, "USD",
+                SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration, 3.1,
+                SecurityAttribute.price, new BigDecimal("99.0000"));
         Security security = new Security(attributes);
 
         byte[] buffer = serializer.write(security);
         Security deserialized = serializer.read(buffer);
 
-        // because the key is a hash of the attribute contents, equality of the key suffices for our
-        // purposes
-        assertEquals(security, deserialized, "deserialized value should equals() original value");
+        // because hash() is a proxy for equality of the attribute contents, equality of hash()
+        // suffices for our purposes
+        assertEquals(security.getAttributes().hash(), deserialized.getAttributes().hash(),
+                "deserialized value and original value should have equal hash()");
     }
 }

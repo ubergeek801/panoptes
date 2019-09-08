@@ -32,11 +32,18 @@ public class TestSecurityProvider implements SecurityProvider {
     /**
      * Creates a new {@code Security} and makes it available through this provider.
      *
+     * @param assetId
+     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            contains ISIN
      * @param attributes
-     *            the attributes to associate with the {@code Security}
+     *            the additional attributes to associate with the {@code Security}
      * @return the newly created {@code Security}
      */
-    public Security newSecurity(Map<SecurityAttribute<?>, Object> attributes) {
+    public Security newSecurity(String assetId, Map<SecurityAttribute<?>, Object> attributes) {
+        if (assetId != null) {
+            attributes = new HashMap<>(attributes);
+            attributes.put(SecurityAttribute.isin, assetId);
+        }
         Security security = new Security(attributes);
         securityMap.put(security.getKey(), security);
 

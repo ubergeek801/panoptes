@@ -27,20 +27,21 @@ public class SecurityTest {
     public void testGetAttributes() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s = securityProvider.newSecurity(Map.of(SecurityAttribute.country, "US",
-                SecurityAttribute.cusip, "abcde", SecurityAttribute.duration, 3.1,
-                SecurityAttribute.coupon, new BigDecimal("4.00"), SecurityAttribute.maturityDate,
-                LocalDate.of(2019, 8, 5)));
-        Map<SecurityAttribute<?>, ? super Object> attributes = s.getAttributes();
-        assertEquals("US", attributes.get(SecurityAttribute.country),
+        Security s = securityProvider.newSecurity("dummy",
+                Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
+                        SecurityAttribute.duration, 3.1, SecurityAttribute.coupon,
+                        new BigDecimal("4.00"), SecurityAttribute.maturityDate,
+                        LocalDate.of(2019, 8, 5)));
+        SecurityAttributes attributes = s.getAttributes();
+        assertEquals("US", attributes.getValue(SecurityAttribute.country),
                 "country value should have matched");
-        assertEquals("abcde", attributes.get(SecurityAttribute.cusip),
+        assertEquals("abcde", attributes.getValue(SecurityAttribute.cusip),
                 "cusip value should have matched");
-        assertEquals(3.1, (double)attributes.get(SecurityAttribute.duration), TestUtil.EPSILON,
+        assertEquals(3.1, attributes.getValue(SecurityAttribute.duration), TestUtil.EPSILON,
                 "duration value should have matched");
-        assertEquals(new BigDecimal("4.00"), attributes.get(SecurityAttribute.coupon),
+        assertEquals(new BigDecimal("4.00"), attributes.getValue(SecurityAttribute.coupon),
                 "coupon value should have matched");
-        assertEquals(LocalDate.of(2019, 8, 5), attributes.get(SecurityAttribute.maturityDate),
+        assertEquals(LocalDate.of(2019, 8, 5), attributes.getValue(SecurityAttribute.maturityDate),
                 "maturity date value should have matched");
     }
 
@@ -51,23 +52,23 @@ public class SecurityTest {
     public void testHash() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider
-                .newSecurity(Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip,
-                        "abcde", SecurityAttribute.price, new BigDecimal("99.1234")));
-        Security s2 = securityProvider.newSecurity(Map.of(SecurityAttribute.cusip, "abcde",
+        Security s1 = securityProvider.newSecurity("s1",
+                Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
+                        SecurityAttribute.price, new BigDecimal("99.1234")));
+        Security s2 = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.cusip, "abcde",
                 SecurityAttribute.currency, "USD", SecurityAttribute.duration, 3d));
-        Security s3 = securityProvider.newSecurity(Map.of(SecurityAttribute.description,
+        Security s3 = securityProvider.newSecurity("s3", Map.of(SecurityAttribute.description,
                 "a security", SecurityAttribute.price, new BigDecimal("99.1000")));
-        Security s4 = securityProvider.newSecurity(Collections.emptyMap());
+        Security s4 = securityProvider.newSecurity("s4", Collections.emptyMap());
         // these are the same as above, with the attributes permuted; these should hash to the same
-        Security s1a = securityProvider
-                .newSecurity(Map.of(SecurityAttribute.cusip, "abcde", SecurityAttribute.price,
+        Security s1a = securityProvider.newSecurity("s1",
+                Map.of(SecurityAttribute.cusip, "abcde", SecurityAttribute.price,
                         new BigDecimal("99.1234"), SecurityAttribute.country, "US"));
-        Security s2a = securityProvider.newSecurity(Map.of(SecurityAttribute.cusip, "abcde",
+        Security s2a = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.cusip, "abcde",
                 SecurityAttribute.duration, 3d, SecurityAttribute.currency, "USD"));
-        Security s3a = securityProvider.newSecurity(Map.of(SecurityAttribute.price,
+        Security s3a = securityProvider.newSecurity("s3", Map.of(SecurityAttribute.price,
                 new BigDecimal("99.1000"), SecurityAttribute.description, "a security"));
-        Security s4a = securityProvider.newSecurity(Collections.emptyMap());
+        Security s4a = securityProvider.newSecurity("s4", Collections.emptyMap());
 
         HashSet<Security> securities = new HashSet<>();
         // adding the four distinct Securities any number of times should still result in four

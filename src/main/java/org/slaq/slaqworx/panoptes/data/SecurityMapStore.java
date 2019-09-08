@@ -45,11 +45,11 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     @Override
     public void store(SecurityKey key, Security security) {
         try {
-            getJdbcTemplate().update(
-                    "insert into " + getTableName() + " (id, attributes) values (?, ?::json)"
-                            + " on conflict on constraint security_pk"
-                            + " do update set attributes = excluded.attributes",
-                    key.getId(), SerializerUtil.attributesToJson(security.getAttributes()));
+            getJdbcTemplate().update("insert into " + getTableName() + " (id, hash, attributes) "
+                    + "values (?, ?, ?::json) on conflict on constraint security_pk do update "
+                    + "set hash = excluded.hash, attributes = excluded.attributes", key.getId(),
+                    security.getAttributes().hash(),
+                    SerializerUtil.attributesToJson(security.getAttributes().asMap()));
         } catch (Exception e) {
             // TODO throw a better exception
             throw new RuntimeException("could not serialize SecurityAttributes for " + key, e);

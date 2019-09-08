@@ -32,8 +32,8 @@ public class TotalMarketValuePositionCalculatorTest {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
-        Security dummySecurity = securityProvider
-                .newSecurity(Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
+        Security dummySecurity = securityProvider.newSecurity("dummy",
+                Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
 
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));

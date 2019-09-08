@@ -34,17 +34,17 @@ public class TestUtil {
     public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = Map.of(moovyRating,
             90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration, 4d,
             SecurityAttribute.country, "US", SecurityAttribute.price, new BigDecimal("1.00"));
-    public static final Security s1 = securityProvider.newSecurity(s1Attributes);
+    public static final Security s1 = securityProvider.newSecurity("TestUtilS1", s1Attributes);
 
     public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes = Map.of(moovyRating,
             85d, npRating, 78d, SecurityAttribute.duration, 4d, SecurityAttribute.country, "NZ",
             SecurityAttribute.price, new BigDecimal("1.00"));
-    public static final Security s2 = securityProvider.newSecurity(s2Attributes);
+    public static final Security s2 = securityProvider.newSecurity("TestUtilS2", s2Attributes);
 
     public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes = Map.of(moovyRating,
             80d, npRating, 82d, SecurityAttribute.duration, 2.1d, SecurityAttribute.country, "CA",
             SecurityAttribute.price, new BigDecimal("1.00"));
-    public static final Security s3 = securityProvider.newSecurity(s3Attributes);
+    public static final Security s3 = securityProvider.newSecurity("TestUtilS3", s3Attributes);
 
     public static final Set<Position> p1Positions =
             Set.of(positionProvider.newPosition(null, 1000, s1),

@@ -5,7 +5,7 @@ package org.slaq.slaqworx.panoptes.asset;
  *
  * @author jeremy
  */
-public class SecurityKey {
+public class SecurityKey implements Comparable<SecurityKey> {
     private final String id;
 
     /**
@@ -16,6 +16,11 @@ public class SecurityKey {
      */
     public SecurityKey(String id) {
         this.id = id;
+    }
+
+    @Override
+    public int compareTo(SecurityKey other) {
+        return id.compareTo(other.getId());
     }
 
     @Override

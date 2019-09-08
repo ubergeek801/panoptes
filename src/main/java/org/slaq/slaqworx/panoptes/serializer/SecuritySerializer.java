@@ -50,7 +50,7 @@ public class SecuritySerializer implements ByteArraySerializer<Security> {
     @Override
     public byte[] write(Security security) throws IOException {
         SecurityMsg.Builder securityBuilder = SecurityMsg.newBuilder();
-        for (Entry<SecurityAttribute<?>, Object> attributeEntry : security.getAttributes()
+        for (Entry<SecurityAttribute<?>, Object> attributeEntry : security.getAttributes().asMap()
                 .entrySet()) {
             SecurityAttribute<?> attribute = attributeEntry.getKey();
             Object value = attributeEntry.getValue();

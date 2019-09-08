@@ -42,8 +42,8 @@ public class TradeEvaluatorTest {
     public void testEvaluate() throws Exception {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider.newSecurity(Map.of(SecurityAttribute.duration, 3.0));
-        Security s2 = securityProvider.newSecurity(Map.of(SecurityAttribute.duration, 4.0));
+        Security s1 = securityProvider.newSecurity("s1", Map.of(SecurityAttribute.duration, 3.0));
+        Security s2 = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.duration, 4.0));
 
         HashSet<Position> p1Positions = new HashSet<>();
         p1Positions.add(new Position(1_000, s1));
@@ -118,7 +118,7 @@ public class TradeEvaluatorTest {
     public void testEvaluateRoom() throws Exception {
         Map<SecurityAttribute<?>, ? super Object> security1Attributes =
                 Map.of(SecurityAttribute.duration, 3d);
-        Security security1 = TestUtil.testSecurityProvider().newSecurity(security1Attributes);
+        Security security1 = TestUtil.testSecurityProvider().newSecurity("s1", security1Attributes);
 
         Position position1 =
                 TestUtil.testPositionProvider().newPosition(null, 1_000_000, security1);
@@ -131,7 +131,8 @@ public class TradeEvaluatorTest {
 
         Map<SecurityAttribute<?>, ? super Object> security2Attributes =
                 Map.of(SecurityAttribute.duration, 4d);
-        Security trialSecurity = TestUtil.testSecurityProvider().newSecurity(security2Attributes);
+        Security trialSecurity =
+                TestUtil.testSecurityProvider().newSecurity("s2", security2Attributes);
 
         Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(null, "test 1",
                 p1Positions, (Portfolio)null, p1Rules);
