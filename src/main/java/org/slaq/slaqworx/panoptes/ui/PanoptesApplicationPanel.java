@@ -64,6 +64,12 @@ public class PanoptesApplicationPanel extends AppLayout {
         setContent(mainLayout);
         mainLayout.setSizeFull();
 
+        FixedIncomeTradePanel tradePanel = new FixedIncomeTradePanel();
+        Details tradePanelDetail = new Details("Trade Fixed Income", tradePanel);
+        tradePanelDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
+                DetailsVariant.SMALL);
+        mainLayout.add(tradePanelDetail);
+
         SecurityFilterPanel securityFilter = new SecurityFilterPanel();
         Details securityFilterDetail = new Details("Security Filter", securityFilter);
         securityFilterDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
