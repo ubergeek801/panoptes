@@ -14,5 +14,9 @@ public enum SerializerTypeId {
     SECURITY_KEY,
     SECURITY,
     RULE_KEY,
-    RULE
+    RULE,
+    TRANSACTION_KEY,
+    TRANSACTION,
+    TRADE_KEY,
+    TRADE
 }

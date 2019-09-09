@@ -1,11 +1,11 @@
 package org.slaq.slaqworx.panoptes;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -50,14 +50,14 @@ public class TestUtil {
             Set.of(positionProvider.newPosition(null, 1000, s1),
                     positionProvider.newPosition(null, 500, s2));
 
-    public static final Portfolio p1 =
-            new Portfolio(new PortfolioKey("TestUtilP1", 1), "TestUtilP1", p1Positions);
+    public static final Portfolio p1 = portfolioProvider.newPortfolio("TestUtilP1", "TestUtilP1",
+            p1Positions, null, Collections.emptyList());
     public static final Set<Position> p2Positions =
             Set.of(positionProvider.newPosition(null, 500, s1),
                     positionProvider.newPosition(null, 1000, s2));
 
-    public static final Portfolio p2 =
-            new Portfolio(new PortfolioKey("TestUtilP2", 1), "TestUtilP2", p2Positions);
+    public static final Portfolio p2 = portfolioProvider.newPortfolio("TestUtilP2", "TestUtilP2",
+            p2Positions, null, Collections.emptyList());
 
     /**
      * Obtains a {@code PortfolioProvider} suitable for unit testing using {@code Portfolio}s

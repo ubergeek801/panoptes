@@ -34,6 +34,10 @@ import org.slaq.slaqworx.panoptes.serializer.RuleKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.serializer.SecurityKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
+import org.slaq.slaqworx.panoptes.serializer.TradeKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.TradeSerializer;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
  * {@code PanoptesCacheConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
@@ -55,22 +59,25 @@ public class PanoptesCacheConfiguration {
      * Provides a {@code MapConfig} for the specified map and adds it to the given Hazelcast
      * {@code Config}.
      *
-     * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to use to create the {@code MapStore}
      * @param cacheName
      *            the name of the map/cache being created
+     * @param mapStoreFactory
+     *            the {@code HazelcastMapStoreFactory} to use to create the {@code MapStore}, or
+     *            null to use no {@code MapStore}
      * @return a {@code MapConfig} configured for the given map
      */
-    protected MapConfig createMapConfiguration(HazelcastMapStoreFactory mapStoreFactory,
-            String cacheName) {
-        MapStoreConfig mapStoreConfig = new MapStoreConfig()
-                .setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
-                .setWriteBatchSize(1000).setInitialLoadMode(InitialLoadMode.LAZY);
+    protected MapConfig createMapConfiguration(String cacheName,
+            HazelcastMapStoreFactory mapStoreFactory) {
         NearCacheConfig nearCacheConfig = new NearCacheConfig().setName("near-" + cacheName)
                 .setInMemoryFormat(InMemoryFormat.OBJECT).setCacheLocalEntries(true);
         MapConfig mapConfig = new MapConfig(cacheName).setBackupCount(3).setReadBackupData(true)
-                .setInMemoryFormat(InMemoryFormat.BINARY).setMapStoreConfig(mapStoreConfig)
-                .setNearCacheConfig(nearCacheConfig);
+                .setInMemoryFormat(InMemoryFormat.BINARY).setNearCacheConfig(nearCacheConfig);
+        if (mapStoreFactory != null) {
+            MapStoreConfig mapStoreConfig = new MapStoreConfig()
+                    .setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
+                    .setWriteBatchSize(1000).setInitialLoadMode(InitialLoadMode.LAZY);
+            mapConfig.setMapStoreConfig(mapStoreConfig);
+        }
 
         return mapConfig;
     }
@@ -111,7 +118,8 @@ public class PanoptesCacheConfiguration {
             config.setProperty("hazelcast.initial.min.cluster.size", "4");
         }
 
-        // set up the entity caches (Portfolio, Position, etc.)
+        // set up the entity caches (Portfolio, Position, etc.); note that Trade is non-persistent
+        // for now
 
         SerializationConfig serializationConfig = config.getSerializationConfig();
         serializationConfig.addSerializerConfig(new SerializerConfig()
@@ -130,9 +138,14 @@ public class PanoptesCacheConfiguration {
                 .setClass(SecurityKeySerializer.class).setTypeClass(SecurityKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setClass(SecuritySerializer.class).setTypeClass(Security.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setClass(TradeKeySerializer.class).setTypeClass(TradeKey.class));
+        serializationConfig.addSerializerConfig(
+                new SerializerConfig().setClass(TradeSerializer.class).setTypeClass(Trade.class));
 
         config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
-                .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig);
+                .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
+                .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
         // set up a map to act as the portfolio evaluation result "topic"
         config.getMapConfig(AssetCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
@@ -175,7 +188,7 @@ public class PanoptesCacheConfiguration {
     @Named("portfolio")
     @Bean
     protected MapConfig portfolioMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, AssetCache.PORTFOLIO_CACHE_NAME);
+        return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME, mapStoreFactory);
     }
 
     /**
@@ -188,7 +201,7 @@ public class PanoptesCacheConfiguration {
     @Named("position")
     @Bean
     protected MapConfig positionMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, AssetCache.POSITION_CACHE_NAME);
+        return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory);
     }
 
     /**
@@ -201,7 +214,7 @@ public class PanoptesCacheConfiguration {
     @Named("rule")
     @Bean
     protected MapConfig ruleMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, AssetCache.RULE_CACHE_NAME);
+        return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory);
     }
 
     /**
@@ -214,6 +227,6 @@ public class PanoptesCacheConfiguration {
     @Named("security")
     @Bean
     protected MapConfig securityMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(mapStoreFactory, AssetCache.SECURITY_CACHE_NAME);
+        return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory);
     }
 }

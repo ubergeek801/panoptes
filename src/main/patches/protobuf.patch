@@ -22,3 +22,11 @@
 <       return (Builder) DEFAULT_INSTANCE.createBuilder();
 ---
 >       return DEFAULT_INSTANCE.createBuilder();
+3776c3776
+<       return (Builder) DEFAULT_INSTANCE.createBuilder();
+---
+>       return DEFAULT_INSTANCE.createBuilder();
+4362c4362
+<       return (Builder) DEFAULT_INSTANCE.createBuilder();
+---
+>       return DEFAULT_INSTANCE.createBuilder();

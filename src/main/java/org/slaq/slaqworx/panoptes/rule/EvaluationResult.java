@@ -1,27 +1,30 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
+
 /**
- * EvaluationResult encapsulates the results of a Rule evaluation. Currently this class contains
- * aspects of Boolean- and value-based evaluations, which possibly should be separated.
+ * {@code EvaluationResult} encapsulates the results of a {@code Rule} evaluation. Currently this
+ * class contains aspects of Boolean- and value-based evaluations, which possibly should be
+ * separated.
  *
  * @author jeremy
  */
-public class EvaluationResult {
+public class EvaluationResult implements Serializable {
     /**
-     * Impact describes the impact of some change (such as a proposed Trade) on a Rule, as evaluated
-     * before and after the proposed changes are considered.
+     * {@code Impact} describes the impact of some change (such as a proposed {@code Trade}) on a
+     * {@code Rule}, as evaluated before and after the proposed changes are considered.
      */
     public enum Impact {
         /**
-         * the change negatively impacts the Rule evaluation
+         * the change negatively impacts the {@code Rule} evaluation
          */
         NEGATIVE,
         /**
-         * the change has no actionable impact on the Rule evaluation
+         * the change has no actionable impact on the {@code Rule} evaluation
          */
         NEUTRAL,
         /**
-         * the change positively impacts the Rule evaluation
+         * the change positively impacts the {@code Rule} evaluation
          */
         POSITIVE,
         /**
@@ -31,8 +34,8 @@ public class EvaluationResult {
     }
 
     /**
-     * Threshold indicates whether a value-based result is below, within or above the evaluated
-     * Rule's threshold.
+     * {@code Threshold} indicates whether a value-based result is below, within or above the
+     * evaluated {@code Rule}'s threshold.
      * <p>
      * TODO there are probably better names for these
      */
@@ -40,16 +43,19 @@ public class EvaluationResult {
         BELOW, WITHIN, ABOVE
     }
 
+    private static final long serialVersionUID = 1L;
+
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
     private final Throwable exception;
 
     /**
-     * Creates a new Boolean-based EvaluationResult indicating whether the evaluation passed.
+     * Creates a new Boolean-based {@code EvaluationResult} indicating whether the evaluation
+     * passed.
      *
      * @param isPassed
-     *            true if the evaluation passed, false otherwise
+     *            {@code true} if the evaluation passed, {@code false} otherwise
      */
     public EvaluationResult(boolean isPassed) {
         this.isPassed = isPassed;
@@ -59,11 +65,12 @@ public class EvaluationResult {
     }
 
     /**
-     * Creates a new value-based EvaluationResult indicating the threshold status for evaluation and
-     * the actual result value.
+     * Creates a new value-based {@code EvaluationResult} indicating the threshold status for
+     * evaluation and the actual result value.
      *
      * @param threshold
-     *            a Threshold value indicating whether the value is within the evaluation threshold
+     *            a {@code Threshold} value indicating whether the value is within the evaluation
+     *            threshold
      * @param value
      *            the actual evaluation result value
      */
@@ -75,8 +82,8 @@ public class EvaluationResult {
     }
 
     /**
-     * Creates a new Boolean-based EvaluationResult indicating that the evaluation failed due to
-     * some exception.
+     * Creates a new Boolean-based {@code EvaluationResult} indicating that the evaluation failed
+     * due to some exception.
      *
      * @param exception
      *            the exception causing the failure
@@ -89,13 +96,13 @@ public class EvaluationResult {
     }
 
     /**
-     * Compares this EvaluationResult (which is interpreted as the result of some proposed change
-     * such as a Trade) to the given EvaluationResult (which is interpreted as the value prior to
-     * the proposed change).
+     * Compares this {@code EvaluationResult} (which is interpreted as the result of some proposed
+     * change such as a {@code Trade}) to the given {@code EvaluationResult} (which is interpreted
+     * as the value prior to the proposed change).
      *
      * @param originalResult
-     *            the EvalautionResult to compare to
-     * @return an Impact describing the impact of the change on the evaluations
+     *            the {@code EvaluationResult} to compare to
+     * @return an {@code Impact} describing the impact of the change on the evaluations
      */
     public Impact compare(EvaluationResult originalResult) {
         if (originalResult == null) {
@@ -165,9 +172,9 @@ public class EvaluationResult {
     }
 
     /**
-     * Obtains the Exception associated with this result.
+     * Obtains the {@code Exception} associated with this result.
      *
-     * @return the Exception causing an evaluation failure, or null if none occurred
+     * @return the {@code Exception} causing an evaluation failure, or {@code null} if none occurred
      */
     public Throwable getException() {
         return exception;
@@ -176,17 +183,17 @@ public class EvaluationResult {
     /**
      * Obtains the value associated with this result.
      *
-     * @return the value associated with this result (if value-based), or null if it does not exist
-     *         (Boolean-based)
+     * @return the value associated with this result (if value-based), or {@code null} if it does
+     *         not exist (Boolean-based)
      */
     public Double getValue() {
         return value;
     }
 
     /**
-     * Indicates whether the rule evaluation passed.
+     * Indicates whether the {@code Rule} evaluation passed.
      *
-     * @return true if the evaluation passed, false otherwise
+     * @return {@code true} if the evaluation passed, {@code false} otherwise
      */
     public boolean isPassed() {
         return isPassed;

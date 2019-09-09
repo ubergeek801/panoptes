@@ -96,7 +96,6 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
         IdVersionKeyMsg.Builder keyBuilder = IdVersionKeyMsg.newBuilder();
         keyBuilder.setId(portfolio.getKey().getId());
         keyBuilder.setVersion(portfolio.getKey().getVersion());
-        IdVersionKeyMsg key = keyBuilder.build();
 
         IdVersionKeyMsg benchmarkKeyMsg;
         PortfolioKey benchmarkKey = portfolio.getBenchmarkKey();
@@ -110,7 +109,7 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
         }
 
         PortfolioMsg.Builder portfolioBuilder = PortfolioMsg.newBuilder();
-        portfolioBuilder.setKey(key);
+        portfolioBuilder.setKey(keyBuilder);
         portfolioBuilder.setName(portfolio.getName());
         if (benchmarkKeyMsg != null) {
             portfolioBuilder.setBenchmarkKey(benchmarkKeyMsg);
@@ -118,12 +117,12 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
         portfolio.getRules().forEach(r -> {
             IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
             ruleKeyBuilder.setId(r.getKey().getId());
-            portfolioBuilder.addRuleKey(ruleKeyBuilder.build());
+            portfolioBuilder.addRuleKey(ruleKeyBuilder);
         });
         portfolio.getPositions().forEach(k -> {
             IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
             positionKeyBuilder.setId(k.getKey().getId());
-            portfolioBuilder.addPositionKey(positionKeyBuilder.build());
+            portfolioBuilder.addPositionKey(positionKeyBuilder);
         });
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

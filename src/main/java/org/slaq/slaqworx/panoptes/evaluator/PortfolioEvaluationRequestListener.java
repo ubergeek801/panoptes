@@ -21,6 +21,9 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * {@code PortfolioEvaluationRequestListener} consumes messages from the {@code Portfolio}
@@ -72,10 +75,16 @@ public class PortfolioEvaluationRequestListener {
                     String requestId = components[0];
                     String portfolioId = components[1];
                     String portfolioVersion = components[2];
+                    TradeKey tradeKey;
+                    if (components.length == 4) {
+                        tradeKey = new TradeKey(components[3]);
+                    } else {
+                        tradeKey = null;
+                    }
                     PortfolioKey portfolioKey =
                             new PortfolioKey(portfolioId, Integer.valueOf(portfolioVersion));
                     Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                            evaluatePortfolio(portfolioKey);
+                            evaluatePortfolio(portfolioKey, tradeKey);
                     evaluationResultQueue
                             .add(new ImmutablePair<>(UUID.fromString(requestId), results));
                 } catch (Exception e) {
@@ -121,17 +130,30 @@ public class PortfolioEvaluationRequestListener {
     }
 
     /**
-     * Evaluates the specified {@code Portfolio}.
+     * Evaluates the specified {@code Portfolio}, optionally including the specified {@code Trade}
+     * in the evaluation.
      *
      * @param portfolioKey
      *            the key of the {@code Portfolio} to be evaluated
+     * @param tradeKey
+     *            the key of the {@code Trade} to be evaluated with the {@code Portfolio}
      * @return the {@code Portfolio} evaluation results
      */
     protected Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>
-            evaluatePortfolio(PortfolioKey portfolioKey) {
+            evaluatePortfolio(PortfolioKey portfolioKey, TradeKey tradeKey) {
         try {
-            return new LocalPortfolioEvaluator().evaluate(assetCache.getPortfolio(portfolioKey),
-                    new EvaluationContext(assetCache, assetCache, assetCache)).get();
+            EvaluationContext evaluationContext =
+                    new EvaluationContext(assetCache, assetCache, assetCache);
+            if (tradeKey != null) {
+                Trade trade = assetCache.getTrade(tradeKey);
+                Transaction transaction = trade.getTransaction(portfolioKey);
+
+                return new LocalPortfolioEvaluator().evaluate(assetCache.getPortfolio(portfolioKey),
+                        transaction, evaluationContext).get();
+            }
+
+            return new LocalPortfolioEvaluator()
+                    .evaluate(assetCache.getPortfolio(portfolioKey), evaluationContext).get();
         } catch (Exception e) {
             // TODO throw a real exception
             throw new RuntimeException("could not process PortfolioEvaluationRequest", e);

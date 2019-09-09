@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
@@ -26,13 +26,13 @@ public class RuleKeySerializer implements ByteArraySerializer<RuleKey> {
 
     @Override
     public RuleKey read(byte[] buffer) throws IOException {
-        IdVersionKeyMsg keyMsg = IdVersionKeyMsg.parseFrom(buffer);
+        IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new RuleKey(keyMsg.getId());
     }
 
     @Override
     public byte[] write(RuleKey key) throws IOException {
-        IdVersionKeyMsg.Builder keyBuilder = IdVersionKeyMsg.newBuilder();
+        IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
         keyBuilder.setId(key.getId());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

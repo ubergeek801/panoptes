@@ -1,22 +1,26 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.io.Serializable;
+
 /**
- * EvaluationGroup is a value type used as a key when classifying rule evaluation results.
+ * {@code EvaluationGroup} is a value type used as a key when classifying rule evaluation results.
  *
  * @author jeremy
  * @param <K>
- *            the aggregation key type, e.g. SecurityAttribute
+ *            the aggregation key type, e.g. {@code SecurityAttribute}
  */
-public class EvaluationGroup<K> {
+public class EvaluationGroup<K> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static final String DEFAULT_EVALUATION_GROUP_ID = "portfolio";
 
     private static final EvaluationGroup<?> DEFAULT_GROUP =
             new EvaluationGroup<>(DEFAULT_EVALUATION_GROUP_ID, null);
 
     /**
-     * Obtains the default (Portfolio-level) EvaluationGroup.
+     * Obtains the default ({@code Portfolio}-level) {@code EvaluationGroup}.
      *
-     * @return the default EvaluationGroup
+     * @return the default {@code EvaluationGroup}
      */
     public static EvaluationGroup<?> defaultGroup() {
         return DEFAULT_GROUP;
@@ -26,12 +30,13 @@ public class EvaluationGroup<K> {
     private final K aggregationKey;
 
     /**
-     * Creates a new EvaluationGroup with the given ID and aggregation key.
+     * Creates a new {@code EvaluationGroup} with the given ID and aggregation key.
      *
      * @param id
-     *            the unique ID of the EvaluationGroup
+     *            the unique ID of the {@code EvaluationGroup}
      * @param aggregationKey
-     *            the aggregation key used to define this EvaluationGroup, or null for the default
+     *            the aggregation key used to define this {@code valuationGroup}, or {@code null}
+     *            for the default
      */
     public EvaluationGroup(String id, K aggregationKey) {
         this.id = id;
@@ -54,19 +59,19 @@ public class EvaluationGroup<K> {
     }
 
     /**
-     * Obtains the aggregation key on which this EvaluationGroup is classified, or null if this is
-     * the default (unclassified) group.
+     * Obtains the aggregation key on which this {@code EvaluationGroup} is classified, or
+     * {@code null} if this is the default (unclassified) group.
      *
-     * @return this EvalulationGroup's aggregation key
+     * @return this {@code EvalulationGroup}'s aggregation key
      */
     public K getAggregationKey() {
         return aggregationKey;
     }
 
     /**
-     * Obtains the ID of this EvaluationGroup.
+     * Obtains the ID of this {@code EvaluationGroup}.
      *
-     * @return the EvaluationGroup ID
+     * @return the {@code EvaluationGroup} ID
      */
     public String getId() {
         return id;

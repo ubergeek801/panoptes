@@ -6,11 +6,10 @@ import java.io.IOException;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 
 /**
- * {@code PositionKeySerializer} (de)serializes the state of a {@code PositionKey} using
- * Protobuf.
+ * {@code PositionKeySerializer} (de)serializes the state of a {@code PositionKey} using Protobuf.
  *
  * @author jeremy
  */
@@ -27,13 +26,13 @@ public class PositionKeySerializer implements ByteArraySerializer<PositionKey> {
 
     @Override
     public PositionKey read(byte[] buffer) throws IOException {
-        IdVersionKeyMsg keyMsg = IdVersionKeyMsg.parseFrom(buffer);
+        IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new PositionKey(keyMsg.getId());
     }
 
     @Override
     public byte[] write(PositionKey key) throws IOException {
-        IdVersionKeyMsg.Builder keyBuilder = IdVersionKeyMsg.newBuilder();
+        IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
         keyBuilder.setId(key.getId());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

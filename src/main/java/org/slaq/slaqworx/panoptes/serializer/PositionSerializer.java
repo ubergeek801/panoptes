@@ -71,16 +71,14 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
     public byte[] write(Position position) throws IOException {
         IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
         keyBuilder.setId(position.getKey().getId());
-        IdKeyMsg key = keyBuilder.build();
 
         IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
         securityKeyBuilder.setId(position.getSecurity().getKey().getId());
-        IdKeyMsg securityKey = securityKeyBuilder.build();
 
         PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
-        positionBuilder.setKey(key);
+        positionBuilder.setKey(keyBuilder);
         positionBuilder.setAmount(position.getAmount());
-        positionBuilder.setSecurityKey(securityKey);
+        positionBuilder.setSecurityKey(securityKeyBuilder);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         positionBuilder.build().writeTo(out);

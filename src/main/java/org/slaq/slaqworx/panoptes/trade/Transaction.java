@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -17,7 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  * @author jeremy
  */
 public class Transaction implements PositionSupplier {
-    private final String id;
+    private final TransactionKey key;
     private Trade trade;
     private final Portfolio portfolio;
     private final PositionSet positions;
@@ -39,26 +38,41 @@ public class Transaction implements PositionSupplier {
      * Creates a new {@code Transaction} with the given ID, acting on the given {@code Portfolio}
      * with the given allocations.
      *
-     * @param id
-     *            the unique ID of the {@code Transaction}
+     * @param key
+     *            the unique key of the {@code Transaction}
      * @param portfolio
      *            the {@code Portfolio} affected by this {@code Transaction}
      * @param allocations
      *            the allocations of the {@code Transaction}
      */
-    public Transaction(String id, Portfolio portfolio, Collection<Position> allocations) {
-        this.id = (id == null ? UUID.randomUUID().toString() : id);
+    public Transaction(TransactionKey key, Portfolio portfolio, Collection<Position> allocations) {
+        this.key = (key == null ? new TransactionKey(null) : key);
         this.portfolio = portfolio;
         positions = new PositionSet(allocations, portfolio);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Transaction)) {
+            return false;
+        }
+        Transaction other = (Transaction)obj;
+        return key.equals(other.getKey());
+    }
+
     /**
-     * Obtains this {@code Transaction}'s unique ID.
+     * Obtains this {@code Transaction}'s unique key.
      *
      * @return the ID
      */
-    public String getId() {
-        return id;
+    public TransactionKey getKey() {
+        return key;
     }
 
     @Override
@@ -78,6 +92,11 @@ public class Transaction implements PositionSupplier {
 
     public Trade getTrade() {
         return trade;
+    }
+
+    @Override
+    public int hashCode() {
+        return key.hashCode();
     }
 
     @Override

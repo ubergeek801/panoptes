@@ -5,15 +5,15 @@ import java.io.IOException;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * {@code SecurityKeySerializer} (de)serializes the state of a {@code SecurityKey} using Protobuf.
+ * {@code TradeKeySerializer} (de)serializes the state of a {@code TradeKey} using Protobuf.
  *
  * @author jeremy
  */
-public class SecurityKeySerializer implements ByteArraySerializer<SecurityKey> {
+public class TradeKeySerializer implements ByteArraySerializer<TradeKey> {
     @Override
     public void destroy() {
         // nothing to do
@@ -21,17 +21,17 @@ public class SecurityKeySerializer implements ByteArraySerializer<SecurityKey> {
 
     @Override
     public int getTypeId() {
-        return SerializerTypeId.SECURITY_KEY.ordinal();
+        return SerializerTypeId.TRADE_KEY.ordinal();
     }
 
     @Override
-    public SecurityKey read(byte[] buffer) throws IOException {
+    public TradeKey read(byte[] buffer) throws IOException {
         IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
-        return new SecurityKey(keyMsg.getId());
+        return new TradeKey(keyMsg.getId());
     }
 
     @Override
-    public byte[] write(SecurityKey key) throws IOException {
+    public byte[] write(TradeKey key) throws IOException {
         IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
         keyBuilder.setId(key.getId());
 

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -43,7 +44,8 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
  *
  * @author jeremy
  */
-public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio>, RuleProvider {
+public class DummyPortfolioMapLoader
+        implements MapStore<PortfolioKey, Portfolio>, RuleProvider, PortfolioProvider {
     private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioMapLoader.class);
 
     private static final String PORTFOLIO_NAMES_FILE = "portfolionames.txt";
@@ -55,7 +57,8 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
 
     private final Portfolio[] benchmarks;
     private final ArrayList<String> portfolioNames;
-    private final Map<RuleKey, ConfigurableRule> ruleMap = new HashMap<>();
+    private final HashMap<PortfolioKey, Portfolio> portfolioMap = new HashMap<>();
+    private final HashMap<RuleKey, ConfigurableRule> ruleMap = new HashMap<>();
 
     private final PimcoBenchmarkDataSource dataSource;
 
@@ -107,36 +110,43 @@ public class DummyPortfolioMapLoader implements MapStore<PortfolioKey, Portfolio
     }
 
     @Override
+    public Portfolio getPortfolio(PortfolioKey key) {
+        return portfolioMap.get(key);
+    }
+
+    @Override
     public ConfigurableRule getRule(RuleKey key) {
         return ruleMap.get(key);
     }
 
     @Override
     public Portfolio load(PortfolioKey key) {
-        // if the key corresponds to a benchmark, return the corresponding benchmark
-        Portfolio benchmark = dataSource.getBenchmark(key);
-        if (benchmark != null) {
-            return benchmark;
-        }
+        return portfolioMap.computeIfAbsent(key, k -> {
+            // if the key corresponds to a benchmark, return the corresponding benchmark
+            Portfolio benchmark = dataSource.getBenchmark(k);
+            if (benchmark != null) {
+                return benchmark;
+            }
 
-        // otherwise generate a random Portfolio
-        int seed;
-        try {
-            seed = Integer.parseInt(key.getId().substring(4));
-        } catch (Exception e) {
-            seed = 0;
-        }
-        Random random = new Random(seed);
+            // otherwise generate a random Portfolio
+            int seed;
+            try {
+                seed = Integer.parseInt(k.getId().substring(4));
+            } catch (Exception e) {
+                seed = 0;
+            }
+            Random random = new Random(seed);
 
-        List<Security> securityList =
-                Collections.unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
-        Set<Position> positions = generatePositions(securityList, random);
-        Set<ConfigurableRule> rules = generateRules(random);
-        Portfolio portfolio = new Portfolio(key, portfolioNames.get(portfolioIndex++), positions,
-                benchmarks[random.nextInt(5)], rules);
-        LOG.info("created Portfolio {} with {} Positions", key, portfolio.size());
+            List<Security> securityList = Collections
+                    .unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
+            Set<Position> positions = generatePositions(securityList, random);
+            Set<ConfigurableRule> rules = generateRules(random);
+            Portfolio portfolio = new Portfolio(k, portfolioNames.get(portfolioIndex++), positions,
+                    benchmarks[random.nextInt(5)], rules);
+            LOG.info("created Portfolio {} with {} Positions", k, portfolio.size());
 
-        return portfolio;
+            return portfolio;
+        });
     }
 
     @Override

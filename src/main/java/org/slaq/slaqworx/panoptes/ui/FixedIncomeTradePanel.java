@@ -2,6 +2,8 @@ package org.slaq.slaqworx.panoptes.ui;
 
 import java.time.LocalDate;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
@@ -14,12 +16,17 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.slaq.slaqworx.panoptes.Panoptes;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 
 public class FixedIncomeTradePanel extends FormLayout {
@@ -54,7 +61,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                 }
 
                 TradeEvaluator tradeEvaluator =
-                        new TradeEvaluator(assetCache, assetCache, assetCache);
+                        new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
 
                 try {
                     double roomMarketValue =
@@ -97,8 +104,12 @@ public class FixedIncomeTradePanel extends FormLayout {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOG = LoggerFactory.getLogger(FixedIncomeTradePanel.class);
+
     private static final int NUM_COLUMNS = 7; // TODO this isn't very "responsive"
 
+    private final ForkJoinPool roomEvaluatorThreadPool = new ForkJoinPool(4);
+    private final PortfolioEvaluator portfolioEvaluator;
     private final AssetCache assetCache;
 
     private final NumberField tradeMarketValueField;
@@ -109,6 +120,8 @@ public class FixedIncomeTradePanel extends FormLayout {
     private Double tradeMarketValue;
 
     public FixedIncomeTradePanel() {
+        portfolioEvaluator =
+                Panoptes.getApplicationContext().getBean(ClusterPortfolioEvaluator.class);
         assetCache = Panoptes.getApplicationContext().getBean(AssetCache.class);
 
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
@@ -150,20 +163,23 @@ public class FixedIncomeTradePanel extends FormLayout {
             }
 
             UI ui = getUI().get();
-            new Thread(() -> {
-                int allocationIndex[] = new int[] { 1 };
-                int numPortfolios[] = new int[] { assetCache.getPortfolioCache().size() };
-                TradeEvaluator tradeEvaluator =
-                        new TradeEvaluator(assetCache, assetCache, assetCache);
-                for (Portfolio portfolio : assetCache.getPortfolioCache().values()) {
+
+            int allocationIndex[] = new int[] { 1 };
+            int numPortfolios[] = new int[] { assetCache.getPortfolioCache().size() };
+            TradeEvaluator tradeEvaluator =
+                    new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
+            Future<?> future = roomEvaluatorThreadPool.submit(() -> {
+                assetCache.getPortfolioCache().values().parallelStream().forEach(portfolio -> {
                     numPortfolios[0]--;
                     double roomMarketValue;
                     try {
                         roomMarketValue =
                                 tradeEvaluator.evaluateRoom(portfolio, security, tradeMarketValue);
-                    } catch (InterruptedException | ExecutionException e) {
+                    } catch (Exception e) {
                         // FIXME handle this
-                        break;
+                        LOG.error("could not evaluate room for Portfolio {}", portfolio.getKey(),
+                                e);
+                        return;
                     }
                     ui.access(() -> {
                         if (roomMarketValue != 0) {
@@ -178,6 +194,15 @@ public class FixedIncomeTradePanel extends FormLayout {
                         }
                         event.getSource().setText(numPortfolios[0] + " to process");
                     });
+                });
+            });
+            // create a thread to reset the Room button label when finished
+            new Thread(() -> {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    // FIXME handle this
+                    LOG.error("could not evaluate room for Portfolios", e);
                 }
                 ui.access(() -> event.getSource().setText("Room"));
             }).start();

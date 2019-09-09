@@ -4,19 +4,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -37,6 +36,7 @@ public class TradeEvaluator {
     protected static final double MIN_ALLOCATION = 1000;
     private static final double LOG_2 = Math.log(2);
 
+    private final PortfolioEvaluator evaluator;
     private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
     private final RuleProvider ruleProvider;
@@ -44,6 +44,9 @@ public class TradeEvaluator {
     /**
      * Creates a new {@code TradeEvaluator}.
      *
+     * @param evaluator
+     *            the {@code PortfolioEvaluator} to use to perform {@code Portfolio}-level
+     *            evaluations
      * @param portfolioProvider
      *            the {@code PortfolioProvider} to use to obtain {@code Portfolio} information
      * @param securityProvider
@@ -51,8 +54,9 @@ public class TradeEvaluator {
      * @param ruleProvider
      *            the {@code RuleProvider} to use to obtain {@code Rule} information
      */
-    public TradeEvaluator(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
-            RuleProvider ruleProvider) {
+    public TradeEvaluator(PortfolioEvaluator evaluator, PortfolioProvider portfolioProvider,
+            SecurityProvider securityProvider, RuleProvider ruleProvider) {
+        this.evaluator = evaluator;
         this.portfolioProvider = portfolioProvider;
         this.securityProvider = securityProvider;
         this.ruleProvider = ruleProvider;
@@ -72,33 +76,29 @@ public class TradeEvaluator {
      */
     public TradeEvaluationResult evaluate(Trade trade)
             throws ExecutionException, InterruptedException {
-        LOG.info("evaluating trade {} with {} allocations", trade.getId(),
+        LOG.info("evaluating trade {} with {} allocations", trade.getKey(),
                 trade.getAllocationCount());
-        // group the Transactions by Portfolio; the result is a Map of Portfolio to the Trade
-        // allocations impacting it
-        Map<Portfolio, Stream<Position>> portfolioAllocationsMap = trade.getTransactions()
-                .collect(Collectors.toMap(t -> t.getPortfolio(), t -> t.getPositions()));
-
         // evaluate the impact on each Portfolio
-        // FIXME use the appropriate ExecutorService
-        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
         TradeEvaluationResult evaluationResult = new TradeEvaluationResult();
-        for (Entry<Portfolio, Stream<Position>> portfolioAllocationEntry : portfolioAllocationsMap
+        for (Entry<PortfolioKey, Transaction> portfolioTransactionEntry : trade.getTransactions()
                 .entrySet()) {
-            Portfolio portfolio = portfolioAllocationEntry.getKey();
-            Stream<Position> tradePositions = portfolioAllocationEntry.getValue();
+            Portfolio portfolio =
+                    portfolioProvider.getPortfolio(portfolioTransactionEntry.getKey());
+            Transaction transaction = portfolioTransactionEntry.getValue();
 
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
             EvaluationContext evaluationContext =
                     new EvaluationContext(portfolioProvider, securityProvider, ruleProvider);
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
-                    evaluator.evaluate(portfolio, evaluationContext).get();
+            // start calculating the current state
+            Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> currentStateFuture =
+                    evaluator.evaluate(portfolio, evaluationContext);
+            // calculate the proposed state in parallel
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
-                    evaluator.evaluate(portfolio,
-                            new PositionSet(Stream.concat(portfolio.getPositions(), tradePositions),
-                                    portfolio),
-                            evaluationContext);
+                    evaluator.evaluate(portfolio, transaction, evaluationContext).get();
+            // wait for the first result if necessary
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
+                    currentStateFuture.get();
 
             proposedState.entrySet().parallelStream().forEach(ruleEntry -> {
                 RuleKey ruleKey = ruleEntry.getKey();
@@ -163,7 +163,7 @@ public class TradeEvaluator {
         for (int i = 0; i < maxRoomIterations; i++) {
             Position trialAllocation = new Position(trialValue, security);
             Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
-            Trade trialTrade = new Trade(List.of(trialTransaction));
+            Trade trialTrade = new Trade(Map.of(portfolio.getKey(), trialTransaction));
             TradeEvaluationResult evaluationResult = evaluate(trialTrade);
             if (evaluationResult.isCompliant()) {
                 if (minCompliantValue < trialValue) {

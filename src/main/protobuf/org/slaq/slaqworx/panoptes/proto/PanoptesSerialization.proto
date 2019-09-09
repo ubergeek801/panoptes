@@ -38,3 +38,14 @@ message RuleMsg {
 message SecurityMsg {
     map<string, string> attributes = 1;
 }
+
+message TransactionMsg {
+    IdKeyMsg key = 1;
+    IdVersionKeyMsg portfolioKey = 2;
+    repeated PositionMsg position = 3;
+}
+
+message TradeMsg {
+    IdKeyMsg key = 1;
+    repeated TransactionMsg transaction = 2;
+}

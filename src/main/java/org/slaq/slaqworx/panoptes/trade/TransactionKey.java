@@ -1,28 +1,22 @@
-package org.slaq.slaqworx.panoptes.rule;
-
-import java.io.Serializable;
+package org.slaq.slaqworx.panoptes.trade;
 
 import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
 
 /**
- * {@code RuleKey} is a key used to reference {@code Rules}.
- * <p>
- * TODO this shouldn't have to be Serializable since there is a Hazelcast serializer for it
+ * {@code TransactionKey} is a key used to reference {@code Transaction}s.
  *
  * @author jeremy
  */
-public class RuleKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class TransactionKey {
     private final String id;
 
     /**
-     * Creates a new {@code RuleKey} with the given ID.
+     * Creates a new {@code TransactionKey} with the given ID.
      *
      * @param id
      *            the ID to assign to the key, or {@code null} to generate one
      */
-    public RuleKey(String id) {
+    public TransactionKey(String id) {
         this.id = (id == null ? IdVersionKey.generateId() : id);
     }
 
@@ -37,12 +31,12 @@ public class RuleKey implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        RuleKey other = (RuleKey)obj;
+        TransactionKey other = (TransactionKey)obj;
         return id.equals(other.id);
     }
 
     /**
-     * Obtains this {@code RuleKey}'s ID.
+     * Obtains this {@code TransactionKey}'s ID.
      *
      * @return the ID underlying this key
      */

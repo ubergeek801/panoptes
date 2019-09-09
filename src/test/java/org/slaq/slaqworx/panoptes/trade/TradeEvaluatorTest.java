@@ -20,6 +20,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
+import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
@@ -74,16 +75,17 @@ public class TradeEvaluatorTest {
 
         RuleProvider ruleProvider = (k -> p1Rules.get(k));
 
-        Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), "test", p1Positions,
-                (PortfolioKey)null, p1Rules.values());
+        Portfolio p1 = TestUtil.testPortfolioProvider().newPortfolio("TradeEvaluatorTestP1", "test",
+                p1Positions, null, p1Rules.values());
 
         Position t1Alloc1 = new Position(1_000, s2);
         List<Position> t1Allocations = Arrays.asList(t1Alloc1);
         Transaction t1 = new Transaction(p1, t1Allocations);
-        List<Transaction> transactions = Arrays.asList(t1);
+        Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolio().getKey(), t1);
 
         Trade trade = new Trade(transactions);
-        TradeEvaluator evaluator = new TradeEvaluator(null, securityProvider, ruleProvider);
+        TradeEvaluator evaluator = new TradeEvaluator(new LocalPortfolioEvaluator(),
+                TestUtil.testPortfolioProvider(), securityProvider, ruleProvider);
         TradeEvaluationResult result = evaluator.evaluate(trade);
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =
@@ -146,9 +148,10 @@ public class TradeEvaluatorTest {
                 new WeightedAveragePositionCalculator(SecurityAttribute.duration)
                         .calculate(portfolio, evaluationContext),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
-        assertEquals(1_000_000, new TradeEvaluator(evaluationContext.getPortfolioProvider(),
-                evaluationContext.getSecurityProvider(), evaluationContext.getRuleProvider())
-                        .evaluateRoom(portfolio, trialSecurity, 3_000_000),
+        assertEquals(1_000_000, new TradeEvaluator(new LocalPortfolioEvaluator(),
+                evaluationContext.getPortfolioProvider(), evaluationContext.getSecurityProvider(),
+                evaluationContext.getRuleProvider()).evaluateRoom(portfolio, trialSecurity,
+                        3_000_000),
                 TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }
 }

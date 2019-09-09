@@ -119,11 +119,10 @@ public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
     public byte[] write(ConfigurableRule rule) throws IOException {
         IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
         keyBuilder.setId(rule.getKey().getId());
-        IdKeyMsg key = keyBuilder.build();
 
         // TODO this code is similar to that in RuleMapStore; try to consolidate
         RuleMsg.Builder ruleBuilder = RuleMsg.newBuilder();
-        ruleBuilder.setKey(key);
+        ruleBuilder.setKey(keyBuilder);
         ruleBuilder.setDescription(rule.getDescription());
         ruleBuilder.setType(rule.getClass().getName());
         if (rule.getJsonConfiguration() != null) {

@@ -22,6 +22,9 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
+import org.slaq.slaqworx.panoptes.trade.TradeProvider;
 
 /**
  * {@code AssetCache} provides operations for accessing {@code Portfolio} and related data (e.g.
@@ -30,8 +33,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  * @author jeremy
  */
 @Singleton
-public class AssetCache
-        implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider {
+public class AssetCache implements PortfolioProvider, PositionProvider, RuleProvider,
+        SecurityProvider, TradeProvider {
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
             "portfolioEvaluationResultMap";
 
@@ -39,6 +42,7 @@ public class AssetCache
     public static final String POSITION_CACHE_NAME = "position";
     public static final String SECURITY_CACHE_NAME = "security";
     public static final String RULE_CACHE_NAME = "rule";
+    public static final String TRADE_CACHE_NAME = "trade";
 
     private final HazelcastInstance hazelcastInstance;
 
@@ -124,5 +128,19 @@ public class AssetCache
      */
     public IMap<SecurityKey, Security> getSecurityCache() {
         return hazelcastInstance.getMap(SECURITY_CACHE_NAME);
+    }
+
+    @Override
+    public Trade getTrade(TradeKey key) {
+        return getTradeCache().get(key);
+    }
+
+    /**
+     * Obtains the {@code Trade} cache from Hazelcast.
+     *
+     * @return the Hazelcast {@code Trade} cache
+     */
+    public IMap<TradeKey, Trade> getTradeCache() {
+        return hazelcastInstance.getMap(TRADE_CACHE_NAME);
     }
 }

@@ -20,6 +20,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * {@code ClusterPortfolioEvaluatorMessenger} orchestrates a {@code Portfolio} evaluation on the
@@ -55,28 +56,38 @@ public class ClusterPortfolioEvaluatorMessenger implements
      *            the {@code ClientProducer} to use to produce messages to the evaluation queue
      * @param portfolioKey
      *            the key identifying the {@code Portfolio} to be evaluated
+     * @param transaction
+     *            the (possibly {@code null} {@code Transaction} from which to apply allocations to
+     *            the evaluated {@code Portfolio}
      */
     public ClusterPortfolioEvaluatorMessenger(
             IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioEvaluationResultMap,
             ClientSession portfolioEvaluationRequestQueueSession,
-            ClientProducer portfolioEvaluationRequestQueueProducer, PortfolioKey portfolioKey) {
+            ClientProducer portfolioEvaluationRequestQueueProducer, PortfolioKey portfolioKey,
+            Transaction transaction) {
         this.portfolioEvaluationResultMap = portfolioEvaluationResultMap;
         this.portfolioKey = portfolioKey;
         requestId = UUID.randomUUID();
-        // publish a message to the evaluation queue
-        ClientMessage message =
-                portfolioEvaluationRequestQueueSession.createMessage(Message.TEXT_TYPE, false);
-        message.getBodyBuffer().writeString(requestId.toString() + ":" + portfolioKey.toString());
-        LOG.info("delegating request to evaluate Portfolio {}", portfolioKey);
-        startTime = System.currentTimeMillis();
-        try {
-            portfolioEvaluationRequestQueueProducer.send(message);
-        } catch (Exception e) {
-            // TODO throw a real exception
-            throw new RuntimeException("could not send message", e);
-        }
-
         registrationId = portfolioEvaluationResultMap.addEntryListener(this, requestId, true);
+        // publish a message to the evaluation queue
+        // FIXME get an independent session
+        synchronized (portfolioEvaluationRequestQueueSession) {
+            ClientMessage message =
+                    portfolioEvaluationRequestQueueSession.createMessage(Message.TEXT_TYPE, false);
+            String messageBody = requestId.toString() + ":" + portfolioKey.toString();
+            if (transaction != null) {
+                messageBody = messageBody + ":" + transaction.getTrade().getKey();
+            }
+            message.getBodyBuffer().writeString(messageBody);
+            LOG.info("delegating request to evaluate Portfolio {}", portfolioKey);
+            startTime = System.currentTimeMillis();
+            try {
+                portfolioEvaluationRequestQueueProducer.send(message);
+            } catch (Exception e) {
+                // TODO throw a real exception
+                throw new RuntimeException("could not send message", e);
+            }
+        }
     }
 
     @Override

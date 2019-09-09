@@ -9,6 +9,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * A {@code PortfolioEvaluator} is responsible for the process of evaluating a set of {@code Rule}s
@@ -19,15 +20,14 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  */
 public interface PortfolioEvaluator {
     /**
-     * Evaluates the given {@code Portfolio} using its associated Rules and benchmark (if any).
-     * Right now this is the only evaluation mode capable of distributed processing and thus the
-     * only method that appears in the interface.
+     * Evaluates the given {@code Portfolio} using its associated {@code Rule}s and benchmark (if
+     * any).
      *
      * @param portfolio
      *            the {@code Portfolio} to be evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
-     * @return a @{code Future} {@code Map} associating each evaluated {@code Rule} with its result
+     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
@@ -36,4 +36,25 @@ public interface PortfolioEvaluator {
     public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
             evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
                     throws InterruptedException, ExecutionException;
+
+    /**
+     * Evaluates the combined {@code Position}s of the given {@code Portfolio} and
+     * {@code Transaction} using the {@code Portfolio} {@code Rule}s and benchmark (if any).
+     *
+     * @param portfolio
+     *            the {@code Portfolio} to be evaluated
+     * @param transaction
+     *            the {@code Transaction} from which to include allocation {@code Position}s for
+     *            evaluation
+     * @param evaluationContext
+     *            the {@code EvaluationContext} under which to evaluate
+     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
+     * @throws ExcecutionException
+     *             if the {@code Rule}s could not be processed
+     */
+    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
+            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
+            throws InterruptedException, ExecutionException;
 }

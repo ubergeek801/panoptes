@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.inject.Singleton;
@@ -19,6 +20,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * {@code ClusterPortfolioEvaluator} is a {@code PortfolioEvaluator} which delegates processing to
@@ -53,19 +56,34 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
+    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+            evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
+                    throws InterruptedException, ExecutionException {
+        return evaluate(portfolio, null, evaluationContext);
+    }
+
+    @Override
     public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
-            Portfolio portfolio, EvaluationContext evaluationContext) throws InterruptedException {
-        // TODO try not to duplicate processing prologue/epilogue
+            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
+            throws InterruptedException, ExecutionException {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
+        if (transaction != null) {
+            // the Trade must be available to the cache
+            Trade trade = transaction.getTrade();
+            assetCache.getTradeCache().set(trade.getKey(), trade);
+        }
+
         ClusterPortfolioEvaluatorMessenger resultListener =
                 new ClusterPortfolioEvaluatorMessenger(assetCache.getPortfolioEvaluationResultMap(),
                         portfolioEvaluationRequestQueueSession,
-                        portfolioEvaluationRequestQueueProducer, portfolio.getKey());
+                        portfolioEvaluationRequestQueueProducer, portfolio.getKey(), transaction);
+
+        // FIXME remove the cached Trade if we put it there
 
         return resultListener.getResults();
     }
