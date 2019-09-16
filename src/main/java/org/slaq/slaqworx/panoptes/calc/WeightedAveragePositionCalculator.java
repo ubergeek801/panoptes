@@ -27,8 +27,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
      * {@code Position}s.
      */
     private static class AmountAccumulator {
-        DoubleAdder weightedAmount = new DoubleAdder();
-        DoubleAdder amount = new DoubleAdder();
+        DoubleAdder weightedMarketValue = new DoubleAdder();
+        DoubleAdder marketValue = new DoubleAdder();
     }
 
     /**
@@ -56,8 +56,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
                 if (attributeValue == null) {
                     return;
                 }
-                a.weightedAmount.add(p.getAmount() * attributeValue);
-                a.amount.add(p.getAmount());
+                a.weightedMarketValue.add(p.getMarketValue() * attributeValue);
+                a.marketValue.add(p.getMarketValue());
             };
         }
 
@@ -70,8 +70,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
         public BinaryOperator<AmountAccumulator> combiner() {
             // combine (sum) two accumulators into one
             return (a1, a2) -> {
-                a1.weightedAmount.add(a2.weightedAmount.doubleValue());
-                a1.amount.add(a2.amount.doubleValue());
+                a1.weightedMarketValue.add(a2.weightedMarketValue.doubleValue());
+                a1.marketValue.add(a2.marketValue.doubleValue());
                 return a1;
             };
         }
@@ -79,7 +79,7 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
         @Override
         public Function<AmountAccumulator, Double> finisher() {
             // calculate the weighted average
-            return a -> a.weightedAmount.doubleValue() / a.amount.doubleValue();
+            return a -> a.weightedMarketValue.doubleValue() / a.marketValue.doubleValue();
         }
 
         @Override

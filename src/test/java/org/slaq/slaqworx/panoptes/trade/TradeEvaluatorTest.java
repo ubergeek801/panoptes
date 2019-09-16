@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.trade;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,8 +44,12 @@ public class TradeEvaluatorTest {
     public void testEvaluate() throws Exception {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider.newSecurity("s1", Map.of(SecurityAttribute.duration, 3.0));
-        Security s2 = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.duration, 4.0));
+        Security s1 = securityProvider.newSecurity("TradeEvaluatorTestSec1",
+                Map.of(SecurityAttribute.duration, 3.0, SecurityAttribute.price,
+                        new BigDecimal("100.00")));
+        Security s2 = securityProvider.newSecurity("TradeEvaluatorTestSec2",
+                Map.of(SecurityAttribute.duration, 4.0, SecurityAttribute.price,
+                        new BigDecimal("100.00")));
 
         HashSet<Position> p1Positions = new HashSet<>();
         p1Positions.add(new Position(1_000, s1));
@@ -118,9 +123,10 @@ public class TradeEvaluatorTest {
      */
     @Test
     public void testEvaluateRoom() throws Exception {
-        Map<SecurityAttribute<?>, ? super Object> security1Attributes =
-                Map.of(SecurityAttribute.duration, 3d);
-        Security security1 = TestUtil.testSecurityProvider().newSecurity("s1", security1Attributes);
+        Map<SecurityAttribute<?>, ? super Object> security1Attributes = Map.of(
+                SecurityAttribute.duration, 3d, SecurityAttribute.price, new BigDecimal("1.00"));
+        Security security1 = TestUtil.testSecurityProvider().newSecurity("TradeEvaluatorTestSec3",
+                security1Attributes);
 
         Position position1 =
                 TestUtil.testPositionProvider().newPosition(null, 1_000_000, security1);
@@ -131,10 +137,10 @@ public class TradeEvaluatorTest {
                         SecurityAttribute.duration, null, 3.5, null);
         List<ConfigurableRule> p1Rules = List.of(rule1);
 
-        Map<SecurityAttribute<?>, ? super Object> security2Attributes =
-                Map.of(SecurityAttribute.duration, 4d);
-        Security trialSecurity =
-                TestUtil.testSecurityProvider().newSecurity("s2", security2Attributes);
+        Map<SecurityAttribute<?>, ? super Object> security2Attributes = Map.of(
+                SecurityAttribute.duration, 4d, SecurityAttribute.price, new BigDecimal("1.00"));
+        Security trialSecurity = TestUtil.testSecurityProvider()
+                .newSecurity("TradeEvaluatorTestSec4", security2Attributes);
 
         Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(null, "test 1",
                 p1Positions, (Portfolio)null, p1Rules);
