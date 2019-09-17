@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.calc;
 
 import java.util.Set;
-import java.util.concurrent.atomic.DoubleAdder;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -27,8 +26,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
      * {@code Position}s.
      */
     private static class AmountAccumulator {
-        DoubleAdder weightedMarketValue = new DoubleAdder();
-        DoubleAdder marketValue = new DoubleAdder();
+        double weightedMarketValue = 0;
+        double marketValue = 0;
     }
 
     /**
@@ -54,24 +53,25 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
                 Double attributeValue =
                         p.getSecurity().getAttributeValue(getCalculationAttribute());
                 if (attributeValue == null) {
+                    // FIXME this is probably not appropriate
                     return;
                 }
-                a.weightedMarketValue.add(p.getMarketValue() * attributeValue);
-                a.marketValue.add(p.getMarketValue());
+                a.weightedMarketValue += p.getMarketValue() * attributeValue;
+                a.marketValue += p.getMarketValue();
             };
         }
 
         @Override
         public Set<Characteristics> characteristics() {
-            return Set.of(Characteristics.CONCURRENT, Characteristics.UNORDERED);
+            return Set.of(Characteristics.UNORDERED);
         }
 
         @Override
         public BinaryOperator<AmountAccumulator> combiner() {
             // combine (sum) two accumulators into one
             return (a1, a2) -> {
-                a1.weightedMarketValue.add(a2.weightedMarketValue.doubleValue());
-                a1.marketValue.add(a2.marketValue.doubleValue());
+                a1.weightedMarketValue += a2.weightedMarketValue;
+                a1.marketValue += a2.marketValue;
                 return a1;
             };
         }
@@ -79,7 +79,7 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
         @Override
         public Function<AmountAccumulator, Double> finisher() {
             // calculate the weighted average
-            return a -> a.weightedMarketValue.doubleValue() / a.marketValue.doubleValue();
+            return a -> a.weightedMarketValue / a.marketValue;
         }
 
         @Override

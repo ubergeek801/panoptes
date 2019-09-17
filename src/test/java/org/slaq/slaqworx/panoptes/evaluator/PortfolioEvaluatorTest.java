@@ -393,7 +393,7 @@ public class PortfolioEvaluatorTest {
                 "duration rule should have passed for NZD");
         // CAD duration = (2_500 + 3_000) / (500 + 600) = 5 which should fail
         assertFalse(durationResults.get(new EvaluationGroup<>("CAD", null)).isPassed(),
-                "duration rule should have faled for CAD");
+                "duration rule should have failed for CAD");
 
         // the quality rule is not grouped, so should have a single result for the default group
         assertFalse(qualityResults.get(EvaluationGroup.defaultGroup()).isPassed(),
