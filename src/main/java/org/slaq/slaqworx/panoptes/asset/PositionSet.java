@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,7 +23,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  *
  * @author jeremy
  */
-public class PositionSet implements PositionSupplier {
+public class PositionSet implements HierarchicalPositionSupplier {
     // even though we assume Set semantics, keeping positions in contiguous memory improves
     // calculation performance by 20%
     private final ArrayList<Position> positions;
@@ -60,9 +61,10 @@ public class PositionSet implements PositionSupplier {
      * parent {@code Portfolio}.
      *
      * @param positions
-     *            the {@code Positions that will comprise this {@code PositionSet} @param portfolio
-     *            the (possibly {@code null}) {@code Portfolio} associated with this
-     *            {@code PositionSet}
+     *            the {@code Position}s that will comprise this {@code PositionSet}
+     * @param portfolio
+     *            the (possibly {@code null}) {@code Portfolio} associated with this {@code
+     *            PositionSet}
      */
     public PositionSet(Stream<? extends Position> positions, Portfolio portfolio) {
         this(positions.collect(Collectors.toList()), portfolio);
@@ -75,7 +77,25 @@ public class PositionSet implements PositionSupplier {
 
     @Override
     public Stream<Position> getPositions() {
-        return positions.stream();
+        return getPositions(EnumSet.noneOf(PositionHierarchyOption.class));
+    }
+
+    @Override
+    public Stream<Position>
+            getPositions(EnumSet<PositionHierarchyOption> positionHierarchyOptions) {
+        Stream<Position> positionStream = positions.stream();
+
+        if (positionHierarchyOptions.contains(PositionHierarchyOption.LOOKTHROUGH)) {
+            // FIXME implement
+            positionStream = positionStream;
+        }
+
+        if (positionHierarchyOptions.contains(PositionHierarchyOption.TAXLOT)) {
+            // FIXME implement
+            positionStream = positionStream;
+        }
+
+        return positionStream;
     }
 
     @Override

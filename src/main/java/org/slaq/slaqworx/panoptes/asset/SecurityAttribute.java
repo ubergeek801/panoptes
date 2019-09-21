@@ -42,6 +42,8 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
     public static final SecurityAttribute<Double> duration = of("duration", 12, Double.class);
     public static final SecurityAttribute<String> issuer = of("issuer", 13, String.class);
     public static final SecurityAttribute<BigDecimal> price = of("price", 14, BigDecimal.class);
+    public static final SecurityAttribute<PortfolioKey> portfolio =
+            of("portfolio", 15, PortfolioKey.class);
 
     /**
      * Obtains the {@code SecurityAttribute} corresponding to the given index, if it exists. For

@@ -20,11 +20,11 @@ public class TestUtil {
 
     // additional SecurityAttributes used by test cases
     public static final SecurityAttribute<Double> moovyRating =
-            SecurityAttribute.of("Moovy", 15, Double.class);
+            SecurityAttribute.of("Moovy", 16, Double.class);
     public static final SecurityAttribute<Double> npRating =
-            SecurityAttribute.of("N&P", 16, Double.class);
+            SecurityAttribute.of("N&P", 17, Double.class);
     public static final SecurityAttribute<Double> fetchRating =
-            SecurityAttribute.of("Fetch", 17, Double.class);
+            SecurityAttribute.of("Fetch", 18, Double.class);
 
     private static final TestPortfolioProvider portfolioProvider = new TestPortfolioProvider();
     private static final TestPositionProvider positionProvider = new TestPositionProvider();
