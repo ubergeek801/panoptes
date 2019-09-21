@@ -17,8 +17,8 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
         <jetty.version>9.4.20.v20190813</jetty.version>
-        <micronaut.version>1.2.0</micronaut.version>
-        <vaadin.version>14.0.2</vaadin.version>
+        <micronaut.version>1.2.2</micronaut.version>
+        <vaadin.version>14.0.5</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
             --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
@@ -61,7 +61,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>1.5.1</version>
+                <version>1.6.1</version>
                 <executions>
                     <execution>
                         <phase>install</phase>
