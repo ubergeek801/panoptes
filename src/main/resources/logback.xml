@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.apache.activemq.audit.message" level="warn" />
+    <logger name="org.apache.activemq" level="warn" />
     <logger name="p6spy" level="error" />
 
     <root level="info">
