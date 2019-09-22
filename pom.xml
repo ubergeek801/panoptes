@@ -278,6 +278,13 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-server</artifactId>
             <version>2.10.0</version>
+            <exclusions>
+                <!-- force Artemis to use slf4j -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -339,6 +346,13 @@
             <artifactId>javax-websocket-server-impl</artifactId>
             <version>${jetty.version}</version>
             <scope>runtime</scope>
+            <exclusions>
+                <!-- this duplicates javax.websocket-api -->
+                <exclusion>
+                    <groupId>javax.websocket</groupId>
+                    <artifactId>javax.websocket-client-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
