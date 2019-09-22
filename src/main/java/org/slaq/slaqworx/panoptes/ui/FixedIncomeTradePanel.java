@@ -169,32 +169,37 @@ public class FixedIncomeTradePanel extends FormLayout {
             TradeEvaluator tradeEvaluator =
                     new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
             Future<?> future = roomEvaluatorThreadPool.submit(() -> {
-                assetCache.getPortfolioCache().values().parallelStream().forEach(portfolio -> {
-                    numPortfolios[0]--;
-                    double roomMarketValue;
-                    try {
-                        roomMarketValue =
-                                tradeEvaluator.evaluateRoom(portfolio, security, tradeMarketValue);
-                    } catch (Exception e) {
-                        // FIXME handle this
-                        LOG.error("could not evaluate room for Portfolio {}", portfolio.getKey(),
-                                e);
-                        return;
-                    }
-                    ui.access(() -> {
-                        if (roomMarketValue != 0) {
-                            AllocationPanel allocationPanel = new AllocationPanel(allocations);
-                            // add at the next position
-                            allocations.addComponentAtIndex(allocationIndex[0]++, allocationPanel);
-                            allocationPanel.portfolioIdField.setValue(portfolio.getKey().getId());
-                            allocationPanel.portfolioNameField.setValue(portfolio.getName());
-                            allocationPanel.amountField.setValue(
-                                    tradePrice == null ? null : roomMarketValue / tradePrice);
-                            allocationPanel.marketValueField.setValue(roomMarketValue);
-                        }
-                        event.getSource().setText(numPortfolios[0] + " to process");
-                    });
-                });
+                assetCache.getPortfolioCache().values().parallelStream()
+                        .filter(p -> !p.isAbstract()).forEach(portfolio -> {
+                            numPortfolios[0]--;
+                            double roomMarketValue;
+                            try {
+                                roomMarketValue = tradeEvaluator.evaluateRoom(portfolio, security,
+                                        tradeMarketValue);
+                            } catch (Exception e) {
+                                // FIXME handle this
+                                LOG.error("could not evaluate room for Portfolio {}",
+                                        portfolio.getKey(), e);
+                                return;
+                            }
+                            ui.access(() -> {
+                                if (roomMarketValue != 0) {
+                                    AllocationPanel allocationPanel =
+                                            new AllocationPanel(allocations);
+                                    // add at the next position
+                                    allocations.addComponentAtIndex(allocationIndex[0]++,
+                                            allocationPanel);
+                                    allocationPanel.portfolioIdField
+                                            .setValue(portfolio.getKey().getId());
+                                    allocationPanel.portfolioNameField
+                                            .setValue(portfolio.getName());
+                                    allocationPanel.amountField.setValue(tradePrice == null ? null
+                                            : roomMarketValue / tradePrice);
+                                    allocationPanel.marketValueField.setValue(roomMarketValue);
+                                }
+                                event.getSource().setText(numPortfolios[0] + " to process");
+                            });
+                        });
             });
             // create a thread to reset the Room button label when finished
             new Thread(() -> {

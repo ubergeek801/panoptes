@@ -123,10 +123,11 @@ public class TradeEvaluator {
      * specified {@code Portfolio}.
      * <p>
      * This method uses a binary search algorithm to attempt to converge on an approximate maximum.
-     * It will iterate until:
+     * It will first attempt to allocate {@code MIN_ALLOCATION}, followed by the full target value,
+     * after which it will iterate until:
      * <ul>
-     * <li>an iteration produces a result within {@code ROOM_TOLERANCE} of the previous result,</li>
-     * <li>the attempted amount falls below {@code MIN_ALLOCATION}, or</li>
+     * <li>an iteration produces a result within {@code ROOM_TOLERANCE} of the previous result,
+     * or</li>
      * <li>the maximum number of iterations (approximately log2({@code targetAmount}) /
      * {@code ROOM_TOLERANCE}) is exceeded.
      * </ul>
@@ -156,15 +157,18 @@ public class TradeEvaluator {
      */
     public double evaluateRoom(Portfolio portfolio, Security security, double targetValue)
             throws InterruptedException, ExecutionException {
+        TradeEvaluationResult evaluationResult = testRoom(portfolio, security, MIN_ALLOCATION);
+        if (!evaluationResult.isCompliant()) {
+            // even the minimum allocation failed; give up now
+            return 0;
+        }
+
         double minCompliantValue = 0;
         double trialValue = targetValue;
         double minNoncompliantValue = trialValue;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            Position trialAllocation = new Position(trialValue, security);
-            Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
-            Trade trialTrade = new Trade(Map.of(portfolio.getKey(), trialTransaction));
-            TradeEvaluationResult evaluationResult = evaluate(trialTrade);
+            evaluationResult = testRoom(portfolio, security, trialValue);
             if (evaluationResult.isCompliant()) {
                 if (minCompliantValue < trialValue) {
                     // we have a new low-water mark for what is compliant
@@ -173,6 +177,8 @@ public class TradeEvaluator {
                     // now try an amount halfway between the current amount and the lowest amount
                     // known to be noncompliant
                     trialValue = (trialValue + minNoncompliantValue) / 2;
+                    // if the new trial value is sufficiently close to the old one, then call it
+                    // good
                     if (Math.abs(trialValue - minCompliantValue) < ROOM_TOLERANCE) {
                         return minCompliantValue;
                     }
@@ -180,12 +186,35 @@ public class TradeEvaluator {
             } else {
                 minNoncompliantValue = trialValue;
                 trialValue = (minCompliantValue + trialValue) / 2;
-                if (trialValue < MIN_ALLOCATION) {
-                    return 0;
-                }
             }
         }
 
+        // number of iterations has expired; this is our final answer
         return minCompliantValue;
+    }
+
+    /**
+     * Tests for the requested amount of room in the given {@code Security} for the given
+     * {@code Portfolio}.
+     *
+     * @param portfolio
+     *            the {@code Portfolio} in which to find room
+     * @param security
+     *            the {@code Security} for which to find room
+     * @param targetValue
+     *            the desired investment amount, as USD market value
+     * @return a {@code TradeEvaluationResult} indicating the result of the evaluation
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
+     * @throws ExcecutionException
+     *             if the calculation could not be processed
+     */
+    protected TradeEvaluationResult testRoom(Portfolio portfolio, Security security,
+            double targetValue) throws InterruptedException, ExecutionException {
+        Position trialAllocation = new Position(targetValue, security);
+        Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
+        Trade trialTrade = new Trade(Map.of(portfolio.getKey(), trialTransaction));
+
+        return evaluate(trialTrade);
     }
 }
