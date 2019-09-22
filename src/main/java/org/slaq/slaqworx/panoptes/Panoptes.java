@@ -26,7 +26,7 @@ import org.slaq.slaqworx.panoptes.evaluator.ClusterEvaluatorReceiver;
  * @author jeremy
  */
 @Singleton
-@Requires(notEnv = "TEST")
+@Requires(notEnv = "test")
 public class Panoptes {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 

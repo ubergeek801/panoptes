@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.cache;
 
+import java.util.Optional;
+
 import javax.inject.Named;
 
 import com.hazelcast.config.Config;
@@ -87,9 +89,6 @@ public class PanoptesCacheConfiguration {
      *
      * @param securityAttributeLoader
      *            the {@SecurityAttributeLoader} used to initialize {@code SecurityAttribute}s
-     * @param hazelcastMapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to be used to create the
-     *            {@code MapStoreConfig}s
      * @param portfolioMapConfig
      *            the {@code MapConfig} to use for {@code Portfolio} data
      * @param positionMapConfig
@@ -102,7 +101,6 @@ public class PanoptesCacheConfiguration {
      */
     @Bean
     protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
-            HazelcastMapStoreFactory hazelcastMapStoreFactory,
             @Named("portfolio") MapConfig portfolioMapConfig,
             @Named("position") MapConfig positionMapConfig,
             @Named("security") MapConfig securityMapConfig,
@@ -182,51 +180,57 @@ public class PanoptesCacheConfiguration {
      * Provides a {@code MapConfig} for the {@code Portfolio} cache.
      *
      * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
+     *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
     @Named("portfolio")
     @Bean
-    protected MapConfig portfolioMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME, mapStoreFactory);
+    protected MapConfig
+            portfolioMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+        return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
+                mapStoreFactory.orElse(null));
     }
 
     /**
      * Provides a {@code MapConfig} for the {@code Position} cache.
      *
      * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
+     *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
     @Named("position")
     @Bean
-    protected MapConfig positionMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory);
+    protected MapConfig positionMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+        return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory.orElse(null));
     }
 
     /**
      * Provides a {@code MapConfig} for the {@code Rule} cache.
      *
      * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
+     *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
     @Named("rule")
     @Bean
-    protected MapConfig ruleMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory);
+    protected MapConfig ruleMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+        return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory.orElse(null));
     }
 
     /**
      * Provides a {@code MapConfig} for the {@code Security} cache.
      *
      * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration
+     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
+     *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
     @Named("security")
     @Bean
-    protected MapConfig securityMapStoreConfig(HazelcastMapStoreFactory mapStoreFactory) {
-        return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory);
+    protected MapConfig securityMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+        return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory.orElse(null));
     }
 }

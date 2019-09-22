@@ -173,7 +173,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
                 <configuration>
-                    <argLine>${globalJvmArgs} -Dmicronaut.environments=standalone,TEST</argLine>
+                    <argLine>${globalJvmArgs} -Dmicronaut.environments=standalone</argLine>
                 </configuration>
             </plugin>
             <!-- produce build-info to include in the application package -->

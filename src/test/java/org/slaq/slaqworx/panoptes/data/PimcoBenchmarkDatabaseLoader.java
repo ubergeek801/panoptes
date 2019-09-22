@@ -33,7 +33,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 @Singleton
-@Requires(notEnv = "TEST")
+@Requires(notEnv = "test")
 public class PimcoBenchmarkDatabaseLoader {
     private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDatabaseLoader.class);
 

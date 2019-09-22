@@ -9,6 +9,7 @@ import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStoreFactory;
 
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Requires;
 
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
@@ -20,6 +21,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  * @author jeremy
  */
 @Singleton
+@Requires(notEnv = "test")
 public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object> {
     private final ApplicationContext applicationContext;
     private final DataSource dataSource;
