@@ -147,17 +147,17 @@ public class TradeEvaluatorTest {
 
         // The Portfolio has a weighted average rule requiring maximum duration = 3.5. Its current
         // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
-        // 4.0, so the Portfolio should have room for 1_000_000.
+        // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
         EvaluationContext evaluationContext = new EvaluationContext(
                 TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider(), null);
         assertEquals(3.0,
                 new WeightedAveragePositionCalculator(SecurityAttribute.duration)
                         .calculate(portfolio, evaluationContext),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
-        assertEquals(1_000_000, new TradeEvaluator(new LocalPortfolioEvaluator(),
+        double room = new TradeEvaluator(new LocalPortfolioEvaluator(),
                 evaluationContext.getPortfolioProvider(), evaluationContext.getSecurityProvider(),
                 evaluationContext.getRuleProvider()).evaluateRoom(portfolio, trialSecurity,
-                        3_000_000),
-                TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
+                        3_000_000);
+        assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }
 }

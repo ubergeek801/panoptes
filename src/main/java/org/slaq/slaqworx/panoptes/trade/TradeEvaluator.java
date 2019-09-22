@@ -32,7 +32,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 public class TradeEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
 
-    protected static final double ROOM_TOLERANCE = 1000;
+    protected static final double ROOM_TOLERANCE = 500;
     protected static final double MIN_ALLOCATION = 1000;
     private static final double LOG_2 = Math.log(2);
 
@@ -157,14 +157,20 @@ public class TradeEvaluator {
      */
     public double evaluateRoom(Portfolio portfolio, Security security, double targetValue)
             throws InterruptedException, ExecutionException {
-        TradeEvaluationResult evaluationResult = testRoom(portfolio, security, MIN_ALLOCATION);
+        // first try the minimum allocation to quickly eliminate Portfolios with no room at all
+
+        double minCompliantValue = MIN_ALLOCATION;
+        double trialValue = minCompliantValue;
+        TradeEvaluationResult evaluationResult = testRoom(portfolio, security, trialValue);
         if (!evaluationResult.isCompliant()) {
             // even the minimum allocation failed; give up now
             return 0;
         }
 
-        double minCompliantValue = 0;
-        double trialValue = targetValue;
+        // we can allocate at least the minimum; try now for the max (target) value and iterate from
+        // there
+
+        trialValue = targetValue;
         double minNoncompliantValue = trialValue;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
