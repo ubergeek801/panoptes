@@ -10,10 +10,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+
+import javax.inject.Inject;
+
+import io.micronaut.test.annotation.MicronautTest;
 
 import org.junit.jupiter.api.Test;
 
-import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -22,11 +27,15 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
+import org.slaq.slaqworx.panoptes.rule.GenericRule;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
@@ -35,15 +44,18 @@ import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
- * PortfolioEvaluatorTest tests the functionality of the PortfolioEvaluator.
+ * {@code PortfolioEvaluatorTest} tests the functionality of the {@code LocalPortfolioEvaluator} and
+ * {@code ClusterPortfolioEvaluator}.
  *
  * @author jeremy
  */
+@MicronautTest
 public class PortfolioEvaluatorTest {
     /**
-     * DummyRule facilitates testing rule evaluation behavior by always passing or always failing.
+     * {@code DummyRule} facilitates testing rule evaluation behavior by always passing or always
+     * failing.
      */
-    private static class DummyRule extends Rule {
+    private static class DummyRule extends GenericRule {
         private final boolean isPass;
 
         public DummyRule(String description, boolean isPass) {
@@ -59,10 +71,10 @@ public class PortfolioEvaluatorTest {
     }
 
     /**
-     * ExceptionThrowingRule facilitates testing rule evaluation behavior by always throwing a
-     * runtime exception.
+     * {@code ExceptionThrowingRule} facilitates testing rule evaluation behavior by always throwing
+     * a runtime exception.
      */
-    private static class ExceptionThrowingRule extends Rule {
+    private static class ExceptionThrowingRule extends GenericRule {
         public ExceptionThrowingRule(String description) {
             super(description);
         }
@@ -75,10 +87,10 @@ public class PortfolioEvaluatorTest {
     }
 
     /**
-     * UseBenchmarkRule facilitates testing whether a specific benchmark was used during a rule
-     * evaluation.
+     * {@code UseBenchmarkRule} facilitates testing whether a specific benchmark was used during a
+     * rule evaluation.
      */
-    private static class UseBenchmarkRule extends Rule {
+    private static class UseBenchmarkRule extends GenericRule {
         private final Portfolio benchmark;
 
         public UseBenchmarkRule(String description, Portfolio benchmark) {
@@ -93,178 +105,92 @@ public class PortfolioEvaluatorTest {
         }
     }
 
-    private TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+    @Inject
+    private AssetCache assetCache;
+    @Inject
+    private ClusterPortfolioEvaluator clusterEvaluator;
+    @Inject
+    private ClusterEvaluatorReceiver clusterEvaluatorReceiver;
 
     /**
-     * Tests that evaluate() behaves as expected with GroupAggregators (also implicitly tests
-     * TopNSecurityAttributeAggregator).
+     * Tests that {@code evaluate()} behaves as expected with {@code GroupAggregator}s (also
+     * implicitly tests {@code TopNSecurityAttributeAggregator}).
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
-        Security iss1Sec1 =
-                securityProvider.newSecurity("iss1Sec1", Map.of(SecurityAttribute.issuer, "ISSFOO",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss1Sec2 =
-                securityProvider.newSecurity("iss1Sec2", Map.of(SecurityAttribute.issuer, "ISSFOO",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss1Sec3 =
-                securityProvider.newSecurity("iss1Sec3", Map.of(SecurityAttribute.issuer, "ISSFOO",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss2Sec1 =
-                securityProvider.newSecurity("iss2Sec1", Map.of(SecurityAttribute.issuer, "ISSBAR",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss2Sec2 =
-                securityProvider.newSecurity("iss2Sec2", Map.of(SecurityAttribute.issuer, "ISSBAR",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss3Sec1 =
-                securityProvider.newSecurity("iss3Sec1", Map.of(SecurityAttribute.issuer, "ISSBAZ",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss4Sec1 =
-                securityProvider.newSecurity("iss4Sec1", Map.of(SecurityAttribute.issuer, "ISSABC",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss4Sec2 =
-                securityProvider.newSecurity("iss4Sec2", Map.of(SecurityAttribute.issuer, "ISSABC",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss5Sec1 =
-                securityProvider.newSecurity("iss5Sec1", Map.of(SecurityAttribute.issuer, "ISSDEF",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security iss6Sec1 =
-                securityProvider.newSecurity("iss6Sec1", Map.of(SecurityAttribute.issuer, "ISSGHI",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
+        clusterEvaluatorReceiver.start();
+
+        Security iss1Sec1 = createTestSecurity("iss1Sec1", "ISSFOO", new BigDecimal("1.00"));
+        Security iss1Sec2 = createTestSecurity("iss1Sec2", "ISSFOO", new BigDecimal("1.00"));
+        Security iss1Sec3 = createTestSecurity("iss1Sec3", "ISSFOO", new BigDecimal("1.00"));
+        Security iss2Sec1 = createTestSecurity("iss2Sec1", "ISSBAR", new BigDecimal("1.00"));
+        Security iss2Sec2 = createTestSecurity("iss2Sec2", "ISSBAR", new BigDecimal("1.00"));
+        Security iss3Sec1 = createTestSecurity("iss3Sec1", "ISSBAZ", new BigDecimal("1.00"));
+        Security iss4Sec1 = createTestSecurity("iss4Sec1", "ISSABC", new BigDecimal("1.00"));
+        Security iss4Sec2 = createTestSecurity("iss4Sec2", "ISSABC", new BigDecimal("1.00"));
+        Security iss5Sec1 = createTestSecurity("iss5Sec1", "ISSDEF", new BigDecimal("1.00"));
+        Security iss6Sec1 = createTestSecurity("iss6Sec1", "ISSGHI", new BigDecimal("1.00"));
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
         HashSet<Position> positions = new HashSet<>();
-        Position iss1Sec1Pos = new Position(100, iss1Sec1);
+        Position iss1Sec1Pos = createTestPosition(100, iss1Sec1);
         positions.add(iss1Sec1Pos);
-        Position iss1Sec2Pos = new Position(100, iss1Sec2);
+        Position iss1Sec2Pos = createTestPosition(100, iss1Sec2);
         positions.add(iss1Sec2Pos);
-        Position iss1Sec3Pos = new Position(100, iss1Sec3);
+        Position iss1Sec3Pos = createTestPosition(100, iss1Sec3);
         positions.add(iss1Sec3Pos);
-        Position iss2Sec1Pos = new Position(100, iss2Sec1);
+        Position iss2Sec1Pos = createTestPosition(100, iss2Sec1);
         positions.add(iss2Sec1Pos);
-        Position iss2Sec2Pos = new Position(100, iss2Sec2);
+        Position iss2Sec2Pos = createTestPosition(100, iss2Sec2);
         positions.add(iss2Sec2Pos);
-        Position iss3Sec1Pos = new Position(100, iss3Sec1);
+        Position iss3Sec1Pos = createTestPosition(100, iss3Sec1);
         positions.add(iss3Sec1Pos);
-        Position iss4Sec1Pos = new Position(100, iss4Sec1);
+        Position iss4Sec1Pos = createTestPosition(100, iss4Sec1);
         positions.add(iss4Sec1Pos);
-        Position iss4Sec2Pos = new Position(100, iss4Sec2);
+        Position iss4Sec2Pos = createTestPosition(100, iss4Sec2);
         positions.add(iss4Sec2Pos);
-        Position iss5Sec1Pos = new Position(100, iss5Sec1);
+        Position iss5Sec1Pos = createTestPosition(100, iss5Sec1);
         positions.add(iss5Sec1Pos);
-        Position iss6Sec1Pos = new Position(100, iss6Sec1);
+        Position iss6Sec1Pos = createTestPosition(100, iss6Sec1);
         positions.add(iss6Sec1Pos);
 
-        HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
-        ConcentrationRule top2issuerRule =
-                new ConcentrationRule(new RuleKey("top2"), "top 2 issuer concentration", null, null,
-                        0.25, new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
+        HashMap<RuleKey, Rule> rules = new HashMap<>();
+        ConcentrationRule top2issuerRule = createTestConcentrationRule(new RuleKey("top2"),
+                "top 2 issuer concentration", null, null, 0.25,
+                new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
         rules.put(top2issuerRule.getKey(), top2issuerRule);
-        ConcentrationRule top3issuerRule =
-                new ConcentrationRule(new RuleKey("top3"), "top 3 issuer concentration", null, null,
-                        0.75, new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
+        ConcentrationRule top3issuerRule = createTestConcentrationRule(new RuleKey("top3"),
+                "top 3 issuer concentration", null, null, 0.75,
+                new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
         rules.put(top3issuerRule.getKey(), top3issuerRule);
-        ConcentrationRule top10issuerRule = new ConcentrationRule(new RuleKey("top10"),
+        ConcentrationRule top10issuerRule = createTestConcentrationRule(new RuleKey("top10"),
                 "top 10 issuer concentration", null, null, 0.999,
                 new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 10));
         rules.put(top10issuerRule.getKey(), top10issuerRule);
 
-        RuleProvider ruleProvider = (k -> rules.get(k));
+        Portfolio portfolio = new Portfolio(new PortfolioKey("test portfolio", 1), "test",
+                positions, (PortfolioKey)null, rules.values());
+        assetCache.getPortfolioCache().putTransient(portfolio.getKey(), portfolio, 10,
+                TimeUnit.MINUTES);
 
-        Portfolio portfolio =
-                new Portfolio(null, "test", positions, (PortfolioKey)null, rules.values());
-
-        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = evaluator
-                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider))
+        LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator();
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = localEvaluator
+                .evaluate(portfolio, new EvaluationContext(assetCache, assetCache, assetCache))
                 .get();
+        validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
+                top10issuerRule);
 
-        assertEquals(rules.size(), allResults.size(),
-                "number of results should equal number of Rules");
-
-        Map<EvaluationGroup<?>, EvaluationResult> top2IssuerResults =
-                allResults.get(top2issuerRule.getKey());
-        Map<EvaluationGroup<?>, EvaluationResult> top3IssuerResults =
-                allResults.get(top3issuerRule.getKey());
-        Map<EvaluationGroup<?>, EvaluationResult> top10IssuerResults =
-                allResults.get(top10issuerRule.getKey());
-
-        assertNotNull(top2IssuerResults, "should have found results for top 2 issuer rule");
-        assertNotNull(top3IssuerResults, "should have found results for top 3 issuer rule");
-        assertNotNull(top10IssuerResults, "should have found results for top 10 issuer rule");
-
-        // all Rules should create one group for each issuer (6) plus one for the aggregate
-        assertEquals(7, top2IssuerResults.size(),
-                "unexpected number of groups for top 2 issuer rule");
-        assertEquals(7, top3IssuerResults.size(),
-                "unexpected number of groups for top 3 issuer rule");
-        assertEquals(7, top10IssuerResults.size(),
-                "unexpected number of groups for top 10 issuer rule");
-
-        top2IssuerResults.forEach((group, result) -> {
-            switch (group.getId()) {
-            case "ISSFOO":
-                // this concentration alone (30%) is enough to exceed the rule limit (25%)
-                assertFalse(result.isPassed(), "top 2 issuer rule should have failed for ISSFOO");
-                break;
-            case "ISSBAR":
-            case "ISSBAZ":
-            case "ISSABC":
-            case "ISSDEF":
-            case "ISSGHI":
-                // these concentrations are 20% or less so should pass
-                assertTrue(result.isPassed(),
-                        "top 2 issuer rule should have passed for " + group.getId());
-                break;
-            default:
-                // the aggregate is 50% so should fail
-                assertFalse(result.isPassed(),
-                        "top 2 issuer rule should have failed for aggregate");
-            }
-        });
-
-        top3IssuerResults.forEach((group, result) -> {
-            switch (group.getId()) {
-            case "ISSFOO":
-            case "ISSBAR":
-            case "ISSBAZ":
-            case "ISSABC":
-            case "ISSDEF":
-            case "ISSGHI":
-                // none of the concentrations are above 30% so should pass the 75% limit
-                assertTrue(result.isPassed(),
-                        "top 3 issuer rule should have passed for " + group.getId());
-                break;
-            default:
-                // the aggregate is 70% so should pass
-                assertTrue(result.isPassed(), "top 3 issuer rule should have passed for aggregate");
-            }
-        });
-
-        top10IssuerResults.forEach((group, result) -> {
-            switch (group.getId()) {
-            case "ISSFOO":
-            case "ISSBAR":
-            case "ISSBAZ":
-            case "ISSABC":
-            case "ISSDEF":
-            case "ISSGHI":
-                // none of the concentrations are above 30% so should pass the 99.9% limit
-                assertTrue(result.isPassed(),
-                        "top 3 issuer rule should have passed for " + group.getId());
-                break;
-            default:
-                // since there are fewer than 10 issuers, the aggregate is 100% so should fail
-                assertFalse(result.isPassed(),
-                        "top 10 issuer rule should have failed for aggregate");
-            }
-        });
+        allResults = clusterEvaluator
+                .evaluate(portfolio, new EvaluationContext(assetCache, assetCache, assetCache))
+                .get();
+        validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
+                top10issuerRule);
     }
 
     /**
-     * Tests that evaluate() behaves as expected when an unexpected exception is thrown (expect the
-     * unexpected!).
+     * Tests that {@code evaluate()} behaves as expected when an unexpected exception is thrown
+     * (expect the unexpected!).
      */
     @Test
     public void testEvaluateException() throws Exception {
@@ -285,7 +211,7 @@ public class PortfolioEvaluatorTest {
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
                 new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
-                        new EvaluationContext(null, securityProvider, ruleProvider));
+                        new EvaluationContext(null, null, ruleProvider));
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
@@ -298,8 +224,9 @@ public class PortfolioEvaluatorTest {
     }
 
     /**
-     * Tests that evaluate() behaves as expected when input Positions are partitioned among multiple
-     * EvaluationGroups. This also implicitly tests ConcentrationRule and WeightedAverageRule.
+     * Tests that {@code evaluate()} behaves as expected when input {@code Position}s are
+     * partitioned among multiple {@code EvaluationGroup}s. This also implicitly tests
+     * {@code ConcentrationRule} and {@code WeightedAverageRule}.
      */
     @Test
     public void testEvaluateGroups() throws Exception {
@@ -309,19 +236,19 @@ public class PortfolioEvaluatorTest {
                 Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
                         SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security usdSecurity = securityProvider.newSecurity("usd", usdAttributes);
+        Security usdSecurity = createTestSecurity("usd", usdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
                 Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.ratingValue, 80d,
                         SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security nzdSecurity = securityProvider.newSecurity("nzd", nzdAttributes);
+        Security nzdSecurity = createTestSecurity("nzd", nzdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> cadAttributes =
                 Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.ratingValue, 75d,
                         SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security cadSecurity = securityProvider.newSecurity("cad", cadAttributes);
+        Security cadSecurity = createTestSecurity("cad", cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300
@@ -364,7 +291,8 @@ public class PortfolioEvaluatorTest {
                 (PortfolioKey)null, rules.values());
 
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator
-                .evaluate(portfolio, new EvaluationContext(null, securityProvider, ruleProvider))
+                .evaluate(portfolio,
+                        new EvaluationContext(null, TestUtil.testSecurityProvider(), ruleProvider))
                 .get();
 
         // all rules should have entries
@@ -409,7 +337,7 @@ public class PortfolioEvaluatorTest {
     }
 
     /**
-     * Tests that evaluate() behaves as expected when overrides are applied.
+     * Tests that {@code evaluate()} behaves as expected when overrides are applied.
      */
     @Test
     public void testEvaluateOverrides() throws Exception {
@@ -447,10 +375,9 @@ public class PortfolioEvaluatorTest {
                 portfolioBenchmark, portfolioRules.values());
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator
-                .evaluate(portfolio,
-                        new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider))
-                .get();
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+                evaluator.evaluate(portfolio, new EvaluationContext(benchmarkProvider,
+                        TestUtil.testSecurityProvider(), ruleProvider)).get();
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
@@ -463,8 +390,8 @@ public class PortfolioEvaluatorTest {
                 "portfolio benchmark should have been used");
 
         // test the form of evaluate() that should override the portfolio benchmark
-        results = evaluator.evaluate(portfolio, overrideBenchmark,
-                new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
+        results = evaluator.evaluate(portfolio, overrideBenchmark, new EvaluationContext(
+                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
 
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
@@ -479,8 +406,8 @@ public class PortfolioEvaluatorTest {
         overrideRules.add(usePortfolioBenchmarkRule);
 
         // test the form of evaluate() that should override the portfolio rules
-        results = evaluator.evaluate(overrideRules.stream(), portfolio,
-                new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
+        results = evaluator.evaluate(overrideRules.stream(), portfolio, new EvaluationContext(
+                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertTrue(results.get(usePortfolioBenchmarkRule.getKey())
@@ -489,11 +416,197 @@ public class PortfolioEvaluatorTest {
 
         // test the form of evaluate() that should override the portfolio rules and benchmark
         results = evaluator.evaluate(overrideRules.stream(), portfolio, overrideBenchmark,
-                new EvaluationContext(benchmarkProvider, securityProvider, ruleProvider));
+                new EvaluationContext(benchmarkProvider, TestUtil.testSecurityProvider(),
+                        ruleProvider));
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertFalse(results.get(usePortfolioBenchmarkRule.getKey())
                 .get(EvaluationGroup.defaultGroup()).isPassed(),
                 "override benchmark should have been used");
+    }
+
+    /**
+     * Creates and transiently caches a {@code ConcentrationRule} with the given parameters.
+     *
+     * @param key
+     *            the unique key of this {@code Rule}, or {@code null} to generate one
+     * @param description
+     *            the {@code Rule} description
+     * @param positionFilter
+     *            the filter to be applied to {@code Position}s to determine concentration
+     * @param lowerLimit
+     *            the lower limit of acceptable concentration values
+     * @param upperLimit
+     *            the upper limit of acceptable concentration values
+     * @param groupClassifier
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
+     */
+    protected ConcentrationRule createTestConcentrationRule(RuleKey key, String description,
+            Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
+            Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+        ConcentrationRule rule = new ConcentrationRule(key, description, positionFilter, lowerLimit,
+                upperLimit, groupClassifier);
+        assetCache.getRuleCache().putTransient(rule.getKey(), rule, 10, TimeUnit.MINUTES);
+
+        return rule;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Position} with the given parameters.
+     *
+     * @param amount
+     *            the amount held by the {@code Position}
+     * @param security
+     *            the {@code Security} held by the {@code Position}
+     * @return the {@code Position} that was created
+     */
+    protected Position createTestPosition(double amount, Security security) {
+        Position position = new Position(amount, security);
+        assetCache.getPositionCache().putTransient(position.getKey(), position, 10,
+                TimeUnit.MINUTES);
+
+        return position;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Security} with the given parameters.
+     *
+     * @param assetId
+     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            contains ISIN
+     * @param attributes
+     *            the additional attributes to associate with the {@code Security}
+     * @return the {@code Security} that was created
+     */
+    protected Security createTestSecurity(String assetId,
+            Map<SecurityAttribute<?>, Object> attributes) {
+        Security security = TestUtil.testSecurityProvider().newSecurity(assetId, attributes);
+        assetCache.getSecurityCache().putTransient(security.getKey(), security, 10,
+                TimeUnit.MINUTES);
+
+        return security;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Security} with the given parameters.
+     *
+     * @param assetId
+     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            contains ISIN
+     * @param issuer
+     *            the {@code Security} issuer
+     * @param price
+     *            the {@code Security} price
+     * @return the {@code Security} that was created
+     */
+    protected Security createTestSecurity(String assetId, String issuer, BigDecimal price) {
+        return createTestSecurity(assetId,
+                Map.of(SecurityAttribute.issuer, issuer, SecurityAttribute.price, price));
+    }
+
+    /**
+     * Validates that the aggregation rule results produced in {@code testEvaluateAggregation()} are
+     * as expected.
+     *
+     * @param allResults
+     *            the results of evaluation
+     * @param rules
+     *            the {@code Rule}s created for the evaluated {@code Portfolio}
+     * @param top2issuerRule
+     *            the {@code Rule} corresponding to the top 2 issuer test
+     * @param top3issuerRule
+     *            the {@code Rule} corresponding to the top 3 issuer test
+     * @param top10issuerRule
+     *            the {@code Rule} corresponding to the top 10 issuer test
+     */
+    protected void validateAggregationResults(
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults,
+            Map<RuleKey, Rule> rules, Rule top2issuerRule, Rule top3issuerRule,
+            Rule top10issuerRule) {
+        assertEquals(rules.size(), allResults.size(),
+                "number of results should equal number of Rules");
+
+        Map<EvaluationGroup<?>, EvaluationResult> top2IssuerResults =
+                allResults.get(top2issuerRule.getKey());
+        Map<EvaluationGroup<?>, EvaluationResult> top3IssuerResults =
+                allResults.get(top3issuerRule.getKey());
+        Map<EvaluationGroup<?>, EvaluationResult> top10IssuerResults =
+                allResults.get(top10issuerRule.getKey());
+
+        assertNotNull(top2IssuerResults, "should have found results for top 2 issuer rule");
+        assertNotNull(top3IssuerResults, "should have found results for top 3 issuer rule");
+        assertNotNull(top10IssuerResults, "should have found results for top 10 issuer rule");
+
+        // all Rules should create one group for each issuer (6) plus one for the aggregate
+        assertEquals(7, top2IssuerResults.size(),
+                "unexpected number of groups for top 2 issuer rule");
+        assertEquals(7, top3IssuerResults.size(),
+                "unexpected number of groups for top 3 issuer rule");
+        assertEquals(7, top10IssuerResults.size(),
+                "unexpected number of groups for top 10 issuer rule");
+
+        top2IssuerResults.forEach((group, result) -> {
+            switch (group.getId()) {
+            case "ISSFOO":
+                // this concentration alone (30%) is enough to exceed the rule limit (25%)
+                assertFalse(result.isPassed(), "top 2 issuer rule should have failed for ISSFOO");
+                break;
+            case "ISSBAR":
+            case "ISSBAZ":
+            case "ISSABC":
+            case "ISSDEF":
+            case "ISSGHI":
+                // these concentrations are 20% or less so should pass
+                assertTrue(result.isPassed(),
+                        "top 2 issuer rule should have passed for " + group.getId());
+                break;
+            default:
+                // the aggregate is 50% so should fail
+                assertFalse(result.isPassed(),
+                        "top 2 issuer rule should have failed for aggregate group "
+                                + group.getId());
+            }
+        });
+
+        top3IssuerResults.forEach((group, result) -> {
+            switch (group.getId()) {
+            case "ISSFOO":
+            case "ISSBAR":
+            case "ISSBAZ":
+            case "ISSABC":
+            case "ISSDEF":
+            case "ISSGHI":
+                // none of the concentrations are above 30% so should pass the 75% limit
+                assertTrue(result.isPassed(),
+                        "top 3 issuer rule should have passed for " + group.getId());
+                break;
+            default:
+                // the aggregate is 70% so should pass
+                assertTrue(result.isPassed(),
+                        "top 3 issuer rule should have passed for aggregate group "
+                                + group.getId());
+            }
+        });
+
+        top10IssuerResults.forEach((group, result) -> {
+            switch (group.getId()) {
+            case "ISSFOO":
+            case "ISSBAR":
+            case "ISSBAZ":
+            case "ISSABC":
+            case "ISSDEF":
+            case "ISSGHI":
+                // none of the concentrations are above 30% so should pass the 99.9% limit
+                assertTrue(result.isPassed(),
+                        "top 3 issuer rule should have passed for " + group.getId());
+                break;
+            default:
+                // since there are fewer than 10 issuers, the aggregate is 100% so should fail
+                assertFalse(result.isPassed(),
+                        "top 10 issuer rule should have failed for aggregate group "
+                                + group.getId());
+            }
+        });
     }
 }

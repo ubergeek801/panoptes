@@ -2,6 +2,9 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.math.BigDecimal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -12,6 +15,8 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * @author jeremy
  */
 public class Position implements Keyed<PositionKey> {
+    private static final Logger LOG = LoggerFactory.getLogger(Position.class);
+
     private final PositionKey key;
     private final double amount;
     private final Security security;
@@ -46,7 +51,8 @@ public class Position implements Keyed<PositionKey> {
         this.security = security;
         BigDecimal price = security.getAttributeValue(SecurityAttribute.price);
         if (price == null) {
-            // TODO this shouldn't happen
+            // FIXME this shouldn't happen
+            LOG.error("could not get price for Security {}", security.getKey());
             marketValue = 0;
         } else {
             marketValue = price.multiply(BigDecimal.valueOf(amount)).doubleValue();

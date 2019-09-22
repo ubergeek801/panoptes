@@ -4,7 +4,8 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
- * EvaluationContext provides contextual information that can be shared across multiple evaluations.
+ * {@code EvaluationContext} provides contextual information that can be shared across multiple
+ * evaluations.
  *
  * @author jeremy
  */
@@ -14,17 +15,17 @@ public class EvaluationContext {
     private final RuleProvider ruleProvider;
 
     /**
-     * Creates a new EvaluationContext with the given attributes.
+     * Creates a new {@code EvaluationContext} with the given attributes.
      *
      * @param portfolioProvider
-     *            the portfolioProvider from which to obtain Portfolio information, or null if it is
-     *            known not to be needed
+     *            the {@code PortfolioProvider} from which to obtain {@code Portfolio} information,
+     *            or {@code null} if it is known not to be needed
      * @param securityProvider
-     *            the SecurityProvider from which to obtain Security information, or null if it is
-     *            known not to be needed
+     *            the {@code SecurityProvider} from which to obtain {@code Security} information, or
+     *            {@code null} if it is known not to be needed
      * @param ruleProvider
-     *            the RuleProvider from which to obtain Rule information, or null if it is known not
-     *            to be needed
+     *            the {@code RuleProvider} from which to obtain {@code Rule} information, or
+     *            {@code null} if it is known not to be needed
      */
     public EvaluationContext(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
             RuleProvider ruleProvider) {
@@ -34,27 +35,27 @@ public class EvaluationContext {
     }
 
     /**
-     * Obtains the PortfolioProvider to be used by evaluations in this context.
+     * Obtains the {@code PortfolioProvider} to be used by evaluations in this context.
      *
-     * @return a PortfolioProvider
+     * @return a {@code PortfolioProvider}
      */
     public PortfolioProvider getPortfolioProvider() {
         return portfolioProvider;
     }
 
     /**
-     * Obtains the RuleProvider to be used by evaluations in this context.
+     * Obtains the {@code RuleProvider} to be used by evaluations in this context.
      *
-     * @return a RuleProvider
+     * @return a {@code RuleProvider}
      */
     public RuleProvider getRuleProvider() {
         return ruleProvider;
     }
 
     /**
-     * Obtains the SecurityProvider to be used by evaluations in this context.
+     * Obtains the {@code SecurityProvider} to be used by evaluations in this context.
      *
-     * @return a SecurityProvider
+     * @return a {@code SecurityProvider}
      */
     public SecurityProvider getSecurityProvider() {
         return securityProvider;

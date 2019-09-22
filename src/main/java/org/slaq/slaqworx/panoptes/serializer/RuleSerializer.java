@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleMsg;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
@@ -16,15 +18,43 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 /**
  * {@code RuleSerializer} (de)serializes the state of a {@code Rule} (actually a
  * {@code ConfigurableRule} using Protobuf.
+ * <p>
+ * Note that in order for deserialization to work, the {@code Rule} class must define the static
+ * method:
+ *
+ * <pre>
+ * public static SampleRule fromJson(String jsonConfiguration, RuleKey key, String description,
+ *         String groovyFilter, EvaluationGroupClassifier groupClassifier)
+ * </pre>
  *
  * @author jeremy
  */
 public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
-    public static ConfigurableRule constructRule(String id, String description, String ruleTypeName,
-            String configuration, String groovyFilter, String classifierTypeName,
-            String classifierConfiguration) {
+    /**
+     * Constructs a {@code ConfigurableRule} from the given parameters.
+     *
+     * @param id
+     *            the ID of the {@code Rule} to be created
+     * @param description
+     *            the description of the {@code Rule} to be created
+     * @param ruleClassName
+     *            the name of the Java class implementing the {@code Rule}
+     * @param configuration
+     *            additional {@code Rule} JSON configuration, or {@code null} if not applicable
+     * @param groovyFilter
+     *            the {@code Rule} filter expression as Groovy, or {@code null} if not applicable
+     * @param classifierClassName
+     *            the name of the Java class implementing the classifer, or {@code null} if not
+     *            applicable
+     * @param classifierConfiguration
+     *            additional classifier JSON configuration, or {@code null} if not applicable
+     * @return a {@code ConfigurableRule} constructed according to the given parameters
+     */
+    public static ConfigurableRule constructRule(String id, String description,
+            String ruleClassName, String configuration, String groovyFilter,
+            String classifierClassName, String classifierConfiguration) {
         Class<EvaluationGroupClassifier> classifierType =
-                resolveClass(classifierTypeName, "classifier", id, description);
+                resolveClass(classifierClassName, "classifier", id, description);
         EvaluationGroupClassifier classifier;
         if (classifierType == null) {
             classifier = null;
@@ -41,21 +71,22 @@ public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
                 }
             } catch (Exception e) {
                 // TODO throw a better exception
-                throw new RuntimeException("could not instantiate classifier class " + ruleTypeName
+                throw new RuntimeException("could not instantiate classifier class " + ruleClassName
                         + " for rule " + id + "(" + description + ")", e);
             }
         }
 
-        Class<ConfigurableRule> ruleType = resolveClass(ruleTypeName, "rule", id, description);
+        Class<ConfigurableRule> ruleType = resolveClass(ruleClassName, "rule", id, description);
         ConfigurableRule rule;
         try {
             Method fromJsonMethod = ruleType.getMethod("fromJson", String.class, RuleKey.class,
                     String.class, String.class, EvaluationGroupClassifier.class);
-            rule = (ConfigurableRule)fromJsonMethod.invoke(null, configuration, new RuleKey(id),
-                    description, groovyFilter, classifier);
+            rule = (ConfigurableRule)fromJsonMethod.invoke(null,
+                    StringUtils.trimToNull(configuration), new RuleKey(id), description,
+                    StringUtils.trimToNull(groovyFilter), classifier);
         } catch (Exception e) {
             // TODO throw a better exception
-            throw new RuntimeException("could not instantiate rule class " + ruleTypeName
+            throw new RuntimeException("could not instantiate rule class " + ruleClassName
                     + " for rule " + id + "(" + description + ")", e);
         }
 
@@ -80,7 +111,7 @@ public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
      */
     protected static <T> Class<T> resolveClass(String className, String function, String ruleId,
             String ruleDescription) {
-        if (className == null) {
+        if (StringUtils.isEmpty(className)) {
             return null;
         }
 

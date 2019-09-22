@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
-import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
+import org.slaq.slaqworx.panoptes.evaluator.ClusterEvaluatorReceiver;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -29,19 +29,6 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequestListener;
 @Requires(notEnv = "TEST")
 public class Panoptes {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
-
-    private static BeanContext applicationContext;
-
-    /**
-     * Obtains the {@code ApplicationContext} of the running Panoptes application. This should only
-     * be used in cases where dependency injection isn't possible, e.g. from Hazelcast
-     * {@code MapStore} classes which are instantiated directly by Hazelcast.
-     *
-     * @return the current ApplicationContext
-     */
-    public static BeanContext getApplicationContext() {
-        return applicationContext;
-    }
 
     /**
      * The entry point for the Panoptes application.
@@ -84,7 +71,7 @@ public class Panoptes {
      */
     @EventListener
     protected void onStartup(StartupEvent event) throws Exception {
-        applicationContext = event.getSource();
+        BeanContext applicationContext = event.getSource();
         AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
         assetCache.getSecurityCache().loadAll(false);
@@ -103,10 +90,10 @@ public class Panoptes {
         int numPortfolios = assetCache.getPortfolioCache().size();
         LOG.info("{} Portfolios in cache", numPortfolios);
 
-        LOG.info("starting PortfolioEvaluationRequestListener");
-        PortfolioEvaluationRequestListener portfolioEvaluationRequestListener =
-                applicationContext.getBean(PortfolioEvaluationRequestListener.class);
-        portfolioEvaluationRequestListener.start();
+        LOG.info("starting ClusterEvaluatorReceiver");
+        ClusterEvaluatorReceiver clusterEvaluatorReceiver =
+                applicationContext.getBean(ClusterEvaluatorReceiver.class);
+        clusterEvaluatorReceiver.start();
 
         LOG.info("starting Web application service");
         Server servletServer = applicationContext.getBean(Server.class);

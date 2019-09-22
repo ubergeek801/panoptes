@@ -26,16 +26,15 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code PortfolioEvaluationRequestListener} consumes messages from the {@code Portfolio}
- * evaluation request queue, delegates to a {@code LocalPortfolioEvaluator} and publishes results to
- * the {@code Portfolio} evaluation result map.
+ * {@code ClusterEvaluatorReceiver} consumes messages from the {@code Portfolio} evaluation request
+ * queue, delegates to a {@code LocalPortfolioEvaluator} and publishes results to the
+ * {@code Portfolio} evaluation result map.
  *
  * @author jeremy
  */
 @Singleton
-public class PortfolioEvaluationRequestListener {
-    private static final Logger LOG =
-            LoggerFactory.getLogger(PortfolioEvaluationRequestListener.class);
+public class ClusterEvaluatorReceiver {
+    private static final Logger LOG = LoggerFactory.getLogger(ClusterEvaluatorReceiver.class);
 
     private final AssetCache assetCache;
     private final ClientConsumer portfolioEvaluationRequestConsumer;
@@ -45,16 +44,15 @@ public class PortfolioEvaluationRequestListener {
     private final IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluationResultMap;
 
     /**
-     * Creates a new {@code PortfolioEvaluationRequestListener} which uses the given
-     * {@code AssetCache} to resolve cache resources. The listener remains idle until
-     * {@code start()} is invoked.
+     * Creates a new {@code ClusterEvaluatorReceiver} which uses the given {@code AssetCache} to
+     * resolve cache resources. The listener remains idle until {@code start()} is invoked.
      *
      * @param assetCache
      *            the {@code AssetCache} to use
      * @param portfolioEvaluationRequestConsumer
      *            the {@code ClientConsumer} to use to consume messages
      */
-    protected PortfolioEvaluationRequestListener(AssetCache assetCache,
+    protected ClusterEvaluatorReceiver(AssetCache assetCache,
             ClientConsumer portfolioEvaluationRequestConsumer) {
         this.assetCache = assetCache;
         this.portfolioEvaluationRequestConsumer = portfolioEvaluationRequestConsumer;
@@ -107,8 +105,8 @@ public class PortfolioEvaluationRequestListener {
             // continuously take results from the local queue and publish to the result map
             while (!Thread.interrupted()) {
                 try {
-                    Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result;
-                    result = evaluationResultQueue.take();
+                    Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result =
+                            evaluationResultQueue.take();
                     evaluationResultMap.set(result.getLeft(), result.getRight());
                 } catch (InterruptedException e) {
                     return;

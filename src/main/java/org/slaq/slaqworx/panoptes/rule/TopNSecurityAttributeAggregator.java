@@ -15,9 +15,9 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * TopNSecurityAttributeAggregator is a SecurityAttributeGroupClassifier which classifies Positions
- * based on a specified SecurityAttribute, and also (as a GroupAggregator) aggregates the "top n"
- * resulting groups into a composite group.
+ * {@code TopNSecurityAttributeAggregator} is a {@code SecurityAttributeGroupClassifier} which
+ * classifies {@code Positions} based on a specified {@code SecurityAttribute}, and also (as a
+ * {@code GroupAggregator}) aggregates the "top n" resulting groups into a composite group.
  *
  * @author jeremy
  */
@@ -29,12 +29,12 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     }
 
     /**
-     * Creates a new TopNSecurityAttributeAggregator which aggregates Positions on the
-     * SecurityAttribute specified in the JSON configuration.
+     * Creates a new {@code TopNSecurityAttributeAggregator} which aggregates {@code Positions} on
+     * the {@code SecurityAttribute} specified in the JSON configuration.
      *
      * @param jsonConfiguration
-     *            a JSON configuration specifying the SecurityAttribute on which to aggregate
-     *            Positions
+     *            a JSON configuration specifying the {@code SecurityAttribute} on which to
+     *            aggregate {@code Positions}
      */
     public static TopNSecurityAttributeAggregator fromJson(String jsonConfiguration) {
         Configuration configuration;
@@ -54,11 +54,11 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     private final int count;
 
     /**
-     * Creates a new TopNSecurityAttributeAggregator which aggregates Positions on the given
-     * SecurityAttribute.
+     * Creates a new {@code TopNSecurityAttributeAggregator} which aggregates {@code Position}s on
+     * the given {@code SecurityAttribute}.
      *
      * @param securityAttribute
-     *            the SecurityAttribute on which to aggregate Positions
+     *            the {@code SecurityAttribute} on which to aggregate {@code Position}s
      * @param count
      *            the number of groups to collect into the "top n" metagroup
      */

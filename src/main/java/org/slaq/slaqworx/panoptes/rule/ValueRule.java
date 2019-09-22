@@ -12,7 +12,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
  *
  * @author jeremy
  */
-public abstract class ValueRule extends ConfigurableRule {
+public abstract class ValueRule extends GenericRule implements ConfigurableRule {
     private final Predicate<PositionEvaluationContext> positionFilter;
     private final SecurityAttribute<Double> calculationAttribute;
     private final Double lowerLimit;

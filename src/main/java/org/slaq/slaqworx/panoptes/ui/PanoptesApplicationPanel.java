@@ -28,7 +28,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import org.slaq.slaqworx.panoptes.Panoptes;
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -76,7 +76,8 @@ public class PanoptesApplicationPanel extends AppLayout {
                 DetailsVariant.SMALL);
         mainLayout.add(securityFilterDetail);
 
-        AssetCache assetCache = Panoptes.getApplicationContext().getBean(AssetCache.class);
+        AssetCache assetCache =
+                ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         IMap<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
 
         // unfortunately there's not a very good way to page through entries of an IMap

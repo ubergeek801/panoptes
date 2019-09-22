@@ -19,7 +19,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.Panoptes;
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -120,9 +120,9 @@ public class FixedIncomeTradePanel extends FormLayout {
     private Double tradeMarketValue;
 
     public FixedIncomeTradePanel() {
-        portfolioEvaluator =
-                Panoptes.getApplicationContext().getBean(ClusterPortfolioEvaluator.class);
-        assetCache = Panoptes.getApplicationContext().getBean(AssetCache.class);
+        portfolioEvaluator = ApplicationContextProvider.getApplicationContext()
+                .getBean(ClusterPortfolioEvaluator.class);
+        assetCache = ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
 
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
 

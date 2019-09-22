@@ -10,15 +10,15 @@ import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A WeightedAverageRule stipulates limits on a calculated value, based on its weighted average
- * within a portfolio's composition, either in absolute terms or relative to a benchmark. Examples
- * of absolute rules include:
+ * A {@code WeightedAverageRule} stipulates limits on a calculated value, based on its weighted
+ * average within a {@code Portfolio}'s composition, either in absolute terms or relative to a
+ * benchmark. Examples of absolute rules include:
  * <ul>
- * <li>the weighted average of a portfolio's duration may not exceed 5.0
+ * <li>the weighted average of a {@code Portfolio}'s duration may not exceed 5.0
  * </ul>
  * Examples of benchmark-relative rules include:
  * <ul>
- * <li>the (weighted) average quality of a portfolio must be at least 90% of the benchmark
+ * <li>the (weighted) average quality of a {@code Portfolio} must be at least 90% of the benchmark's
  * </ul>
  *
  * @author jeremy
@@ -31,20 +31,21 @@ public class WeightedAverageRule extends ValueRule {
     }
 
     /**
-     * Creates a new WeightedAverageRule with the given JSON configuration, key, description, filter
-     * and classifier.
+     * Creates a new {@code WeightedAverageRule} with the given JSON configuration, key,
+     * description, filter and classifier.
      *
      * @param jsonConfiguration
      *            the JSON configuration specifying calculation attribute, lower and upper limits
      * @param key
-     *            the unique key of this rule, or null to generate one
+     *            the unique key of this rule, or {@code null} to generate one
      * @param description
      *            the rule description
      * @param groovyFilter
-     *            a (possibly null) Groovy expression to be used as a Position filter
+     *            a (possibly {@code null}) Groovy expression to be used as a {@code Position}
+     *            filter
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
-     *            GroupAggregator
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
      */
     public static WeightedAverageRule fromJson(String jsonConfiguration, RuleKey key,
             String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
@@ -68,14 +69,14 @@ public class WeightedAverageRule extends ValueRule {
     }
 
     /**
-     * Creates a new WeightedAverageRule with the given parameters.
+     * Creates a new {@code WeightedAverageRule} with the given parameters.
      *
      * @param key
-     *            the unique key of this rule, or null to generate one
+     *            the unique key of this rule, or {@code null} to generate one
      * @param description
      *            the rule description
      * @param positionFilter
-     *            the (possibly null) filter to be applied to Positions
+     *            the (possibly {@code null}) filter to be applied to {@code Position}s
      * @param calculationAttribute
      *            the attribute on which to calculate
      * @param lowerLimit
@@ -83,8 +84,8 @@ public class WeightedAverageRule extends ValueRule {
      * @param upperLimit
      *            the upper limit of acceptable concentration values
      * @param groupClassifier
-     *            the (possibly null) EvaluationGroupClassifier to use, which may also implement
-     *            GroupAggregator
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
      */
     public WeightedAverageRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter,

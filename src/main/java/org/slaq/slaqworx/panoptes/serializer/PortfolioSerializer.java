@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.Panoptes;
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -65,10 +65,12 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
     @Override
     public Portfolio read(byte[] buffer) throws IOException {
         if (positionProvider == null) {
-            positionProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
+            positionProvider =
+                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         }
         if (ruleProvider == null) {
-            ruleProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
+            ruleProvider =
+                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         }
 
         PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);

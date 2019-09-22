@@ -123,25 +123,25 @@ public class PanoptesCacheConfiguration {
 
         SerializationConfig serializationConfig = config.getSerializationConfig();
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(PortfolioKeySerializer.class).setTypeClass(PortfolioKey.class));
+                .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(PortfolioSerializer.class).setTypeClass(Portfolio.class));
+                .setImplementation(new PortfolioSerializer()).setTypeClass(Portfolio.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(PositionKeySerializer.class).setTypeClass(PositionKey.class));
+                .setImplementation(new PositionKeySerializer()).setTypeClass(PositionKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(PositionSerializer.class).setTypeClass(Position.class));
+                .setImplementation(new PositionSerializer()).setTypeClass(Position.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(RuleKeySerializer.class).setTypeClass(RuleKey.class));
+                .setImplementation(new RuleKeySerializer()).setTypeClass(RuleKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(RuleSerializer.class).setTypeClass(ConfigurableRule.class));
+                .setImplementation(new RuleSerializer()).setTypeClass(ConfigurableRule.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(SecurityKeySerializer.class).setTypeClass(SecurityKey.class));
+                .setImplementation(new SecurityKeySerializer()).setTypeClass(SecurityKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(SecuritySerializer.class).setTypeClass(Security.class));
+                .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setClass(TradeKeySerializer.class).setTypeClass(TradeKey.class));
-        serializationConfig.addSerializerConfig(
-                new SerializerConfig().setClass(TradeSerializer.class).setTypeClass(Trade.class));
+                .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setImplementation(new TradeSerializer()).setTypeClass(Trade.class));
 
         config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)

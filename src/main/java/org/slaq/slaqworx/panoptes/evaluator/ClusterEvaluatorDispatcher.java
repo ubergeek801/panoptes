@@ -23,17 +23,16 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code ClusterPortfolioEvaluatorMessenger} orchestrates a {@code Portfolio} evaluation on the
- * cluster by submitting a {@code Portfolio} evaluation request to the queue, listening for the
- * corresponding result in the {@code Portfolio} evaluation result map, and making the result
- * available as a {@code Future}.
+ * {@code ClusterEvaluatorDispatcher} orchestrates a {@code Portfolio} evaluation on the cluster by
+ * submitting a {@code Portfolio} evaluation request to the queue, listening for the corresponding
+ * result in the {@code Portfolio} evaluation result map, and making the result available as a
+ * {@code Future}.
  *
  * @author jeremy
  */
-public class ClusterPortfolioEvaluatorMessenger implements
+public class ClusterEvaluatorDispatcher implements
         EntryAddedListener<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> {
-    private static final Logger LOG =
-            LoggerFactory.getLogger(ClusterPortfolioEvaluatorMessenger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClusterEvaluatorDispatcher.class);
 
     private final Object resultMonitor = new Object();
     private Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results;
@@ -45,8 +44,8 @@ public class ClusterPortfolioEvaluatorMessenger implements
     private final long startTime;
 
     /**
-     * Creates a new {@code ClusterPortfolioEvaluatorMessenger} which submits an evaluation request
-     * and listens for the results.
+     * Creates a new {@code ClusterEvaluatorDispatcher} which submits an evaluation request and
+     * listens for the results.
      *
      * @param portfolioEvaluationResultMap
      *            the distributed {@IMap} from which to obtain result data
@@ -60,7 +59,7 @@ public class ClusterPortfolioEvaluatorMessenger implements
      *            the (possibly {@code null} {@code Transaction} from which to apply allocations to
      *            the evaluated {@code Portfolio}
      */
-    public ClusterPortfolioEvaluatorMessenger(
+    public ClusterEvaluatorDispatcher(
             IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioEvaluationResultMap,
             ClientSession portfolioEvaluationRequestQueueSession,
             ClientProducer portfolioEvaluationRequestQueueProducer, PortfolioKey portfolioKey,

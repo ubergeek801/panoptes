@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.Panoptes;
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -54,7 +54,8 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
     @Override
     public Position read(byte[] buffer) throws IOException {
         if (securityProvider == null) {
-            securityProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
+            securityProvider =
+                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         }
 
         PositionMsg positionMsg = PositionMsg.parseFrom(buffer);

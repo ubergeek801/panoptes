@@ -78,8 +78,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             assetCache.getTradeCache().set(trade.getKey(), trade);
         }
 
-        ClusterPortfolioEvaluatorMessenger resultListener =
-                new ClusterPortfolioEvaluatorMessenger(assetCache.getPortfolioEvaluationResultMap(),
+        ClusterEvaluatorDispatcher resultListener =
+                new ClusterEvaluatorDispatcher(assetCache.getPortfolioEvaluationResultMap(),
                         portfolioEvaluationRequestQueueSession,
                         portfolioEvaluationRequestQueueProducer, portfolio.getKey(), transaction);
 

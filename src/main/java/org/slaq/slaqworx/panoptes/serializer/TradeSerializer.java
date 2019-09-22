@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.Panoptes;
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -72,10 +72,12 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
     @Override
     public Trade read(byte[] buffer) throws IOException {
         if (portfolioProvider == null) {
-            portfolioProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
+            portfolioProvider =
+                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         }
         if (securityProvider == null) {
-            securityProvider = Panoptes.getApplicationContext().getBean(AssetCache.class);
+            securityProvider =
+                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         }
 
         TradeMsg tradeMsg = TradeMsg.parseFrom(buffer);

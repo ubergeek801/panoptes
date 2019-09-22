@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -53,9 +54,9 @@ public class RuleSerializerTest {
                     "deserialized group classifier should have same configuration as original");
         }
 
-        rule = new WeightedAverageRule(new RuleKey("foo"), "test rule",
-                new GroovyPositionFilter("p.amount > 1_000_000"), SecurityAttribute.duration, 1d,
-                2d, new TopNSecurityAttributeAggregator(SecurityAttribute.duration, 10));
+        rule = new WeightedAverageRule(new RuleKey("foo"), "test rule", null,
+                SecurityAttribute.duration, 1d, 2d,
+                new TopNSecurityAttributeAggregator(SecurityAttribute.duration, 10));
 
         buffer = serializer.write(rule);
         deserialized = serializer.read(buffer);
@@ -63,8 +64,7 @@ public class RuleSerializerTest {
         assertEquals(rule, deserialized, "deserialized value should equals() original value");
         assertEquals(rule.getDescription(), deserialized.getDescription(),
                 "deserialized value should have same description as original");
-        assertEquals(rule.getGroovyFilter(), deserialized.getGroovyFilter(),
-                "deserialized value should have same filter as original");
+        assertNull(deserialized.getGroovyFilter(), "deserialized value should have null filter");
         assertEquals(rule.getJsonConfiguration(), deserialized.getJsonConfiguration(),
                 "deserialized value should have same configuration as original");
         if (rule.getGroupClassifier() != null
