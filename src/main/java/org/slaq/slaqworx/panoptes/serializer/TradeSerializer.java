@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -33,17 +36,10 @@ import org.slaq.slaqworx.panoptes.trade.TransactionKey;
  *
  * @author jeremy
  */
+@Singleton
 public class TradeSerializer implements ByteArraySerializer<Trade> {
-    private PortfolioProvider portfolioProvider;
-    private SecurityProvider securityProvider;
-
-    /**
-     * Creates a new {@code TradeSerializer} which uses the current {@code ApplicationContext} to
-     * resolve {@code Bean} references.
-     */
-    public TradeSerializer() {
-        // nothing to do
-    }
+    private final Provider<? extends PortfolioProvider> portfolioProvider;
+    private final Provider<? extends SecurityProvider> securityProvider;
 
     /**
      * Creates a new {@code TradeSerializer} which delegates to the given {@code PortfolioProvider}
@@ -55,8 +51,21 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
      *            the {@code SecurityProvider} to use to resolve {@code Securities}
      */
     public TradeSerializer(PortfolioProvider portfolioProvider, SecurityProvider securityProvider) {
-        this.portfolioProvider = portfolioProvider;
-        this.securityProvider = securityProvider;
+        this.portfolioProvider = () -> portfolioProvider;
+        this.securityProvider = () -> securityProvider;
+    }
+
+    /**
+     * Creates a new {@code TradeSerializer} which delegates to the given {@code AssetCache}.
+     *
+     * @param assetCacheProvider
+     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
+     *            circular initialization)
+     */
+    @Inject
+    protected TradeSerializer(Provider<AssetCache> assetCacheProvider) {
+        portfolioProvider = assetCacheProvider;
+        securityProvider = assetCacheProvider;
     }
 
     @Override
@@ -71,15 +80,6 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
 
     @Override
     public Trade read(byte[] buffer) throws IOException {
-        if (portfolioProvider == null) {
-            portfolioProvider =
-                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        }
-        if (securityProvider == null) {
-            securityProvider =
-                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        }
-
         TradeMsg tradeMsg = TradeMsg.parseFrom(buffer);
         IdKeyMsg tradeKeyMsg = tradeMsg.getKey();
         TradeKey tradeKey = new TradeKey(tradeKeyMsg.getId());
@@ -90,7 +90,7 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
                     IdVersionKeyMsg portfolioKeyMsg = transactionMsg.getPortfolioKey();
                     PortfolioKey portfolioKey =
                             new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
-                    Portfolio portfolio = portfolioProvider.getPortfolio(portfolioKey);
+                    Portfolio portfolio = portfolioProvider.get().getPortfolio(portfolioKey);
                     List<Position> allocations =
                             transactionMsg.getPositionList().stream().map(positionMsg -> {
                                 // FIXME share code with PositionSerializer
@@ -99,7 +99,7 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
                                 double amount = positionMsg.getAmount();
                                 IdKeyMsg securityKeyMsg = positionMsg.getSecurityKey();
                                 SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
-                                Security security = securityProvider.getSecurity(securityKey);
+                                Security security = securityProvider.get().getSecurity(securityKey);
                                 return new Position(positionKey, amount, security);
                             }).collect(Collectors.toList());
 

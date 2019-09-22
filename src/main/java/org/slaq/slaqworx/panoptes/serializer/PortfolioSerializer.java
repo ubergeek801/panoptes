@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -26,17 +29,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  *
  * @author jeremy
  */
+@Singleton
 public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
-    private PositionProvider positionProvider;
-    private RuleProvider ruleProvider;
-
-    /**
-     * Creates a new {@code PortfolioSerializer} which uses the current {@code ApplicationContext}
-     * to resolve {@code Bean} references.
-     */
-    public PortfolioSerializer() {
-        // nothing to do
-    }
+    private final Provider<? extends PositionProvider> positionProvider;
+    private final Provider<? extends RuleProvider> ruleProvider;
 
     /**
      * Creates a new {@code PortfolioSerializer} which delegates to the given
@@ -48,8 +44,21 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
      *            the {@code RuleProvider} to use to resolve {@code Rule}s
      */
     public PortfolioSerializer(PositionProvider positionProvider, RuleProvider ruleProvider) {
-        this.positionProvider = positionProvider;
-        this.ruleProvider = ruleProvider;
+        this.positionProvider = () -> positionProvider;
+        this.ruleProvider = () -> ruleProvider;
+    }
+
+    /**
+     * Creates a new {@code PortfolioSerializer} which delegates to the given {@code AssetCache}.
+     * 
+     * @param assetCacheProvider
+     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
+     *            circular initialization)
+     */
+    @Inject
+    protected PortfolioSerializer(Provider<AssetCache> assetCacheProvider) {
+        positionProvider = assetCacheProvider;
+        ruleProvider = assetCacheProvider;
     }
 
     @Override
@@ -64,15 +73,6 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
 
     @Override
     public Portfolio read(byte[] buffer) throws IOException {
-        if (positionProvider == null) {
-            positionProvider =
-                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        }
-        if (ruleProvider == null) {
-            ruleProvider =
-                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        }
-
         PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);
         IdVersionKeyMsg keyMsg = portfolioMsg.getKey();
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
@@ -85,10 +85,11 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
         }
 
         Set<Position> positions = portfolioMsg.getPositionKeyList().stream()
-                .map(k -> positionProvider.getPosition(new PositionKey(k.getId())))
+                .map(k -> positionProvider.get().getPosition(new PositionKey(k.getId())))
                 .collect(Collectors.toSet());
         Set<Rule> rules = portfolioMsg.getRuleKeyList().stream()
-                .map(k -> ruleProvider.getRule(new RuleKey(k.getId()))).collect(Collectors.toSet());
+                .map(k -> ruleProvider.get().getRule(new RuleKey(k.getId())))
+                .collect(Collectors.toSet());
 
         return new Portfolio(key, portfolioMsg.getName(), positions, benchmarkKey, rules);
     }

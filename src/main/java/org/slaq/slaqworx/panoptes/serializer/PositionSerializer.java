@@ -3,9 +3,12 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -19,16 +22,9 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
  *
  * @author jeremy
  */
+@Singleton
 public class PositionSerializer implements ByteArraySerializer<Position> {
-    private SecurityProvider securityProvider;
-
-    /**
-     * Creates a new {@code PositionSerializer} which uses the current {@code ApplicationContext} to
-     * resolve {@code Bean} references.
-     */
-    public PositionSerializer() {
-        // nothing to do
-    }
+    private final Provider<? extends SecurityProvider> securityProvider;
 
     /**
      * Creates a new {@code PositionSerializer} which delegates to the given
@@ -38,7 +34,19 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
      *            the {@code SecurityProvider} to use to resolve {@code Securities}
      */
     public PositionSerializer(SecurityProvider securityProvider) {
-        this.securityProvider = securityProvider;
+        this.securityProvider = () -> securityProvider;
+    }
+
+    /**
+     * Creates a new {@code PositionSerializer} which delegates to the given {@code AssetCache}.
+     * 
+     * @param assetCacheProvider
+     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
+     *            circular initialization)
+     */
+    @Inject
+    protected PositionSerializer(Provider<AssetCache> assetCacheProvider) {
+        securityProvider = assetCacheProvider;
     }
 
     @Override
@@ -53,11 +61,6 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
 
     @Override
     public Position read(byte[] buffer) throws IOException {
-        if (securityProvider == null) {
-            securityProvider =
-                    ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        }
-
         PositionMsg positionMsg = PositionMsg.parseFrom(buffer);
         IdKeyMsg keyMsg = positionMsg.getKey();
         PositionKey key = new PositionKey(keyMsg.getId());
@@ -65,7 +68,7 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
         SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
 
         return new Position(key, positionMsg.getAmount(),
-                securityProvider.getSecurity(securityKey));
+                securityProvider.get().getSecurity(securityKey));
     }
 
     @Override

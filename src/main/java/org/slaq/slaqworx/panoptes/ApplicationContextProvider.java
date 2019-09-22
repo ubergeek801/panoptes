@@ -14,8 +14,7 @@ public class ApplicationContextProvider {
 
     /**
      * Obtains the {@code ApplicationContext} of the running Panoptes application. This should only
-     * be used in cases where dependency injection isn't possible, e.g. from Hazelcast
-     * {@code MapStore} classes which are instantiated directly by Hazelcast.
+     * be used in cases where dependency injection isn't possible, e.g. from Vaadin UI components.
      *
      * @return the current ApplicationContext
      */

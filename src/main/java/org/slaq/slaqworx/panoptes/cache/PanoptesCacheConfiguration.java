@@ -97,14 +97,21 @@ public class PanoptesCacheConfiguration {
      *            the {@code MapConfig} to use for {@code Security} data
      * @param ruleMapConfig
      *            the {@code MapConfig} to use for {@code Rule} data
+     * @param portfolioSerializer
+     *            the {@code PortfolioSerializer} to use for {@code Portfolio} serialization
+     * @param positionSerializer
+     *            the {@code PositionSerializer} to use for {@code Position} serialization
+     * @param tradeSerializer
+     *            the {@code TradeSerializer} to use for {@code Trade} serialization
      * @return a Hazelcast {@code Config}
      */
     @Bean
     protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
             @Named("portfolio") MapConfig portfolioMapConfig,
             @Named("position") MapConfig positionMapConfig,
-            @Named("security") MapConfig securityMapConfig,
-            @Named("rule") MapConfig ruleMapConfig) {
+            @Named("security") MapConfig securityMapConfig, @Named("rule") MapConfig ruleMapConfig,
+            PortfolioSerializer portfolioSerializer, PositionSerializer positionSerializer,
+            TradeSerializer tradeSerializer) {
         securityAttributeLoader.loadSecurityAttributes();
 
         boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
@@ -123,11 +130,11 @@ public class PanoptesCacheConfiguration {
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioSerializer()).setTypeClass(Portfolio.class));
+                .setImplementation(portfolioSerializer).setTypeClass(Portfolio.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PositionKeySerializer()).setTypeClass(PositionKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PositionSerializer()).setTypeClass(Position.class));
+                .setImplementation(positionSerializer).setTypeClass(Position.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new RuleKeySerializer()).setTypeClass(RuleKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
@@ -139,7 +146,7 @@ public class PanoptesCacheConfiguration {
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new TradeSerializer()).setTypeClass(Trade.class));
+                .setImplementation(tradeSerializer).setTypeClass(Trade.class));
 
         config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
