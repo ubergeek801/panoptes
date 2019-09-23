@@ -112,29 +112,13 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                                 evaluationContext));
     }
 
-    /**
-     * Evaluates the given {@code Portfolio} against the given {@code Rule}s (instead of the
-     * {@code Portfolio}'s own {@code Rule}s), using the {@code Portfolio}'s associated benchmark
-     * (if any).
-     *
-     * @param rules
-     *            the {@code Rule}s to evaluate against the given {@code Portfolio}
-     * @param portfolio
-     *            the {@code Portfolio} to be evaluated
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Map} associating each evaluated {@code Rule} with its result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
-     */
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Stream<Rule> rules,
-            Portfolio portfolio, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
-        return evaluate(rules, portfolio,
+    @Override
+    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+            evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
+                    throws ExecutionException, InterruptedException {
+        return CompletableFuture.completedFuture(evaluate(rules, portfolio,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
-                evaluationContext);
+                evaluationContext));
     }
 
     /**

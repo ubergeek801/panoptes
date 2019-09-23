@@ -30,6 +30,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 
 /**
  * {@code TradeEvaluatorTest} tests the functionality of the {@TradeEvaluator}.
@@ -91,7 +92,8 @@ public class TradeEvaluatorTest {
         Trade trade = new Trade(transactions);
         TradeEvaluator evaluator = new TradeEvaluator(new LocalPortfolioEvaluator(),
                 TestUtil.testPortfolioProvider(), securityProvider, ruleProvider);
-        TradeEvaluationResult result = evaluator.evaluate(trade);
+        TradeEvaluationResult result =
+                evaluator.evaluate(trade, TradeEvaluationMode.FULL_EVALUATION);
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
@@ -135,7 +137,7 @@ public class TradeEvaluatorTest {
         WeightedAverageRule rule1 =
                 new WeightedAverageRule(null, "weighted average: duration <= 3.5", null,
                         SecurityAttribute.duration, null, 3.5, null);
-        List<ConfigurableRule> p1Rules = List.of(rule1);
+        Map<RuleKey, ? extends ConfigurableRule> p1Rules = Map.of(rule1.getKey(), rule1);
 
         Map<SecurityAttribute<?>, ? super Object> security2Attributes = Map.of(
                 SecurityAttribute.duration, 4d, SecurityAttribute.price, new BigDecimal("1.00"));
@@ -143,13 +145,14 @@ public class TradeEvaluatorTest {
                 .newSecurity("TradeEvaluatorTestSec4", security2Attributes);
 
         Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(null, "test 1",
-                p1Positions, (Portfolio)null, p1Rules);
+                p1Positions, (Portfolio)null, p1Rules.values());
 
         // The Portfolio has a weighted average rule requiring maximum duration = 3.5. Its current
         // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
         // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
-        EvaluationContext evaluationContext = new EvaluationContext(
-                TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider(), null);
+        EvaluationContext evaluationContext =
+                new EvaluationContext(TestUtil.testPortfolioProvider(),
+                        TestUtil.testSecurityProvider(), k -> p1Rules.get(k));
         assertEquals(3.0,
                 new WeightedAveragePositionCalculator(SecurityAttribute.duration)
                         .calculate(portfolio, evaluationContext),

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import javax.inject.Singleton;
 
@@ -19,6 +20,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
@@ -66,6 +68,19 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
             Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException {
+        return evaluate(null, portfolio, transaction, evaluationContext);
+    }
+
+    @Override
+    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+            evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
+                    throws ExecutionException, InterruptedException {
+        return evaluate(rules, portfolio, null, evaluationContext);
+    }
+
+    protected Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
+            Stream<Rule> rules, Portfolio portfolio, Transaction transaction,
+            EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
@@ -78,10 +93,10 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             assetCache.getTradeCache().set(trade.getKey(), trade);
         }
 
-        ClusterEvaluatorDispatcher resultListener =
-                new ClusterEvaluatorDispatcher(assetCache.getPortfolioEvaluationResultMap(),
-                        portfolioEvaluationRequestQueueSession,
-                        portfolioEvaluationRequestQueueProducer, portfolio.getKey(), transaction);
+        ClusterEvaluatorDispatcher resultListener = new ClusterEvaluatorDispatcher(
+                assetCache.getPortfolioEvaluationResultMap(),
+                portfolioEvaluationRequestQueueSession, portfolioEvaluationRequestQueueProducer,
+                portfolio.getKey(), transaction, rules == null ? null : rules.map(r -> r.getKey()));
 
         // FIXME remove the cached Trade if we put it there
 

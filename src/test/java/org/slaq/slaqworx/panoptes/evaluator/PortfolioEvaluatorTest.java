@@ -211,7 +211,7 @@ public class PortfolioEvaluatorTest {
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
                 new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
-                        new EvaluationContext(null, null, ruleProvider));
+                        new EvaluationContext(null, null, ruleProvider)).get();
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
@@ -406,8 +406,11 @@ public class PortfolioEvaluatorTest {
         overrideRules.add(usePortfolioBenchmarkRule);
 
         // test the form of evaluate() that should override the portfolio rules
-        results = evaluator.evaluate(overrideRules.stream(), portfolio, new EvaluationContext(
-                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
+        results =
+                evaluator
+                        .evaluate(overrideRules.stream(), portfolio, new EvaluationContext(
+                                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider))
+                        .get();
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertTrue(results.get(usePortfolioBenchmarkRule.getKey())

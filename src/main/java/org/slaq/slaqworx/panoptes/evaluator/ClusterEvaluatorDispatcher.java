@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
@@ -56,14 +58,17 @@ public class ClusterEvaluatorDispatcher implements
      * @param portfolioKey
      *            the key identifying the {@code Portfolio} to be evaluated
      * @param transaction
-     *            the (possibly {@code null} {@code Transaction} from which to apply allocations to
+     *            the (possibly {@code null}) {@code Transaction} from which to apply allocations to
      *            the evaluated {@code Portfolio}
+     * @param overrideRuleKeys
+     *            a (possibly {@code null}) {@code Stream} of {@code RuleKeys} identifying a set of
+     *            {@code Rules} to execute instead of the {@code Portfolio}'s own
      */
     public ClusterEvaluatorDispatcher(
             IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioEvaluationResultMap,
             ClientSession portfolioEvaluationRequestQueueSession,
             ClientProducer portfolioEvaluationRequestQueueProducer, PortfolioKey portfolioKey,
-            Transaction transaction) {
+            Transaction transaction, Stream<RuleKey> overrideRuleKeys) {
         this.portfolioEvaluationResultMap = portfolioEvaluationResultMap;
         this.portfolioKey = portfolioKey;
         requestId = UUID.randomUUID();
@@ -73,11 +78,17 @@ public class ClusterEvaluatorDispatcher implements
         synchronized (portfolioEvaluationRequestQueueSession) {
             ClientMessage message =
                     portfolioEvaluationRequestQueueSession.createMessage(Message.TEXT_TYPE, false);
-            String messageBody = requestId.toString() + ":" + portfolioKey.toString();
+            StringBuilder messageBody =
+                    new StringBuilder(requestId.toString() + ":" + portfolioKey.toString() + ":");
             if (transaction != null) {
-                messageBody = messageBody + ":" + transaction.getTrade().getKey();
+                messageBody.append(transaction.getTrade().getKey());
             }
-            message.getBodyBuffer().writeString(messageBody);
+            if (overrideRuleKeys != null) {
+                String ruleKeyStrings = String.join(",",
+                        overrideRuleKeys.map(k -> k.getId()).collect(Collectors.toSet()));
+                messageBody.append(":" + ruleKeyStrings);
+            }
+            message.getBodyBuffer().writeString(messageBody.toString());
             LOG.info("delegating request to evaluate Portfolio {}", portfolioKey);
             startTime = System.currentTimeMillis();
             try {

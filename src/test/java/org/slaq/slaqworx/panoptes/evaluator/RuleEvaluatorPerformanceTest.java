@@ -26,6 +26,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
@@ -124,7 +125,8 @@ public class RuleEvaluatorPerformanceTest {
             Trade trade = new Trade(transactions);
 
             tradeStartTimes.add(System.currentTimeMillis());
-            TradeEvaluationResult result = tradeEvaluator.evaluate(trade);
+            TradeEvaluationResult result =
+                    tradeEvaluator.evaluate(trade, TradeEvaluationMode.FULL_EVALUATION);
             long numEvaluationGroups = result.getImpacts().values().parallelStream()
                     .collect(Collectors.summingLong(m -> m.size()));
             tradeEndTimes.add(System.currentTimeMillis());
