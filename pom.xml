@@ -18,7 +18,7 @@
 
         <jetty.version>9.4.20.v20190813</jetty.version>
         <micronaut.version>1.2.2</micronaut.version>
-        <vaadin.version>14.0.5</vaadin.version>
+        <vaadin.version>14.0.6</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
             --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
@@ -45,7 +45,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <protocVersion>3.9.1</protocVersion>
+                            <protocVersion>3.10.0</protocVersion>
                             <outputTargets>
                                 <outputTarget>
                                     <type>java</type>
@@ -73,7 +73,7 @@
                 <configuration>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
                     <from>
-                        <image>bellsoft/liberica-openjdk-alpine:12.0.2-aarch64</image>
+                        <image>bellsoft/liberica-openjdk-alpine:13-aarch64</image>
                     </from>
                     <to>
                         <image>ubergeek801/slaqworx</image>
@@ -180,7 +180,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.1.7.RELEASE</version>
+                <version>2.1.8.RELEASE</version>
                 <executions>
                     <execution>
                         <goals>
@@ -277,7 +277,7 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-server</artifactId>
-            <version>2.10.0</version>
+            <version>2.10.1</version>
             <exclusions>
                 <!-- force Artemis to use slf4j -->
                 <exclusion>
@@ -294,6 +294,8 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
+            <!-- override the Micronaut version for JDK 13 compatibility -->
+            <version>2.5.8</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -357,7 +359,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.6</version>
+            <version>42.2.8</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
