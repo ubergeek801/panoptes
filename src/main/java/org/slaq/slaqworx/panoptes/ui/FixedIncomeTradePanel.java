@@ -108,7 +108,7 @@ public class FixedIncomeTradePanel extends FormLayout {
 
     private static final int NUM_COLUMNS = 7; // TODO this isn't very "responsive"
 
-    private final ForkJoinPool roomEvaluatorThreadPool = new ForkJoinPool(4);
+    private final ForkJoinPool roomEvaluatorThreadPool = new ForkJoinPool(16);
     private final PortfolioEvaluator portfolioEvaluator;
     private final AssetCache assetCache;
 
@@ -171,7 +171,6 @@ public class FixedIncomeTradePanel extends FormLayout {
             Future<?> future = roomEvaluatorThreadPool.submit(() -> {
                 assetCache.getPortfolioCache().values().parallelStream()
                         .filter(p -> !p.isAbstract()).forEach(portfolio -> {
-                            numPortfolios[0]--;
                             double roomMarketValue;
                             try {
                                 roomMarketValue = tradeEvaluator.evaluateRoom(portfolio, security,
@@ -183,6 +182,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                                 return;
                             }
                             ui.access(() -> {
+                                numPortfolios[0]--;
                                 if (roomMarketValue != 0) {
                                     AllocationPanel allocationPanel =
                                             new AllocationPanel(allocations);

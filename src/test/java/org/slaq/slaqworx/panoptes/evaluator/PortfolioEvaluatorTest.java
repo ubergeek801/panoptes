@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -32,10 +30,8 @@ import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
-import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
@@ -120,59 +116,67 @@ public class PortfolioEvaluatorTest {
     public void testEvaluateAggregation() throws Exception {
         clusterEvaluatorReceiver.start();
 
-        Security iss1Sec1 = createTestSecurity("iss1Sec1", "ISSFOO", new BigDecimal("1.00"));
-        Security iss1Sec2 = createTestSecurity("iss1Sec2", "ISSFOO", new BigDecimal("1.00"));
-        Security iss1Sec3 = createTestSecurity("iss1Sec3", "ISSFOO", new BigDecimal("1.00"));
-        Security iss2Sec1 = createTestSecurity("iss2Sec1", "ISSBAR", new BigDecimal("1.00"));
-        Security iss2Sec2 = createTestSecurity("iss2Sec2", "ISSBAR", new BigDecimal("1.00"));
-        Security iss3Sec1 = createTestSecurity("iss3Sec1", "ISSBAZ", new BigDecimal("1.00"));
-        Security iss4Sec1 = createTestSecurity("iss4Sec1", "ISSABC", new BigDecimal("1.00"));
-        Security iss4Sec2 = createTestSecurity("iss4Sec2", "ISSABC", new BigDecimal("1.00"));
-        Security iss5Sec1 = createTestSecurity("iss5Sec1", "ISSDEF", new BigDecimal("1.00"));
-        Security iss6Sec1 = createTestSecurity("iss6Sec1", "ISSGHI", new BigDecimal("1.00"));
+        Security iss1Sec1 = TestUtil.createTestSecurity(assetCache, "iss1Sec1", "ISSFOO",
+                new BigDecimal("1.00"));
+        Security iss1Sec2 = TestUtil.createTestSecurity(assetCache, "iss1Sec2", "ISSFOO",
+                new BigDecimal("1.00"));
+        Security iss1Sec3 = TestUtil.createTestSecurity(assetCache, "iss1Sec3", "ISSFOO",
+                new BigDecimal("1.00"));
+        Security iss2Sec1 = TestUtil.createTestSecurity(assetCache, "iss2Sec1", "ISSBAR",
+                new BigDecimal("1.00"));
+        Security iss2Sec2 = TestUtil.createTestSecurity(assetCache, "iss2Sec2", "ISSBAR",
+                new BigDecimal("1.00"));
+        Security iss3Sec1 = TestUtil.createTestSecurity(assetCache, "iss3Sec1", "ISSBAZ",
+                new BigDecimal("1.00"));
+        Security iss4Sec1 = TestUtil.createTestSecurity(assetCache, "iss4Sec1", "ISSABC",
+                new BigDecimal("1.00"));
+        Security iss4Sec2 = TestUtil.createTestSecurity(assetCache, "iss4Sec2", "ISSABC",
+                new BigDecimal("1.00"));
+        Security iss5Sec1 = TestUtil.createTestSecurity(assetCache, "iss5Sec1", "ISSDEF",
+                new BigDecimal("1.00"));
+        Security iss6Sec1 = TestUtil.createTestSecurity(assetCache, "iss6Sec1", "ISSGHI",
+                new BigDecimal("1.00"));
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
         HashSet<Position> positions = new HashSet<>();
-        Position iss1Sec1Pos = createTestPosition(100, iss1Sec1);
+        Position iss1Sec1Pos = TestUtil.createTestPosition(assetCache, 100, iss1Sec1);
         positions.add(iss1Sec1Pos);
-        Position iss1Sec2Pos = createTestPosition(100, iss1Sec2);
+        Position iss1Sec2Pos = TestUtil.createTestPosition(assetCache, 100, iss1Sec2);
         positions.add(iss1Sec2Pos);
-        Position iss1Sec3Pos = createTestPosition(100, iss1Sec3);
+        Position iss1Sec3Pos = TestUtil.createTestPosition(assetCache, 100, iss1Sec3);
         positions.add(iss1Sec3Pos);
-        Position iss2Sec1Pos = createTestPosition(100, iss2Sec1);
+        Position iss2Sec1Pos = TestUtil.createTestPosition(assetCache, 100, iss2Sec1);
         positions.add(iss2Sec1Pos);
-        Position iss2Sec2Pos = createTestPosition(100, iss2Sec2);
+        Position iss2Sec2Pos = TestUtil.createTestPosition(assetCache, 100, iss2Sec2);
         positions.add(iss2Sec2Pos);
-        Position iss3Sec1Pos = createTestPosition(100, iss3Sec1);
+        Position iss3Sec1Pos = TestUtil.createTestPosition(assetCache, 100, iss3Sec1);
         positions.add(iss3Sec1Pos);
-        Position iss4Sec1Pos = createTestPosition(100, iss4Sec1);
+        Position iss4Sec1Pos = TestUtil.createTestPosition(assetCache, 100, iss4Sec1);
         positions.add(iss4Sec1Pos);
-        Position iss4Sec2Pos = createTestPosition(100, iss4Sec2);
+        Position iss4Sec2Pos = TestUtil.createTestPosition(assetCache, 100, iss4Sec2);
         positions.add(iss4Sec2Pos);
-        Position iss5Sec1Pos = createTestPosition(100, iss5Sec1);
+        Position iss5Sec1Pos = TestUtil.createTestPosition(assetCache, 100, iss5Sec1);
         positions.add(iss5Sec1Pos);
-        Position iss6Sec1Pos = createTestPosition(100, iss6Sec1);
+        Position iss6Sec1Pos = TestUtil.createTestPosition(assetCache, 100, iss6Sec1);
         positions.add(iss6Sec1Pos);
 
         HashMap<RuleKey, Rule> rules = new HashMap<>();
-        ConcentrationRule top2issuerRule = createTestConcentrationRule(new RuleKey("top2"),
-                "top 2 issuer concentration", null, null, 0.25,
+        ConcentrationRule top2issuerRule = TestUtil.createTestConcentrationRule(assetCache,
+                new RuleKey("top2"), "top 2 issuer concentration", null, null, 0.25,
                 new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
         rules.put(top2issuerRule.getKey(), top2issuerRule);
-        ConcentrationRule top3issuerRule = createTestConcentrationRule(new RuleKey("top3"),
-                "top 3 issuer concentration", null, null, 0.75,
+        ConcentrationRule top3issuerRule = TestUtil.createTestConcentrationRule(assetCache,
+                new RuleKey("top3"), "top 3 issuer concentration", null, null, 0.75,
                 new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
         rules.put(top3issuerRule.getKey(), top3issuerRule);
-        ConcentrationRule top10issuerRule = createTestConcentrationRule(new RuleKey("top10"),
-                "top 10 issuer concentration", null, null, 0.999,
+        ConcentrationRule top10issuerRule = TestUtil.createTestConcentrationRule(assetCache,
+                new RuleKey("top10"), "top 10 issuer concentration", null, null, 0.999,
                 new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 10));
         rules.put(top10issuerRule.getKey(), top10issuerRule);
 
-        Portfolio portfolio = new Portfolio(new PortfolioKey("test portfolio", 1), "test",
+        Portfolio portfolio = TestUtil.createTestPortfolio(assetCache, "test portfolio", "test",
                 positions, (PortfolioKey)null, rules.values());
-        assetCache.getPortfolioCache().putTransient(portfolio.getKey(), portfolio, 10,
-                TimeUnit.MINUTES);
 
         LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator();
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = localEvaluator
@@ -211,7 +215,7 @@ public class PortfolioEvaluatorTest {
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
                 new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
-                        new EvaluationContext(null, null, ruleProvider));
+                        new EvaluationContext(null, null, ruleProvider)).get();
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
@@ -236,19 +240,19 @@ public class PortfolioEvaluatorTest {
                 Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
                         SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security usdSecurity = createTestSecurity("usd", usdAttributes);
+        Security usdSecurity = TestUtil.createTestSecurity(assetCache, "usd", usdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
                 Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.ratingValue, 80d,
                         SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security nzdSecurity = createTestSecurity("nzd", nzdAttributes);
+        Security nzdSecurity = TestUtil.createTestSecurity(assetCache, "nzd", nzdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> cadAttributes =
                 Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.ratingValue, 75d,
                         SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
                         SecurityAttribute.price, new BigDecimal("1.00"));
-        Security cadSecurity = createTestSecurity("cad", cadAttributes);
+        Security cadSecurity = TestUtil.createTestSecurity(assetCache, "cad", cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300
@@ -406,8 +410,11 @@ public class PortfolioEvaluatorTest {
         overrideRules.add(usePortfolioBenchmarkRule);
 
         // test the form of evaluate() that should override the portfolio rules
-        results = evaluator.evaluate(overrideRules.stream(), portfolio, new EvaluationContext(
-                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
+        results =
+                evaluator
+                        .evaluate(overrideRules.stream(), portfolio, new EvaluationContext(
+                                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider))
+                        .get();
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertTrue(results.get(usePortfolioBenchmarkRule.getKey())
@@ -415,7 +422,7 @@ public class PortfolioEvaluatorTest {
                 "portfolio benchmark should have been used");
 
         // test the form of evaluate() that should override the portfolio rules and benchmark
-        results = evaluator.evaluate(overrideRules.stream(), portfolio, overrideBenchmark,
+        results = evaluator.evaluate(overrideRules.stream(), portfolio, null, overrideBenchmark,
                 new EvaluationContext(benchmarkProvider, TestUtil.testSecurityProvider(),
                         ruleProvider));
 
@@ -423,86 +430,6 @@ public class PortfolioEvaluatorTest {
         assertFalse(results.get(usePortfolioBenchmarkRule.getKey())
                 .get(EvaluationGroup.defaultGroup()).isPassed(),
                 "override benchmark should have been used");
-    }
-
-    /**
-     * Creates and transiently caches a {@code ConcentrationRule} with the given parameters.
-     *
-     * @param key
-     *            the unique key of this {@code Rule}, or {@code null} to generate one
-     * @param description
-     *            the {@code Rule} description
-     * @param positionFilter
-     *            the filter to be applied to {@code Position}s to determine concentration
-     * @param lowerLimit
-     *            the lower limit of acceptable concentration values
-     * @param upperLimit
-     *            the upper limit of acceptable concentration values
-     * @param groupClassifier
-     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
-     *            also implement {@code GroupAggregator}
-     */
-    protected ConcentrationRule createTestConcentrationRule(RuleKey key, String description,
-            Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
-            Double upperLimit, EvaluationGroupClassifier groupClassifier) {
-        ConcentrationRule rule = new ConcentrationRule(key, description, positionFilter, lowerLimit,
-                upperLimit, groupClassifier);
-        assetCache.getRuleCache().putTransient(rule.getKey(), rule, 10, TimeUnit.MINUTES);
-
-        return rule;
-    }
-
-    /**
-     * Creates and transiently caches a {@code Position} with the given parameters.
-     *
-     * @param amount
-     *            the amount held by the {@code Position}
-     * @param security
-     *            the {@code Security} held by the {@code Position}
-     * @return the {@code Position} that was created
-     */
-    protected Position createTestPosition(double amount, Security security) {
-        Position position = new Position(amount, security);
-        assetCache.getPositionCache().putTransient(position.getKey(), position, 10,
-                TimeUnit.MINUTES);
-
-        return position;
-    }
-
-    /**
-     * Creates and transiently caches a {@code Security} with the given parameters.
-     *
-     * @param assetId
-     *            the asset ID to assign to the {@code Security}; may be null iff attributes
-     *            contains ISIN
-     * @param attributes
-     *            the additional attributes to associate with the {@code Security}
-     * @return the {@code Security} that was created
-     */
-    protected Security createTestSecurity(String assetId,
-            Map<SecurityAttribute<?>, Object> attributes) {
-        Security security = TestUtil.testSecurityProvider().newSecurity(assetId, attributes);
-        assetCache.getSecurityCache().putTransient(security.getKey(), security, 10,
-                TimeUnit.MINUTES);
-
-        return security;
-    }
-
-    /**
-     * Creates and transiently caches a {@code Security} with the given parameters.
-     *
-     * @param assetId
-     *            the asset ID to assign to the {@code Security}; may be null iff attributes
-     *            contains ISIN
-     * @param issuer
-     *            the {@code Security} issuer
-     * @param price
-     *            the {@code Security} price
-     * @return the {@code Security} that was created
-     */
-    protected Security createTestSecurity(String assetId, String issuer, BigDecimal price) {
-        return createTestSecurity(assetId,
-                Map.of(SecurityAttribute.issuer, issuer, SecurityAttribute.price, price));
     }
 
     /**

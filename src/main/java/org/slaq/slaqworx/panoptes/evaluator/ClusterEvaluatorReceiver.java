@@ -1,8 +1,10 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Stream;
 
 import javax.inject.Singleton;
 
@@ -10,16 +12,19 @@ import com.hazelcast.core.IMap;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
@@ -67,6 +72,7 @@ public class ClusterEvaluatorReceiver {
             // continuously consume messages from the request queue and process
             while (!Thread.interrupted()) {
                 try {
+                    LOG.info("waiting for message");
                     ClientMessage message = portfolioEvaluationRequestConsumer.receive();
                     String stringMessage = message.getBodyBuffer().readString();
                     String[] components = stringMessage.split(":");
@@ -74,15 +80,27 @@ public class ClusterEvaluatorReceiver {
                     String portfolioId = components[1];
                     String portfolioVersion = components[2];
                     TradeKey tradeKey;
-                    if (components.length == 4) {
-                        tradeKey = new TradeKey(components[3]);
+                    if (components.length >= 4) {
+                        tradeKey = (StringUtils.isBlank(components[3]) ? null
+                                : new TradeKey(components[3]));
                     } else {
                         tradeKey = null;
+                    }
+                    Stream<RuleKey> overrideRuleKeys;
+                    if (components.length == 5) {
+                        String[] ruleKeyStrings = components[4].split(",");
+                        HashSet<RuleKey> ruleKeySet = new HashSet<>(ruleKeyStrings.length);
+                        for (String ruleKeyString : ruleKeyStrings) {
+                            ruleKeySet.add(new RuleKey(ruleKeyString));
+                        }
+                        overrideRuleKeys = ruleKeySet.stream();
+                    } else {
+                        overrideRuleKeys = null;
                     }
                     PortfolioKey portfolioKey =
                             new PortfolioKey(portfolioId, Integer.valueOf(portfolioVersion));
                     Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                            evaluatePortfolio(portfolioKey, tradeKey);
+                            evaluatePortfolio(portfolioKey, tradeKey, overrideRuleKeys);
                     evaluationResultQueue
                             .add(new ImmutablePair<>(UUID.fromString(requestId), results));
                 } catch (Exception e) {
@@ -135,23 +153,31 @@ public class ClusterEvaluatorReceiver {
      *            the key of the {@code Portfolio} to be evaluated
      * @param tradeKey
      *            the key of the {@code Trade} to be evaluated with the {@code Portfolio}
+     * @param overrideRuleKeys
+     *            a (possibly {@code null}) {@code Stream} of {@code RuleKeys} identifying a set of
+     *            {@code Rules} to execute instead of the {@code Portfolio}'s own
      * @return the {@code Portfolio} evaluation results
      */
-    protected Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>
-            evaluatePortfolio(PortfolioKey portfolioKey, TradeKey tradeKey) {
+    protected Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluatePortfolio(
+            PortfolioKey portfolioKey, TradeKey tradeKey, Stream<RuleKey> overrideRuleKeys) {
         try {
             EvaluationContext evaluationContext =
                     new EvaluationContext(assetCache, assetCache, assetCache);
+
+            Portfolio portfolio = assetCache.getPortfolio(portfolioKey);
+            // use override Rules if specified, otherwise use the Portfolio's own rules
+            Stream<Rule> rules = (overrideRuleKeys == null ? portfolio.getRules()
+                    : overrideRuleKeys.map(k -> assetCache.getRule(k)));
             if (tradeKey != null) {
                 Trade trade = assetCache.getTrade(tradeKey);
                 Transaction transaction = trade.getTransaction(portfolioKey);
 
-                return new LocalPortfolioEvaluator().evaluate(assetCache.getPortfolio(portfolioKey),
-                        transaction, evaluationContext).get();
+                return new LocalPortfolioEvaluator().evaluate(rules, portfolio, transaction,
+                        portfolio.getBenchmark(assetCache), evaluationContext);
             }
 
-            return new LocalPortfolioEvaluator()
-                    .evaluate(assetCache.getPortfolio(portfolioKey), evaluationContext).get();
+            return new LocalPortfolioEvaluator().evaluate(rules, portfolio, evaluationContext)
+                    .get();
         } catch (Exception e) {
             // TODO throw a real exception
             throw new RuntimeException("could not process PortfolioEvaluationRequest", e);

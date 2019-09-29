@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.cache;
 import java.util.Optional;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
@@ -15,7 +16,6 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
-import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -49,6 +49,8 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  */
 @Factory
 public class PanoptesCacheConfiguration {
+    private static HazelcastInstance hazelcastInstance;
+
     /**
      * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
      * should be obtained through the {@code ApplicationContext} (if it is needed at all).
@@ -105,7 +107,7 @@ public class PanoptesCacheConfiguration {
      *            the {@code TradeSerializer} to use for {@code Trade} serialization
      * @return a Hazelcast {@code Config}
      */
-    @Bean
+    @Singleton
     protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
             @Named("portfolio") MapConfig portfolioMapConfig,
             @Named("position") MapConfig positionMapConfig,
@@ -178,9 +180,14 @@ public class PanoptesCacheConfiguration {
      *            the Hazelcast {@Config} with which to configure the instance
      * @return a {@HazelcastInstance}
      */
-    @Bean
+    @Singleton
     protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
-        return Hazelcast.newHazelcastInstance(hazelcastConfiguration);
+        // FIXME this shouldn't be necessary with @Singleton but unit tests get duplicates otherwise
+        if (hazelcastInstance == null) {
+            hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfiguration);
+        }
+
+        return hazelcastInstance;
     }
 
     /**
@@ -192,7 +199,7 @@ public class PanoptesCacheConfiguration {
      * @return a {@code MapConfig}
      */
     @Named("portfolio")
-    @Bean
+    @Singleton
     protected MapConfig
             portfolioMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
@@ -208,7 +215,7 @@ public class PanoptesCacheConfiguration {
      * @return a {@code MapConfig}
      */
     @Named("position")
-    @Bean
+    @Singleton
     protected MapConfig positionMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory.orElse(null));
     }
@@ -222,7 +229,7 @@ public class PanoptesCacheConfiguration {
      * @return a {@code MapConfig}
      */
     @Named("rule")
-    @Bean
+    @Singleton
     protected MapConfig ruleMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory.orElse(null));
     }
@@ -236,7 +243,7 @@ public class PanoptesCacheConfiguration {
      * @return a {@code MapConfig}
      */
     @Named("security")
-    @Bean
+    @Singleton
     protected MapConfig securityMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory.orElse(null));
     }

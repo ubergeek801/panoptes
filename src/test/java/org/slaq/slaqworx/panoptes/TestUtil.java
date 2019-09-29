@@ -1,14 +1,25 @@
 package org.slaq.slaqworx.panoptes;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
  * {@code TestUtil} provides common utilities to support Panoptes testing.
@@ -58,6 +69,158 @@ public class TestUtil {
 
     public static final Portfolio p2 = portfolioProvider.newPortfolio("TestUtilP2", "TestUtilP2",
             p2Positions, null, Collections.emptyList());
+
+    /**
+     * Creates and transiently caches a {@code ConcentrationRule} with the given parameters.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Rule}
+     * @param key
+     *            the unique key of this {@code Rule}, or {@code null} to generate one
+     * @param description
+     *            the {@code Rule} description
+     * @param positionFilter
+     *            the filter to be applied to {@code Position}s to determine concentration
+     * @param lowerLimit
+     *            the lower limit of acceptable concentration values
+     * @param upperLimit
+     *            the upper limit of acceptable concentration values
+     * @param groupClassifier
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
+     */
+    public static ConcentrationRule createTestConcentrationRule(AssetCache assetCache, RuleKey key,
+            String description, Predicate<PositionEvaluationContext> positionFilter,
+            Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+        ConcentrationRule rule = new ConcentrationRule(key, description, positionFilter, lowerLimit,
+                upperLimit, groupClassifier);
+        assetCache.getRuleCache().putTransient(rule.getKey(), rule, 10, TimeUnit.MINUTES);
+
+        return rule;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Portfolio} with the given key, name,
+     * {@code Position}s, benchmark and {@code Rule}s.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Portfolio}
+     * @param id
+     *            the ID to be used in the {@code Portfolio} key, or {@code null} to generate one
+     * @param name
+     *            the {@code Portfolio} name/description
+     * @param positions
+     *            the {@code Position}s comprising the {@code Portfolio}
+     * @param benchmarkKey
+     *            the (possibly null) {@code Portfolio} that acts a benchmark for the
+     *            {@code Portfolio}
+     * @param rules
+     *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
+     *            {@code Portfolio}
+     */
+    public static Portfolio createTestPortfolio(AssetCache assetCache, String id, String name,
+            Set<? extends Position> positions, PortfolioKey benchmarkKey,
+            Collection<? extends Rule> rules) {
+        Portfolio portfolio =
+                new Portfolio(new PortfolioKey(id, 1), name, positions, benchmarkKey, rules);
+        assetCache.getPortfolioCache().putTransient(portfolio.getKey(), portfolio, 10,
+                TimeUnit.MINUTES);
+
+        return portfolio;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Position} with the given parameters.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Position}
+     * @param amount
+     *            the amount held by the {@code Position}
+     * @param security
+     *            the {@code Security} held by the {@code Position}
+     * @return the {@code Position} that was created
+     */
+    public static Position createTestPosition(AssetCache assetCache, double amount,
+            Security security) {
+        Position position = new Position(amount, security);
+        assetCache.getPositionCache().putTransient(position.getKey(), position, 10,
+                TimeUnit.MINUTES);
+
+        return position;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Security} with the given parameters.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Security}
+     * @param assetId
+     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            contains ISIN
+     * @param attributes
+     *            the additional attributes to associate with the {@code Security}
+     * @return the {@code Security} that was created
+     */
+    public static Security createTestSecurity(AssetCache assetCache, String assetId,
+            Map<SecurityAttribute<?>, Object> attributes) {
+        Security security = TestUtil.testSecurityProvider().newSecurity(assetId, attributes);
+        assetCache.getSecurityCache().putTransient(security.getKey(), security, 10,
+                TimeUnit.MINUTES);
+
+        return security;
+    }
+
+    /**
+     * Creates and transiently caches a {@code Security} with the given parameters.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Security}
+     * @param assetId
+     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            contains ISIN
+     * @param issuer
+     *            the {@code Security} issuer
+     * @param price
+     *            the {@code Security} price
+     * @return the {@code Security} that was created
+     */
+    public static Security createTestSecurity(AssetCache assetCache, String assetId, String issuer,
+            BigDecimal price) {
+        return createTestSecurity(assetCache, assetId,
+                Map.of(SecurityAttribute.issuer, issuer, SecurityAttribute.price, price));
+    }
+
+    /**
+     * Creates and transiently caches a {@code WeightedAverageRule} with the given parameters.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Rule}
+     * @param key
+     *            the unique key of this {@code Rule}, or {@code null} to generate one
+     * @param description
+     *            the {@code Rule} description
+     * @param positionFilter
+     *            the filter to be applied to {@code Position}s to determine concentration
+     * @param calculationAttribute
+     *            the {@code SecurityAttribute} on which to calculate
+     * @param lowerLimit
+     *            the lower limit of acceptable concentration values
+     * @param upperLimit
+     *            the upper limit of acceptable concentration values
+     * @param groupClassifier
+     *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
+     *            also implement {@code GroupAggregator}
+     */
+    public static WeightedAverageRule createTestWeightedAverageRule(AssetCache assetCache,
+            RuleKey key, String description, Predicate<PositionEvaluationContext> positionFilter,
+            SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
+            EvaluationGroupClassifier groupClassifier) {
+        WeightedAverageRule rule = new WeightedAverageRule(key, description, positionFilter,
+                calculationAttribute, lowerLimit, upperLimit, groupClassifier);
+        assetCache.getRuleCache().putTransient(rule.getKey(), rule, 10, TimeUnit.MINUTES);
+
+        return rule;
+    }
 
     /**
      * Obtains a {@code PortfolioProvider} suitable for unit testing using {@code Portfolio}s

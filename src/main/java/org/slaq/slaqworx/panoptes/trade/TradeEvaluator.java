@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,7 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
@@ -30,6 +31,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  * @author jeremy
  */
 public class TradeEvaluator {
+    public enum TradeEvaluationMode {
+        FULL_EVALUATION, SHORT_CIRCUIT_EVALUATION
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
 
     protected static final double ROOM_TOLERANCE = 500;
@@ -68,13 +73,15 @@ public class TradeEvaluator {
      *
      * @param trade
      *            the {@code Trade} to be evaluated
+     * @param evaluationMode
+     *            the {@code TradeEvaluationMode} under which to evaluate the {@code Trade}
      * @return a {@code TradeEvaluationResult} describing the results of the evaluation
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the {@code Trade} could not be processed
      */
-    public TradeEvaluationResult evaluate(Trade trade)
+    public TradeEvaluationResult evaluate(Trade trade, TradeEvaluationMode evaluationMode)
             throws ExecutionException, InterruptedException {
         LOG.info("evaluating trade {} with {} allocations", trade.getKey(),
                 trade.getAllocationCount());
@@ -90,23 +97,33 @@ public class TradeEvaluator {
             // Portfolio, and the state it would have if the Trade were to be posted
             EvaluationContext evaluationContext =
                     new EvaluationContext(portfolioProvider, securityProvider, ruleProvider);
-            // start calculating the current state
-            Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> currentStateFuture =
-                    evaluator.evaluate(portfolio, evaluationContext);
-            // calculate the proposed state in parallel
+            // calculate the proposed state
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
                     evaluator.evaluate(portfolio, transaction, evaluationContext).get();
-            // wait for the first result if necessary
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
-                    currentStateFuture.get();
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState;
+            if (evaluationMode == TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION) {
+                Stream<Rule> failedRules =
+                        proposedState.entrySet().stream().filter(e -> !isPassed(e.getValue()))
+                                .map(e -> ruleProvider.getRule(e.getKey()));
+                // for short-circuit evaluation, we need only calculate the current state for Rules
+                // that failed in the proposed state, as we are only determining the impact
+                currentState = evaluator.evaluate(failedRules, portfolio, evaluationContext).get();
+            } else {
+                currentState = evaluator.evaluate(portfolio, evaluationContext).get();
+            }
 
-            proposedState.entrySet().parallelStream().forEach(ruleEntry -> {
+            proposedState.entrySet().forEach(ruleEntry -> {
                 RuleKey ruleKey = ruleEntry.getKey();
                 Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults =
                         ruleEntry.getValue();
+
+                if (evaluationMode == TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION
+                        && isPassed(proposedGroupResults)) {
+                    // there won't be a current evaluation if the proposed evaluation passed
+                    return;
+                }
                 Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
                         currentState.get(ruleKey);
-
                 proposedGroupResults.forEach((group, proposedResult) -> {
                     EvaluationResult currentResult = currentGroupResults.get(group);
                     evaluationResult.addImpact(portfolio.getKey(), ruleKey, group,
@@ -200,6 +217,18 @@ public class TradeEvaluator {
     }
 
     /**
+     * Determines whether a given set of evaluation results indicates a pass or failure.
+     *
+     * @param ruleResults
+     *            the evaluation results to be considered
+     * @return {@code true} if each of the individual results indicates a pass, {@code false} if at
+     *         least one indicates failure
+     */
+    protected boolean isPassed(Map<EvaluationGroup<?>, EvaluationResult> ruleResults) {
+        return ruleResults.values().stream().allMatch(r -> r.isPassed());
+    }
+
+    /**
      * Tests for the requested amount of room in the given {@code Security} for the given
      * {@code Portfolio}.
      *
@@ -221,6 +250,6 @@ public class TradeEvaluator {
         Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
         Trade trialTrade = new Trade(Map.of(portfolio.getKey(), trialTransaction));
 
-        return evaluate(trialTrade);
+        return evaluate(trialTrade, TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION);
     }
 }
