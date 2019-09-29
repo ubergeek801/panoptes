@@ -9,9 +9,8 @@ import java.util.stream.Stream;
 import javax.inject.Singleton;
 
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
 
-import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -42,11 +41,11 @@ public class ClusterEvaluatorReceiver {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterEvaluatorReceiver.class);
 
     private final AssetCache assetCache;
-    private final ClientConsumer portfolioEvaluationRequestConsumer;
-
-    private final LinkedBlockingQueue<Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> evaluationResultQueue =
-            new LinkedBlockingQueue<>();
+    private final IQueue<String> evaluationRequestQueue;
     private final IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluationResultMap;
+
+    private final LinkedBlockingQueue<Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> localResultQueue =
+            new LinkedBlockingQueue<>();
 
     /**
      * Creates a new {@code ClusterEvaluatorReceiver} which uses the given {@code AssetCache} to
@@ -54,13 +53,10 @@ public class ClusterEvaluatorReceiver {
      *
      * @param assetCache
      *            the {@code AssetCache} to use
-     * @param portfolioEvaluationRequestConsumer
-     *            the {@code ClientConsumer} to use to consume messages
      */
-    protected ClusterEvaluatorReceiver(AssetCache assetCache,
-            ClientConsumer portfolioEvaluationRequestConsumer) {
+    protected ClusterEvaluatorReceiver(AssetCache assetCache) {
         this.assetCache = assetCache;
-        this.portfolioEvaluationRequestConsumer = portfolioEvaluationRequestConsumer;
+        evaluationRequestQueue = assetCache.getPortfolioEvaluationRequestQueue();
         evaluationResultMap = assetCache.getPortfolioEvaluationResultMap();
     }
 
@@ -73,8 +69,7 @@ public class ClusterEvaluatorReceiver {
             while (!Thread.interrupted()) {
                 try {
                     LOG.info("waiting for message");
-                    ClientMessage message = portfolioEvaluationRequestConsumer.receive();
-                    String stringMessage = message.getBodyBuffer().readString();
+                    String stringMessage = evaluationRequestQueue.take();
                     String[] components = stringMessage.split(":");
                     String requestId = components[0];
                     String portfolioId = components[1];
@@ -101,8 +96,7 @@ public class ClusterEvaluatorReceiver {
                             new PortfolioKey(portfolioId, Integer.valueOf(portfolioVersion));
                     Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
                             evaluatePortfolio(portfolioKey, tradeKey, overrideRuleKeys);
-                    evaluationResultQueue
-                            .add(new ImmutablePair<>(UUID.fromString(requestId), results));
+                    localResultQueue.add(new ImmutablePair<>(UUID.fromString(requestId), results));
                 } catch (Exception e) {
                     // TODO handle this in some reasonable way
                     LOG.error("could not process message", e);
@@ -124,7 +118,7 @@ public class ClusterEvaluatorReceiver {
             while (!Thread.interrupted()) {
                 try {
                     Pair<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result =
-                            evaluationResultQueue.take();
+                            localResultQueue.take();
                     evaluationResultMap.set(result.getLeft(), result.getRight());
                 } catch (InterruptedException e) {
                     return;

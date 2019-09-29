@@ -106,9 +106,12 @@ public class FixedIncomeTradePanel extends FormLayout {
 
     private static final Logger LOG = LoggerFactory.getLogger(FixedIncomeTradePanel.class);
 
-    private static final int NUM_COLUMNS = 7; // TODO this isn't very "responsive"
+    // TODO this isn't very "responsive"
+    private static final int NUM_COLUMNS = 7;
 
+    // it takes a fair number of threads to saturate the evaluation request queue
     private final ForkJoinPool roomEvaluatorThreadPool = new ForkJoinPool(16);
+
     private final PortfolioEvaluator portfolioEvaluator;
     private final AssetCache assetCache;
 

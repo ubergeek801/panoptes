@@ -201,7 +201,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.5</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -250,7 +250,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-javalite</artifactId>
-            <version>3.9.1</version>
+            <version>3.10.0</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -273,18 +273,6 @@
         <dependency>
             <groupId>io.micronaut.kubernetes</groupId>
             <artifactId>micronaut-kubernetes-discovery-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-server</artifactId>
-            <version>2.10.1</version>
-            <exclusions>
-                <!-- force Artemis to use slf4j -->
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -365,7 +353,7 @@
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
-            <version>3.8.5</version>
+            <version>3.8.6</version>
             <scope>runtime</scope>
         </dependency>
 

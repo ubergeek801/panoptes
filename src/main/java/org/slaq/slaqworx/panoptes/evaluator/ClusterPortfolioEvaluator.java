@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
-import org.slaq.slaqworx.panoptes.messaging.ClientProducerSessionFactory;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -35,7 +34,6 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterPortfolioEvaluator.class);
 
     private final AssetCache assetCache;
-    private final ClientProducerSessionFactory requestProducerSessionFactory;
 
     /**
      * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code AssetCache} for
@@ -43,15 +41,9 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      *
      * @param assetCache
      *            the {@code AssetCache} to use to obtain distributed resources
-     * @param requestProducerSessionFactory
-     *            a {@code ClientProducerSessionFactory} providing a {@code ClientSession} and
-     *            {@code ClientProducer} corresponding to the {@code Portfolio} evaluation request
-     *            queue
      */
-    protected ClusterPortfolioEvaluator(AssetCache assetCache,
-            ClientProducerSessionFactory requestProducerSessionFactory) {
+    protected ClusterPortfolioEvaluator(AssetCache assetCache) {
         this.assetCache = assetCache;
-        this.requestProducerSessionFactory = requestProducerSessionFactory;
     }
 
     @Override
@@ -75,6 +67,22 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
         return evaluate(rules, portfolio, null, evaluationContext);
     }
 
+    /**
+     * Evaluates the given {@code Portfolio} and {@code Transaction} against the given {@code Rule}s
+     * (instead of the {@code Portfolio}'s own {@code Rule}s), using the {@code Portfolio}'s
+     * associated benchmark (if any).
+     *
+     * @param rules
+     *            the {@code Rule}s to evaluate against the given {@code Portfolio}
+     * @param portfolio
+     *            the {@code Portfolio} to be evaluated
+     * @param transaction
+     *            the {@code Transaction} from which to include allocation {@code Position}s for
+     *            evaluation
+     * @param evaluationContext
+     *            the {@code EvaluationContext} under which to evaluate
+     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
+     */
     protected Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
             Stream<Rule> rules, Portfolio portfolio, Transaction transaction,
             EvaluationContext evaluationContext) {
@@ -90,9 +98,10 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             assetCache.getTradeCache().putTransient(trade.getKey(), trade, 10, TimeUnit.MINUTES);
         }
 
-        ClusterEvaluatorDispatcher dispatcher = new ClusterEvaluatorDispatcher(
-                assetCache.getPortfolioEvaluationResultMap(), requestProducerSessionFactory,
-                portfolio.getKey(), transaction, rules == null ? null : rules.map(r -> r.getKey()));
+        ClusterEvaluatorDispatcher dispatcher =
+                new ClusterEvaluatorDispatcher(assetCache.getPortfolioEvaluationRequestQueue(),
+                        assetCache.getPortfolioEvaluationResultMap(), portfolio.getKey(),
+                        transaction, rules == null ? null : rules.map(r -> r.getKey()));
 
         // FIXME remove the cached Trade if we put it there
 

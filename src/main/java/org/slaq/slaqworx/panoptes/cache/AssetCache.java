@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -35,6 +36,8 @@ import org.slaq.slaqworx.panoptes.trade.TradeProvider;
 @Singleton
 public class AssetCache implements PortfolioProvider, PositionProvider, RuleProvider,
         SecurityProvider, TradeProvider {
+    protected static final String PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME =
+            "portfolioEvaluationRequestQueue";
     protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
             "portfolioEvaluationResultMap";
 
@@ -79,9 +82,18 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
+     * Obtains the queue which provides {@code Portfolio} evaluation requests.
+     * 
+     * @return the evaluation request queue
+     */
+    public IQueue<String> getPortfolioEvaluationRequestQueue() {
+        return hazelcastInstance.getQueue(PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME);
+    }
+
+    /**
      * Obtains the map which provides {@code Portfolio} evaluation results.
      *
-     * @return a {@code Map} correlating an evaluation request message ID to its results
+     * @return a {@code IMap} correlating an evaluation request message ID to its results
      */
     public IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
             getPortfolioEvaluationResultMap() {

@@ -154,7 +154,8 @@ public class PanoptesCacheConfiguration {
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
                 .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
-        // set up a map to act as the portfolio evaluation result "topic"
+        // set up the Portfolio evaluation request queue and result map/topic
+        config.getQueueConfig(AssetCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME).setBackupCount(0);
         config.getMapConfig(AssetCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
                 .setInMemoryFormat(InMemoryFormat.BINARY);
 

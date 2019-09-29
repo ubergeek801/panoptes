@@ -9,15 +9,13 @@ import java.util.stream.Stream;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
 import com.hazelcast.map.listener.EntryAddedListener;
 
-import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.messaging.ClientProducerSessionFactory;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -38,7 +36,8 @@ public class ClusterEvaluatorDispatcher implements
     private final Object resultMonitor = new Object();
     private Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results;
 
-    private final IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioEvaluationResultMap;
+    private final IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluationResultMap;
+
     private final PortfolioKey portfolioKey;
     private final UUID requestId;
     private final String registrationId;
@@ -48,12 +47,10 @@ public class ClusterEvaluatorDispatcher implements
      * Creates a new {@code ClusterEvaluatorDispatcher} which submits an evaluation request and
      * listens for the results.
      *
+     * @param portfolioEvaluationRequestQueue
+     *            the {@code IQueue} on which to publish requests
      * @param portfolioEvaluationResultMap
-     *            the distributed {@IMap} from which to obtain result data
-     * @param requestProducerSessionFactory
-     *            a {@code ClientProducerSessionFactory} providing a {@code ClientSession} and
-     *            {@code ClientProducer} corresponding to the {@code Portfolio} evaluation request
-     *            queue
+     *            the distributed {@code IMap} from which to obtain result data
      * @param portfolioKey
      *            the key identifying the {@code Portfolio} to be evaluated
      * @param transaction
@@ -63,17 +60,14 @@ public class ClusterEvaluatorDispatcher implements
      *            a (possibly {@code null}) {@code Stream} of {@code RuleKeys} identifying a set of
      *            {@code Rules} to execute instead of the {@code Portfolio}'s own
      */
-    public ClusterEvaluatorDispatcher(
+    public ClusterEvaluatorDispatcher(IQueue<String> portfolioEvaluationRequestQueue,
             IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioEvaluationResultMap,
-            ClientProducerSessionFactory requestProducerSessionFactory, PortfolioKey portfolioKey,
-            Transaction transaction, Stream<RuleKey> overrideRuleKeys) {
-        this.portfolioEvaluationResultMap = portfolioEvaluationResultMap;
+            PortfolioKey portfolioKey, Transaction transaction, Stream<RuleKey> overrideRuleKeys) {
+        evaluationResultMap = portfolioEvaluationResultMap;
         this.portfolioKey = portfolioKey;
         requestId = UUID.randomUUID();
         registrationId = portfolioEvaluationResultMap.addEntryListener(this, requestId, true);
         // publish a message to the evaluation queue
-        ClientMessage message =
-                requestProducerSessionFactory.getSession().createMessage(Message.TEXT_TYPE, false);
         StringBuilder messageBody =
                 new StringBuilder(requestId.toString() + ":" + portfolioKey.toString() + ":");
         if (transaction != null) {
@@ -84,11 +78,10 @@ public class ClusterEvaluatorDispatcher implements
                     overrideRuleKeys.map(k -> k.getId()).collect(Collectors.toSet()));
             messageBody.append(":" + ruleKeyStrings);
         }
-        message.getBodyBuffer().writeString(messageBody.toString());
         LOG.info("delegating request to evaluate Portfolio {}", portfolioKey);
         startTime = System.currentTimeMillis();
         try {
-            requestProducerSessionFactory.getProducer().send(message);
+            portfolioEvaluationRequestQueue.put(messageBody.toString());
         } catch (Exception e) {
             // TODO throw a real exception
             throw new RuntimeException("could not send message", e);
@@ -102,8 +95,8 @@ public class ClusterEvaluatorDispatcher implements
                 System.currentTimeMillis() - startTime);
 
         // clean up the listener registration and result map
-        portfolioEvaluationResultMap.removeEntryListener(registrationId);
-        portfolioEvaluationResultMap.delete(requestId);
+        evaluationResultMap.removeEntryListener(registrationId);
+        evaluationResultMap.delete(requestId);
 
         synchronized (resultMonitor) {
             results = event.getValue();
