@@ -72,6 +72,7 @@ public class ClusterEvaluatorReceiver {
             // continuously consume messages from the request queue and process
             while (!Thread.interrupted()) {
                 try {
+                    LOG.info("waiting for message");
                     ClientMessage message = portfolioEvaluationRequestConsumer.receive();
                     String stringMessage = message.getBodyBuffer().readString();
                     String[] components = stringMessage.split(":");
@@ -92,7 +93,6 @@ public class ClusterEvaluatorReceiver {
                         for (String ruleKeyString : ruleKeyStrings) {
                             ruleKeySet.add(new RuleKey(ruleKeyString));
                         }
-                        System.err.println("overriding with " + ruleKeySet.size() + " rules");
                         overrideRuleKeys = ruleKeySet.stream();
                     } else {
                         overrideRuleKeys = null;
@@ -173,7 +173,7 @@ public class ClusterEvaluatorReceiver {
                 Transaction transaction = trade.getTransaction(portfolioKey);
 
                 return new LocalPortfolioEvaluator().evaluate(rules, portfolio, transaction,
-                        evaluationContext);
+                        portfolio.getBenchmark(assetCache), evaluationContext);
             }
 
             return new LocalPortfolioEvaluator().evaluate(rules, portfolio, evaluationContext)

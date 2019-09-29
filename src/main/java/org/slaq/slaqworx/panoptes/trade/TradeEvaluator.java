@@ -112,7 +112,7 @@ public class TradeEvaluator {
                 currentState = evaluator.evaluate(portfolio, evaluationContext).get();
             }
 
-            proposedState.entrySet().parallelStream().forEach(ruleEntry -> {
+            proposedState.entrySet().forEach(ruleEntry -> {
                 RuleKey ruleKey = ruleEntry.getKey();
                 Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults =
                         ruleEntry.getValue();

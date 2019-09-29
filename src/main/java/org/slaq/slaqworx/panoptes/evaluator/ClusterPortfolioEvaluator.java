@@ -5,18 +5,17 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.inject.Singleton;
 
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.messaging.ClientProducerSessionFactory;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
@@ -36,8 +35,7 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(ClusterPortfolioEvaluator.class);
 
     private final AssetCache assetCache;
-    private final ClientSession portfolioEvaluationRequestQueueSession;
-    private final ClientProducer portfolioEvaluationRequestQueueProducer;
+    private final ClientProducerSessionFactory requestProducerSessionFactory;
 
     /**
      * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code AssetCache} for
@@ -45,16 +43,15 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      *
      * @param assetCache
      *            the {@code AssetCache} to use to obtain distributed resources
-     * @param portfolioEvaluationRequestQueueProducer
-     *            a {@code Pair} containing the {@code ClientSession} and {@code ClientProducer}
-     *            corresponding to the {@code Portfolio} evaluation request queue
+     * @param requestProducerSessionFactory
+     *            a {@code ClientProducerSessionFactory} providing a {@code ClientSession} and
+     *            {@code ClientProducer} corresponding to the {@code Portfolio} evaluation request
+     *            queue
      */
     protected ClusterPortfolioEvaluator(AssetCache assetCache,
-            Pair<ClientSession, ClientProducer> portfolioEvaluationRequestQueueProducer) {
+            ClientProducerSessionFactory requestProducerSessionFactory) {
         this.assetCache = assetCache;
-        portfolioEvaluationRequestQueueSession = portfolioEvaluationRequestQueueProducer.getLeft();
-        this.portfolioEvaluationRequestQueueProducer =
-                portfolioEvaluationRequestQueueProducer.getRight();
+        this.requestProducerSessionFactory = requestProducerSessionFactory;
     }
 
     @Override
@@ -80,7 +77,7 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
 
     protected Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
             Stream<Rule> rules, Portfolio portfolio, Transaction transaction,
-            EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
+            EvaluationContext evaluationContext) {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
@@ -90,16 +87,15 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
         if (transaction != null) {
             // the Trade must be available to the cache
             Trade trade = transaction.getTrade();
-            assetCache.getTradeCache().set(trade.getKey(), trade);
+            assetCache.getTradeCache().putTransient(trade.getKey(), trade, 10, TimeUnit.MINUTES);
         }
 
-        ClusterEvaluatorDispatcher resultListener = new ClusterEvaluatorDispatcher(
-                assetCache.getPortfolioEvaluationResultMap(),
-                portfolioEvaluationRequestQueueSession, portfolioEvaluationRequestQueueProducer,
+        ClusterEvaluatorDispatcher dispatcher = new ClusterEvaluatorDispatcher(
+                assetCache.getPortfolioEvaluationResultMap(), requestProducerSessionFactory,
                 portfolio.getKey(), transaction, rules == null ? null : rules.map(r -> r.getKey()));
 
         // FIXME remove the cached Trade if we put it there
 
-        return resultListener.getResults();
+        return dispatcher.getResults();
     }
 }

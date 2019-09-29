@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.messaging;
 
+import javax.inject.Singleton;
+
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
@@ -8,7 +10,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -16,8 +17,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,7 @@ public class PanoptesMessagingConfiguration {
                         new CoreQueueConfiguration()
                                 .setAddress(PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME)
                                 .setName(PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME)
-                                .setRoutingType(RoutingType.ANYCAST);
+                                .setRoutingType(RoutingType.ANYCAST).setDurable(false);
                 config.addQueueConfiguration(portfolioEvaluationRequestQueueConfig);
 
                 activeMQServer = new EmbeddedActiveMQ();
@@ -119,9 +118,13 @@ public class PanoptesMessagingConfiguration {
             locator = ActiveMQClient.createServerLocator("tcp://uberkube02:61616")
                     .setInitialConnectAttempts(10);
         }
-        // don't prefetch too much, or work will pile up unevenly on busier nodes (note that this
-        // number is in bytes, not messages)
-        locator.setConsumerWindowSize(2048);
+        // don't prefetch too much, or work will pile up unevenly on busier nodes (note that the
+        // unit is bytes, not messages)
+        locator.setConsumerWindowSize(-1);
+        locator.setProducerWindowSize(-1);
+        locator.setPreAcknowledge(true);
+        locator.setBlockOnAcknowledge(false);
+        locator.setBlockOnNonDurableSend(false);
 
         return locator;
     }
@@ -163,21 +166,19 @@ public class PanoptesMessagingConfiguration {
     }
 
     /**
-     * Provides a {@code Pair}, consisting of a {@code ClientSession} and {@code ClientProducer},
-     * suitable for producing messages to the {@code Portfolio} evaluation queue.
+     * Provides a {@code ClientProducerSessionFactory} which provides a {@code ClientSession} and
+     * {@code ClientProducer} suitable for producing messages to the {@code Portfolio} evaluation
+     * queue.
      *
      * @param sessionFactory
      *            the {@code ClientSessionFactory} to use to create a producer
-     * @return a tuple containing a {@code ClientSession} and {@code ClientProducer}
-     * @throws ActiveMQException
-     *             if the producer could not be created
+     * @return a {@code ClientProducerSessionFactory} providing a {@code ClientSession} and
+     *         {@code ClientProducer}
      */
-    @Bean
-    @SuppressWarnings("resource")
-    protected Pair<ClientSession, ClientProducer> portfolioEvaluationRequestProducer(
-            ClientSessionFactory sessionFactory) throws ActiveMQException {
-        ClientSession session = sessionFactory.createSession();
-        return new ImmutablePair<>(session,
-                session.createProducer(PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME));
+    @Singleton
+    protected ClientProducerSessionFactory
+            portfolioEvaluationRequestProducerSessionFactory(ClientSessionFactory sessionFactory) {
+        return new ClientProducerSessionFactory(sessionFactory,
+                PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME);
     }
 }

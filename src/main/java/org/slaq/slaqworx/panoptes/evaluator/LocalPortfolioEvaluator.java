@@ -47,7 +47,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
                     throws InterruptedException, ExecutionException {
         // TODO maybe make evaluate() return a Future as well
-        return CompletableFuture.completedFuture(evaluate(portfolio.getRules(), portfolio,
+        return CompletableFuture.completedFuture(evaluate(portfolio.getRules(), portfolio, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
     }
@@ -72,7 +72,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             Portfolio benchmark, EvaluationContext evaluationContext)
             throws ExecutionException, InterruptedException {
-        return evaluate(portfolio.getRules(), portfolio, benchmark, evaluationContext);
+        return evaluate(portfolio.getRules(), portfolio, null, benchmark, evaluationContext);
     }
 
     /**
@@ -95,7 +95,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
             PositionSupplier positions, EvaluationContext evaluationContext)
             throws ExecutionException, InterruptedException {
-        return evaluate(portfolio.getRules(), positions,
+        return evaluate(portfolio.getRules(), positions, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext);
     }
@@ -104,19 +104,16 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
             Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException {
-        return CompletableFuture
-                .completedFuture(
-                        evaluate(portfolio,
-                                new PositionSet(Stream.concat(portfolio.getPositions(),
-                                        transaction.getPositions()), portfolio),
-                                evaluationContext));
+        return CompletableFuture.completedFuture(evaluate(portfolio.getRules(), portfolio,
+                transaction, portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
+                evaluationContext));
     }
 
     @Override
     public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
             evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
                     throws ExecutionException, InterruptedException {
-        return CompletableFuture.completedFuture(evaluate(rules, portfolio,
+        return CompletableFuture.completedFuture(evaluate(rules, portfolio, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
     }
@@ -130,6 +127,9 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
      *            the {@code Rule}s to evaluate against the given {@code Portfolio}
      * @param portfolioPositions
      *            the {@code Portfolio} {@code Position}s to be evaluated
+     * @param transaction
+     *            the (possibly {@code null}) {@code Transaction} from which to include
+     *            {@code Position}s
      * @param benchmarkPositions
      *            the (possibly {@code null}) benchmark {@code Position}s to be evaluated against
      * @param evaluationContext
@@ -141,20 +141,28 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
      *             if the {@code Rule}s could not be processed
      */
     public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Stream<Rule> rules,
-            PositionSupplier portfolioPositions, PositionSupplier benchmarkPositions,
-            EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
+            PositionSupplier portfolioPositions, Transaction transaction,
+            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext)
+            throws ExecutionException, InterruptedException {
+        LOG.info("locally evaluating Portfolio");
         long startTime = System.currentTimeMillis();
-        try {
-            LOG.info("locally evaluating Portfolio");
-            return ruleEvaluationThreadPool
-                    .submit(() -> rules.parallel()
-                            .collect(
-                                    Collectors.toMap(r -> r.getKey(),
-                                            r -> new RuleEvaluator(r, portfolioPositions,
-                                                    benchmarkPositions, evaluationContext).call())))
-                    .get();
-        } finally {
-            LOG.info("evaluated Portfolio in {} ms", System.currentTimeMillis() - startTime);
-        }
+        final PositionSupplier portfolioPlusTransactionPositions =
+                (transaction == null ? portfolioPositions
+                        : new PositionSet(
+                                Stream.concat(portfolioPositions.getPositions(),
+                                        transaction.getPositions()),
+                                portfolioPositions.getPortfolio()));
+
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+                ruleEvaluationThreadPool
+                        .submit(() -> rules.parallel()
+                                .collect(Collectors.toMap(r -> r.getKey(),
+                                        r -> new RuleEvaluator(r, portfolioPlusTransactionPositions,
+                                                benchmarkPositions, evaluationContext).call())))
+                        .get();
+        LOG.info("evaluated {} Rules over {} Positions for Portfolio in {} ms", results.size(),
+                portfolioPositions.size(), System.currentTimeMillis() - startTime);
+
+        return results;
     }
 }

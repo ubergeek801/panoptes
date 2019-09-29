@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.math.BigDecimal;
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import io.micronaut.test.annotation.MicronautTest;
+
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
@@ -20,7 +25,9 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
+import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -37,7 +44,13 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
  *
  * @author jeremy
  */
+@MicronautTest
 public class TradeEvaluatorTest {
+    @Inject
+    private AssetCache assetCache;
+    @Inject
+    private ClusterPortfolioEvaluator clusterEvaluator;
+
     /**
      * Tests that {@code evaluate()} behaves as expected.
      */
@@ -118,6 +131,13 @@ public class TradeEvaluatorTest {
         assertNotNull(p1r4Impact, "should have found impact for p1Rule4");
         assertEquals(Impact.NEUTRAL, p1r4Impact.get(EvaluationGroup.defaultGroup()),
                 "p1Rule4 should have passed");
+
+        // in a short-circuit evaluation we won't know which rule would have failed, or what other
+        // results might be included, but the overall result should be noncompliance
+
+        result = evaluator.evaluate(trade, TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION);
+        assertFalse(result.isCompliant(),
+                "short-circuit evaluation should have yielded non-compliance");
     }
 
     /**
@@ -150,6 +170,7 @@ public class TradeEvaluatorTest {
         // The Portfolio has a weighted average rule requiring maximum duration = 3.5. Its current
         // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
         // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
+
         EvaluationContext evaluationContext =
                 new EvaluationContext(TestUtil.testPortfolioProvider(),
                         TestUtil.testSecurityProvider(), k -> p1Rules.get(k));
@@ -161,6 +182,25 @@ public class TradeEvaluatorTest {
                 evaluationContext.getPortfolioProvider(), evaluationContext.getSecurityProvider(),
                 evaluationContext.getRuleProvider()).evaluateRoom(portfolio, trialSecurity,
                         3_000_000);
+        assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
+
+        // perform the same test with the clustered evaluator
+
+        security1 = TestUtil.createTestSecurity(assetCache, "TradeEvaluatorTestSec3",
+                security1Attributes);
+        position1 = TestUtil.createTestPosition(assetCache, 1_000_000, security1);
+        p1Positions = Set.of(position1);
+        rule1 = TestUtil.createTestWeightedAverageRule(assetCache, null,
+                "weighted average: duration <= 3.5", null, SecurityAttribute.duration, null, 3.5,
+                null);
+        Map<RuleKey, ? extends ConfigurableRule> cachedP1Rules = Map.of(rule1.getKey(), rule1);
+        trialSecurity = TestUtil.createTestSecurity(assetCache, "TradeEvaluatorTestSec4",
+                security2Attributes);
+        portfolio = TestUtil.createTestPortfolio(assetCache, null, "test 1", p1Positions, null,
+                cachedP1Rules.values());
+
+        room = new TradeEvaluator(clusterEvaluator, assetCache, assetCache, assetCache)
+                .evaluateRoom(portfolio, trialSecurity, 3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }
 }
