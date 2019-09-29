@@ -36,12 +36,20 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
+/**
+ * {@code PanoptesApplicationPanel} is the top-level layout for an experimental user interface.
+ *
+ * @author jeremy
+ */
 @Route("")
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class PanoptesApplicationPanel extends AppLayout {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates a new {@code PanoptesApplicationPanel}.
+     */
     public PanoptesApplicationPanel() {
         Icon applicationIcon = new Icon(VaadinIcon.EYE);
         applicationIcon.getStyle().set("position", "relative").set("top", "-0.05em");
@@ -122,12 +130,12 @@ public class PanoptesApplicationPanel extends AppLayout {
                         s -> s.getAttributeValue(SecurityAttribute.maturityDate),
                         DateTimeFormatter.ISO_LOCAL_DATE))
                 .setAutoWidth(true).setHeader("Maturity Date");
-        securityGrid
-                .addColumn(s -> s.getAttributeValue(SecurityAttribute.ratingSymbol) + " ["
-                        + String.format("%(,.4f",
-                                s.getAttributeValue(SecurityAttribute.ratingValue))
-                        + "]")
-                .setAutoWidth(true).setHeader("Rating");
+        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
+                SecurityAttribute.rating1Value)).setAutoWidth(true).setHeader("Rating 1");
+        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating2Symbol,
+                SecurityAttribute.rating2Value)).setAutoWidth(true).setHeader("Rating 2");
+        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
+                SecurityAttribute.rating3Value)).setAutoWidth(true).setHeader("Rating 3");
         securityGrid
                 .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.yield),
                         "%(,.2f"))
@@ -174,5 +182,26 @@ public class PanoptesApplicationPanel extends AppLayout {
         portfolioGrid.addColumn(p -> p.getBenchmarkKey()).setAutoWidth(true).setHeader("Benchmark");
 
         mainLayout.add(portfolioGrid);
+    }
+
+    /**
+     * Formats the given rating information for table display.
+     *
+     * @param security
+     *            the {@code Security} from which to obtain rating information
+     * @param symbolAttribute
+     *            the {@code SecurityAttribute} corresponding to the desired rating symbol
+     * @param valueAttribute
+     *            the {@code SecurityAttribute} corresponding to the desired rating value
+     * @return a {@code String} representing the specified rating data, or {@code null} if the value
+     *         of the specified symbol attribute is {@code null}
+     */
+    protected String getRatingText(Security security, SecurityAttribute<String> symbolAttribute,
+            SecurityAttribute<Double> valueAttribute) {
+        String symbol = security.getAttributeValue(symbolAttribute);
+        return (symbol == null ? null
+                : symbol + " ["
+                        + String.format("%(,.4f", security.getAttributeValue(valueAttribute))
+                        + "]");
     }
 }

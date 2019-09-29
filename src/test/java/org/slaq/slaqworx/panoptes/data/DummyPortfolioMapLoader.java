@@ -251,7 +251,7 @@ public class DummyPortfolioMapLoader
                 filter = regionEmergingMarketFilter;
                 break;
             case 4:
-                compareAttribute = SecurityAttribute.ratingValue;
+                compareAttribute = SecurityAttribute.rating1Value;
                 break;
             default:
                 compareAttribute = SecurityAttribute.duration;

@@ -237,19 +237,19 @@ public class PortfolioEvaluatorTest {
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes =
-                Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.ratingValue, 90d,
+                Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.rating1Value, 90d,
                         SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
         Security usdSecurity = TestUtil.createTestSecurity(assetCache, "usd", usdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
-                Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.ratingValue, 80d,
+                Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.rating1Value, 80d,
                         SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
                         SecurityAttribute.price, new BigDecimal("1.00"));
         Security nzdSecurity = TestUtil.createTestSecurity(assetCache, "nzd", nzdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> cadAttributes =
-                Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.ratingValue, 75d,
+                Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.rating1Value, 75d,
                         SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
                         SecurityAttribute.price, new BigDecimal("1.00"));
         Security cadSecurity = TestUtil.createTestSecurity(assetCache, "cad", cadAttributes);
@@ -280,7 +280,7 @@ public class PortfolioEvaluatorTest {
                 new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
         rules.put(durationRule.getKey(), durationRule);
         ConfigurableRule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
-                SecurityAttribute.ratingValue, 80d, null, null);
+                SecurityAttribute.rating1Value, 80d, null, null);
         rules.put(qualityRule.getKey(), qualityRule);
         ConfigurableRule issuerRule =
                 new ConcentrationRule(null, "issuer-grouped concentration rule", null, null, 0.5,

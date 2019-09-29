@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
     private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
     private static final RatingScale pimcoRatingScale;
+    private static final Random random = new Random(0);
 
     private static final BigDecimal MARKET_VALUE_MULTIPLIER = new BigDecimal("10000.00");
 
@@ -231,7 +233,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                         .multiply(MARKET_VALUE_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
                 // Weight not used
                 column++;
-                String ratingSymbol = values[column++];
+                String rating1Symbol = values[column++];
                 BigDecimal yield =
                         new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
                 BigDecimal duration =
@@ -247,16 +249,36 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 attributes.put(SecurityAttribute.currency, currency);
                 attributes.put(SecurityAttribute.coupon, coupon);
                 attributes.put(SecurityAttribute.maturityDate, maturityDate);
-                attributes.put(SecurityAttribute.ratingSymbol, ratingSymbol);
-                attributes.put(SecurityAttribute.ratingValue,
-                        pimcoRatingScale.getRatingNotch(ratingSymbol).getMiddle());
+                attributes.put(SecurityAttribute.rating1Symbol, rating1Symbol);
+                double rating1Value = pimcoRatingScale.getRatingNotch(rating1Symbol).getMiddle();
+                attributes.put(SecurityAttribute.rating1Value, rating1Value);
+
+                // manufacture rating2 and rating3 values
+                if (random.nextDouble() < 0.8) {
+                    String rating2Symbol = pimcoRatingScale
+                            .getRatingNotch(rating1Value + random.nextGaussian() * 3).getSymbol();
+                    attributes.put(SecurityAttribute.rating2Symbol, rating2Symbol);
+                    attributes.put(SecurityAttribute.rating2Value,
+                            pimcoRatingScale.getRatingNotch(rating2Symbol).getMiddle());
+                }
+                if (random.nextDouble() < 0.8) {
+                    String rating3Symbol = pimcoRatingScale
+                            .getRatingNotch(rating1Value - 1.5 + random.nextGaussian() * 3)
+                            .getSymbol();
+                    attributes.put(SecurityAttribute.rating3Symbol, rating3Symbol);
+                    attributes.put(SecurityAttribute.rating3Value,
+                            pimcoRatingScale.getRatingNotch(rating3Symbol).getMiddle());
+                }
+
                 attributes.put(SecurityAttribute.yield, yield);
                 attributes.put(SecurityAttribute.duration, duration.doubleValue());
+
                 // use the description as the issuer unless the sector is Currency, in which case
                 // don't set the issuer
                 if (!("Currency".equals(sector))) {
                     attributes.put(SecurityAttribute.issuer, description);
                 }
+
                 BigDecimal price = calculatePrice(asOfDate, maturityDate, yield);
                 attributes.put(SecurityAttribute.price, price);
                 Security security =
@@ -274,7 +296,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
         // average rating is kind of interesting, so let's calculate it
         WeightedAveragePositionCalculator averageRatingCalc =
-                new WeightedAveragePositionCalculator(SecurityAttribute.ratingValue);
+                new WeightedAveragePositionCalculator(SecurityAttribute.rating1Value);
         String averageRating = pimcoRatingScale.getRatingNotch(
                 averageRatingCalc.calculate(benchmark, new EvaluationContext(this, this, null)))
                 .getSymbol();

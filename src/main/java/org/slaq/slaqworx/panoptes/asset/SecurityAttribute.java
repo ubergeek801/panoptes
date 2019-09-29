@@ -35,15 +35,24 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
     public static final SecurityAttribute<BigDecimal> coupon = of("coupon", 7, BigDecimal.class);
     public static final SecurityAttribute<LocalDate> maturityDate =
             of("maturityDate", 8, LocalDate.class);
-    public static final SecurityAttribute<String> ratingSymbol =
-            of("ratingSymbol", 9, String.class);
-    public static final SecurityAttribute<Double> ratingValue = of("ratingValue", 10, Double.class);
-    public static final SecurityAttribute<BigDecimal> yield = of("yield", 11, BigDecimal.class);
-    public static final SecurityAttribute<Double> duration = of("duration", 12, Double.class);
-    public static final SecurityAttribute<String> issuer = of("issuer", 13, String.class);
-    public static final SecurityAttribute<BigDecimal> price = of("price", 14, BigDecimal.class);
+    public static final SecurityAttribute<BigDecimal> yield = of("yield", 9, BigDecimal.class);
+    public static final SecurityAttribute<Double> duration = of("duration", 10, Double.class);
+    public static final SecurityAttribute<String> issuer = of("issuer", 11, String.class);
+    public static final SecurityAttribute<BigDecimal> price = of("price", 12, BigDecimal.class);
     public static final SecurityAttribute<PortfolioKey> portfolio =
-            of("portfolio", 15, PortfolioKey.class);
+            of("portfolio", 13, PortfolioKey.class);
+    public static final SecurityAttribute<String> rating1Symbol =
+            of("rating1Symbol", 14, String.class);
+    public static final SecurityAttribute<Double> rating1Value =
+            of("rating1Value", 15, Double.class);
+    public static final SecurityAttribute<String> rating2Symbol =
+            of("rating2Symbol", 16, String.class);
+    public static final SecurityAttribute<Double> rating2Value =
+            of("rating2Value", 17, Double.class);
+    public static final SecurityAttribute<String> rating3Symbol =
+            of("rating3Symbol", 18, String.class);
+    public static final SecurityAttribute<Double> rating3Value =
+            of("rating3Value", 19, Double.class);
 
     /**
      * Obtains the {@code SecurityAttribute} corresponding to the given index, if it exists. For
