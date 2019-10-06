@@ -5,36 +5,31 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.inject.Singleton;
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.RowMapper;
 
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * RuleMapStore is a Hazelcast MapStore that provides Rule persistence services.
+ * RuleCacheStore is an Ignite {@code CacheStore} that provides {@code Rule} persistence services.
  *
  * @author jeremy
  */
 @Singleton
-public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
+public class RuleCacheStore extends IgniteCacheStore<RuleKey, ConfigurableRule> {
     /**
-     * Creates a new RuleMapStore. Restricted because instances of this class should be created
-     * through the {@code ApplicationContext}.
-     *
-     * @param dataSource
-     *            the DataSource through which to access the database
+     * Creates a new {@code RuleCacheStore} which obtains resources from the global
+     * {@code ApplicationContext}.
      */
-    protected RuleMapStore(DataSource dataSource) {
-        super(dataSource);
+    public RuleCacheStore() {
+        // nothing to do
     }
 
     @Override
-    public void delete(RuleKey key) {
+    public void delete(Object keyObject) {
+        RuleKey key = (RuleKey)keyObject;
+
         getJdbcTemplate().update("delete from portfolio_rule where rule_id = ?", key.getId());
         getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
     }
@@ -49,7 +44,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
         String classifierTypeName = rs.getString(6);
         String classifierConfiguration = rs.getString(7);
 
-        return RuleSerializer.constructRule(id, description, ruleTypeName, configuration,
+        return ConfigurableRule.constructRule(id, description, ruleTypeName, configuration,
                 groovyFilter, classifierTypeName, classifierConfiguration);
     }
 
@@ -64,18 +59,18 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     }
 
     @Override
-    protected RowMapper<RuleKey> getKeyMapper() {
-        return (rs, rowNum) -> new RuleKey(rs.getString(1));
-    }
-
-    @Override
     protected String getLoadSelect() {
         return "select id, description, type, configuration, filter, classifier_type,"
                 + " classifier_configuration from " + getTableName();
     }
 
     @Override
-    protected String getStoreSql() {
+    protected String getTableName() {
+        return "rule";
+    }
+
+    @Override
+    protected String getWriteSql() {
         return "insert into " + getTableName()
                 + " (id, description, type, configuration, filter, classifier_type,"
                 + " classifier_configuration) values (?, ?, ?, ?::json, ?, ?, ?::json)"
@@ -84,11 +79,6 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
                 + " configuration = excluded.configuration, filter = excluded.filter,"
                 + " classifier_type = excluded.classifier_type,"
                 + " classifier_configuration = excluded.classifier_configuration";
-    }
-
-    @Override
-    protected String getTableName() {
-        return "rule";
     }
 
     @Override

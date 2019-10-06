@@ -22,6 +22,14 @@ public class ApplicationContextProvider {
         return applicationContext;
     }
 
+    protected static void setApplicationContext(BeanContext applicationContext) {
+        ApplicationContextProvider.applicationContext = applicationContext;
+    }
+
+    protected ApplicationContextProvider() {
+        // nothing to do
+    }
+
     @EventListener
     protected void onStartup(StartupEvent event) {
         applicationContext = event.getSource();

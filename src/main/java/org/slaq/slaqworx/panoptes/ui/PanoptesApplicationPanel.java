@@ -4,8 +4,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import com.hazelcast.core.IMap;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.details.Details;
@@ -27,6 +28,8 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+
+import org.apache.ignite.IgniteCache;
 
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -86,10 +89,11 @@ public class PanoptesApplicationPanel extends AppLayout {
 
         AssetCache assetCache =
                 ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        IMap<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
+        IgniteCache<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
 
-        // unfortunately there's not a very good way to page through entries of an IMap
-        ArrayList<Security> securityList = new ArrayList<>(securityCache.values());
+        // unfortunately there's not a very good way to page through entries of an IgniteCache
+        ArrayList<Security> securityList = StreamSupport.stream(securityCache.spliterator(), false)
+                .map(e -> e.getValue()).collect(Collectors.toCollection(ArrayList::new));
         Collections.sort(securityList, (s1, s2) -> s1.getKey().compareTo(s2.getKey()));
 
         CallbackDataProvider<Security, Void> securityProvider =
@@ -153,10 +157,12 @@ public class PanoptesApplicationPanel extends AppLayout {
 
         mainLayout.add(securityGrid);
 
-        IMap<PortfolioKey, Portfolio> portfolioCache = assetCache.getPortfolioCache();
+        IgniteCache<PortfolioKey, Portfolio> portfolioCache = assetCache.getPortfolioCache();
 
-        // unfortunately there's not a very good way to page through entries of an IMap
-        ArrayList<Portfolio> portfolioList = new ArrayList<>(portfolioCache.values());
+        // unfortunately there's not a very good way to page through entries of an IgniteCache
+        ArrayList<Portfolio> portfolioList =
+                StreamSupport.stream(portfolioCache.spliterator(), false).map(e -> e.getValue())
+                        .collect(Collectors.toCollection(ArrayList::new));
         Collections.sort(portfolioList, (p1, p2) -> p1.getName().compareTo(p2.getName()));
 
         CallbackDataProvider<Portfolio, Void> portfolioProvider =

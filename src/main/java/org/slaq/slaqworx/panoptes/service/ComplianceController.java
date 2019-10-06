@@ -1,10 +1,12 @@
 package org.slaq.slaqworx.panoptes.service;
 
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ForkJoinPool;
+
+import javax.cache.Cache.Entry;
 
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -29,6 +31,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
+import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * ComplianceController is a simple "Web service" that evaluates all {@code Portfolio}s and outputs
@@ -41,7 +44,8 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
     private static final Logger LOG = LoggerFactory.getLogger(ComplianceController.class);
 
     // this needs to be somewhat unreasonably high to keep the processing pipeline full
-    private static final ForkJoinPool evaluatorPool = new ForkJoinPool(30);
+    private static final ForkJoinPool evaluatorPool =
+            ForkJoinPoolFactory.newForkJoinPool(30, "compliance-controller");
 
     private final AssetCache assetCache;
     private final ClusterPortfolioEvaluator portfolioEvaluator;
@@ -93,13 +97,19 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
                 new ExecutorCompletionService<>(evaluatorPool);
 
         long startTime = System.currentTimeMillis();
-        Collection<Portfolio> portfolios = assetCache.getPortfolioCache().values();
-        portfolios.forEach(p -> {
-            completionService.submit(() -> new ImmutablePair<>(p, portfolioEvaluator
-                    .evaluate(p, new EvaluationContext(assetCache, assetCache, assetCache)).get()));
+        Iterator<Entry<PortfolioKey, Portfolio>> portfolioEntryIter =
+                assetCache.getPortfolioCache().iterator();
+        int[] numPortfolios = new int[1];
+        portfolioEntryIter.forEachRemaining(entry -> {
+            numPortfolios[0]++;
+            completionService
+                    .submit(() -> new ImmutablePair<>(entry.getValue(),
+                            portfolioEvaluator.evaluate(entry.getValue(),
+                                    new EvaluationContext(assetCache, assetCache, assetCache))
+                                    .get()));
         });
 
-        for (int i = 0; i < portfolios.size(); i++) {
+        for (int i = 0; i < numPortfolios[0]; i++) {
             Pair<Portfolio, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioResults =
                     completionService.take().get();
             Portfolio portfolio = portfolioResults.getLeft();

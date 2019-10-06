@@ -31,8 +31,22 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  * @author jeremy
  */
 public class TradeEvaluator {
+    /**
+     * {@code TradeEvaluationMode} specifies behaviors to be observed during evaluation.
+     */
     public enum TradeEvaluationMode {
-        FULL_EVALUATION, SHORT_CIRCUIT_EVALUATION
+        /**
+         * all Rules are evaluated regardless of outcome
+         */
+        FULL_EVALUATION,
+        /**
+         * Rule evaluation may be short-circuited if one evaluation passes
+         */
+        PASS_SHORT_CIRCUIT_EVALUATION,
+        /**
+         * Rule evaluation may be short-circuited if one evaluation fails
+         */
+        FAIL_SHORT_CIRCUIT_EVALUATION
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
@@ -95,41 +109,27 @@ public class TradeEvaluator {
 
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
-            EvaluationContext evaluationContext =
-                    new EvaluationContext(portfolioProvider, securityProvider, ruleProvider);
+            EvaluationContext evaluationContext = new EvaluationContext(portfolioProvider,
+                    securityProvider, ruleProvider, evaluationMode);
             // calculate the proposed state
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
                     evaluator.evaluate(portfolio, transaction, evaluationContext).get();
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState;
-            if (evaluationMode == TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION) {
-                Stream<Rule> failedRules =
-                        proposedState.entrySet().stream().filter(e -> !isPassed(e.getValue()))
-                                .map(e -> ruleProvider.getRule(e.getKey()));
-                // for short-circuit evaluation, we need only calculate the current state for Rules
-                // that failed in the proposed state, as we are only determining the impact
+            if (evaluationMode == TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION) {
+                Stream<Rule> failedRules = proposedState.entrySet().stream()
+                        .filter(e -> !EvaluationResult.isPassed(e.getValue()))
+                        .map(e -> ruleProvider.getRule(e.getKey()));
+                // For short-circuit evaluation, we need only calculate the current state for Rules
+                // that failed in the proposed state, as we are only determining the impact.
+                // Short-circuit evaluation is used because as soon as one Rule is found to pass in
+                // the current state, the Trade can be considered noncompliant.
                 currentState = evaluator.evaluate(failedRules, portfolio, evaluationContext).get();
             } else {
                 currentState = evaluator.evaluate(portfolio, evaluationContext).get();
             }
 
-            proposedState.entrySet().forEach(ruleEntry -> {
-                RuleKey ruleKey = ruleEntry.getKey();
-                Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults =
-                        ruleEntry.getValue();
-
-                if (evaluationMode == TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION
-                        && isPassed(proposedGroupResults)) {
-                    // there won't be a current evaluation if the proposed evaluation passed
-                    return;
-                }
-                Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
-                        currentState.get(ruleKey);
-                proposedGroupResults.forEach((group, proposedResult) -> {
-                    EvaluationResult currentResult = currentGroupResults.get(group);
-                    evaluationResult.addImpact(portfolio.getKey(), ruleKey, group,
-                            proposedResult.compare(currentResult));
-                });
-            });
+            addImpacts(portfolio.getKey(), evaluationResult, evaluationMode, proposedState,
+                    currentState);
         }
 
         return evaluationResult;
@@ -216,16 +216,36 @@ public class TradeEvaluator {
         return minCompliantValue;
     }
 
-    /**
-     * Determines whether a given set of evaluation results indicates a pass or failure.
-     *
-     * @param ruleResults
-     *            the evaluation results to be considered
-     * @return {@code true} if each of the individual results indicates a pass, {@code false} if at
-     *         least one indicates failure
-     */
-    protected boolean isPassed(Map<EvaluationGroup<?>, EvaluationResult> ruleResults) {
-        return ruleResults.values().stream().allMatch(r -> r.isPassed());
+    protected void addImpacts(PortfolioKey portfolioKey, TradeEvaluationResult evaluationResult,
+            TradeEvaluationMode evaluationMode,
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState,
+            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState) {
+        proposedState.entrySet().forEach(ruleEntry -> {
+            RuleKey ruleKey = ruleEntry.getKey();
+            Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults = ruleEntry.getValue();
+            if (evaluationMode != TradeEvaluationMode.FULL_EVALUATION
+                    && EvaluationResult.isPassed(proposedGroupResults)) {
+                // there won't be a current evaluation if the proposed evaluation passed, since
+                // only failed Rules are evaluated twice
+                return;
+            }
+
+            Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
+                    currentState.get(ruleKey);
+            if (evaluationMode == TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION
+                    && currentGroupResults == null) {
+                // there may not be a current evaluation if the proposed evaluation failed, since
+                // only one current-state pass is needed to determine Trade non-compliance
+                return;
+            }
+
+            proposedGroupResults.forEach((group, proposedResult) -> {
+                EvaluationResult currentResult = currentGroupResults.get(group);
+                evaluationResult.addImpact(portfolioKey, ruleKey, group,
+                        proposedResult.compare(currentResult));
+            });
+        });
+
     }
 
     /**
@@ -250,6 +270,6 @@ public class TradeEvaluator {
         Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
         Trade trialTrade = new Trade(Map.of(portfolio.getKey(), trialTransaction));
 
-        return evaluate(trialTrade, TradeEvaluationMode.SHORT_CIRCUIT_EVALUATION);
+        return evaluate(trialTrade, TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION);
     }
 }

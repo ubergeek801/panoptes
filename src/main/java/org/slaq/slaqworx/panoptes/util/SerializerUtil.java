@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.serializer;
+package org.slaq.slaqworx.panoptes.util;
 
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;

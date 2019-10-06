@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.slaq.slaqworx.panoptes.serializer.SerializerUtil;
+import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
  * {@code SecurityAttributes} is a container for {@code SecurityAttribute}s which provides type-safe

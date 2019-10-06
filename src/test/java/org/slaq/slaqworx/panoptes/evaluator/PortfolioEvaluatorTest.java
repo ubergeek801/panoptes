@@ -105,8 +105,6 @@ public class PortfolioEvaluatorTest {
     private AssetCache assetCache;
     @Inject
     private ClusterPortfolioEvaluator clusterEvaluator;
-    @Inject
-    private ClusterEvaluatorReceiver clusterEvaluatorReceiver;
 
     /**
      * Tests that {@code evaluate()} behaves as expected with {@code GroupAggregator}s (also
@@ -114,8 +112,6 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
-        clusterEvaluatorReceiver.start();
-
         Security iss1Sec1 = TestUtil.createTestSecurity(assetCache, "iss1Sec1", "ISSFOO",
                 new BigDecimal("1.00"));
         Security iss1Sec2 = TestUtil.createTestSecurity(assetCache, "iss1Sec2", "ISSFOO",

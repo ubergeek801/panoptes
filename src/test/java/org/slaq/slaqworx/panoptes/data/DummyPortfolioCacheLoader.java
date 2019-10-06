@@ -4,20 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.hazelcast.core.MapStore;
-
+import org.apache.ignite.cache.store.CacheLoadOnlyStoreAdapter;
+import org.apache.ignite.lang.IgniteBiTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +37,15 @@ import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
- * {@code DummyPortfolioMapLoader} is a {@code MapStore} that initializes the Hazelcast cache with
+ * {@code DummyPortfolioCacheLoader} is a {@code CacheStore} that initializes the Ignite cache with
  * random {@code Portfolio} data.
  *
  * @author jeremy
  */
-public class DummyPortfolioMapLoader
-        implements MapStore<PortfolioKey, Portfolio>, RuleProvider, PortfolioProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioMapLoader.class);
+public class DummyPortfolioCacheLoader
+        extends CacheLoadOnlyStoreAdapter<PortfolioKey, Portfolio, PortfolioKey>
+        implements RuleProvider, PortfolioProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(DummyPortfolioCacheLoader.class);
 
     private static final String PORTFOLIO_NAMES_FILE = "portfolionames.txt";
 
@@ -75,7 +74,7 @@ public class DummyPortfolioMapLoader
      * @throws IOException
      *             if {@code Porfolio} data could not be loaded
      */
-    public DummyPortfolioMapLoader() throws IOException {
+    public DummyPortfolioCacheLoader() throws IOException {
         dataSource = PimcoBenchmarkDataSource.getInstance();
 
         benchmarks =
@@ -100,16 +99,6 @@ public class DummyPortfolioMapLoader
     }
 
     @Override
-    public void delete(PortfolioKey key) {
-        // nothing to do
-    }
-
-    @Override
-    public void deleteAll(Collection<PortfolioKey> keys) {
-        // nothing to do
-    }
-
-    @Override
     public Portfolio getPortfolio(PortfolioKey key) {
         return portfolioMap.get(key);
     }
@@ -117,6 +106,38 @@ public class DummyPortfolioMapLoader
     @Override
     public ConfigurableRule getRule(RuleKey key) {
         return ruleMap.get(key);
+    }
+
+    @Override
+    public Iterator<PortfolioKey> inputIterator(Object... args) {
+        LOG.info("loading all keys");
+
+        // This Iterable produces NUM_PORTFOLIOS + 4 Portfolio IDs; the first four are the PIMCO
+        // benchmarks and the remaining NUM_PORTFOLIOS are randomly-generated Portfolios
+        return new Iterator<>() {
+            private int currentPosition = -4;
+
+            @Override
+            public boolean hasNext() {
+                return currentPosition < NUM_PORTFOLIOS;
+            }
+
+            @Override
+            public PortfolioKey next() {
+                switch (++currentPosition) {
+                case -3:
+                    return PimcoBenchmarkDataSource.EMAD_KEY;
+                case -2:
+                    return PimcoBenchmarkDataSource.GLAD_KEY;
+                case -1:
+                    return PimcoBenchmarkDataSource.ILAD_KEY;
+                case 0:
+                    return PimcoBenchmarkDataSource.PGOV_KEY;
+                default:
+                    return new PortfolioKey("test" + currentPosition, 1);
+                }
+            }
+        };
     }
 
     @Override
@@ -147,54 +168,6 @@ public class DummyPortfolioMapLoader
 
             return portfolio;
         });
-    }
-
-    @Override
-    public Map<PortfolioKey, Portfolio> loadAll(Collection<PortfolioKey> keys) {
-        LOG.info("loading Portfolios for {} keys", keys.size());
-        return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
-    }
-
-    @Override
-    public Iterable<PortfolioKey> loadAllKeys() {
-        LOG.info("loading all keys");
-
-        // This Iterable produces NUM_PORTFOLIOS + 4 Portfolio IDs; the first four are the PIMCO
-        // benchmarks and the remaining NUM_PORTFOLIOS are randomly-generated Portfolios
-        return () -> new Iterator<>() {
-            private int currentPosition = -4;
-
-            @Override
-            public boolean hasNext() {
-                return currentPosition < NUM_PORTFOLIOS;
-            }
-
-            @Override
-            public PortfolioKey next() {
-                switch (++currentPosition) {
-                case -3:
-                    return PimcoBenchmarkDataSource.EMAD_KEY;
-                case -2:
-                    return PimcoBenchmarkDataSource.GLAD_KEY;
-                case -1:
-                    return PimcoBenchmarkDataSource.ILAD_KEY;
-                case 0:
-                    return PimcoBenchmarkDataSource.PGOV_KEY;
-                default:
-                    return new PortfolioKey("test" + currentPosition, 1);
-                }
-            }
-        };
-    }
-
-    @Override
-    public void store(PortfolioKey key, Portfolio value) {
-        // nothing to do
-    }
-
-    @Override
-    public void storeAll(Map<PortfolioKey, Portfolio> map) {
-        // nothing to do
     }
 
     /**
@@ -302,5 +275,10 @@ public class DummyPortfolioMapLoader
 
         ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));
         return rules;
+    }
+
+    @Override
+    protected IgniteBiTuple<PortfolioKey, Portfolio> parse(PortfolioKey key, Object... args) {
+        return new IgniteBiTuple<>(key, load(key));
     }
 }

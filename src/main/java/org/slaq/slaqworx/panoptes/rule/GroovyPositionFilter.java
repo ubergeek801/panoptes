@@ -27,7 +27,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
 
     private final String expression;
 
-    private final Predicate<PositionEvaluationContext> groovyFilter;
+    private transient final Predicate<PositionEvaluationContext> groovyFilter;
 
     /**
      * Creates a new {@code GroovyPositionFilter} using the given Groovy expression.

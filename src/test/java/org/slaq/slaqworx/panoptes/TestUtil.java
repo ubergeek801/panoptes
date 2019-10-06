@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -71,7 +70,7 @@ public class TestUtil {
             p2Positions, null, Collections.emptyList());
 
     /**
-     * Creates and transiently caches a {@code ConcentrationRule} with the given parameters.
+     * Creates and caches a {@code ConcentrationRule} with the given parameters.
      *
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Rule}
@@ -94,14 +93,14 @@ public class TestUtil {
             Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
         ConcentrationRule rule = new ConcentrationRule(key, description, positionFilter, lowerLimit,
                 upperLimit, groupClassifier);
-        assetCache.getRuleCache().putTransient(rule.getKey(), rule, 10, TimeUnit.MINUTES);
+        assetCache.getRuleCache().put(rule.getKey(), rule);
 
         return rule;
     }
 
     /**
-     * Creates and transiently caches a {@code Portfolio} with the given key, name,
-     * {@code Position}s, benchmark and {@code Rule}s.
+     * Creates and caches a {@code Portfolio} with the given key, name, {@code Position}s, benchmark
+     * and {@code Rule}s.
      *
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Portfolio}
@@ -123,14 +122,13 @@ public class TestUtil {
             Collection<? extends Rule> rules) {
         Portfolio portfolio =
                 new Portfolio(new PortfolioKey(id, 1), name, positions, benchmarkKey, rules);
-        assetCache.getPortfolioCache().putTransient(portfolio.getKey(), portfolio, 10,
-                TimeUnit.MINUTES);
+        assetCache.getPortfolioCache().put(portfolio.getKey(), portfolio);
 
         return portfolio;
     }
 
     /**
-     * Creates and transiently caches a {@code Position} with the given parameters.
+     * Creates and caches a {@code Position} with the given parameters.
      *
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Position}
@@ -143,14 +141,13 @@ public class TestUtil {
     public static Position createTestPosition(AssetCache assetCache, double amount,
             Security security) {
         Position position = new Position(amount, security);
-        assetCache.getPositionCache().putTransient(position.getKey(), position, 10,
-                TimeUnit.MINUTES);
+        assetCache.getPositionCache().put(position.getKey(), position);
 
         return position;
     }
 
     /**
-     * Creates and transiently caches a {@code Security} with the given parameters.
+     * Creates and caches a {@code Security} with the given parameters.
      *
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Security}
@@ -164,14 +161,13 @@ public class TestUtil {
     public static Security createTestSecurity(AssetCache assetCache, String assetId,
             Map<SecurityAttribute<?>, Object> attributes) {
         Security security = TestUtil.testSecurityProvider().newSecurity(assetId, attributes);
-        assetCache.getSecurityCache().putTransient(security.getKey(), security, 10,
-                TimeUnit.MINUTES);
+        assetCache.getSecurityCache().put(security.getKey(), security);
 
         return security;
     }
 
     /**
-     * Creates and transiently caches a {@code Security} with the given parameters.
+     * Creates and caches a {@code Security} with the given parameters.
      *
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Security}
@@ -191,7 +187,7 @@ public class TestUtil {
     }
 
     /**
-     * Creates and transiently caches a {@code WeightedAverageRule} with the given parameters.
+     * Creates and caches a {@code WeightedAverageRule} with the given parameters.
      *
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Rule}
@@ -217,7 +213,7 @@ public class TestUtil {
             EvaluationGroupClassifier groupClassifier) {
         WeightedAverageRule rule = new WeightedAverageRule(key, description, positionFilter,
                 calculationAttribute, lowerLimit, upperLimit, groupClassifier);
-        assetCache.getRuleCache().putTransient(rule.getKey(), rule, 10, TimeUnit.MINUTES);
+        assetCache.getRuleCache().put(rule.getKey(), rule);
 
         return rule;
     }

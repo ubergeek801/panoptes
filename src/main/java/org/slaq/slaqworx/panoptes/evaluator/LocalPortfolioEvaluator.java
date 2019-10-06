@@ -1,13 +1,18 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Future;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.ignite.internal.util.future.IgniteFinishedFutureImpl;
+import org.apache.ignite.lang.IgniteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +25,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
+import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code LocalPortfolioEvaluator} is a {@code PortfolioEvaluator} which performs processing on the
@@ -31,8 +37,8 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
 
     // TODO thread pool tuning is a work in progress
-    private static final ForkJoinPool ruleEvaluationThreadPool =
-            new ForkJoinPool(ForkJoinPool.getCommonPoolParallelism() + 2);
+    private static final ForkJoinPool ruleEvaluationThreadPool = ForkJoinPoolFactory
+            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism() + 2, "rule-evaluator");
 
     /**
      * Creates a new {@code LocalPortfolioEvaluator} that uses the common {@code ForkJoinPool} for
@@ -43,11 +49,11 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
             evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
                     throws InterruptedException, ExecutionException {
-        // TODO maybe make evaluate() return a Future as well
-        return CompletableFuture.completedFuture(evaluate(portfolio.getRules(), portfolio, null,
+        // TODO maybe make evaluate() return an IgniteFuture as well
+        return new IgniteFinishedFutureImpl<>(evaluate(portfolio.getRules(), portfolio, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
     }
@@ -101,19 +107,19 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
+    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
             Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException {
-        return CompletableFuture.completedFuture(evaluate(portfolio.getRules(), portfolio,
-                transaction, portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
+        return new IgniteFinishedFutureImpl<>(evaluate(portfolio.getRules(), portfolio, transaction,
+                portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
     }
 
     @Override
-    public Future<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
+    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
             evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
                     throws ExecutionException, InterruptedException {
-        return CompletableFuture.completedFuture(evaluate(rules, portfolio, null,
+        return new IgniteFinishedFutureImpl<>(evaluate(rules, portfolio, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
     }
@@ -153,16 +159,52 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                                         transaction.getPositions()),
                                 portfolioPositions.getPortfolio()));
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                ruleEvaluationThreadPool
-                        .submit(() -> rules.parallel()
-                                .collect(Collectors.toMap(r -> r.getKey(),
-                                        r -> new RuleEvaluator(r, portfolioPlusTransactionPositions,
-                                                benchmarkPositions, evaluationContext).call())))
-                        .get();
-        LOG.info("evaluated {} Rules over {} Positions for Portfolio in {} ms", results.size(),
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> shortCircuitResults =
+                Collections.synchronizedMap(new HashMap<>());
+        Predicate<Pair<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> shortCircuitPredicate;
+        switch (evaluationContext.getEvaluationMode()) {
+        case PASS_SHORT_CIRCUIT_EVALUATION:
+            // stop as soon as a Rule passes
+            shortCircuitPredicate = (result -> {
+                boolean isPassed = EvaluationResult.isPassed(result.getRight());
+                if (isPassed) {
+                    shortCircuitResults.put(result.getLeft(), result.getRight());
+                }
+
+                return !isPassed;
+            });
+            break;
+        case FAIL_SHORT_CIRCUIT_EVALUATION:
+            // stop as soon as a Rule fails
+            shortCircuitPredicate = (result -> {
+                boolean isPassed = EvaluationResult.isPassed(result.getRight());
+                if (!isPassed) {
+                    shortCircuitResults.put(result.getLeft(), result.getRight());
+                }
+
+                return isPassed;
+            });
+            break;
+        default:
+            // take all results
+            shortCircuitPredicate = (result -> true);
+        }
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = ruleEvaluationThreadPool
+                .submit(() -> rules.parallel()
+                        .map(r -> new ImmutablePair<>(r.getKey(),
+                                new RuleEvaluator(r, portfolioPlusTransactionPositions,
+                                        benchmarkPositions, evaluationContext).call()))
+                        .takeWhile(shortCircuitPredicate)
+                        .collect(Collectors.toMap(pair -> pair.getLeft(), pair -> pair.getRight())))
+                .get();
+
+        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
+                new HashMap<>(shortCircuitResults.size() + results.size());
+        allResults.putAll(shortCircuitResults);
+        allResults.putAll(results);
+        LOG.info("evaluated {} Rules over {} Positions for Portfolio in {} ms", allResults.size(),
                 portfolioPositions.size(), System.currentTimeMillis() - startTime);
 
-        return results;
+        return allResults;
     }
 }

@@ -8,13 +8,13 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Threshold;
 
 /**
- * EvaluationResultTest tests the functionality of EvaluationResult.
+ * {@code EvaluationResultTest} tests the functionality of {@code EvaluationResult}.
  *
  * @author jeremy
  */
 public class EvaluationResultTest {
     /**
-     * Tests that compare() behaves as expected for simple Boolean results.
+     * Tests that {@code compare()} behaves as expected for simple Boolean results.
      */
     @Test
     public void testCompareBoolean() {
@@ -38,15 +38,18 @@ public class EvaluationResultTest {
         impact = proposed.compare(original);
         assertEquals(Impact.POSITIVE, impact, "false->true should be a positive impact");
 
-        // bonus null test
         original = null;
         proposed = new EvaluationResult(true);
         impact = proposed.compare(original);
-        assertEquals(Impact.UNKNOWN, impact, "*->null should be a null impact");
+        assertEquals(Impact.NEUTRAL, impact, "null->true should be a neutral impact");
+
+        proposed = new EvaluationResult(false);
+        impact = proposed.compare(original);
+        assertEquals(Impact.NEGATIVE, impact, "null->false should be a negative impact");
     }
 
     /**
-     * Tests that compare() behaves as expected for value results.
+     * Tests that {@code compare()} behaves as expected for value results.
      */
     @Test
     public void testCompareValue() {
@@ -104,6 +107,15 @@ public class EvaluationResultTest {
         proposed = new EvaluationResult(Threshold.WITHIN, 10);
         impact = proposed.compare(original);
         assertEquals(Impact.NEUTRAL, impact, "WITHIN->WITHIN should be a neutral impact");
+
+        original = null;
+        proposed = new EvaluationResult(Threshold.ABOVE, 11);
+        impact = proposed.compare(original);
+        assertEquals(Impact.NEGATIVE, impact, "null->ABOVE should be a negative impact");
+
+        proposed = new EvaluationResult(Threshold.WITHIN, 10);
+        impact = proposed.compare(original);
+        assertEquals(Impact.NEUTRAL, impact, "null->WITHIN should be a neutral impact");
 
         // oddball cases but behavior still specified
 

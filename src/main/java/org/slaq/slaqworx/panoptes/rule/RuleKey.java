@@ -1,19 +1,13 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
-
 import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
 
 /**
  * {@code RuleKey} is a key used to reference {@code Rules}.
- * <p>
- * TODO this shouldn't have to be Serializable since there is a Hazelcast serializer for it
  *
  * @author jeremy
  */
-public class RuleKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class RuleKey {
     private final String id;
 
     /**

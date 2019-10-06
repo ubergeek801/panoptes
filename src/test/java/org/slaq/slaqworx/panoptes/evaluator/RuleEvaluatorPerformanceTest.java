@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.data.DummyPortfolioMapLoader;
+import org.slaq.slaqworx.panoptes.data.DummyPortfolioCacheLoader;
 import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
@@ -62,18 +62,18 @@ public class RuleEvaluatorPerformanceTest {
 
         // initialize the Portfolios to be evaluated
 
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
+        DummyPortfolioCacheLoader mapLoader = new DummyPortfolioCacheLoader();
         ArrayList<Portfolio> portfolios = new ArrayList<>();
-        for (PortfolioKey key : mapLoader.loadAllKeys()) {
+        mapLoader.inputIterator().forEachRemaining(key -> {
             Portfolio benchmark = dataSource.getBenchmark(key);
             if (benchmark != null) {
                 // the Portfolio is a benchmark; skip it
-                continue;
+                return;
             }
 
             Portfolio portfolio = mapLoader.load(key);
             portfolios.add(portfolio);
-        }
+        });
 
         // perform evaluation on each Portfolio
 

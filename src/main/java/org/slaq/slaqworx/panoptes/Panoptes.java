@@ -13,12 +13,13 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
-import org.slaq.slaqworx.panoptes.evaluator.ClusterEvaluatorReceiver;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -62,6 +63,21 @@ public class Panoptes {
     }
 
     /**
+     * (Pre-)loads the given {@code IgniteCache}.
+     *
+     * @param cache
+     *            the {@code IgniteCache} to be loaded
+     * @param igniteInstance
+     *            the {@code Ignite} instance to which the cache belongs
+     * @return the cache itself
+     */
+    protected IgniteCache<?, ?> loadCache(IgniteCache<?, ?> cache, Ignite igniteInstance) {
+        cache.localLoadCache(null, cache.getName(), igniteInstance);
+
+        return cache;
+    }
+
+    /**
      * Initializes the Panoptes application upon startup.
      *
      * @param event
@@ -72,28 +88,22 @@ public class Panoptes {
     @EventListener
     protected void onStartup(StartupEvent event) throws Exception {
         BeanContext applicationContext = event.getSource();
-        AssetCache assetCache = applicationContext.getBean(AssetCache.class);
+        ApplicationContextProvider.setApplicationContext(applicationContext);
 
-        assetCache.getSecurityCache().loadAll(false);
-        int numSecurities = assetCache.getSecurityCache().size();
+        AssetCache assetCache = applicationContext.getBean(AssetCache.class);
+        Ignite igniteInstance = applicationContext.getBean(Ignite.class);
+
+        int numSecurities = loadCache(assetCache.getSecurityCache(), igniteInstance).size();
         LOG.info("{} Securities in cache", numSecurities);
 
-        assetCache.getPositionCache().loadAll(false);
-        int numPositions = assetCache.getPositionCache().size();
+        int numPositions = loadCache(assetCache.getPositionCache(), igniteInstance).size();
         LOG.info("{} Positions in cache", numPositions);
 
-        assetCache.getRuleCache().loadAll(false);
-        int numRules = assetCache.getRuleCache().size();
+        int numRules = loadCache(assetCache.getRuleCache(), igniteInstance).size();
         LOG.info("{} Rules in cache", numRules);
 
-        assetCache.getPortfolioCache().loadAll(false);
-        int numPortfolios = assetCache.getPortfolioCache().size();
+        int numPortfolios = loadCache(assetCache.getPortfolioCache(), igniteInstance).size();
         LOG.info("{} Portfolios in cache", numPortfolios);
-
-        LOG.info("starting ClusterEvaluatorReceiver");
-        ClusterEvaluatorReceiver clusterEvaluatorReceiver =
-                applicationContext.getBean(ClusterEvaluatorReceiver.class);
-        clusterEvaluatorReceiver.start();
 
         LOG.info("starting Web application service");
         Server servletServer = applicationContext.getBean(Server.class);

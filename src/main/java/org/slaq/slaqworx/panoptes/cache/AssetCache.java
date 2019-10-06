@@ -1,13 +1,9 @@
 package org.slaq.slaqworx.panoptes.cache;
 
-import java.util.Map;
-import java.util.UUID;
-
 import javax.inject.Singleton;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -19,8 +15,6 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -36,28 +30,23 @@ import org.slaq.slaqworx.panoptes.trade.TradeProvider;
 @Singleton
 public class AssetCache implements PortfolioProvider, PositionProvider, RuleProvider,
         SecurityProvider, TradeProvider {
-    protected static final String PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME =
-            "portfolioEvaluationRequestQueue";
-    protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
-            "portfolioEvaluationResultMap";
-
     public static final String PORTFOLIO_CACHE_NAME = "portfolio";
     public static final String POSITION_CACHE_NAME = "position";
     public static final String SECURITY_CACHE_NAME = "security";
     public static final String RULE_CACHE_NAME = "rule";
     public static final String TRADE_CACHE_NAME = "trade";
 
-    private final HazelcastInstance hazelcastInstance;
+    private final Ignite ignite;
 
     /**
      * Creates a new {@code AssetCache}. Restricted because instances of this class should be
      * obtained through the {@code ApplicationContext}.
      *
-     * @param hazelcastInstance
-     *            the {@code HazelcastInstance} through which to access cached data
+     * @param igniteInstance
+     *            the {@code Ignite} through which to access cached data
      */
-    protected AssetCache(HazelcastInstance hazelcastInstance) {
-        this.hazelcastInstance = hazelcastInstance;
+    protected AssetCache(Ignite igniteInstance) {
+        this.ignite = igniteInstance;
     }
 
     /**
@@ -73,31 +62,12 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Portfolio} cache from Hazelcast.
+     * Obtains the {@code Portfolio} cache from Ignite.
      *
-     * @return the Hazelcast {@code Portfolio} cache
+     * @return the Ignite {@code Portfolio} cache
      */
-    public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
-        return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
-    }
-
-    /**
-     * Obtains the queue which provides {@code Portfolio} evaluation requests.
-     * 
-     * @return the evaluation request queue
-     */
-    public IQueue<String> getPortfolioEvaluationRequestQueue() {
-        return hazelcastInstance.getQueue(PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME);
-    }
-
-    /**
-     * Obtains the map which provides {@code Portfolio} evaluation results.
-     *
-     * @return a {@code IMap} correlating an evaluation request message ID to its results
-     */
-    public IMap<UUID, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            getPortfolioEvaluationResultMap() {
-        return hazelcastInstance.getMap(PORTFOLIO_EVALUATION_RESULT_MAP_NAME);
+    public IgniteCache<PortfolioKey, Portfolio> getPortfolioCache() {
+        return ignite.cache(PORTFOLIO_CACHE_NAME);
     }
 
     @Override
@@ -106,12 +76,12 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Position} cache from Hazelcast.
+     * Obtains the {@code Position} cache from Ignite.
      *
-     * @return the Hazelcast {@code Position} cache
+     * @return the Ignite {@code Position} cache
      */
-    public IMap<PositionKey, Position> getPositionCache() {
-        return hazelcastInstance.getMap(POSITION_CACHE_NAME);
+    public IgniteCache<PositionKey, Position> getPositionCache() {
+        return ignite.cache(POSITION_CACHE_NAME);
     }
 
     @Override
@@ -120,12 +90,12 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Rule} cache from Hazelcast.
+     * Obtains the {@code Rule} cache from Ignite.
      *
-     * @return the Hazelcast {@code Rule} cache
+     * @return the Ignite {@code Rule} cache
      */
-    public IMap<RuleKey, ConfigurableRule> getRuleCache() {
-        return hazelcastInstance.getMap(RULE_CACHE_NAME);
+    public IgniteCache<RuleKey, ConfigurableRule> getRuleCache() {
+        return ignite.cache(RULE_CACHE_NAME);
     }
 
     @Override
@@ -134,12 +104,12 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Security} cache from Hazelcast.
+     * Obtains the {@code Security} cache from Ignite.
      *
-     * @return the Hazelcast {@code Security} cache
+     * @return the Ignite {@code Security} cache
      */
-    public IMap<SecurityKey, Security> getSecurityCache() {
-        return hazelcastInstance.getMap(SECURITY_CACHE_NAME);
+    public IgniteCache<SecurityKey, Security> getSecurityCache() {
+        return ignite.cache(SECURITY_CACHE_NAME);
     }
 
     @Override
@@ -148,11 +118,11 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Trade} cache from Hazelcast.
+     * Obtains the {@code Trade} cache from Ignite.
      *
-     * @return the Hazelcast {@code Trade} cache
+     * @return the Ignite {@code Trade} cache
      */
-    public IMap<TradeKey, Trade> getTradeCache() {
-        return hazelcastInstance.getMap(TRADE_CACHE_NAME);
+    public IgniteCache<TradeKey, Trade> getTradeCache() {
+        return ignite.cache(TRADE_CACHE_NAME);
     }
 }

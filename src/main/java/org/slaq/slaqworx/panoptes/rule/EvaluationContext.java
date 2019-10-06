@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 
 /**
  * {@code EvaluationContext} provides contextual information that can be shared across multiple
@@ -13,6 +14,7 @@ public class EvaluationContext {
     private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
     private final RuleProvider ruleProvider;
+    private final TradeEvaluationMode evaluationMode;
 
     /**
      * Creates a new {@code EvaluationContext} with the given attributes.
@@ -29,9 +31,40 @@ public class EvaluationContext {
      */
     public EvaluationContext(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
             RuleProvider ruleProvider) {
+        this(portfolioProvider, securityProvider, ruleProvider,
+                TradeEvaluationMode.FULL_EVALUATION);
+    }
+
+    /**
+     * Creates a new {@code EvaluationContext} with the given attributes.
+     *
+     * @param portfolioProvider
+     *            the {@code PortfolioProvider} from which to obtain {@code Portfolio} information,
+     *            or {@code null} if it is known not to be needed
+     * @param securityProvider
+     *            the {@code SecurityProvider} from which to obtain {@code Security} information, or
+     *            {@code null} if it is known not to be needed
+     * @param ruleProvider
+     *            the {@code RuleProvider} from which to obtain {@code Rule} information, or
+     *            {@code null} if it is known not to be needed
+     * @param evaluationMode
+     *            the evaluation mode in which to evaluate
+     */
+    public EvaluationContext(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
+            RuleProvider ruleProvider, TradeEvaluationMode evaluationMode) {
         this.portfolioProvider = portfolioProvider;
         this.securityProvider = securityProvider;
         this.ruleProvider = ruleProvider;
+        this.evaluationMode = evaluationMode;
+    }
+
+    /**
+     * Obtains the {@code TradeEvaluationMode} in effect for this context.
+     *
+     * @return a {@code TradeEvaluationMode}
+     */
+    public TradeEvaluationMode getEvaluationMode() {
+        return evaluationMode;
     }
 
     /**

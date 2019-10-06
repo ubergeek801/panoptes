@@ -4,42 +4,34 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
+import javax.inject.Singleton;
 
-import io.micronaut.context.ApplicationContext;
-
-import org.springframework.jdbc.core.RowMapper;
-
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
- * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
+ * {@code PositionCacheStore} is an Ignite {@code CacheStore} that provides {@code Position}
  * persistence services.
  *
  * @author jeremy
  */
-public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
-    private final ApplicationContext applicationContext;
-
+@Singleton
+public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> {
     /**
-     * Creates a new PositionMapStore. Restricted because instances of this class should be created
-     * through the {@code HazelcastMapStoreFactory}.
-     *
-     * @param applicationContext
-     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
-     * @param dataSource
-     *            the {@code DataSource} through which to access the database
+     * Creates a new {@code PositionCacheStore} which obtains resources from the global
+     * {@code ApplicationContext}.
      */
-    protected PositionMapStore(ApplicationContext applicationContext, DataSource dataSource) {
-        super(dataSource);
-        this.applicationContext = applicationContext;
+    public PositionCacheStore() {
+        // nothing to do
     }
 
     @Override
-    public void delete(PositionKey key) {
+    public void delete(Object keyObject) {
+        PositionKey key = (PositionKey)keyObject;
+
         getJdbcTemplate().update("delete from portfolio_position where position_id = ?",
                 key.getId());
         getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
@@ -56,11 +48,10 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     }
 
     /**
-     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
-     * circular injection dependency.
+     * Obtains the {@code AssetCache} to be used to resolve references.
      */
     protected AssetCache getAssetCache() {
-        return applicationContext.getBean(AssetCache.class);
+        return ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
     }
 
     @Override
@@ -74,25 +65,20 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     }
 
     @Override
-    protected RowMapper<PositionKey> getKeyMapper() {
-        return (rs, rowNum) -> new PositionKey(rs.getString(1));
-    }
-
-    @Override
     protected String getLoadSelect() {
         return "select id, amount, security_id from " + getTableName();
     }
 
     @Override
-    protected String getStoreSql() {
-        return "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
-                + " on conflict on constraint position_pk do update"
-                + " set amount = excluded.amount, security_id = excluded.security_id";
+    protected String getTableName() {
+        return "position";
     }
 
     @Override
-    protected String getTableName() {
-        return "position";
+    protected String getWriteSql() {
+        return "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
+                + " on conflict on constraint position_pk do update"
+                + " set amount = excluded.amount, security_id = excluded.security_id";
     }
 
     @Override

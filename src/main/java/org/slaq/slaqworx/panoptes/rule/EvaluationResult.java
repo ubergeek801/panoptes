@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * {@code EvaluationResult} encapsulates the results of a {@code Rule} evaluation. Currently this
@@ -45,9 +46,22 @@ public class EvaluationResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Determines whether a given set of evaluation results indicates a pass or failure.
+     *
+     * @param ruleResults
+     *            the evaluation results to be considered
+     * @return {@code true} if each of the individual results indicates a pass, {@code false} if at
+     *         least one indicates failure
+     */
+    public static boolean isPassed(Map<EvaluationGroup<?>, EvaluationResult> ruleResults) {
+        return ruleResults.values().stream().allMatch(r -> r.isPassed());
+    }
+
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
+
     private final Throwable exception;
 
     /**
@@ -106,8 +120,9 @@ public class EvaluationResult implements Serializable {
      */
     public Impact compare(EvaluationResult originalResult) {
         if (originalResult == null) {
-            // TODO decide whether this even makes sense
-            return Impact.UNKNOWN;
+            // groupings may appear in the proposed state that did not appear in the original state;
+            // in this case consider a pass to be neutral and a fail to be negative
+            return (isPassed ? Impact.NEUTRAL : Impact.NEGATIVE);
         }
 
         if (value == null || originalResult.value == null || threshold == null

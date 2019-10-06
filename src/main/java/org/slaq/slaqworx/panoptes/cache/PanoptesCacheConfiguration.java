@@ -1,22 +1,26 @@
 package org.slaq.slaqworx.panoptes.cache;
 
-import java.util.Optional;
+import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.Collections;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.InMemoryFormat;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MapStoreConfig;
-import com.hazelcast.config.MapStoreConfig.InitialLoadMode;
-import com.hazelcast.config.NearCacheConfig;
-import com.hazelcast.config.SerializationConfig;
-import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-
 import io.micronaut.context.annotation.Factory;
+
+import org.apache.ignite.Ignite;
+import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.cache.store.CacheStore;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.ExecutorConfiguration;
+import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.logger.slf4j.Slf4jLogger;
+import org.apache.ignite.spi.IgniteSpiContext;
+import org.apache.ignite.spi.IgniteSpiException;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -24,32 +28,23 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.data.HazelcastMapStoreFactory;
+import org.slaq.slaqworx.panoptes.data.PortfolioCacheStore;
+import org.slaq.slaqworx.panoptes.data.PositionCacheStore;
+import org.slaq.slaqworx.panoptes.data.RuleCacheStore;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
+import org.slaq.slaqworx.panoptes.data.SecurityCacheStore;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer;
-import org.slaq.slaqworx.panoptes.serializer.PositionKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.PositionSerializer;
-import org.slaq.slaqworx.panoptes.serializer.RuleKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
-import org.slaq.slaqworx.panoptes.serializer.SecurityKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeSerializer;
-import org.slaq.slaqworx.panoptes.trade.Trade;
-import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
  * {@code PanoptesCacheConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
- * related to the Hazelcast cache.
+ * related to the Ignite cache.
  *
  * @author jeremy
  */
 @Factory
 public class PanoptesCacheConfiguration {
-    private static HazelcastInstance hazelcastInstance;
+    public static final String REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR = "remote-portfolio-evaluator";
 
     /**
      * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
@@ -60,192 +55,134 @@ public class PanoptesCacheConfiguration {
     }
 
     /**
-     * Provides a {@code MapConfig} for the specified map and adds it to the given Hazelcast
-     * {@code Config}.
+     * Provides a {@code CacheConfiguration} for the specified cache.
      *
+     * @param <K>
+     *            the cache key type
+     * @param <V>
+     *            the cache value type
      * @param cacheName
-     *            the name of the map/cache being created
-     * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to use to create the {@code MapStore}, or
-     *            null to use no {@code MapStore}
-     * @return a {@code MapConfig} configured for the given map
+     *            the name of the cache being created
+     * @param cacheStoreFactory
+     *            a {@code Factory} to be used to create a {@code CacheStore} for the cache, or
+     *            {@code null} to use no {@code CacheStore}
+     * @return a {@code CacheConfiguration} configured for the given cache
      */
-    protected MapConfig createMapConfiguration(String cacheName,
-            HazelcastMapStoreFactory mapStoreFactory) {
-        NearCacheConfig nearCacheConfig = new NearCacheConfig().setName("near-" + cacheName)
-                .setInMemoryFormat(InMemoryFormat.OBJECT).setCacheLocalEntries(true);
-        MapConfig mapConfig = new MapConfig(cacheName).setBackupCount(3).setReadBackupData(true)
-                .setInMemoryFormat(InMemoryFormat.BINARY).setNearCacheConfig(nearCacheConfig);
-        if (mapStoreFactory != null) {
-            MapStoreConfig mapStoreConfig = new MapStoreConfig()
-                    .setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
-                    .setWriteBatchSize(1000).setInitialLoadMode(InitialLoadMode.LAZY);
-            mapConfig.setMapStoreConfig(mapStoreConfig);
+    protected <K, V> CacheConfiguration<K, V> createCacheConfiguration(String cacheName,
+            javax.cache.configuration.Factory<? extends CacheStore<? super K, ? super V>> cacheStoreFactory) {
+        CacheConfiguration<K, V> cacheConfig =
+                new CacheConfiguration<K, V>(cacheName).setCacheMode(CacheMode.REPLICATED);
+        if (cacheStoreFactory != null) {
+            cacheConfig.setCacheStoreFactory(cacheStoreFactory);
         }
 
-        return mapConfig;
+        return cacheConfig;
     }
 
     /**
-     * Provides a Hazelcast configuration suitable for the detected runtime environment.
+     * Provides an Ignite configuration suitable for the detected runtime environment.
      *
      * @param securityAttributeLoader
      *            the {@SecurityAttributeLoader} used to initialize {@code SecurityAttribute}s
-     * @param portfolioMapConfig
-     *            the {@code MapConfig} to use for {@code Portfolio} data
-     * @param positionMapConfig
-     *            the {@code MapConfig} to use for {@code Position} data
-     * @param securityMapConfig
-     *            the {@code MapConfig} to use for {@code Security} data
-     * @param ruleMapConfig
-     *            the {@code MapConfig} to use for {@code Rule} data
-     * @param portfolioSerializer
-     *            the {@code PortfolioSerializer} to use for {@code Portfolio} serialization
-     * @param positionSerializer
-     *            the {@code PositionSerializer} to use for {@code Position} serialization
-     * @param tradeSerializer
-     *            the {@code TradeSerializer} to use for {@code Trade} serialization
-     * @return a Hazelcast {@code Config}
+     * @return an {@code IgniteConfiguration}
      */
     @Singleton
-    protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
-            @Named("portfolio") MapConfig portfolioMapConfig,
-            @Named("position") MapConfig positionMapConfig,
-            @Named("security") MapConfig securityMapConfig, @Named("rule") MapConfig ruleMapConfig,
-            PortfolioSerializer portfolioSerializer, PositionSerializer positionSerializer,
-            TradeSerializer tradeSerializer) {
+    protected IgniteConfiguration igniteConfig(SecurityAttributeLoader securityAttributeLoader) {
         securityAttributeLoader.loadSecurityAttributes();
 
         boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
 
-        Config config = new Config("panoptes");
-        config.setProperty("hazelcast.logging.type", "slf4j");
-        // this probably isn't good for fault tolerance but it improves startup time
-        if (isClustered) {
-            config.setProperty("hazelcast.initial.min.cluster.size", "4");
-        }
+        IgniteConfiguration config = new IgniteConfiguration().setIgniteInstanceName("panoptes")
+                .setGridLogger(new Slf4jLogger());
+        // Portfolio evaluation doesn't need high concurrency because underlying Rule execution is
+        // already parallel
+        config.setExecutorConfiguration(
+                new ExecutorConfiguration(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR).setSize(4));
 
         // set up the entity caches (Portfolio, Position, etc.); note that Trade is non-persistent
         // for now
 
-        SerializationConfig serializationConfig = config.getSerializationConfig();
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(portfolioSerializer).setTypeClass(Portfolio.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PositionKeySerializer()).setTypeClass(PositionKey.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(positionSerializer).setTypeClass(Position.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new RuleKeySerializer()).setTypeClass(RuleKey.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new RuleSerializer()).setTypeClass(ConfigurableRule.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new SecurityKeySerializer()).setTypeClass(SecurityKey.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
-        serializationConfig.addSerializerConfig(new SerializerConfig()
-                .setImplementation(tradeSerializer).setTypeClass(Trade.class));
-
-        config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
-                .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
-                .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
-
-        // set up the Portfolio evaluation request queue and result map/topic
-        config.getQueueConfig(AssetCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME).setBackupCount(0);
-        config.getMapConfig(AssetCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
-                .setInMemoryFormat(InMemoryFormat.BINARY);
+        CacheConfiguration<PortfolioKey, Portfolio> portfolioCacheConfiguration =
+                createCacheConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
+                        () -> new PortfolioCacheStore());
+        CacheConfiguration<PositionKey, Position> positionCacheConfiguration =
+                createCacheConfiguration(AssetCache.POSITION_CACHE_NAME,
+                        () -> new PositionCacheStore());
+        CacheConfiguration<RuleKey, ConfigurableRule> securityCacheConfiguration =
+                createCacheConfiguration(AssetCache.RULE_CACHE_NAME, () -> new RuleCacheStore());
+        CacheConfiguration<SecurityKey, Security> ruleCacheConfiguration = createCacheConfiguration(
+                AssetCache.SECURITY_CACHE_NAME, () -> new SecurityCacheStore());
+        config.setCacheConfiguration(portfolioCacheConfiguration, positionCacheConfiguration,
+                securityCacheConfiguration, ruleCacheConfiguration,
+                createCacheConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
         // set up cluster join discovery appropriate for the detected environment
         if (isClustered) {
             // use Kubernetes discovery
+            // FIXME configure k8s discovery
             // TODO parameterize the cluster DNS property
-            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-            config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(true)
-                    .setProperty("service-dns", "panoptes-hazelcast.default.svc.cluster.local");
+            config.setDiscoverySpi(
+                    new TcpDiscoverySpi().setIpFinder(new TcpDiscoveryKubernetesIpFinder()));
         } else {
-            // not running in Kubernetes; run standalone
-            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+            // not running in Kubernetes; run standalone (or as close as we can get, by using a
+            // dummy discovery)
+            config.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(new TcpDiscoveryIpFinder() {
+                @Override
+                public void close() {
+                    // nothing to do
+                }
+
+                @Override
+                public Collection<InetSocketAddress> getRegisteredAddresses()
+                        throws IgniteSpiException {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public void initializeLocalAddresses(Collection<InetSocketAddress> addrs)
+                        throws IgniteSpiException {
+                    // nothing to do
+                }
+
+                @Override
+                public boolean isShared() {
+                    return true;
+                }
+
+                @Override
+                public void onSpiContextDestroyed() {
+                    // nothing to do
+                }
+
+                @Override
+                public void onSpiContextInitialized(IgniteSpiContext spiCtx) {
+                    // nothing to do
+                }
+
+                @Override
+                public void registerAddresses(Collection<InetSocketAddress> addrs) {
+                    // nothing to do
+                }
+
+                @Override
+                public void unregisterAddresses(Collection<InetSocketAddress> addrs) {
+                    // nothing to do
+                }
+            }));
         }
 
         return config;
     }
 
     /**
-     * Provides a {@code HazelcastInstance} configured with the given configuration.
+     * Provides an {@code Ignite} instance configured with the given configuration.
      *
-     * @param hazelcastConfiguration
-     *            the Hazelcast {@Config} with which to configure the instance
-     * @return a {@HazelcastInstance}
+     * @param igniteConfiguration
+     *            the {@code IgniteConfiguration} with which to configure the instance
+     * @return an {@Ignite} instance
      */
     @Singleton
-    protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
-        // FIXME this shouldn't be necessary with @Singleton but unit tests get duplicates otherwise
-        if (hazelcastInstance == null) {
-            hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfiguration);
-        }
-
-        return hazelcastInstance;
-    }
-
-    /**
-     * Provides a {@code MapConfig} for the {@code Portfolio} cache.
-     *
-     * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
-     *            omitted if persistence is not desired (e.g. unit testing)
-     * @return a {@code MapConfig}
-     */
-    @Named("portfolio")
-    @Singleton
-    protected MapConfig
-            portfolioMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
-        return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
-                mapStoreFactory.orElse(null));
-    }
-
-    /**
-     * Provides a {@code MapConfig} for the {@code Position} cache.
-     *
-     * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
-     *            omitted if persistence is not desired (e.g. unit testing)
-     * @return a {@code MapConfig}
-     */
-    @Named("position")
-    @Singleton
-    protected MapConfig positionMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
-        return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory.orElse(null));
-    }
-
-    /**
-     * Provides a {@code MapConfig} for the {@code Rule} cache.
-     *
-     * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
-     *            omitted if persistence is not desired (e.g. unit testing)
-     * @return a {@code MapConfig}
-     */
-    @Named("rule")
-    @Singleton
-    protected MapConfig ruleMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
-        return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory.orElse(null));
-    }
-
-    /**
-     * Provides a {@code MapConfig} for the {@code Security} cache.
-     *
-     * @param mapStoreFactory
-     *            the {@code HazelcastMapStoreFactory} to provide to the configuration; may be
-     *            omitted if persistence is not desired (e.g. unit testing)
-     * @return a {@code MapConfig}
-     */
-    @Named("security")
-    @Singleton
-    protected MapConfig securityMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
-        return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory.orElse(null));
+    protected Ignite igniteInstance(IgniteConfiguration igniteConfiguration) {
+        return Ignition.getOrStart(igniteConfiguration);
     }
 }

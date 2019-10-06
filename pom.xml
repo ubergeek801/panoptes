@@ -16,6 +16,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
+        <ignite.version>2.7.6</ignite.version>
         <jetty.version>9.4.20.v20190813</jetty.version>
         <micronaut.version>1.2.2</micronaut.version>
         <vaadin.version>14.0.6</vaadin.version>
@@ -33,30 +34,6 @@
 
     <build>
         <plugins>
-            <!-- compile protobuf definitions for serialization -->
-            <plugin>
-                <groupId>com.github.os72</groupId>
-                <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>3.8.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <protocVersion>3.10.0</protocVersion>
-                            <outputTargets>
-                                <outputTarget>
-                                    <type>java</type>
-                                    <outputOptions>lite</outputOptions>
-                                    <outputDirectorySuffix>protobuf</outputDirectorySuffix>
-                                </outputTarget>
-                            </outputTargets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- create a Docker image for the application -->
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
@@ -100,7 +77,6 @@
                             <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
 
                             <jvmFlag>-Xmx2560m</jvmFlag>
-                            <jvmFlag>-Dhazelcast.jmx=true</jvmFlag>
                             <jvmFlag>-noverify</jvmFlag>
                             <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>
                             <jvmFlag>-Djava.util.concurrent.ForkJoinPool.common.parallelism=6</jvmFlag>
@@ -145,27 +121,6 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
-            </plugin>
-            <!-- patch protoc output to make ECJ happy (compiles fine with javac) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-patch-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <originalFile>target/generated-sources/protobuf/org/slaq/slaqworx/panoptes/proto/PanoptesSerialization.java</originalFile>
-                    <patches>
-                        <patch>protobuf.patch</patch>
-                    </patches>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>patch-protobuf</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>apply</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <!-- set the desired environment when running unit tests -->
             <plugin>
@@ -248,21 +203,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-javalite</artifactId>
-            <version>3.10.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>3.12.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-kubernetes</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
         </dependency>
@@ -284,6 +224,21 @@
             <artifactId>groovy</artifactId>
             <!-- override the Micronaut version for JDK 13 compatibility -->
             <version>2.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-core</artifactId>
+            <version>${ignite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-kubernetes</artifactId>
+            <version>${ignite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-slf4j</artifactId>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

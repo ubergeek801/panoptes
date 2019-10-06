@@ -10,13 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.sql.DataSource;
-
-import io.micronaut.context.ApplicationContext;
+import javax.inject.Singleton;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -27,30 +26,25 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PortfolioMapStore} is a Hazelcast {@code MapStore} that provides {@code Portfolio}
+ * {@code PortfolioCacheStore} is an Ignite {@code CacheStore} that provides {@code Portfolio}
  * persistence services.
  *
  * @author jeremy
  */
-public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
-    private ApplicationContext applicationContext;
-
+@Singleton
+public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfolio> {
     /**
-     * Creates a new {@code PortfolioMapStore}. Restricted because instances of this class should be
-     * obtained through the {@code HazelcastMapStoreFactory}.
-     *
-     * @param applicationContext
-     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
-     * @param dataSource
-     *            the {@code DataSource} through which to access the database
+     * Creates a new {@code PortfolioCacheStore} which obtains resources from the global
+     * {@code ApplicationContext}.
      */
-    protected PortfolioMapStore(ApplicationContext applicationContext, DataSource dataSource) {
-        super(dataSource);
-        this.applicationContext = applicationContext;
+    public PortfolioCacheStore() {
+        // nothing to do
     }
 
     @Override
-    public void delete(PortfolioKey key) {
+    public void delete(Object keyObject) {
+        PortfolioKey key = (PortfolioKey)keyObject;
+
         getJdbcTemplate().update(
                 "delete from portfolio_position where portfolio_id = ? and portfolio_version = ?",
                 key.getId(), key.getVersion());
@@ -93,11 +87,10 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     }
 
     /**
-     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
-     * circular injection dependency.
+     * Obtains the {@code AssetCache} to be used to resolve references.
      */
     protected AssetCache getAssetCache() {
-        return applicationContext.getBean(AssetCache.class);
+        return ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
     }
 
     @Override
@@ -111,22 +104,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     }
 
     @Override
-    protected RowMapper<PortfolioKey> getKeyMapper() {
-        return (rs, rowNum) -> new PortfolioKey(rs.getString(1), rs.getInt(2));
-    }
-
-    @Override
     protected String getLoadSelect() {
         return "select id, version, name, benchmark_id, benchmark_version from " + getTableName();
-    }
-
-    @Override
-    protected String getStoreSql() {
-        return "insert into " + getTableName()
-                + " (id, version, name, benchmark_id, benchmark_version) values (?, ?, ?, ?, ?)"
-                + " on conflict on constraint portfolio_pk do update"
-                + " set name = excluded.name, benchmark_id = excluded.benchmark_id,"
-                + " benchmark_version = excluded.benchmark_version";
     }
 
     @Override
@@ -135,7 +114,16 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     }
 
     @Override
-    protected void postStoreAll(Map<PortfolioKey, Portfolio> map) {
+    protected String getWriteSql() {
+        return "insert into " + getTableName()
+                + " (id, version, name, benchmark_id, benchmark_version) values (?, ?, ?, ?, ?)"
+                + " on conflict on constraint portfolio_pk do update"
+                + " set name = excluded.name, benchmark_id = excluded.benchmark_id,"
+                + " benchmark_version = excluded.benchmark_version";
+    }
+
+    @Override
+    protected void postWriteAll(Map<? extends PortfolioKey, ? extends Portfolio> map) {
         // now that the Portfolios have been inserted, store the Position and Rule relationships
 
         for (Portfolio portfolio : map.values()) {
