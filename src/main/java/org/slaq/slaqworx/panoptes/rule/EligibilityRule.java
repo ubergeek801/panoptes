@@ -35,11 +35,11 @@ public abstract class EligibilityRule extends GenericRule {
     public abstract boolean isEligible(Security security);
 
     @Override
-    protected EvaluationResult eval(PositionSupplier portfolioPositions,
+    protected RuleResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         boolean isEligible =
                 portfolioPositions.getPositions().allMatch(p -> isEligible(p.getSecurity()));
 
-        return new EvaluationResult(isEligible);
+        return new RuleResult(isEligible);
     }
 }

@@ -26,9 +26,8 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
@@ -93,7 +92,7 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
     public void subscribe(FlowableEmitter<String> emitter) throws Exception {
         FlowableEmitter<String> serialEmitter = emitter.serialize();
 
-        ExecutorCompletionService<Pair<Portfolio, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> completionService =
+        ExecutorCompletionService<Pair<Portfolio, Map<RuleKey, EvaluationResult>>> completionService =
                 new ExecutorCompletionService<>(evaluatorPool);
 
         long startTime = System.currentTimeMillis();
@@ -110,18 +109,17 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
         });
 
         for (int i = 0; i < numPortfolios[0]; i++) {
-            Pair<Portfolio, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> portfolioResults =
+            Pair<Portfolio, Map<RuleKey, EvaluationResult>> portfolioResults =
                     completionService.take().get();
             Portfolio portfolio = portfolioResults.getLeft();
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
-                    portfolioResults.getRight();
+            Map<RuleKey, EvaluationResult> results = portfolioResults.getRight();
             StringBuilder output = new StringBuilder(
                     "Portfolio " + portfolio.getName() + " (" + portfolio.getKey().getId() + ")\n");
-            results.forEach((ruleKey, resultMap) -> {
+            results.forEach((ruleKey, evaluationResult) -> {
                 output.append("  * Rule " + ruleKey + "\n");
                 boolean[] isFirst = new boolean[1];
                 isFirst[0] = true;
-                resultMap.forEach((group, result) -> {
+                evaluationResult.getResults().forEach((group, result) -> {
                     if (isFirst[0]) {
                         output.append("    * Group " + group.getAggregationKey() + " = "
                                 + group.getId() + "\n");

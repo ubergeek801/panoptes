@@ -1,16 +1,15 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
- * {@code EvaluationResult} encapsulates the results of a {@code Rule} evaluation. Currently this
- * class contains aspects of Boolean- and value-based evaluations, which possibly should be
- * separated.
+ * {@code RuleResult} encapsulates the results of a {@code Rule} evaluation, typically grouped by
+ * {@code EvaluationGroup} and aggregated into an {@code EvaluationResult}. Currently this class
+ * contains aspects of Boolean- and value-based evaluations, which possibly should be separated.
  *
  * @author jeremy
  */
-public class EvaluationResult implements Serializable {
+public class RuleResult implements Serializable {
     /**
      * {@code Impact} describes the impact of some change (such as a proposed {@code Trade}) on a
      * {@code Rule}, as evaluated before and after the proposed changes are considered.
@@ -46,18 +45,6 @@ public class EvaluationResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Determines whether a given set of evaluation results indicates a pass or failure.
-     *
-     * @param ruleResults
-     *            the evaluation results to be considered
-     * @return {@code true} if each of the individual results indicates a pass, {@code false} if at
-     *         least one indicates failure
-     */
-    public static boolean isPassed(Map<EvaluationGroup<?>, EvaluationResult> ruleResults) {
-        return ruleResults.values().stream().allMatch(r -> r.isPassed());
-    }
-
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
@@ -65,13 +52,12 @@ public class EvaluationResult implements Serializable {
     private final Throwable exception;
 
     /**
-     * Creates a new Boolean-based {@code EvaluationResult} indicating whether the evaluation
-     * passed.
+     * Creates a new Boolean-based {@code RuleResult} indicating whether the evaluation passed.
      *
      * @param isPassed
      *            {@code true} if the evaluation passed, {@code false} otherwise
      */
-    public EvaluationResult(boolean isPassed) {
+    public RuleResult(boolean isPassed) {
         this.isPassed = isPassed;
         threshold = null;
         value = null;
@@ -79,8 +65,8 @@ public class EvaluationResult implements Serializable {
     }
 
     /**
-     * Creates a new value-based {@code EvaluationResult} indicating the threshold status for
-     * evaluation and the actual result value.
+     * Creates a new value-based {@code RuleResult} indicating the threshold status for evaluation
+     * and the actual result value.
      *
      * @param threshold
      *            a {@code Threshold} value indicating whether the value is within the evaluation
@@ -88,7 +74,7 @@ public class EvaluationResult implements Serializable {
      * @param value
      *            the actual evaluation result value
      */
-    public EvaluationResult(Threshold threshold, double value) {
+    public RuleResult(Threshold threshold, double value) {
         isPassed = (threshold == Threshold.WITHIN);
         this.threshold = threshold;
         this.value = value;
@@ -96,13 +82,13 @@ public class EvaluationResult implements Serializable {
     }
 
     /**
-     * Creates a new Boolean-based {@code EvaluationResult} indicating that the evaluation failed
-     * due to some exception.
+     * Creates a new Boolean-based {@code RuleResult} indicating that the evaluation failed due to
+     * some exception.
      *
      * @param exception
      *            the exception causing the failure
      */
-    public EvaluationResult(Throwable exception) {
+    public RuleResult(Throwable exception) {
         isPassed = false;
         threshold = null;
         value = null;
@@ -110,15 +96,15 @@ public class EvaluationResult implements Serializable {
     }
 
     /**
-     * Compares this {@code EvaluationResult} (which is interpreted as the result of some proposed
-     * change such as a {@code Trade}) to the given {@code EvaluationResult} (which is interpreted
-     * as the value prior to the proposed change).
+     * Compares this {@code RuleResult} (which is interpreted as the result of some proposed change
+     * such as a {@code Trade}) to the given {@code RuleResult} (which is interpreted as the value
+     * prior to the proposed change).
      *
      * @param originalResult
-     *            the {@code EvaluationResult} to compare to
+     *            the {@code RuleResult} to compare to
      * @return an {@code Impact} describing the impact of the change on the evaluations
      */
-    public Impact compare(EvaluationResult originalResult) {
+    public Impact compare(RuleResult originalResult) {
         if (originalResult == null) {
             // groupings may appear in the proposed state that did not appear in the original state;
             // in this case consider a pass to be neutral and a fail to be negative

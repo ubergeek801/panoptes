@@ -30,11 +30,11 @@ import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
+import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
@@ -60,9 +60,9 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        public EvaluationResult eval(PositionSupplier portfolioPositions,
+        public RuleResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
-            return new EvaluationResult(isPass);
+            return new RuleResult(isPass);
         }
     }
 
@@ -76,7 +76,7 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        protected EvaluationResult eval(PositionSupplier portfolioPositions,
+        protected RuleResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
             throw new RuntimeException("exception test");
         }
@@ -95,9 +95,9 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        public EvaluationResult eval(PositionSupplier portfolioPositions,
+        public RuleResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
-            return new EvaluationResult(benchmark.equals(benchmarkPositions.getPortfolio()));
+            return new RuleResult(benchmark.equals(benchmarkPositions.getPortfolio()));
         }
     }
 
@@ -175,7 +175,7 @@ public class PortfolioEvaluatorTest {
                 positions, (PortfolioKey)null, rules.values());
 
         LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator();
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults = localEvaluator
+        Map<RuleKey, EvaluationResult> allResults = localEvaluator
                 .evaluate(portfolio, new EvaluationContext(assetCache, assetCache, assetCache))
                 .get();
         validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
@@ -208,19 +208,20 @@ public class PortfolioEvaluatorTest {
         Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+        Map<RuleKey, EvaluationResult> results =
                 new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
                         new EvaluationContext(null, null, ruleProvider)).get();
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
-        assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertTrue(
+                results.get(passRule.getKey()).getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "always-pass rule should have passed");
-        assertFalse(results.get(failRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
-                "always-fail rule should have failed");
         assertFalse(
-                results.get(exceptionRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
-                "exception-throwing rule should have failed");
+                results.get(failRule.getKey()).getResult(EvaluationGroup.defaultGroup()).isPassed(),
+                "always-fail rule should have failed");
+        assertFalse(results.get(exceptionRule.getKey()).getResult(EvaluationGroup.defaultGroup())
+                .isPassed(), "exception-throwing rule should have failed");
     }
 
     /**
@@ -290,7 +291,7 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions,
                 (PortfolioKey)null, rules.values());
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = evaluator
+        Map<RuleKey, EvaluationResult> results = evaluator
                 .evaluate(portfolio,
                         new EvaluationContext(null, TestUtil.testSecurityProvider(), ruleProvider))
                 .get();
@@ -299,40 +300,38 @@ public class PortfolioEvaluatorTest {
         assertEquals(rules.size(), results.size(),
                 "number of evaluated rules should match number of portfolio rules");
 
-        // each rule's entry should have a number of results equal to the number of distinct groups
-        // for that rule
-        Map<EvaluationGroup<?>, EvaluationResult> durationResults =
-                results.get(durationRule.getKey());
+        // each Rule's entry should have a number of results equal to the number of distinct groups
+        // for that Rule
+        EvaluationResult durationResults = results.get(durationRule.getKey());
         assertEquals(3, durationResults.size(),
                 "number of duration rule results should match number of currencies");
-        Map<EvaluationGroup<?>, EvaluationResult> qualityResults =
-                results.get(qualityRule.getKey());
+        EvaluationResult qualityResults = results.get(qualityRule.getKey());
         assertEquals(1, qualityResults.size(), "quality rule results should have a single group");
-        Map<EvaluationGroup<?>, EvaluationResult> issuerResults = results.get(issuerRule.getKey());
+        EvaluationResult issuerResults = results.get(issuerRule.getKey());
         assertEquals(2, issuerResults.size(),
                 "number of issuer rule results should match number of issuers");
 
         // the duration rule is grouped by currency, so we should find results for USD, NZD, CAD;
         // USD duration = (300 + 600) / (100 + 200) = 3 which should pass
-        assertTrue(durationResults.get(new EvaluationGroup<>("USD", null)).isPassed(),
+        assertTrue(durationResults.getResult(new EvaluationGroup<>("USD", null)).isPassed(),
                 "duration rule should have passed for USD");
         // NZD duration = (1_200 + 1_600) / (300 + 400) = 4 which should pass
-        assertTrue(durationResults.get(new EvaluationGroup<>("NZD", null)).isPassed(),
+        assertTrue(durationResults.getResult(new EvaluationGroup<>("NZD", null)).isPassed(),
                 "duration rule should have passed for NZD");
         // CAD duration = (2_500 + 3_000) / (500 + 600) = 5 which should fail
-        assertFalse(durationResults.get(new EvaluationGroup<>("CAD", null)).isPassed(),
+        assertFalse(durationResults.getResult(new EvaluationGroup<>("CAD", null)).isPassed(),
                 "duration rule should have failed for CAD");
 
         // the quality rule is not grouped, so should have a single result for the default group
-        assertFalse(qualityResults.get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertFalse(qualityResults.getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "quality rule should have failed");
 
         // the issuer rule is grouped by issuer, so we should find results for ISSFOO, ISSBAR;
         // ISSFOO concentration = (100 + 200 + 300 + 400) / 2_100 = 0.476190476 which should pass
-        assertTrue(issuerResults.get(new EvaluationGroup<>("ISSFOO", null)).isPassed(),
+        assertTrue(issuerResults.getResult(new EvaluationGroup<>("ISSFOO", null)).isPassed(),
                 "issuer rule should have passed for ISSFOO");
         // ISSBAR concentration = (500 + 600) / 2_100 = 0.523809524 which should fail
-        assertFalse(issuerResults.get(new EvaluationGroup<>("ISSBAR", null)).isPassed(),
+        assertFalse(issuerResults.getResult(new EvaluationGroup<>("ISSBAR", null)).isPassed(),
                 "issuer rule should have failed for ISSBAR");
     }
 
@@ -375,32 +374,22 @@ public class PortfolioEvaluatorTest {
                 portfolioBenchmark, portfolioRules.values());
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results =
+        Map<RuleKey, EvaluationResult> results =
                 evaluator.evaluate(portfolio, new EvaluationContext(benchmarkProvider,
                         TestUtil.testSecurityProvider(), ruleProvider)).get();
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
-        assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertTrue(
+                results.get(passRule.getKey()).getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "always-pass rule should have passed");
-        assertFalse(results.get(failRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertFalse(
+                results.get(failRule.getKey()).getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "always-fail rule should have failed");
-        assertTrue(results.get(usePortfolioBenchmarkRule.getKey())
-                .get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertTrue(
+                results.get(usePortfolioBenchmarkRule.getKey())
+                        .getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "portfolio benchmark should have been used");
-
-        // test the form of evaluate() that should override the portfolio benchmark
-        results = evaluator.evaluate(portfolio, overrideBenchmark, new EvaluationContext(
-                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
-
-        assertEquals(3, results.size(), "unexpected number of results");
-        assertTrue(results.get(passRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
-                "always-pass rule should have passed");
-        assertFalse(results.get(failRule.getKey()).get(EvaluationGroup.defaultGroup()).isPassed(),
-                "always-fail rule should have failed");
-        assertFalse(results.get(usePortfolioBenchmarkRule.getKey())
-                .get(EvaluationGroup.defaultGroup()).isPassed(),
-                "override benchmark should have been used");
 
         HashSet<Rule> overrideRules = new HashSet<>();
         overrideRules.add(usePortfolioBenchmarkRule);
@@ -413,8 +402,9 @@ public class PortfolioEvaluatorTest {
                         .get();
 
         assertEquals(1, results.size(), "unexpected number of results");
-        assertTrue(results.get(usePortfolioBenchmarkRule.getKey())
-                .get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertTrue(
+                results.get(usePortfolioBenchmarkRule.getKey())
+                        .getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "portfolio benchmark should have been used");
 
         // test the form of evaluate() that should override the portfolio rules and benchmark
@@ -423,8 +413,9 @@ public class PortfolioEvaluatorTest {
                         ruleProvider));
 
         assertEquals(1, results.size(), "unexpected number of results");
-        assertFalse(results.get(usePortfolioBenchmarkRule.getKey())
-                .get(EvaluationGroup.defaultGroup()).isPassed(),
+        assertFalse(
+                results.get(usePortfolioBenchmarkRule.getKey())
+                        .getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "override benchmark should have been used");
     }
 
@@ -443,19 +434,15 @@ public class PortfolioEvaluatorTest {
      * @param top10issuerRule
      *            the {@code Rule} corresponding to the top 10 issuer test
      */
-    protected void validateAggregationResults(
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults,
+    protected void validateAggregationResults(Map<RuleKey, EvaluationResult> allResults,
             Map<RuleKey, Rule> rules, Rule top2issuerRule, Rule top3issuerRule,
             Rule top10issuerRule) {
         assertEquals(rules.size(), allResults.size(),
                 "number of results should equal number of Rules");
 
-        Map<EvaluationGroup<?>, EvaluationResult> top2IssuerResults =
-                allResults.get(top2issuerRule.getKey());
-        Map<EvaluationGroup<?>, EvaluationResult> top3IssuerResults =
-                allResults.get(top3issuerRule.getKey());
-        Map<EvaluationGroup<?>, EvaluationResult> top10IssuerResults =
-                allResults.get(top10issuerRule.getKey());
+        EvaluationResult top2IssuerResults = allResults.get(top2issuerRule.getKey());
+        EvaluationResult top3IssuerResults = allResults.get(top3issuerRule.getKey());
+        EvaluationResult top10IssuerResults = allResults.get(top10issuerRule.getKey());
 
         assertNotNull(top2IssuerResults, "should have found results for top 2 issuer rule");
         assertNotNull(top3IssuerResults, "should have found results for top 3 issuer rule");
@@ -469,7 +456,7 @@ public class PortfolioEvaluatorTest {
         assertEquals(7, top10IssuerResults.size(),
                 "unexpected number of groups for top 10 issuer rule");
 
-        top2IssuerResults.forEach((group, result) -> {
+        top2IssuerResults.getResults().forEach((group, result) -> {
             switch (group.getId()) {
             case "ISSFOO":
                 // this concentration alone (30%) is enough to exceed the rule limit (25%)
@@ -492,7 +479,7 @@ public class PortfolioEvaluatorTest {
             }
         });
 
-        top3IssuerResults.forEach((group, result) -> {
+        top3IssuerResults.getResults().forEach((group, result) -> {
             switch (group.getId()) {
             case "ISSFOO":
             case "ISSBAR":
@@ -512,7 +499,7 @@ public class PortfolioEvaluatorTest {
             }
         });
 
-        top10IssuerResults.forEach((group, result) -> {
+        top10IssuerResults.getResults().forEach((group, result) -> {
             switch (group.getId()) {
             case "ISSFOO":
             case "ISSBAR":

@@ -15,14 +15,14 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
+import org.slaq.slaqworx.panoptes.rule.RuleResult;
 
 /**
  * {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
@@ -97,15 +97,15 @@ public class TradeEvaluator {
             // always a potential indicator of non-compliance
             EvaluationContext proposedEvaluationContext = new EvaluationContext(portfolioProvider,
                     securityProvider, ruleProvider, TradeEvaluationMode.FULL_EVALUATION);
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
+            Map<RuleKey, EvaluationResult> proposedState =
                     evaluator.evaluate(portfolio, transaction, proposedEvaluationContext).get();
             EvaluationContext currentEvaluationContext = new EvaluationContext(portfolioProvider,
                     securityProvider, ruleProvider, evaluationMode);
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState;
+            Map<RuleKey, EvaluationResult> currentState;
             if (evaluationMode == TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION) {
-                Stream<Rule> failedRules = proposedState.entrySet().stream()
-                        .filter(e -> !EvaluationResult.isPassed(e.getValue()))
-                        .map(e -> ruleProvider.getRule(e.getKey()));
+                Stream<Rule> failedRules =
+                        proposedState.entrySet().stream().filter(e -> !e.getValue().isPassed())
+                                .map(e -> ruleProvider.getRule(e.getKey()));
                 // For short-circuit evaluation, we need only calculate the current state for Rules
                 // that failed in the proposed state, as we are only determining the impact. As soon
                 // as one Rule is found to pass in the current state, the Trade can be considered
@@ -205,22 +205,20 @@ public class TradeEvaluator {
     }
 
     protected void addImpacts(PortfolioKey portfolioKey, TradeEvaluationResult evaluationResult,
-            TradeEvaluationMode evaluationMode,
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState,
-            Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState) {
+            TradeEvaluationMode evaluationMode, Map<RuleKey, EvaluationResult> proposedState,
+            Map<RuleKey, EvaluationResult> currentState) {
         proposedState.entrySet().forEach(ruleEntry -> {
             RuleKey ruleKey = ruleEntry.getKey();
-            Map<EvaluationGroup<?>, EvaluationResult> proposedGroupResults = ruleEntry.getValue();
+            EvaluationResult proposedGroupResults = ruleEntry.getValue();
             if (evaluationMode != TradeEvaluationMode.FULL_EVALUATION
-                    && EvaluationResult.isPassed(proposedGroupResults)) {
+                    && proposedGroupResults.isPassed()) {
                 // there won't be a current evaluation if the proposed evaluation passed, since
                 // only failed Rules are evaluated twice
                 return;
             }
 
-            Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
-                    currentState.get(ruleKey);
-            proposedGroupResults.forEach((group, proposedResult) -> {
+            EvaluationResult currentGroupResults = currentState.get(ruleKey);
+            proposedGroupResults.getResults().forEach((group, proposedResult) -> {
                 if (evaluationMode != TradeEvaluationMode.FULL_EVALUATION
                         && currentGroupResults == null) {
                     // there may not be a current evaluation if the proposed evaluation failed,
@@ -228,7 +226,7 @@ public class TradeEvaluator {
                     return;
                 }
 
-                EvaluationResult currentResult = currentGroupResults.get(group);
+                RuleResult currentResult = currentGroupResults.getResults().get(group);
                 evaluationResult.addImpact(portfolioKey, ruleKey, group,
                         proposedResult.compare(currentResult));
             });

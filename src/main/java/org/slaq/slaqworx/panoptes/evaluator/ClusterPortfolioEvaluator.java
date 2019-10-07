@@ -17,8 +17,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PanoptesCacheConfiguration;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -52,23 +50,22 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
-                    throws InterruptedException, ExecutionException {
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException {
         return evaluate(portfolio, null, evaluationContext);
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
-            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+            Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException {
         return evaluate(null, portfolio, transaction, evaluationContext);
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
-                    throws ExecutionException, InterruptedException {
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
+            Portfolio portfolio, EvaluationContext evaluationContext)
+            throws ExecutionException, InterruptedException {
         return evaluate(rules, portfolio, null, evaluationContext);
     }
 
@@ -88,9 +85,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      *            the {@code EvaluationContext} under which to evaluate
      * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
      */
-    protected IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
-            Stream<Rule> rules, Portfolio portfolio, Transaction transaction,
-            EvaluationContext evaluationContext) {
+    protected IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
+            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext) {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
@@ -103,12 +99,10 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             assetCache.getTradeCache().put(trade.getKey(), trade);
         }
 
-        IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> futureResult =
-                igniteInstance.compute()
-                        .withExecutor(
-                                PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
-                        .callAsync(new RemotePortfolioEvaluator(rules, portfolio, transaction,
-                                evaluationContext));
+        IgniteFuture<Map<RuleKey, EvaluationResult>> futureResult = igniteInstance.compute()
+                .withExecutor(PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
+                .callAsync(new RemotePortfolioEvaluator(rules, portfolio, transaction,
+                        evaluationContext));
         if (transaction != null) {
             // arrange to remove the temporary Trade from the cache when finished
             futureResult.listen(

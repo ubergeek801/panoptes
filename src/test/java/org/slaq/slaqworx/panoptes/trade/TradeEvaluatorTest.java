@@ -30,15 +30,16 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
+import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
 
@@ -66,20 +67,23 @@ public class TradeEvaluatorTest {
         RuleKey rule2Key = new RuleKey("rule2");
         EvaluationGroup<Integer> evalGroup1 = new EvaluationGroup<>("group1", 1);
         EvaluationGroup<Integer> evalGroup2 = new EvaluationGroup<>("group2", 2);
-        EvaluationResult PASS = new EvaluationResult(true);
-        EvaluationResult FAIL = new EvaluationResult(false);
+        RuleResult PASS = new RuleResult(true);
+        RuleResult FAIL = new RuleResult(false);
 
         // result grouping may vary between current and proposed states, regardless of evaluation
         // mode
-        Map<EvaluationGroup<?>, EvaluationResult> rule1CurrentResults = Map.of(evalGroup1, PASS);
-        Map<EvaluationGroup<?>, EvaluationResult> rule2CurrentResults =
-                Map.of(evalGroup1, PASS, evalGroup2, PASS);
-        Map<EvaluationGroup<?>, EvaluationResult> rule1ProposedResults = Map.of(evalGroup2, PASS);
-        Map<EvaluationGroup<?>, EvaluationResult> rule2ProposedResults = Map.of(evalGroup2, PASS);
+        EvaluationResult rule1CurrentResults =
+                new EvaluationResult(rule1Key, Map.of(evalGroup1, PASS));
+        EvaluationResult rule2CurrentResults =
+                new EvaluationResult(rule2Key, Map.of(evalGroup1, PASS, evalGroup2, PASS));
+        EvaluationResult rule1ProposedResults =
+                new EvaluationResult(rule1Key, Map.of(evalGroup2, PASS));
+        EvaluationResult rule2ProposedResults =
+                new EvaluationResult(rule2Key, Map.of(evalGroup2, PASS));
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState =
+        Map<RuleKey, EvaluationResult> currentState =
                 Map.of(rule1Key, rule1CurrentResults, rule2Key, rule2CurrentResults);
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
+        Map<RuleKey, EvaluationResult> proposedState =
                 Map.of(rule1Key, rule1ProposedResults, rule2Key, rule2ProposedResults);
 
         // Portfolio was compliant before and after, which implies Trade compliance regardless of
@@ -99,7 +103,7 @@ public class TradeEvaluatorTest {
 
         // a failure in the current state with a corresponding pass (or at least non-failure) in the
         // proposed state also implies Trade compliance in all modes
-        rule1CurrentResults = Map.of(evalGroup1, FAIL);
+        rule1CurrentResults = new EvaluationResult(rule1Key, Map.of(evalGroup1, FAIL));
         currentState = Map.of(rule1Key, rule1CurrentResults, rule2Key, rule2CurrentResults);
         result = new TradeEvaluationResult();
         evaluator.addImpacts(portfolioKey, result, TradeEvaluationMode.FULL_EVALUATION,
@@ -128,8 +132,8 @@ public class TradeEvaluatorTest {
 
         // in a "pass" short-circuit evaluation, for all failed Rule evaluations in the proposed
         // state, only one needs to exist in the current state
-        rule1ProposedResults = Map.of(evalGroup2, FAIL);
-        rule2ProposedResults = Map.of(evalGroup2, FAIL);
+        rule1ProposedResults = new EvaluationResult(rule1Key, Map.of(evalGroup2, FAIL));
+        rule2ProposedResults = new EvaluationResult(rule2Key, Map.of(evalGroup2, FAIL));
         proposedState = Map.of(rule1Key, rule1ProposedResults, rule2Key, rule2ProposedResults);
         result = new TradeEvaluationResult();
         evaluator.addImpacts(portfolioKey, result,

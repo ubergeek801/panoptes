@@ -89,7 +89,7 @@ public class ConcentrationRuleTest {
         positions.add(new Position(100, usSecurity));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-        EvaluationResult result =
+        RuleResult result =
                 rule.evaluate(portfolio, null, new EvaluationContext(null, securityProvider, null));
         assertFalse(result.isPassed(), "portfolio with > 10% concentration should have failed");
         assertNull(result.getException(), "rule should not have failed with exception");

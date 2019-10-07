@@ -8,8 +8,6 @@ import org.apache.ignite.lang.IgniteFuture;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
@@ -37,9 +35,8 @@ public interface PortfolioEvaluator {
      * @throws ExcecutionException
      *             if the {@code Rule}s could not be processed
      */
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
-                    throws InterruptedException, ExecutionException;
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException;
 
     /**
      * Evaluates the combined {@code Position}s of the given {@code Portfolio} and
@@ -59,8 +56,8 @@ public interface PortfolioEvaluator {
      * @throws ExcecutionException
      *             if the {@code Rule}s could not be processed
      */
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
-            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+            Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException;
 
     /**
@@ -81,7 +78,7 @@ public interface PortfolioEvaluator {
      * @throws ExcecutionException
      *             if the {@code Rule}s could not be processed
      */
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
-                    throws ExecutionException, InterruptedException;
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
+            Portfolio portfolio, EvaluationContext evaluationContext)
+            throws ExecutionException, InterruptedException;
 }

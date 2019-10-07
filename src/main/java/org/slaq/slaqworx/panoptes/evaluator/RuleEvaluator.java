@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RuleResult;
 
 /**
  * {@code RuleEvaluator} is a {@code Callable} that evaluates a single {@code Rule} against a set of
@@ -25,7 +25,7 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  *
  * @author jeremy
  */
-public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, EvaluationResult>> {
+public class RuleEvaluator implements Callable<EvaluationResult> {
     private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluator.class);
 
     private final Rule rule;
@@ -55,7 +55,7 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
     }
 
     @Override
-    public Map<EvaluationGroup<?>, EvaluationResult> call() {
+    public EvaluationResult call() {
         LOG.debug("evaluating rule {} (\"{}\") on {} positions for portfolio {}", rule.getKey(),
                 rule.getDescription(), portfolioPositions.size(),
                 portfolioPositions.getPortfolio());
@@ -89,8 +89,8 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
 
         // for each group of Positions, evaluate the Rule against the group, for both the Portfolio
         // and the Benchmark (if specified)
-        Map<EvaluationGroup<?>, EvaluationResult> ruleResults = classifiedPortfolioPositions
-                .entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
+        Map<EvaluationGroup<?>, RuleResult> ruleResults = classifiedPortfolioPositions.entrySet()
+                .stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
                     EvaluationGroup<?> group = e.getKey();
                     Collection<Position> ppos = e.getValue();
                     // create PositionSets for the grouped Positions, being careful to relate to the
@@ -110,7 +110,7 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
                         }
                     }
 
-                    EvaluationResult singleResult =
+                    RuleResult singleResult =
                             rule.evaluate(new PositionSet(ppos, portfolioPositions.getPortfolio()),
                                     bpos, evaluationContext);
 
@@ -118,6 +118,6 @@ public class RuleEvaluator implements Callable<Map<EvaluationGroup<?>, Evaluatio
                     return singleResult;
                 }));
 
-        return ruleResults;
+        return new EvaluationResult(rule.getKey(), ruleResults);
     }
 }

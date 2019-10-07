@@ -81,12 +81,12 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
-    public EvaluationResult evaluate(PositionSupplier portfolioPositions,
+    public RuleResult evaluate(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         try {
             return eval(portfolioPositions, benchmarkPositions, evaluationContext);
         } catch (Exception e) {
-            return new EvaluationResult(e);
+            return new RuleResult(e);
         }
     }
 
@@ -128,6 +128,6 @@ public abstract class GenericRule implements Rule {
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
-    protected abstract EvaluationResult eval(PositionSupplier portfolioPositions,
+    protected abstract RuleResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
 }

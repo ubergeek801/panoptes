@@ -21,8 +21,6 @@ import org.slaq.slaqworx.panoptes.data.DummyPortfolioCacheLoader;
 import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
@@ -83,7 +81,7 @@ public class RuleEvaluatorPerformanceTest {
         long portfolioEndTime;
         long numPortfolioRuleEvalutions = 0;
         try {
-            ExecutorCompletionService<Pair<PortfolioKey, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>> completionService =
+            ExecutorCompletionService<Pair<PortfolioKey, Map<RuleKey, EvaluationResult>>> completionService =
                     new ExecutorCompletionService<>(evaluationExecutor);
 
             portfolioStartTime = System.currentTimeMillis();
@@ -96,7 +94,7 @@ public class RuleEvaluatorPerformanceTest {
             });
             // wait for all of the evaluations to complete
             for (int i = 0; i < portfolios.size(); i++) {
-                Pair<PortfolioKey, Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> result =
+                Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result =
                         completionService.take().get();
                 numPortfolioRuleEvalutions += result.getRight().size();
             }

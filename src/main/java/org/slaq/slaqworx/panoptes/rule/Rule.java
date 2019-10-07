@@ -29,8 +29,8 @@ public interface Rule extends Keyed<RuleKey> {
      * benchmark, subject to the given evaluation context.
      * <p>
      * {@code evaluate()} wraps all {@code Exception}s (including {@code RuntimeException}s) which
-     * occur during evaluation into a suitable {@code EvaluationResult}. Other {@code Throwable}s
-     * (i.e. {@code Error}s) are not caught.
+     * occur during evaluation into a suitable {@code RuleResult}. Other {@code Throwable}s (i.e.
+     * {@code Error}s) are not caught.
      *
      * @param portfolioPositions
      *            the {@code Portfolio} {@code Position}s on which to evaluate the {@code
@@ -41,7 +41,7 @@ public interface Rule extends Keyed<RuleKey> {
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
-    public EvaluationResult evaluate(PositionSupplier portfolioPositions,
+    public RuleResult evaluate(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
 
     /**

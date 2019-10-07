@@ -9,8 +9,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ignite.internal.util.future.IgniteFinishedFutureImpl;
 import org.apache.ignite.lang.IgniteFuture;
 import org.slf4j.Logger;
@@ -20,8 +18,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
@@ -48,66 +44,17 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            evaluate(Portfolio portfolio, EvaluationContext evaluationContext)
-                    throws InterruptedException, ExecutionException {
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException {
         // TODO maybe make evaluate() return an IgniteFuture as well
         return new IgniteFinishedFutureImpl<>(evaluate(portfolio.getRules(), portfolio, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
     }
 
-    /**
-     * Evaluates the given {@code Portfolio} using its associated {@code Rule}s but overriding its
-     * associated benchmark (if any) with the specified benchmark.
-     *
-     * @param portfolio
-     *            the {@code Portfolio} to be evaluated
-     * @param benchmark
-     *            the (possibly {@code null}) benchmark to use in place of the {@code Portfolio}'s
-     *            associated benchmark
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Map} associating each evaluated {@code Rule} with its result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
-     */
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
-            Portfolio benchmark, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
-        return evaluate(portfolio.getRules(), portfolio, null, benchmark, evaluationContext);
-    }
-
-    /**
-     * Evaluates the given {@code Portfolio} using its associated {@code Rule}s and benchmark (if
-     * any), but overriding its {@code Position}s with the specified {@code Position}s.
-     *
-     * @param portfolio
-     *            the {@code Portfolio} to be evaluated
-     * @param positions
-     *            the {@code Positions} to use in place of the {@code Portfolio}'s own
-     *            {@code Position}s
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Map} associating each evaluated {@code Rule} with its result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
-     */
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Portfolio portfolio,
-            PositionSupplier positions, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
-        return evaluate(portfolio.getRules(), positions, null,
-                portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
-                evaluationContext);
-    }
-
     @Override
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> evaluate(
-            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext)
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+            Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException {
         return new IgniteFinishedFutureImpl<>(evaluate(portfolio.getRules(), portfolio, transaction,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
@@ -115,9 +62,9 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>>
-            evaluate(Stream<Rule> rules, Portfolio portfolio, EvaluationContext evaluationContext)
-                    throws ExecutionException, InterruptedException {
+    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
+            Portfolio portfolio, EvaluationContext evaluationContext)
+            throws ExecutionException, InterruptedException {
         return new IgniteFinishedFutureImpl<>(evaluate(rules, portfolio, null,
                 portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
                 evaluationContext));
@@ -139,13 +86,13 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
      *            the (possibly {@code null}) benchmark {@code Position}s to be evaluated against
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Map} associating each evaluated {@code Rule} with its (grouped) result
+     * @return a {@code Map} associating each evaluated {@code Rule} with its result
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the {@code Rule}s could not be processed
      */
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> evaluate(Stream<Rule> rules,
+    public Map<RuleKey, EvaluationResult> evaluate(Stream<Rule> rules,
             PositionSupplier portfolioPositions, Transaction transaction,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext)
             throws ExecutionException, InterruptedException {
@@ -158,16 +105,16 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                                         transaction.getPositions()),
                                 portfolioPositions.getPortfolio()));
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> shortCircuitResults =
+        Map<RuleKey, EvaluationResult> shortCircuitResults =
                 Collections.synchronizedMap(new HashMap<>());
-        Predicate<Pair<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> shortCircuitPredicate;
+        Predicate<EvaluationResult> shortCircuitPredicate;
         switch (evaluationContext.getEvaluationMode()) {
         case PASS_SHORT_CIRCUIT_EVALUATION:
             // stop as soon as a Rule passes
             shortCircuitPredicate = (result -> {
-                boolean isPassed = EvaluationResult.isPassed(result.getRight());
+                boolean isPassed = result.isPassed();
                 if (isPassed) {
-                    shortCircuitResults.put(result.getLeft(), result.getRight());
+                    shortCircuitResults.put(result.getRuleKey(), result);
                 }
 
                 return !isPassed;
@@ -176,9 +123,9 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
         case FAIL_SHORT_CIRCUIT_EVALUATION:
             // stop as soon as a Rule fails
             shortCircuitPredicate = (result -> {
-                boolean isPassed = EvaluationResult.isPassed(result.getRight());
+                boolean isPassed = result.isPassed();
                 if (!isPassed) {
-                    shortCircuitResults.put(result.getLeft(), result.getRight());
+                    shortCircuitResults.put(result.getRuleKey(), result);
                 }
 
                 return isPassed;
@@ -189,16 +136,15 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             shortCircuitPredicate = (result -> true);
         }
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = ruleEvaluationThreadPool
+        Map<RuleKey, EvaluationResult> results = ruleEvaluationThreadPool
                 .submit(() -> rules.parallel()
-                        .map(r -> new ImmutablePair<>(r.getKey(),
-                                new RuleEvaluator(r, portfolioPlusTransactionPositions,
-                                        benchmarkPositions, evaluationContext).call()))
+                        .map(r -> new RuleEvaluator(r, portfolioPlusTransactionPositions,
+                                benchmarkPositions, evaluationContext).call())
                         .takeWhile(shortCircuitPredicate)
-                        .collect(Collectors.toMap(pair -> pair.getLeft(), pair -> pair.getRight())))
+                        .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result)))
                 .get();
 
-        Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> allResults =
+        Map<RuleKey, EvaluationResult> allResults =
                 new HashMap<>(shortCircuitResults.size() + results.size());
         allResults.putAll(shortCircuitResults);
         allResults.putAll(results);

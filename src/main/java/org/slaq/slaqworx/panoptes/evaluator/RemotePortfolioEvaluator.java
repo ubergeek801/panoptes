@@ -15,16 +15,13 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
-public class RemotePortfolioEvaluator
-        implements IgniteCallable<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> {
+public class RemotePortfolioEvaluator implements IgniteCallable<Map<RuleKey, EvaluationResult>> {
     private static final long serialVersionUID = 1L;
 
     private final ArrayList<RuleKey> ruleKeys;
@@ -42,7 +39,7 @@ public class RemotePortfolioEvaluator
     }
 
     @Override
-    public Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> call() throws Exception {
+    public Map<RuleKey, EvaluationResult> call() throws Exception {
         BeanContext context = ApplicationContextProvider.getApplicationContext();
         AssetCache assetCache = context.getBean(AssetCache.class);
 

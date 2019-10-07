@@ -41,7 +41,7 @@ public class EligibilityListRuleTest {
                 EligibilityListType.BLACKLIST, SecurityAttribute.country, countryBlacklist);
 
         Portfolio portfolio = new Portfolio(null, "test portfolio", Set.of(usPosition));
-        EvaluationResult result = rule.evaluate(portfolio, null,
+        RuleResult result = rule.evaluate(portfolio, null,
                 new EvaluationContext(null, TestUtil.testSecurityProvider(), null));
         assertFalse(result.isPassed(), "Security with blacklisted country should fail");
 
@@ -76,7 +76,7 @@ public class EligibilityListRuleTest {
                 EligibilityListType.WHITELIST, SecurityAttribute.isin, assetIdWhitelist);
 
         Portfolio portfolio = new Portfolio(null, "test portfolio", Set.of(usPosition));
-        EvaluationResult result = rule.evaluate(portfolio, null,
+        RuleResult result = rule.evaluate(portfolio, null,
                 new EvaluationContext(null, TestUtil.testSecurityProvider(), null));
         assertFalse(result.isPassed(), "Security with non-whitelisted asset ID should fail");
 
