@@ -36,9 +36,8 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
 
-    // TODO thread pool tuning is a work in progress
     private static final ForkJoinPool ruleEvaluationThreadPool = ForkJoinPoolFactory
-            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism() + 2, "rule-evaluator");
+            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "rule-evaluator");
 
     /**
      * Creates a new {@code LocalPortfolioEvaluator} that uses the common {@code ForkJoinPool} for
@@ -189,6 +188,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             // take all results
             shortCircuitPredicate = (result -> true);
         }
+
         Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> results = ruleEvaluationThreadPool
                 .submit(() -> rules.parallel()
                         .map(r -> new ImmutablePair<>(r.getKey(),

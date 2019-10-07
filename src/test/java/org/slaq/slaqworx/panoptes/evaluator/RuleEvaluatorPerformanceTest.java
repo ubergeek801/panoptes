@@ -20,13 +20,13 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.data.DummyPortfolioCacheLoader;
 import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**

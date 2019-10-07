@@ -93,11 +93,10 @@ public class PanoptesCacheConfiguration {
         boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
 
         IgniteConfiguration config = new IgniteConfiguration().setIgniteInstanceName("panoptes")
-                .setGridLogger(new Slf4jLogger());
-        // Portfolio evaluation doesn't need high concurrency because underlying Rule execution is
-        // already parallel
+                .setGridLogger(new Slf4jLogger()).setMetricsLogFrequency(0);
+        // parallelism is at the Rule level so set Portfolio-level concurrency conservatively
         config.setExecutorConfiguration(
-                new ExecutorConfiguration(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR).setSize(4));
+                new ExecutorConfiguration(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR).setSize(1));
 
         // set up the entity caches (Portfolio, Position, etc.); note that Trade is non-persistent
         // for now

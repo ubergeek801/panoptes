@@ -82,8 +82,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      * @param portfolio
      *            the {@code Portfolio} to be evaluated
      * @param transaction
-     *            the {@code Transaction} from which to include allocation {@code Position}s for
-     *            evaluation
+     *            the (possibly {@code null} {@code Transaction} from which to include allocation
+     *            {@code Position}s for evaluation
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
@@ -103,13 +103,18 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             assetCache.getTradeCache().put(trade.getKey(), trade);
         }
 
-        try {
-            return igniteInstance.compute()
-                    .withExecutor(PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
-                    .callAsync(new RemotePortfolioEvaluator(rules, portfolio, transaction,
-                            evaluationContext));
-        } finally {
-            // FIXME remove the cached Trade if we put it there
+        IgniteFuture<Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>>> futureResult =
+                igniteInstance.compute()
+                        .withExecutor(
+                                PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
+                        .callAsync(new RemotePortfolioEvaluator(rules, portfolio, transaction,
+                                evaluationContext));
+        if (transaction != null) {
+            // arrange to remove the temporary Trade from the cache when finished
+            futureResult.listen(
+                    result -> assetCache.getTradeCache().remove(transaction.getTrade().getKey()));
         }
+
+        return futureResult;
     }
 }

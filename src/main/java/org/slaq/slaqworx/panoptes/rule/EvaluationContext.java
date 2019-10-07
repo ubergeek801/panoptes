@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 
 /**
  * {@code EvaluationContext} provides contextual information that can be shared across multiple
@@ -11,6 +10,24 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
  * @author jeremy
  */
 public class EvaluationContext {
+    /**
+     * {@code TradeEvaluationMode} specifies behaviors to be observed during evaluation.
+     */
+    public enum TradeEvaluationMode {
+        /**
+         * all Rules are evaluated regardless of outcome
+         */
+        FULL_EVALUATION,
+        /**
+         * Rule evaluation may be short-circuited if one evaluation passes
+         */
+        PASS_SHORT_CIRCUIT_EVALUATION,
+        /**
+         * Rule evaluation may be short-circuited if one evaluation fails
+         */
+        FAIL_SHORT_CIRCUIT_EVALUATION
+    }
+
     private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
     private final RuleProvider ruleProvider;

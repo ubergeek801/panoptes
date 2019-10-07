@@ -33,6 +33,7 @@ import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult.Impact;
@@ -40,7 +41,6 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 
 /**
  * {@code TradeEvaluatorTest} tests the functionality of the {@code TradeEvaluator}.

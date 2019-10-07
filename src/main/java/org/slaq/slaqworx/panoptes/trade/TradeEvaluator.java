@@ -17,6 +17,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
@@ -31,24 +32,6 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  * @author jeremy
  */
 public class TradeEvaluator {
-    /**
-     * {@code TradeEvaluationMode} specifies behaviors to be observed during evaluation.
-     */
-    public enum TradeEvaluationMode {
-        /**
-         * all Rules are evaluated regardless of outcome
-         */
-        FULL_EVALUATION,
-        /**
-         * Rule evaluation may be short-circuited if one evaluation passes
-         */
-        PASS_SHORT_CIRCUIT_EVALUATION,
-        /**
-         * Rule evaluation may be short-circuited if one evaluation fails
-         */
-        FAIL_SHORT_CIRCUIT_EVALUATION
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
 
     protected static final double ROOM_TOLERANCE = 500;
@@ -109,23 +92,28 @@ public class TradeEvaluator {
 
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
-            EvaluationContext evaluationContext = new EvaluationContext(portfolioProvider,
-                    securityProvider, ruleProvider, evaluationMode);
-            // calculate the proposed state
+
+            // calculate the proposed state, always using full evaluation since any failure is
+            // always a potential indicator of non-compliance
+            EvaluationContext proposedEvaluationContext = new EvaluationContext(portfolioProvider,
+                    securityProvider, ruleProvider, TradeEvaluationMode.FULL_EVALUATION);
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> proposedState =
-                    evaluator.evaluate(portfolio, transaction, evaluationContext).get();
+                    evaluator.evaluate(portfolio, transaction, proposedEvaluationContext).get();
+            EvaluationContext currentEvaluationContext = new EvaluationContext(portfolioProvider,
+                    securityProvider, ruleProvider, evaluationMode);
             Map<RuleKey, Map<EvaluationGroup<?>, EvaluationResult>> currentState;
             if (evaluationMode == TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION) {
                 Stream<Rule> failedRules = proposedState.entrySet().stream()
                         .filter(e -> !EvaluationResult.isPassed(e.getValue()))
                         .map(e -> ruleProvider.getRule(e.getKey()));
                 // For short-circuit evaluation, we need only calculate the current state for Rules
-                // that failed in the proposed state, as we are only determining the impact.
-                // Short-circuit evaluation is used because as soon as one Rule is found to pass in
-                // the current state, the Trade can be considered noncompliant.
-                currentState = evaluator.evaluate(failedRules, portfolio, evaluationContext).get();
+                // that failed in the proposed state, as we are only determining the impact. As soon
+                // as one Rule is found to pass in the current state, the Trade can be considered
+                // non-compliant.
+                currentState =
+                        evaluator.evaluate(failedRules, portfolio, currentEvaluationContext).get();
             } else {
-                currentState = evaluator.evaluate(portfolio, evaluationContext).get();
+                currentState = evaluator.evaluate(portfolio, currentEvaluationContext).get();
             }
 
             addImpacts(portfolio.getKey(), evaluationResult, evaluationMode, proposedState,
@@ -232,20 +220,19 @@ public class TradeEvaluator {
 
             Map<EvaluationGroup<?>, EvaluationResult> currentGroupResults =
                     currentState.get(ruleKey);
-            if (evaluationMode == TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION
-                    && currentGroupResults == null) {
-                // there may not be a current evaluation if the proposed evaluation failed, since
-                // only one current-state pass is needed to determine Trade non-compliance
-                return;
-            }
-
             proposedGroupResults.forEach((group, proposedResult) -> {
+                if (evaluationMode != TradeEvaluationMode.FULL_EVALUATION
+                        && currentGroupResults == null) {
+                    // there may not be a current evaluation if the proposed evaluation failed,
+                    // since only one current-state pass is needed to determine Trade non-compliance
+                    return;
+                }
+
                 EvaluationResult currentResult = currentGroupResults.get(group);
                 evaluationResult.addImpact(portfolioKey, ruleKey, group,
                         proposedResult.compare(currentResult));
             });
         });
-
     }
 
     /**

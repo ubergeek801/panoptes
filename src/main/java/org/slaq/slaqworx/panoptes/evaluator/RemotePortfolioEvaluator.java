@@ -14,12 +14,12 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluator.TradeEvaluationMode;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 

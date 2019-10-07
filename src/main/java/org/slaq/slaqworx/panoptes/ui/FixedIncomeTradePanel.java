@@ -1,7 +1,12 @@
 package org.slaq.slaqworx.panoptes.ui;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
@@ -26,6 +31,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
+import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 public class FixedIncomeTradePanel extends FormLayout {
     class AllocationPanel extends HorizontalLayout {
@@ -107,6 +113,9 @@ public class FixedIncomeTradePanel extends FormLayout {
     // TODO this isn't very "responsive"
     private static final int NUM_COLUMNS = 7;
 
+    private final ForkJoinPool roomEvaluatorExecutor =
+            ForkJoinPoolFactory.newForkJoinPool(1, "ui-room-evaluator");
+
     private final PortfolioEvaluator portfolioEvaluator;
     private final AssetCache assetCache;
 
@@ -161,48 +170,75 @@ public class FixedIncomeTradePanel extends FormLayout {
             }
 
             UI ui = getUI().get();
+            ui.access(() -> {
+                event.getSource().setEnabled(false);
+            });
 
             int allocationIndex[] = new int[] { 1 };
-            int numPortfolios[] = new int[] { assetCache.getPortfolioCache().size() };
+            int numPortfolios = assetCache.getPortfolioCache().size();
+            int numRemaining[] = new int[] { numPortfolios };
             TradeEvaluator tradeEvaluator =
                     new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
-            // execute on a separate thread to allow UI to update
-            new Thread(() -> {
-                assetCache.getPortfolioCache().forEach(e -> {
-                    Portfolio portfolio = e.getValue();
-                    if (portfolio.isAbstract()) {
-                        // don't evaluate benchmarks
-                        return;
-                    }
-                    double roomMarketValue;
-                    try {
-                        roomMarketValue =
-                                tradeEvaluator.evaluateRoom(portfolio, security, tradeMarketValue);
-                    } catch (Exception ex) {
-                        // FIXME handle this
-                        LOG.error("could not evaluate room for Portfolio {}", portfolio.getKey(),
-                                ex);
-                        return;
-                    }
-                    ui.access(() -> {
-                        numPortfolios[0]--;
-                        if (roomMarketValue != 0) {
-                            AllocationPanel allocationPanel = new AllocationPanel(allocations);
-                            // add at the next position
-                            allocations.addComponentAtIndex(allocationIndex[0]++, allocationPanel);
-                            allocationPanel.portfolioIdField.setValue(portfolio.getKey().getId());
-                            allocationPanel.portfolioNameField.setValue(portfolio.getName());
-                            allocationPanel.amountField.setValue(
-                                    tradePrice == null ? null : roomMarketValue / tradePrice);
-                            allocationPanel.marketValueField.setValue(roomMarketValue);
-                        }
-                        event.getSource().setText(numPortfolios[0] + " to process");
-                    });
-                });
+            // TODO running roomEvaluatorExecutor directly on the spliterator doesn't parallelize
+            List<Portfolio> portfolios =
+                    StreamSupport.stream(assetCache.getPortfolioCache().spliterator(), false)
+                            .map(e -> e.getValue()).collect(Collectors.toList());
+            long startTime = System.currentTimeMillis();
+            ForkJoinTask<?> future = roomEvaluatorExecutor
+                    .submit(() -> portfolios.parallelStream().forEach(portfolio -> {
+                        try {
+                            if (portfolio.isAbstract()) {
+                                // don't evaluate benchmarks
+                                return;
+                            }
 
-                // reset button label when complete
-                ui.access(() -> event.getSource().setText("Room"));
-            }, "ui-room-evaluator").start();
+                            double roomMarketValue;
+                            try {
+                                roomMarketValue = tradeEvaluator.evaluateRoom(portfolio, security,
+                                        tradeMarketValue);
+                            } catch (Exception ex) {
+                                // FIXME handle this
+                                LOG.error("could not evaluate room for Portfolio {}",
+                                        portfolio.getKey(), ex);
+                                return;
+                            }
+                            ui.access(() -> {
+                                if (roomMarketValue != 0) {
+                                    AllocationPanel allocationPanel =
+                                            new AllocationPanel(allocations);
+                                    // add at the next position
+                                    allocations.addComponentAtIndex(allocationIndex[0]++,
+                                            allocationPanel);
+                                    allocationPanel.portfolioIdField
+                                            .setValue(portfolio.getKey().getId());
+                                    allocationPanel.portfolioNameField
+                                            .setValue(portfolio.getName());
+                                    allocationPanel.amountField.setValue(tradePrice == null ? null
+                                            : roomMarketValue / tradePrice);
+                                    allocationPanel.marketValueField.setValue(roomMarketValue);
+                                }
+                            });
+                        } finally {
+                            ui.access(() -> {
+                                event.getSource().setText(--numRemaining[0] + " to process");
+                            });
+                        }
+                    }));
+            // create a thread to reset the Room button label when finished
+            new Thread(() -> {
+                try {
+                    future.get();
+                    LOG.info("found room in {}/{} Portfolios in {} ms", allocationIndex[0] - 1,
+                            numPortfolios, System.currentTimeMillis() - startTime);
+                } catch (Exception e) {
+                    // FIXME handle this
+                    LOG.error("could not evaluate room for Portfolios", e);
+                }
+                ui.access(() -> {
+                    event.getSource().setText("Room");
+                    event.getSource().setEnabled(true);
+                });
+            }, "ui-room-button-resetter").start();
         });
         // Room will be enabled when an Asset ID is entered
         room.setEnabled(false);
