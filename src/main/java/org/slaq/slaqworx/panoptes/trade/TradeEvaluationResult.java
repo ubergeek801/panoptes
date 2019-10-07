@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 
 /**
  * {@code TradeEvaluationResult} encapsulates the results of a {@code Trade} evaluation. For a given
@@ -139,6 +141,26 @@ public class TradeEvaluationResult {
         } else if (impact == Impact.NEGATIVE) {
             aggregateImpact = Impact.NEGATIVE;
         }
+    }
+
+    /**
+     * Updates this {@code TradeEvaluationResult} with impacts based on the given {@code Rule}
+     * evaluation results.
+     *
+     * @param portfolioKey
+     *            a key identifying the {@code Portfolio} under evaluation
+     * @param ruleResults
+     *            a {@code Map} correlating a {@code Rule}'s key with its results
+     */
+    public void addImpacts(PortfolioKey portfolioKey, Map<RuleKey, EvaluationResult> ruleResults) {
+        ruleResults.entrySet().forEach(ruleEntry -> {
+            RuleKey ruleKey = ruleEntry.getKey();
+            EvaluationResult groupResults = ruleEntry.getValue();
+            groupResults.getProposedResults().forEach((group, proposedResult) -> {
+                RuleResult portfolioResult = groupResults.getResult(group);
+                addImpact(portfolioKey, ruleKey, group, proposedResult.compare(portfolioResult));
+            });
+        });
     }
 
     /**

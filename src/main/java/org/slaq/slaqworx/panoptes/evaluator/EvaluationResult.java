@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
@@ -17,6 +18,7 @@ public class EvaluationResult implements Serializable {
 
     private final RuleKey ruleKey;
     private final Map<EvaluationGroup<?>, RuleResult> results;
+    private final Map<EvaluationGroup<?>, RuleResult> proposedResults;
 
     /**
      * Creates a new {@code EvaluationResult} for the specified {@code Rule} using the given grouped
@@ -25,11 +27,50 @@ public class EvaluationResult implements Serializable {
      * @param ruleKey
      *            the key indicating the {@code Rule} for which the results were produced
      * @param results
-     *            the evaluation results
+     *            a {@code Map} containing the grouped evaluation results
      */
     public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup<?>, RuleResult> results) {
+        this(ruleKey, results, null);
+    }
+
+    /**
+     * Creates a new {@code EvaluationResult} for the specified {@code Rule} using the given grouped
+     * {@code RuleResult}s and proposed {@code RuleResult}s.
+     *
+     * @param ruleKey
+     *            the key indicating the {@code Rule} for which the results were produced
+     * @param results
+     *            a {@code Map} containing the grouped evaluation results
+     * @param proposedResults
+     *            a (possibly {@code null} {code Map} containing the grouped evaluation results of a
+     *            proposed set of {@code Position}s, if requested
+     */
+    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup<?>, RuleResult> results,
+            Map<EvaluationGroup<?>, RuleResult> proposedResults) {
         this.ruleKey = ruleKey;
         this.results = results;
+        this.proposedResults = (proposedResults == null ? Collections.emptyMap() : proposedResults);
+    }
+
+    /**
+     * Obtains the proposed result corresponding to the specified group, if any.
+     *
+     * @param group
+     *            the group for which to obtain proposed results
+     * @return a {@code RuleResult} describing the requested proposed results, or {@code null} if
+     *         there were no proposed results for the specified group
+     */
+    public RuleResult getProposedResult(EvaluationGroup<?> group) {
+        return proposedResults.get(group);
+    }
+
+    /**
+     * Obtains the proposed results aggregated by this {@code EvaluationResult}.
+     *
+     * @return a {@code Map} of {@code EvaluationGroup} to its corresponding proposed result
+     */
+    public Map<EvaluationGroup<?>, RuleResult> getProposedResults() {
+        return proposedResults;
     }
 
     /**

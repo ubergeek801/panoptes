@@ -2,13 +2,11 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 
 import org.apache.ignite.lang.IgniteFuture;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
@@ -59,26 +57,4 @@ public interface PortfolioEvaluator {
     public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
             Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException;
-
-    /**
-     * Evaluates the given {@code Portfolio} against the given {@code Rule}s (instead of the
-     * {@code Portfolio}'s own {@code Rule}s), using the {@code Portfolio}'s associated benchmark
-     * (if any).
-     *
-     * @param rules
-     *            the {@code Rule}s to evaluate against the given {@code Portfolio}
-     * @param portfolio
-     *            the {@code Portfolio} to be evaluated
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to evaluate
-     * @return an {@code IgniteFuture} {@code Map} associating each evaluated {@code Rule} with its
-     *         result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
-     */
-    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
-            Portfolio portfolio, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException;
 }

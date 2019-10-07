@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 
 import javax.inject.Singleton;
 
@@ -17,7 +16,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PanoptesCacheConfiguration;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
@@ -57,41 +55,15 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
 
     @Override
     public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext)
-            throws InterruptedException, ExecutionException {
-        return evaluate(null, portfolio, transaction, evaluationContext);
-    }
-
-    @Override
-    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
-            Portfolio portfolio, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
-        return evaluate(rules, portfolio, null, evaluationContext);
-    }
-
-    /**
-     * Evaluates the given {@code Portfolio} and {@code Transaction} against the given {@code Rule}s
-     * (instead of the {@code Portfolio}'s own {@code Rule}s), using the {@code Portfolio}'s
-     * associated benchmark (if any).
-     *
-     * @param rules
-     *            the {@code Rule}s to evaluate against the given {@code Portfolio}
-     * @param portfolio
-     *            the {@code Portfolio} to be evaluated
-     * @param transaction
-     *            the (possibly {@code null} {@code Transaction} from which to include allocation
-     *            {@code Position}s for evaluation
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
-     */
-    protected IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Stream<Rule> rules,
-            Portfolio portfolio, Transaction transaction, EvaluationContext evaluationContext) {
+            Transaction transaction, EvaluationContext evaluationContext) {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
-            LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getName());
+            LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getKey());
             return new IgniteFinishedFutureImpl<>(Collections.emptyMap());
         }
+
+        LOG.info("delegating evaluation of Portfolio {}", portfolio.getKey());
+        long startTime = System.currentTimeMillis();
 
         if (transaction != null) {
             // the Trade must be available to the cache
@@ -101,12 +73,14 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
 
         IgniteFuture<Map<RuleKey, EvaluationResult>> futureResult = igniteInstance.compute()
                 .withExecutor(PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
-                .callAsync(new RemotePortfolioEvaluator(rules, portfolio, transaction,
-                        evaluationContext));
+                .callAsync(new RemotePortfolioEvaluator(portfolio, transaction, evaluationContext));
         if (transaction != null) {
             // arrange to remove the temporary Trade from the cache when finished
-            futureResult.listen(
-                    result -> assetCache.getTradeCache().remove(transaction.getTrade().getKey()));
+            futureResult.listen(result -> {
+                LOG.info("received results for Portfolio {} in {} ms", portfolio.getKey(),
+                        System.currentTimeMillis() - startTime);
+                assetCache.getTradeCache().remove(transaction.getTrade().getKey());
+            });
         }
 
         return futureResult;

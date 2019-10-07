@@ -20,7 +20,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.data.DummyPortfolioCacheLoader;
 import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
@@ -124,7 +124,7 @@ public class RuleEvaluatorPerformanceTest {
 
             tradeStartTimes.add(System.currentTimeMillis());
             TradeEvaluationResult result =
-                    tradeEvaluator.evaluate(trade, TradeEvaluationMode.FULL_EVALUATION);
+                    tradeEvaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
             long numEvaluationGroups = result.getImpacts().values().parallelStream()
                     .collect(Collectors.summingLong(m -> m.size()));
             tradeEndTimes.add(System.currentTimeMillis());

@@ -11,27 +11,23 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
  */
 public class EvaluationContext {
     /**
-     * {@code TradeEvaluationMode} specifies behaviors to be observed during evaluation.
+     * {@code EvaluationMode} specifies behaviors to be observed during evaluation.
      */
-    public enum TradeEvaluationMode {
+    public enum EvaluationMode {
         /**
          * all Rules are evaluated regardless of outcome
          */
         FULL_EVALUATION,
         /**
-         * Rule evaluation may be short-circuited if one evaluation passes
+         * Rule evaluation may be short-circuited if an evaluation fails
          */
-        PASS_SHORT_CIRCUIT_EVALUATION,
-        /**
-         * Rule evaluation may be short-circuited if one evaluation fails
-         */
-        FAIL_SHORT_CIRCUIT_EVALUATION
+        SHORT_CIRCUIT_EVALUATION
     }
 
     private final PortfolioProvider portfolioProvider;
     private final SecurityProvider securityProvider;
     private final RuleProvider ruleProvider;
-    private final TradeEvaluationMode evaluationMode;
+    private final EvaluationMode evaluationMode;
 
     /**
      * Creates a new {@code EvaluationContext} with the given attributes.
@@ -48,8 +44,7 @@ public class EvaluationContext {
      */
     public EvaluationContext(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
             RuleProvider ruleProvider) {
-        this(portfolioProvider, securityProvider, ruleProvider,
-                TradeEvaluationMode.FULL_EVALUATION);
+        this(portfolioProvider, securityProvider, ruleProvider, EvaluationMode.FULL_EVALUATION);
     }
 
     /**
@@ -68,7 +63,7 @@ public class EvaluationContext {
      *            the evaluation mode in which to evaluate
      */
     public EvaluationContext(PortfolioProvider portfolioProvider, SecurityProvider securityProvider,
-            RuleProvider ruleProvider, TradeEvaluationMode evaluationMode) {
+            RuleProvider ruleProvider, EvaluationMode evaluationMode) {
         this.portfolioProvider = portfolioProvider;
         this.securityProvider = securityProvider;
         this.ruleProvider = ruleProvider;
@@ -80,7 +75,7 @@ public class EvaluationContext {
      *
      * @return a {@code TradeEvaluationMode}
      */
-    public TradeEvaluationMode getEvaluationMode() {
+    public EvaluationMode getEvaluationMode() {
         return evaluationMode;
     }
 

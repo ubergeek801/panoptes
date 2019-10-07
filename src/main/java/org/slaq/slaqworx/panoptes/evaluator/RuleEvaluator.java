@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
     private final Rule rule;
     private final PositionSupplier portfolioPositions;
+    private final PositionSupplier proposedPositions;
     private final PositionSupplier benchmarkPositions;
     private final EvaluationContext evaluationContext;
 
@@ -48,33 +50,62 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      */
     public RuleEvaluator(Rule rule, PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
+        this(rule, portfolioPositions, null, benchmarkPositions, evaluationContext);
+    }
+
+    /**
+     * Creates a new {@code RuleEvaluator} to evaluate the given {@code Rule} against the given
+     * {@code Position}s.
+     *
+     * @param rule
+     *            the {@code Rule} to be evaluated
+     * @param portfolioPositions
+     *            the {@code Position}s against which to evaluate the {@code Rule}
+     * @param proposedPositions
+     *            the (possibly {@code null}) proposed {code Position}s (e.g. by a proposed
+     *            {@code Trade} to be combined with the {@code Portfolio} {@code Position}s in a
+     *            separate evaluation
+     * @param benchmarkPositions
+     *            the (possibly {@code null} benchmark {@code Position}s against which to evaluate
+     * @param evaluationContext
+     *            the context in which the {@code Rule} is to be evaluated
+     */
+    public RuleEvaluator(Rule rule, PositionSupplier portfolioPositions,
+            PositionSupplier proposedPositions, PositionSupplier benchmarkPositions,
+            EvaluationContext evaluationContext) {
         this.rule = rule;
         this.portfolioPositions = portfolioPositions;
+        this.proposedPositions = proposedPositions;
         this.benchmarkPositions = benchmarkPositions;
         this.evaluationContext = evaluationContext;
     }
 
     @Override
     public EvaluationResult call() {
-        LOG.debug("evaluating rule {} (\"{}\") on {} positions for portfolio {}", rule.getKey(),
+        LOG.debug("evaluating Rule {} (\"{}\") on {} Positions for Portfolio {}", rule.getKey(),
                 rule.getDescription(), portfolioPositions.size(),
                 portfolioPositions.getPortfolio());
 
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
         Map<EvaluationGroup<?>, Collection<Position>> classifiedPortfolioPositions =
-                portfolioPositions.getPositions()
-                        .collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
-                                Collectors.toCollection(ArrayList::new)));
+                classify(portfolioPositions.getPositions());
+
+        // do the same for the proposed Positions, if specified
+        Map<EvaluationGroup<?>, Collection<Position>> classifiedProposedPositions;
+        if (proposedPositions == null) {
+            classifiedProposedPositions = null;
+        } else {
+            classifiedProposedPositions = classify(Stream.concat(portfolioPositions.getPositions(),
+                    proposedPositions.getPositions()));
+        }
 
         // do the same for the benchmark, if specified
         Map<EvaluationGroup<?>, Collection<Position>> classifiedBenchmarkPositions;
         if (benchmarkPositions == null) {
             classifiedBenchmarkPositions = null;
         } else {
-            classifiedBenchmarkPositions = benchmarkPositions.getPositions()
-                    .collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
-                            Collectors.toCollection(ArrayList::new)));
+            classifiedBenchmarkPositions = classify(benchmarkPositions.getPositions());
         }
 
         // Execute the Rule's GroupAggregators (if any) to create additional EvaluationGroups. For
@@ -82,15 +113,62 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         // into a new group.
         rule.getGroupAggregators().forEach(a -> {
             classifiedPortfolioPositions.putAll(a.aggregate(classifiedPortfolioPositions));
+            if (classifiedProposedPositions != null) {
+                classifiedProposedPositions.putAll(a.aggregate(classifiedProposedPositions));
+            }
             if (classifiedBenchmarkPositions != null) {
-                classifiedBenchmarkPositions.putAll(a.aggregate(classifiedBenchmarkPositions));
+                Map<? extends EvaluationGroup<?>, Collection<Position>> aggregateBenchmarkPositions =
+                        a.aggregate(classifiedBenchmarkPositions);
+                classifiedBenchmarkPositions.putAll(aggregateBenchmarkPositions);
+                if (classifiedProposedPositions != null) {
+                    classifiedProposedPositions.putAll(aggregateBenchmarkPositions);
+                }
             }
         });
 
-        // for each group of Positions, evaluate the Rule against the group, for both the Portfolio
-        // and the Benchmark (if specified)
-        Map<EvaluationGroup<?>, RuleResult> ruleResults = classifiedPortfolioPositions.entrySet()
-                .stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
+        // for each group of Positions, evaluate the Rule against the group, for the Portfolio,
+        // proposed (if specified) and the Benchmark (if specified)
+        Map<EvaluationGroup<?>, RuleResult> ruleResults =
+                evaluate(classifiedPortfolioPositions, classifiedBenchmarkPositions);
+
+        Map<EvaluationGroup<?>, RuleResult> proposedResults;
+        if (classifiedProposedPositions == null) {
+            proposedResults = null;
+        } else {
+            proposedResults = evaluate(classifiedProposedPositions, classifiedBenchmarkPositions);
+        }
+
+        return new EvaluationResult(rule.getKey(), ruleResults, proposedResults);
+    }
+
+    /**
+     * Classifies the given {@code Position}s according to the {@code Rule}'s classifier.
+     *
+     * @param positions
+     *            a {@code Stream} of {@code Position}s to be classified
+     * @return a {@code Map} associating each distinct classification group to the {@code Position}s
+     *         comprising the group
+     */
+    protected Map<EvaluationGroup<?>, Collection<Position>> classify(Stream<Position> positions) {
+        return positions.collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
+                Collectors.toCollection(ArrayList::new)));
+    }
+
+    /**
+     * Evaluates the given {@code Position}s, optionally against the given benchmark
+     * {@code} Positions (if specified).
+     *
+     * @param evaluatedPositions
+     *            the {@code Position}s to be evaluated
+     * @param classifiedBenchmarkPositions
+     *            the (possibly {@code null} benchmark {@code Position}s to be evaluated against
+     * @return the {@code Rule} evaluation results grouped by {@code EvaluationGroup}
+     */
+    protected Map<EvaluationGroup<?>, RuleResult> evaluate(
+            Map<EvaluationGroup<?>, Collection<Position>> evaluatedPositions,
+            Map<EvaluationGroup<?>, Collection<Position>> classifiedBenchmarkPositions) {
+        return evaluatedPositions.entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey(), e -> {
                     EvaluationGroup<?> group = e.getKey();
                     Collection<Position> ppos = e.getValue();
                     // create PositionSets for the grouped Positions, being careful to relate to the
@@ -110,6 +188,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
                         }
                     }
 
+                    // TODO revisit whether reusing benchmark calculations is worthwhile
                     RuleResult singleResult =
                             rule.evaluate(new PositionSet(ppos, portfolioPositions.getPortfolio()),
                                     bpos, evaluationContext);
@@ -117,7 +196,5 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
                     // wasn't that easy?
                     return singleResult;
                 }));
-
-        return new EvaluationResult(rule.getKey(), ruleResults);
     }
 }

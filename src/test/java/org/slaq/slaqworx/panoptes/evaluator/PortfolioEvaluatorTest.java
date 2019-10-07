@@ -211,7 +211,7 @@ public class PortfolioEvaluatorTest {
         Map<RuleKey, EvaluationResult> results =
                 new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
-                        new EvaluationContext(null, null, ruleProvider)).get();
+                        null, new EvaluationContext(null, null, ruleProvider));
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(
@@ -394,29 +394,15 @@ public class PortfolioEvaluatorTest {
         HashSet<Rule> overrideRules = new HashSet<>();
         overrideRules.add(usePortfolioBenchmarkRule);
 
-        // test the form of evaluate() that should override the portfolio rules
-        results =
-                evaluator
-                        .evaluate(overrideRules.stream(), portfolio, new EvaluationContext(
-                                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider))
-                        .get();
+        // test the form of evaluate() that should override the Portfolio rules
+        results = evaluator.evaluate(overrideRules.stream(), portfolio, null, new EvaluationContext(
+                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertTrue(
                 results.get(usePortfolioBenchmarkRule.getKey())
                         .getResult(EvaluationGroup.defaultGroup()).isPassed(),
                 "portfolio benchmark should have been used");
-
-        // test the form of evaluate() that should override the portfolio rules and benchmark
-        results = evaluator.evaluate(overrideRules.stream(), portfolio, null, overrideBenchmark,
-                new EvaluationContext(benchmarkProvider, TestUtil.testSecurityProvider(),
-                        ruleProvider));
-
-        assertEquals(1, results.size(), "unexpected number of results");
-        assertFalse(
-                results.get(usePortfolioBenchmarkRule.getKey())
-                        .getResult(EvaluationGroup.defaultGroup()).isPassed(),
-                "override benchmark should have been used");
     }
 
     /**

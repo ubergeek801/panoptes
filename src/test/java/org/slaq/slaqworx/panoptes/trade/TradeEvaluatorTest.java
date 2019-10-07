@@ -3,8 +3,6 @@ package org.slaq.slaqworx.panoptes.trade;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -30,15 +28,13 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
-import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
@@ -54,92 +50,6 @@ public class TradeEvaluatorTest {
     private AssetCache assetCache;
     @Inject
     private ClusterPortfolioEvaluator clusterEvaluator;
-
-    /**
-     * Tests that {@code addImpacts()} behaves as expected.
-     */
-    @Test
-    public void testAddImpacts() {
-        TradeEvaluator evaluator = new TradeEvaluator(null, null, null, null);
-        // Portfolios, Rules and EvaluationGroups can be bogus for this test
-        PortfolioKey portfolioKey = new PortfolioKey("test", 1);
-        RuleKey rule1Key = new RuleKey("rule1");
-        RuleKey rule2Key = new RuleKey("rule2");
-        EvaluationGroup<Integer> evalGroup1 = new EvaluationGroup<>("group1", 1);
-        EvaluationGroup<Integer> evalGroup2 = new EvaluationGroup<>("group2", 2);
-        RuleResult PASS = new RuleResult(true);
-        RuleResult FAIL = new RuleResult(false);
-
-        // result grouping may vary between current and proposed states, regardless of evaluation
-        // mode
-        EvaluationResult rule1CurrentResults =
-                new EvaluationResult(rule1Key, Map.of(evalGroup1, PASS));
-        EvaluationResult rule2CurrentResults =
-                new EvaluationResult(rule2Key, Map.of(evalGroup1, PASS, evalGroup2, PASS));
-        EvaluationResult rule1ProposedResults =
-                new EvaluationResult(rule1Key, Map.of(evalGroup2, PASS));
-        EvaluationResult rule2ProposedResults =
-                new EvaluationResult(rule2Key, Map.of(evalGroup2, PASS));
-
-        Map<RuleKey, EvaluationResult> currentState =
-                Map.of(rule1Key, rule1CurrentResults, rule2Key, rule2CurrentResults);
-        Map<RuleKey, EvaluationResult> proposedState =
-                Map.of(rule1Key, rule1ProposedResults, rule2Key, rule2ProposedResults);
-
-        // Portfolio was compliant before and after, which implies Trade compliance regardless of
-        // mode
-        TradeEvaluationResult result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result, TradeEvaluationMode.FULL_EVALUATION,
-                proposedState, currentState);
-        assertTrue(result.isCompliant(), "pass->pass should be compliant");
-        result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result,
-                TradeEvaluationMode.FAIL_SHORT_CIRCUIT_EVALUATION, proposedState, currentState);
-        assertTrue(result.isCompliant(), "pass->pass should be compliant");
-        result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result,
-                TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION, proposedState, currentState);
-        assertTrue(result.isCompliant(), "pass->pass should be compliant");
-
-        // a failure in the current state with a corresponding pass (or at least non-failure) in the
-        // proposed state also implies Trade compliance in all modes
-        rule1CurrentResults = new EvaluationResult(rule1Key, Map.of(evalGroup1, FAIL));
-        currentState = Map.of(rule1Key, rule1CurrentResults, rule2Key, rule2CurrentResults);
-        result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result, TradeEvaluationMode.FULL_EVALUATION,
-                proposedState, currentState);
-        assertTrue(result.isCompliant(), "fail->pass should be compliant");
-        result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result,
-                TradeEvaluationMode.FAIL_SHORT_CIRCUIT_EVALUATION, proposedState, currentState);
-        assertTrue(result.isCompliant(), "fail->pass should be compliant");
-        result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result,
-                TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION, proposedState, currentState);
-        assertTrue(result.isCompliant(), "fail->pass should be compliant");
-
-        // in a full evaluation, every Rule that was evaluated in the proposed state should also
-        // have been evaluated in the current state, or else addImpacts() should produce an error
-        currentState = Map.of(rule1Key, rule1CurrentResults); // no rule2 results
-        result = new TradeEvaluationResult();
-        try {
-            evaluator.addImpacts(portfolioKey, result, TradeEvaluationMode.FULL_EVALUATION,
-                    proposedState, currentState);
-            fail("incomplete proposed state should cause an error");
-        } catch (Exception expected) {
-            // TODO expect a particular type of exception
-        }
-
-        // in a "pass" short-circuit evaluation, for all failed Rule evaluations in the proposed
-        // state, only one needs to exist in the current state
-        rule1ProposedResults = new EvaluationResult(rule1Key, Map.of(evalGroup2, FAIL));
-        rule2ProposedResults = new EvaluationResult(rule2Key, Map.of(evalGroup2, FAIL));
-        proposedState = Map.of(rule1Key, rule1ProposedResults, rule2Key, rule2ProposedResults);
-        result = new TradeEvaluationResult();
-        evaluator.addImpacts(portfolioKey, result,
-                TradeEvaluationMode.PASS_SHORT_CIRCUIT_EVALUATION, proposedState, currentState);
-        assertFalse(result.isCompliant(), "pass->fail should be noncompliant");
-    }
 
     /**
      * Tests that {@code evaluate()} behaves as expected.
@@ -195,8 +105,7 @@ public class TradeEvaluatorTest {
         Trade trade = new Trade(transactions);
         TradeEvaluator evaluator = new TradeEvaluator(new LocalPortfolioEvaluator(),
                 TestUtil.testPortfolioProvider(), securityProvider, ruleProvider);
-        TradeEvaluationResult result =
-                evaluator.evaluate(trade, TradeEvaluationMode.FULL_EVALUATION);
+        TradeEvaluationResult result = evaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
@@ -223,9 +132,9 @@ public class TradeEvaluatorTest {
                 "p1Rule4 should have passed");
 
         // in a short-circuit evaluation we won't know which rule would have failed, or what other
-        // results might be included, but the overall result should be noncompliance
+        // results might be included, but the overall result should be non-compliance
 
-        result = evaluator.evaluate(trade, TradeEvaluationMode.FAIL_SHORT_CIRCUIT_EVALUATION);
+        result = evaluator.evaluate(trade, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
         assertFalse(result.isCompliant(),
                 "short-circuit evaluation should have yielded non-compliance");
     }

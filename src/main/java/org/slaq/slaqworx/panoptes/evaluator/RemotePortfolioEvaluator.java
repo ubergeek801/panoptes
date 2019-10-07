@@ -1,9 +1,6 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.micronaut.context.BeanContext;
 
@@ -14,25 +11,39 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.TradeEvaluationMode;
-import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
+/**
+ * {@code RemotePortfolioEvaluator} is an {@code IgniteCallable} which facilitates clustered
+ * {@code Portfolio} evaluation by serializing the evaluation parameters for execution on a remote
+ * cluster node.
+ *
+ * @author jeremy
+ */
 public class RemotePortfolioEvaluator implements IgniteCallable<Map<RuleKey, EvaluationResult>> {
     private static final long serialVersionUID = 1L;
 
-    private final ArrayList<RuleKey> ruleKeys;
     private final PortfolioKey portfolioKey;
     private final TradeKey tradeKey;
-    private final TradeEvaluationMode evaluationMode;
+    private final EvaluationMode evaluationMode;
 
-    public RemotePortfolioEvaluator(Stream<Rule> rules, Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext) {
-        ruleKeys = (rules == null ? null
-                : rules.map(r -> r.getKey()).collect(Collectors.toCollection(ArrayList::new)));
+    /**
+     * Creates a new {@code RemotePortfolioEvaluator} with the given parameters.
+     *
+     * @param portfolio
+     *            the {@code Portfolio} to be evaluated
+     * @param transaction
+     *            the (possibly {@code null} {@code Transaction} to be evaluated with the
+     *            {@code Portfolio}
+     * @param evaluationContext
+     *            the {@code EvaluationContext} under which to evaluate
+     */
+    public RemotePortfolioEvaluator(Portfolio portfolio, Transaction transaction,
+            EvaluationContext evaluationContext) {
         portfolioKey = portfolio.getKey();
         tradeKey = (transaction == null ? null : transaction.getTrade().getKey());
         evaluationMode = evaluationContext.getEvaluationMode();
@@ -44,13 +55,12 @@ public class RemotePortfolioEvaluator implements IgniteCallable<Map<RuleKey, Eva
         AssetCache assetCache = context.getBean(AssetCache.class);
 
         Portfolio portfolio = assetCache.getPortfolio(portfolioKey);
-        Stream<Rule> rules = (ruleKeys == null ? portfolio.getRules()
-                : ruleKeys.stream().map(k -> assetCache.getRule(k)));
         Trade trade = (tradeKey == null ? null : assetCache.getTrade(tradeKey));
         Transaction transaction = (trade == null ? null : trade.getTransaction(portfolioKey));
-        Portfolio benchmark = portfolio.getBenchmark(assetCache);
 
-        return new LocalPortfolioEvaluator().evaluate(rules, portfolio, transaction, benchmark,
-                new EvaluationContext(assetCache, assetCache, assetCache, evaluationMode));
+        return new LocalPortfolioEvaluator()
+                .evaluate(portfolio, transaction,
+                        new EvaluationContext(assetCache, assetCache, assetCache, evaluationMode))
+                .get();
     }
 }

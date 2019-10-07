@@ -19,7 +19,7 @@
         <ignite.version>2.7.6</ignite.version>
         <jetty.version>9.4.20.v20190813</jetty.version>
         <micronaut.version>1.2.2</micronaut.version>
-        <vaadin.version>14.0.6</vaadin.version>
+        <vaadin.version>14.0.7</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
             --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
