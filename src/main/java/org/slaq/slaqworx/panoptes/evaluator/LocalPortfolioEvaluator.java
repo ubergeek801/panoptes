@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.Rule;
@@ -35,12 +36,17 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private static final ForkJoinPool ruleEvaluationThreadPool = ForkJoinPoolFactory
             .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "rule-evaluator");
 
+    private final PortfolioProvider portfolioProvider;
+
     /**
      * Creates a new {@code LocalPortfolioEvaluator} that uses a {@code ForkJoinPool} for local
      * {@code Portfolio} evaluation.
+     *
+     * @param portfolioProvider
+     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
      */
-    public LocalPortfolioEvaluator() {
-        // nothing to do
+    public LocalPortfolioEvaluator(PortfolioProvider portfolioProvider) {
+        this.portfolioProvider = portfolioProvider;
     }
 
     @Override
@@ -116,14 +122,12 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             shortCircuitPredicate = (result -> true);
         }
 
-        Map<RuleKey, EvaluationResult> results =
-                ruleEvaluationThreadPool.submit(() -> rules.parallel()
-                        .map(r -> new RuleEvaluator(r, portfolio, transaction,
-                                portfolio.getBenchmark(evaluationContext.getPortfolioProvider()),
-                                evaluationContext).call())
-                        .takeWhile(shortCircuitPredicate)
-                        .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result)))
-                        .get();
+        Map<RuleKey, EvaluationResult> results = ruleEvaluationThreadPool.submit(() -> rules
+                .parallel()
+                .map(r -> new RuleEvaluator(r, portfolio, transaction,
+                        portfolio.getBenchmark(portfolioProvider), evaluationContext).call())
+                .takeWhile(shortCircuitPredicate)
+                .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result))).get();
 
         Map<RuleKey, EvaluationResult> allResults =
                 new HashMap<>(shortCircuitResults.size() + results.size());

@@ -75,7 +75,7 @@ public class RuleEvaluatorPerformanceTest {
 
         // perform evaluation on each Portfolio
 
-        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(mapLoader);
         ExecutorService evaluationExecutor = Executors.newSingleThreadExecutor();
         long portfolioStartTime;
         long portfolioEndTime;
@@ -86,11 +86,8 @@ public class RuleEvaluatorPerformanceTest {
 
             portfolioStartTime = System.currentTimeMillis();
             portfolios.forEach(p -> {
-                completionService
-                        .submit(() -> new ImmutablePair<>(p.getKey(),
-                                evaluator.evaluate(p,
-                                        new EvaluationContext(mapLoader, dataSource, mapLoader))
-                                        .get()));
+                completionService.submit(() -> new ImmutablePair<>(p.getKey(),
+                        evaluator.evaluate(p, new EvaluationContext()).get()));
             });
             // wait for all of the evaluations to complete
             for (int i = 0; i < portfolios.size(); i++) {
@@ -113,8 +110,8 @@ public class RuleEvaluatorPerformanceTest {
             Security security1 = dataSource.getSecurityMap().values().iterator().next();
             Position position1 = new Position(1_000_000, security1);
             positions.add(position1);
-            TradeEvaluator tradeEvaluator = new TradeEvaluator(new LocalPortfolioEvaluator(),
-                    mapLoader, dataSource, mapLoader);
+            TradeEvaluator tradeEvaluator =
+                    new TradeEvaluator(new LocalPortfolioEvaluator(mapLoader), mapLoader);
             HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
             portfolios.stream().limit(i * 62).forEach(portfolio -> {
                 Transaction transaction = new Transaction(portfolio, positions);

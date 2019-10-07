@@ -33,7 +33,6 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
@@ -174,16 +173,13 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio = TestUtil.createTestPortfolio(assetCache, "test portfolio", "test",
                 positions, (PortfolioKey)null, rules.values());
 
-        LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator();
-        Map<RuleKey, EvaluationResult> allResults = localEvaluator
-                .evaluate(portfolio, new EvaluationContext(assetCache, assetCache, assetCache))
-                .get();
+        LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator(assetCache);
+        Map<RuleKey, EvaluationResult> allResults =
+                localEvaluator.evaluate(portfolio, new EvaluationContext()).get();
         validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
                 top10issuerRule);
 
-        allResults = clusterEvaluator
-                .evaluate(portfolio, new EvaluationContext(assetCache, assetCache, assetCache))
-                .get();
+        allResults = clusterEvaluator.evaluate(portfolio, new EvaluationContext()).get();
         validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
                 top10issuerRule);
     }
@@ -203,15 +199,13 @@ public class PortfolioEvaluatorTest {
         rules.put(failRule.getKey(), failRule);
         rules.put(exceptionRule.getKey(), exceptionRule);
 
-        RuleProvider ruleProvider = (k -> rules.get(k));
-
         Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<RuleKey, EvaluationResult> results =
-                new LocalPortfolioEvaluator().evaluate(rules.values().stream(),
+                new LocalPortfolioEvaluator(assetCache).evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
-                        null, new EvaluationContext(null, null, ruleProvider));
+                        null, new EvaluationContext());
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(
@@ -231,7 +225,7 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateGroups() throws Exception {
-        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes =
                 Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.rating1Value, 90d,
@@ -284,17 +278,13 @@ public class PortfolioEvaluatorTest {
                         new SecurityAttributeGroupClassifier(SecurityAttribute.issuer));
         rules.put(issuerRule.getKey(), issuerRule);
 
-        RuleProvider ruleProvider = (k -> rules.get(k));
-
         // total value = 2_100, weighted rating = 165_500, weighted duration = 9_200,
         // weighted average rating = 78.80952381, weighted average duration = 4.380952381
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions,
                 (PortfolioKey)null, rules.values());
 
-        Map<RuleKey, EvaluationResult> results = evaluator
-                .evaluate(portfolio,
-                        new EvaluationContext(null, TestUtil.testSecurityProvider(), ruleProvider))
-                .get();
+        Map<RuleKey, EvaluationResult> results =
+                evaluator.evaluate(portfolio, new EvaluationContext()).get();
 
         // all rules should have entries
         assertEquals(rules.size(), results.size(),
@@ -340,8 +330,6 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateOverrides() throws Exception {
-        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator();
-
         Position dummyPosition = new Position(1, TestUtil.s1);
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
@@ -368,15 +356,14 @@ public class PortfolioEvaluatorTest {
         portfolioRules.put(failRule.getKey(), failRule);
         portfolioRules.put(usePortfolioBenchmarkRule.getKey(), usePortfolioBenchmarkRule);
 
-        RuleProvider ruleProvider = (k -> portfolioRules.get(k));
-
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", dummyPositions,
                 portfolioBenchmark, portfolioRules.values());
 
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(benchmarkProvider);
+
         // test the form of evaluate() that should use the portfolio defaults
         Map<RuleKey, EvaluationResult> results =
-                evaluator.evaluate(portfolio, new EvaluationContext(benchmarkProvider,
-                        TestUtil.testSecurityProvider(), ruleProvider)).get();
+                evaluator.evaluate(portfolio, new EvaluationContext()).get();
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
@@ -395,8 +382,8 @@ public class PortfolioEvaluatorTest {
         overrideRules.add(usePortfolioBenchmarkRule);
 
         // test the form of evaluate() that should override the Portfolio rules
-        results = evaluator.evaluate(overrideRules.stream(), portfolio, null, new EvaluationContext(
-                benchmarkProvider, TestUtil.testSecurityProvider(), ruleProvider));
+        results = evaluator.evaluate(overrideRules.stream(), portfolio, null,
+                new EvaluationContext());
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertTrue(

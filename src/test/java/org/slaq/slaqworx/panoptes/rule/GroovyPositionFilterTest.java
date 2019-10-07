@@ -16,8 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 public class GroovyPositionFilterTest {
     @Test
     public void testFilter() {
-        EvaluationContext evaluationContext =
-                new EvaluationContext(null, TestUtil.testSecurityProvider(), null);
+        EvaluationContext evaluationContext = new EvaluationContext();
 
         // create a filter which should include Positions with an amount > 1MM
         GroovyPositionFilter filter1MM = new GroovyPositionFilter("p.amount > 1_000_000");

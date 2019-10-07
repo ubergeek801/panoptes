@@ -11,7 +11,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
@@ -29,7 +28,7 @@ public class RemotePortfolioEvaluator implements IgniteCallable<Map<RuleKey, Eva
 
     private final PortfolioKey portfolioKey;
     private final TradeKey tradeKey;
-    private final EvaluationMode evaluationMode;
+    private final EvaluationContext evaluationContext;
 
     /**
      * Creates a new {@code RemotePortfolioEvaluator} with the given parameters.
@@ -46,7 +45,7 @@ public class RemotePortfolioEvaluator implements IgniteCallable<Map<RuleKey, Eva
             EvaluationContext evaluationContext) {
         portfolioKey = portfolio.getKey();
         tradeKey = (transaction == null ? null : transaction.getTrade().getKey());
-        evaluationMode = evaluationContext.getEvaluationMode();
+        this.evaluationContext = evaluationContext;
     }
 
     @Override
@@ -58,9 +57,7 @@ public class RemotePortfolioEvaluator implements IgniteCallable<Map<RuleKey, Eva
         Trade trade = (tradeKey == null ? null : assetCache.getTrade(tradeKey));
         Transaction transaction = (trade == null ? null : trade.getTransaction(portfolioKey));
 
-        return new LocalPortfolioEvaluator()
-                .evaluate(portfolio, transaction,
-                        new EvaluationContext(assetCache, assetCache, assetCache, evaluationMode))
-                .get();
+        return new LocalPortfolioEvaluator(assetCache)
+                .evaluate(portfolio, transaction, evaluationContext).get();
     }
 }

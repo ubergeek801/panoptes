@@ -102,7 +102,7 @@ public class PositionSet implements HierarchicalPositionSupplier {
     public double getTotalMarketValue() {
         if (totalMarketValue == null) {
             totalMarketValue = new TotalMarketValuePositionCalculator().calculate(this,
-                    new EvaluationContext(null, null, null));
+                    new EvaluationContext());
         }
 
         return totalMarketValue;

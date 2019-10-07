@@ -13,13 +13,11 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 
 /**
  * {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
@@ -37,9 +35,6 @@ public class TradeEvaluator {
 
     private final PortfolioEvaluator evaluator;
     private final PortfolioProvider portfolioProvider;
-    private final SecurityProvider securityProvider;
-
-    private final RuleProvider ruleProvider;
 
     /**
      * Creates a new {@code TradeEvaluator}.
@@ -49,17 +44,10 @@ public class TradeEvaluator {
      *            evaluations
      * @param portfolioProvider
      *            the {@code PortfolioProvider} to use to obtain {@code Portfolio} information
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to obtain {@code Security} information
-     * @param ruleProvider
-     *            the {@code RuleProvider} to use to obtain {@code Rule} information
      */
-    public TradeEvaluator(PortfolioEvaluator evaluator, PortfolioProvider portfolioProvider,
-            SecurityProvider securityProvider, RuleProvider ruleProvider) {
+    public TradeEvaluator(PortfolioEvaluator evaluator, PortfolioProvider portfolioProvider) {
         this.evaluator = evaluator;
         this.portfolioProvider = portfolioProvider;
-        this.securityProvider = securityProvider;
-        this.ruleProvider = ruleProvider;
     }
 
     /**
@@ -91,8 +79,7 @@ public class TradeEvaluator {
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
 
-            EvaluationContext evaluationContext = new EvaluationContext(portfolioProvider,
-                    securityProvider, ruleProvider, evaluationMode);
+            EvaluationContext evaluationContext = new EvaluationContext(evaluationMode);
             Map<RuleKey, EvaluationResult> ruleResults =
                     evaluator.evaluate(portfolio, transaction, evaluationContext).get();
 

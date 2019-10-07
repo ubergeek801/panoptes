@@ -67,8 +67,7 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
     @Get("/room/{portfolioId}")
     public String getRoom(String portfolioId, String assetId, double targetAmount)
             throws InterruptedException, ExecutionException {
-        TradeEvaluator tradeEvaluator =
-                new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
+        TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
 
         // FIXME don't assume that these exist
         Portfolio portfolio = assetCache.getPortfolio(new PortfolioKey(portfolioId, 1));
@@ -101,11 +100,8 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
         int[] numPortfolios = new int[1];
         portfolioEntryIter.forEachRemaining(entry -> {
             numPortfolios[0]++;
-            completionService
-                    .submit(() -> new ImmutablePair<>(entry.getValue(),
-                            portfolioEvaluator.evaluate(entry.getValue(),
-                                    new EvaluationContext(assetCache, assetCache, assetCache))
-                                    .get()));
+            completionService.submit(() -> new ImmutablePair<>(entry.getValue(),
+                    portfolioEvaluator.evaluate(entry.getValue(), new EvaluationContext()).get()));
         });
 
         for (int i = 0; i < numPortfolios[0]; i++) {

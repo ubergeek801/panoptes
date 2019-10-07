@@ -64,8 +64,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                     return;
                 }
 
-                TradeEvaluator tradeEvaluator =
-                        new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
+                TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
 
                 try {
                     double roomMarketValue =
@@ -177,8 +176,7 @@ public class FixedIncomeTradePanel extends FormLayout {
             int allocationIndex[] = new int[] { 1 };
             int numPortfolios = assetCache.getPortfolioCache().size();
             int numRemaining[] = new int[] { numPortfolios };
-            TradeEvaluator tradeEvaluator =
-                    new TradeEvaluator(portfolioEvaluator, assetCache, assetCache, assetCache);
+            TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
             // TODO running roomEvaluatorExecutor directly on the spliterator doesn't parallelize
             List<Portfolio> portfolios =
                     StreamSupport.stream(assetCache.getPortfolioCache().spliterator(), false)

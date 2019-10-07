@@ -34,7 +34,6 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
@@ -92,8 +91,6 @@ public class TradeEvaluatorTest {
                 "WeightedAverage<=4.0", null, SecurityAttribute.duration, null, 4d, null);
         p1Rules.put(p1Rule4.getKey(), p1Rule4);
 
-        RuleProvider ruleProvider = (k -> p1Rules.get(k));
-
         Portfolio p1 = TestUtil.testPortfolioProvider().newPortfolio("TradeEvaluatorTestP1", "test",
                 p1Positions, null, p1Rules.values());
 
@@ -103,8 +100,9 @@ public class TradeEvaluatorTest {
         Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolio().getKey(), t1);
 
         Trade trade = new Trade(transactions);
-        TradeEvaluator evaluator = new TradeEvaluator(new LocalPortfolioEvaluator(),
-                TestUtil.testPortfolioProvider(), securityProvider, ruleProvider);
+        TradeEvaluator evaluator =
+                new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
+                        TestUtil.testPortfolioProvider());
         TradeEvaluationResult result = evaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
 
         Map<EvaluationGroup<?>, Impact> p1r1Impact =
@@ -170,17 +168,15 @@ public class TradeEvaluatorTest {
         // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
         // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
 
-        EvaluationContext evaluationContext =
-                new EvaluationContext(TestUtil.testPortfolioProvider(),
-                        TestUtil.testSecurityProvider(), k -> p1Rules.get(k));
+        EvaluationContext evaluationContext = new EvaluationContext();
         assertEquals(3.0,
                 new WeightedAveragePositionCalculator(SecurityAttribute.duration)
                         .calculate(portfolio, evaluationContext),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
-        double room = new TradeEvaluator(new LocalPortfolioEvaluator(),
-                evaluationContext.getPortfolioProvider(), evaluationContext.getSecurityProvider(),
-                evaluationContext.getRuleProvider()).evaluateRoom(portfolio, trialSecurity,
-                        3_000_000);
+        double room =
+                new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
+                        TestUtil.testPortfolioProvider()).evaluateRoom(portfolio, trialSecurity,
+                                3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
 
         // perform the same test with the clustered evaluator
@@ -198,8 +194,8 @@ public class TradeEvaluatorTest {
         portfolio = TestUtil.createTestPortfolio(assetCache, null, "test 1", p1Positions, null,
                 cachedP1Rules.values());
 
-        room = new TradeEvaluator(clusterEvaluator, assetCache, assetCache, assetCache)
-                .evaluateRoom(portfolio, trialSecurity, 3_000_000);
+        room = new TradeEvaluator(clusterEvaluator, assetCache).evaluateRoom(portfolio,
+                trialSecurity, 3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }
 }
