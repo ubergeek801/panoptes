@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.inject.Singleton;
-
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
@@ -16,14 +14,16 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
  *
  * @author jeremy
  */
-@Singleton
 public class SecurityCacheStore extends IgniteCacheStore<SecurityKey, Security> {
     /**
      * Creates a new {@code SecurityCacheStore} which obtains resources from the global
      * {@code ApplicationContext}.
+     *
+     * @param cacheName
+     *            the name of the cache served by this store
      */
-    public SecurityCacheStore() {
-        // nothing to do
+    public SecurityCacheStore(String cacheName) {
+        super(cacheName);
     }
 
     @Override
@@ -63,9 +63,10 @@ public class SecurityCacheStore extends IgniteCacheStore<SecurityKey, Security> 
 
     @Override
     protected String getWriteSql() {
-        return "insert into " + getTableName() + " (id, hash, attributes) "
-                + "values (?, ?, ?::json) on conflict on constraint security_pk do update "
-                + "set hash = excluded.hash, attributes = excluded.attributes";
+        return "insert into " + getTableName() + " (id, hash, attributes, partition_id) values (?,"
+                + " ?, ?::json, ?) on conflict on constraint security_pk do update set hash ="
+                + " excluded.hash, attributes = excluded.attributes, partition_id ="
+                + " excluded.partition_id";
     }
 
     @Override
@@ -82,5 +83,6 @@ public class SecurityCacheStore extends IgniteCacheStore<SecurityKey, Security> 
         ps.setString(1, security.getKey().getId());
         ps.setString(2, security.getAttributes().hash());
         ps.setString(3, jsonAttributes);
+        ps.setShort(4, getPartition(security.getKey()));
     }
 }

@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.inject.Singleton;
-
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -18,14 +16,16 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  *
  * @author jeremy
  */
-@Singleton
 public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> {
     /**
      * Creates a new {@code PositionCacheStore} which obtains resources from the global
      * {@code ApplicationContext}.
+     *
+     * @param cacheName
+     *            the name of the cache served by this store
      */
-    public PositionCacheStore() {
-        // nothing to do
+    public PositionCacheStore(String cacheName) {
+        super(cacheName);
     }
 
     @Override
@@ -76,9 +76,10 @@ public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> 
 
     @Override
     protected String getWriteSql() {
-        return "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
-                + " on conflict on constraint position_pk do update"
-                + " set amount = excluded.amount, security_id = excluded.security_id";
+        return "insert into " + getTableName()
+                + " (id, amount, security_id, partition_id) values (?, ?, ?, ?) on conflict on"
+                + " constraint position_pk do update set amount = excluded.amount, security_id ="
+                + " excluded.security_id, partition_id = excluded.partition_id";
     }
 
     @Override
@@ -86,5 +87,6 @@ public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> 
         ps.setString(1, position.getKey().getId());
         ps.setDouble(2, position.getAmount());
         ps.setString(3, position.getSecurity().getKey().getId());
+        ps.setShort(4, getPartition(position.getKey()));
     }
 }

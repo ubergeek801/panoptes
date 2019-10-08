@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
-
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -31,14 +29,16 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
-@Singleton
 public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfolio> {
     /**
      * Creates a new {@code PortfolioCacheStore} which obtains resources from the global
      * {@code ApplicationContext}.
+     *
+     * @param cacheName
+     *            the name of the cache served by this store
      */
-    public PortfolioCacheStore() {
-        // nothing to do
+    public PortfolioCacheStore(String cacheName) {
+        super(cacheName);
     }
 
     @Override
@@ -116,10 +116,11 @@ public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfoli
     @Override
     protected String getWriteSql() {
         return "insert into " + getTableName()
-                + " (id, version, name, benchmark_id, benchmark_version) values (?, ?, ?, ?, ?)"
-                + " on conflict on constraint portfolio_pk do update"
+                + " (id, version, name, benchmark_id, benchmark_version, partition_id) values"
+                + " (?, ?, ?, ?, ?, ?) on conflict on constraint portfolio_pk do update"
                 + " set name = excluded.name, benchmark_id = excluded.benchmark_id,"
-                + " benchmark_version = excluded.benchmark_version";
+                + " benchmark_version = excluded.benchmark_version, partition_id ="
+                + " excluded.partition_id";
     }
 
     @Override
@@ -182,5 +183,6 @@ public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfoli
         } else {
             ps.setLong(5, benchmarkKey.getVersion());
         }
+        ps.setShort(6, getPartition(portfolio.getKey()));
     }
 }

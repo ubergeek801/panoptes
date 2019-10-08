@@ -6,15 +6,17 @@ import java.util.Collections;
 
 import javax.inject.Singleton;
 
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
 
 import org.apache.ignite.Ignite;
-import org.apache.ignite.Ignition;
+import org.apache.ignite.IgniteCheckedException;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.store.CacheStore;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.ExecutorConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.internal.IgnitionEx;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.IgniteSpiContext;
 import org.apache.ignite.spi.IgniteSpiException;
@@ -70,8 +72,10 @@ public class PanoptesCacheConfiguration {
      */
     protected <K, V> CacheConfiguration<K, V> createCacheConfiguration(String cacheName,
             javax.cache.configuration.Factory<? extends CacheStore<? super K, ? super V>> cacheStoreFactory) {
-        CacheConfiguration<K, V> cacheConfig =
-                new CacheConfiguration<K, V>(cacheName).setCacheMode(CacheMode.REPLICATED);
+        CacheConfiguration<K, V> cacheConfig = new CacheConfiguration<K, V>(cacheName)
+                .setCacheMode(CacheMode.PARTITIONED).setBackups(1).setReadFromBackup(true);
+        // these don't seem to affect (single-node) performance but they seem reasonable
+        cacheConfig.setCopyOnRead(false).setEventsDisabled(true).setStoreByValue(false);
         if (cacheStoreFactory != null) {
             cacheConfig.setCacheStoreFactory(cacheStoreFactory);
         }
@@ -90,8 +94,6 @@ public class PanoptesCacheConfiguration {
     protected IgniteConfiguration igniteConfig(SecurityAttributeLoader securityAttributeLoader) {
         securityAttributeLoader.loadSecurityAttributes();
 
-        boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
-
         IgniteConfiguration config = new IgniteConfiguration().setIgniteInstanceName("panoptes")
                 .setGridLogger(new Slf4jLogger()).setMetricsLogFrequency(0);
         // parallelism is at the Rule level so set Portfolio-level concurrency conservatively
@@ -103,19 +105,22 @@ public class PanoptesCacheConfiguration {
 
         CacheConfiguration<PortfolioKey, Portfolio> portfolioCacheConfiguration =
                 createCacheConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
-                        () -> new PortfolioCacheStore());
+                        () -> new PortfolioCacheStore(AssetCache.PORTFOLIO_CACHE_NAME));
         CacheConfiguration<PositionKey, Position> positionCacheConfiguration =
                 createCacheConfiguration(AssetCache.POSITION_CACHE_NAME,
-                        () -> new PositionCacheStore());
+                        () -> new PositionCacheStore(AssetCache.POSITION_CACHE_NAME));
         CacheConfiguration<RuleKey, ConfigurableRule> securityCacheConfiguration =
-                createCacheConfiguration(AssetCache.RULE_CACHE_NAME, () -> new RuleCacheStore());
-        CacheConfiguration<SecurityKey, Security> ruleCacheConfiguration = createCacheConfiguration(
-                AssetCache.SECURITY_CACHE_NAME, () -> new SecurityCacheStore());
+                createCacheConfiguration(AssetCache.RULE_CACHE_NAME,
+                        () -> new RuleCacheStore(AssetCache.RULE_CACHE_NAME));
+        CacheConfiguration<SecurityKey, Security> ruleCacheConfiguration =
+                createCacheConfiguration(AssetCache.SECURITY_CACHE_NAME,
+                        () -> new SecurityCacheStore(AssetCache.SECURITY_CACHE_NAME));
         config.setCacheConfiguration(portfolioCacheConfiguration, positionCacheConfiguration,
                 securityCacheConfiguration, ruleCacheConfiguration,
                 createCacheConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
         // set up cluster join discovery appropriate for the detected environment
+        boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
         if (isClustered) {
             // use Kubernetes discovery
             // FIXME configure k8s discovery
@@ -179,9 +184,13 @@ public class PanoptesCacheConfiguration {
      * @param igniteConfiguration
      *            the {@code IgniteConfiguration} with which to configure the instance
      * @return an {@Ignite} instance
+     * @throws IgniteCheckedException
+     *             if the {code Ignite} instance could not be created
      */
     @Singleton
-    protected Ignite igniteInstance(IgniteConfiguration igniteConfiguration) {
-        return Ignition.getOrStart(igniteConfiguration);
+    protected Ignite igniteInstance(IgniteConfiguration igniteConfiguration,
+            ApplicationContext applicationContext) throws IgniteCheckedException {
+        return IgnitionEx.start(igniteConfiguration,
+                new GridMicronautResourceContext(applicationContext), false).get1();
     }
 }

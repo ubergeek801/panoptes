@@ -13,7 +13,6 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 
-import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -67,12 +66,10 @@ public class Panoptes {
      *
      * @param cache
      *            the {@code IgniteCache} to be loaded
-     * @param igniteInstance
-     *            the {@code Ignite} instance to which the cache belongs
      * @return the cache itself
      */
-    protected IgniteCache<?, ?> loadCache(IgniteCache<?, ?> cache, Ignite igniteInstance) {
-        cache.localLoadCache(null, cache.getName(), igniteInstance);
+    protected IgniteCache<?, ?> loadCache(IgniteCache<?, ?> cache) {
+        cache.localLoadCache(null);
 
         return cache;
     }
@@ -91,18 +88,17 @@ public class Panoptes {
         ApplicationContextProvider.setApplicationContext(applicationContext);
 
         AssetCache assetCache = applicationContext.getBean(AssetCache.class);
-        Ignite igniteInstance = applicationContext.getBean(Ignite.class);
 
-        int numSecurities = loadCache(assetCache.getSecurityCache(), igniteInstance).size();
+        int numSecurities = loadCache(assetCache.getSecurityCache()).size();
         LOG.info("{} Securities in cache", numSecurities);
 
-        int numPositions = loadCache(assetCache.getPositionCache(), igniteInstance).size();
+        int numPositions = loadCache(assetCache.getPositionCache()).size();
         LOG.info("{} Positions in cache", numPositions);
 
-        int numRules = loadCache(assetCache.getRuleCache(), igniteInstance).size();
+        int numRules = loadCache(assetCache.getRuleCache()).size();
         LOG.info("{} Rules in cache", numRules);
 
-        int numPortfolios = loadCache(assetCache.getPortfolioCache(), igniteInstance).size();
+        int numPortfolios = loadCache(assetCache.getPortfolioCache()).size();
         LOG.info("{} Portfolios in cache", numPortfolios);
 
         LOG.info("starting Web application service");

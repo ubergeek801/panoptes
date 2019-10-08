@@ -8,22 +8,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.cache.Cache;
 import javax.cache.integration.CacheLoaderException;
 import javax.sql.DataSource;
 
+import io.micronaut.context.BeanContext;
+
 import org.apache.ignite.Ignite;
 import org.apache.ignite.cache.affinity.Affinity;
 import org.apache.ignite.cache.store.CacheStore;
 import org.apache.ignite.lang.IgniteBiInClosure;
+import org.apache.ignite.resources.IgniteInstanceResource;
+import org.apache.ignite.resources.SpringApplicationContextResource;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -39,14 +43,20 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  */
 public abstract class IgniteCacheStore<K, V extends Keyed<K>>
         implements CacheStore<K, V>, RowMapper<V> {
+    private final String cacheName;
+    private BeanContext applicationContext;
+    private Ignite igniteInstance;
     private JdbcTemplate jdbcTemplate;
 
     /**
-     * Creates a new {@code IgniteCacheStore} which uses the global {@code ApplicationContext} to
+     * Creates a new {@code IgniteCacheStore} which uses the injected {@code ApplicationContext} to
      * resolve resources.
+     *
+     * @param cacheName
+     *            the name of the cache served by this store
      */
-    protected IgniteCacheStore() {
-        // nothing to do
+    protected IgniteCacheStore(String cacheName) {
+        this.cacheName = cacheName;
     }
 
     @Override
@@ -94,24 +104,19 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
     @Override
     public void loadCache(IgniteBiInClosure<K, V> cacher, @Nullable Object... args)
             throws CacheLoaderException {
-        // we expect the first argument to be the name of the cache being loaded, and the second to
-        // be the Ignite instance
-        String cacheName = (String)args[0];
-        Ignite igniteInstance = (Ignite)args[1];
-
         // use affinity to determine which partitions to load
         Affinity<K> cacheAffinity = igniteInstance.affinity(cacheName);
         int[] localPartitions =
                 cacheAffinity.primaryPartitions(igniteInstance.cluster().localNode());
 
         StringBuilder query = new StringBuilder(getLoadSelect());
-        // FIXME re-enable once partition_id is available
-        // query.append(" where partition_id in (");
-        // query.append(IntStream.of(localPartitions).mapToObj(i -> String.valueOf(i))
-        // .collect(Collectors.joining(",")));
-        // query.append(")");
+        query.append(" where partition_id in (");
+        query.append(IntStream.of(localPartitions).mapToObj(i -> String.valueOf(i))
+                .collect(Collectors.joining(",")));
+        query.append(")");
         try {
-            getJdbcTemplate().query(query.toString(), this).forEach(v -> cacher.apply(v.getKey(), v));
+            getJdbcTemplate().query(query.toString(), this)
+                    .forEach(v -> cacher.apply(v.getKey(), v));
         } catch (DataAccessException e) {
             throw new CacheLoaderException("could not load cache from " + getTableName(), e);
         }
@@ -120,6 +125,16 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
     @Override
     public void sessionEnd(boolean commit) {
         // nothing to do
+    }
+
+    @SpringApplicationContextResource
+    public void setApplicationContext(BeanContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @IgniteInstanceResource
+    public void setIgniteInstance(Ignite igniteInstance) {
+        this.igniteInstance = igniteInstance;
     }
 
     @Override
@@ -174,8 +189,7 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
      */
     protected JdbcTemplate getJdbcTemplate() {
         if (jdbcTemplate == null) {
-            jdbcTemplate = new JdbcTemplate(
-                    ApplicationContextProvider.getApplicationContext().getBean(DataSource.class));
+            jdbcTemplate = new JdbcTemplate(applicationContext.getBean(DataSource.class));
         }
 
         return jdbcTemplate;
@@ -204,6 +218,17 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
      * @return a partial SQL query
      */
     protected abstract String getLoadSelect();
+
+    /**
+     * Obtains the cache partition ID for the given key.
+     *
+     * @param key
+     *            the key for which to obtain the partition ID
+     * @return the partition ID
+     */
+    protected short getPartition(K key) {
+        return (short)igniteInstance.affinity(cacheName).partition(key);
+    }
 
     /**
      * Obtains this {@code CacheStore}'s table name.

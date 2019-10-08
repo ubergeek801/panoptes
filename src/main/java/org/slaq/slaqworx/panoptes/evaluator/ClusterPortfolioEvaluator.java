@@ -7,12 +7,15 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Singleton;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.cache.affinity.Affinity;
+import org.apache.ignite.cluster.ClusterNode;
 import org.apache.ignite.internal.util.future.IgniteFinishedFutureImpl;
 import org.apache.ignite.lang.IgniteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PanoptesCacheConfiguration;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -32,6 +35,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
 
     private final AssetCache assetCache;
     private final Ignite igniteInstance;
+    private final Affinity<PortfolioKey> affinity;
+    private final ClusterNode localNode;
 
     /**
      * Creates a new {@code ClusterPortfolioEvaluator} using the given {@code AssetCache} for
@@ -45,6 +50,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     protected ClusterPortfolioEvaluator(AssetCache assetCache, Ignite igniteInstance) {
         this.assetCache = assetCache;
         this.igniteInstance = igniteInstance;
+        affinity = igniteInstance.affinity(AssetCache.PORTFOLIO_CACHE_NAME);
+        localNode = igniteInstance.cluster().localNode();
     }
 
     @Override
@@ -55,11 +62,18 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
 
     @Override
     public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext) {
+            Transaction transaction, EvaluationContext evaluationContext)
+            throws InterruptedException, ExecutionException {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getKey());
             return new IgniteFinishedFutureImpl<>(Collections.emptyMap());
+        }
+
+        // if the Portfolio is local, we can gain some efficiency by skipping the cluster dance
+        if (isLocal(portfolio)) {
+            return new LocalPortfolioEvaluator(assetCache).evaluate(portfolio, transaction,
+                    evaluationContext);
         }
 
         LOG.info("delegating evaluation of Portfolio {}", portfolio.getKey());
@@ -84,5 +98,17 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
         }
 
         return futureResult;
+    }
+
+    /**
+     * Indicates whether the given {@code Portfolio} exists (as primary or backup, if applicable) on
+     * the local cache cluster node.
+     *
+     * @param portfolio
+     *            the {@code Portfolio} to be tested
+     * @return {@code true} if the given {@code Portfolio} is local, {@code false} otherwise
+     */
+    protected boolean isLocal(Portfolio portfolio) {
+        return affinity.isPrimaryOrBackup(localNode, portfolio.getKey());
     }
 }
