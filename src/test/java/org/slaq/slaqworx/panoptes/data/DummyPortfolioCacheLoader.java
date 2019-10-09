@@ -49,9 +49,9 @@ public class DummyPortfolioCacheLoader
 
     private static final String PORTFOLIO_NAMES_FILE = "portfolionames.txt";
 
-    private static final int NUM_PORTFOLIOS = 500;
-    private static final int MIN_POSITIONS = 1000;
-    private static final int MAX_ADDITIONAL_POSITIONS = 1000;
+    private static final int NUM_PORTFOLIOS = 400;
+    private static final int MIN_POSITIONS = 800;
+    private static final int MAX_ADDITIONAL_POSITIONS = 800;
     private static final int NUM_RULES = 200;
 
     private final Portfolio[] benchmarks;

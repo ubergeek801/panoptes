@@ -42,8 +42,6 @@ spec:
           hostPort: 8080
         - containerPort: 8090
           hostPort: 8090
-        - containerPort: 61616
-          hostPort: 61616
         - containerPort: 8000
           hostPort: 8000
       - name: panoptes-telegraf

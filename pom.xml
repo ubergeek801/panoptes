@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.slaq.slaqworx</groupId>
@@ -29,7 +30,8 @@
             --add-opens
             java.base/sun.nio.ch=ALL-UNNAMED
             --add-opens java.management/sun.management=ALL-UNNAMED
-            --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED</globalJvmArgs>
+            --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
+            -Xms512m</globalJvmArgs>
     </properties>
 
     <build>
@@ -75,11 +77,11 @@
                             <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
                             <jvmFlag>--add-opens</jvmFlag>
                             <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>-Xms512m</jvmFlag>
 
                             <jvmFlag>-Xmx2560m</jvmFlag>
-                            <jvmFlag>-noverify</jvmFlag>
                             <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>
-                            <jvmFlag>-Djava.util.concurrent.ForkJoinPool.common.parallelism=6</jvmFlag>
+                            <jvmFlag>-XX:ActiveProcessorCount=6</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote.port=8000</jvmFlag>

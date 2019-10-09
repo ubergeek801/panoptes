@@ -110,10 +110,13 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
                 cacheAffinity.primaryPartitions(igniteInstance.cluster().localNode());
 
         StringBuilder query = new StringBuilder(getLoadSelect());
-        query.append(" where partition_id in (");
-        query.append(IntStream.of(localPartitions).mapToObj(i -> String.valueOf(i))
-                .collect(Collectors.joining(",")));
-        query.append(")");
+        // FIXME sometimes the partition list can be empty
+        if (localPartitions.length > 0) {
+            query.append(" where partition_id in (");
+            query.append(IntStream.of(localPartitions).mapToObj(i -> String.valueOf(i))
+                    .collect(Collectors.joining(",")));
+            query.append(")");
+        }
         try {
             getJdbcTemplate().query(query.toString(), this)
                     .forEach(v -> cacher.apply(v.getKey(), v));

@@ -7,10 +7,9 @@ target/
 .project
 .settings/
 
-# ignore Vaadin artifacts
+# ignore Vaadin artifacts which can be regenerated
 package-lock.json
 package.json
-webpack.config.js
 webpack.generated.js
 node_modules/
 

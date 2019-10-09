@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.ui;
 
 import com.vaadin.flow.server.Constants;
-import com.vaadin.flow.server.startup.ServletContextListeners;
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
@@ -39,7 +38,8 @@ public class PanoptesUIConfiguration {
         context.setConfigurations(new Configuration[] { new AnnotationConfiguration(),
                 new WebInfConfiguration(), new WebXmlConfiguration(), new MetaInfConfiguration() });
         context.getServletContext().setExtendedListenerTypes(true);
-        context.addEventListener(new ServletContextListeners());
+        // example code includes this but it appears to duplicate other configuration
+        // context.addEventListener(new ServletContextListeners());
         server.setHandler(context);
 
         return server;

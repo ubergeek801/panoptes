@@ -12,7 +12,8 @@
         </encoder>
     </appender>
 
-    <logger name="org.apache.activemq" level="warn" />
+    <logger name="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi" level="warn" />
+    <logger name="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi" level="warn" />
     <logger name="p6spy" level="error" />
 
     <root level="info">
