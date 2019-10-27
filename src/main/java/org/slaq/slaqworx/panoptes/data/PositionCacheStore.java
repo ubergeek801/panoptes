@@ -4,6 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
+import org.apache.ignite.Ignite;
+
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -16,16 +21,18 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  *
  * @author jeremy
  */
+@Singleton
 public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> {
     /**
-     * Creates a new {@code PositionCacheStore} which obtains resources from the global
-     * {@code ApplicationContext}.
+     * Creates a new {@code PositionCacheStore}.
      *
-     * @param cacheName
-     *            the name of the cache served by this store
+     * @param igniteInstance
+     *            the {@code Ignite} instance for which to stream data
+     * @param dataSource
+     *            the {@code DataSource} from which to stream data
      */
-    public PositionCacheStore(String cacheName) {
-        super(cacheName);
+    protected PositionCacheStore(Ignite igniteInstance, DataSource dataSource) {
+        super(igniteInstance, dataSource, AssetCache.POSITION_CACHE_NAME);
     }
 
     @Override

@@ -1,39 +1,33 @@
 package org.slaq.slaqworx.panoptes.data;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.cache.Cache;
 import javax.cache.integration.CacheLoaderException;
+import javax.cache.integration.CacheWriter;
 import javax.sql.DataSource;
 
-import io.micronaut.context.BeanContext;
-
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteDataStreamer;
 import org.apache.ignite.cache.affinity.Affinity;
-import org.apache.ignite.cache.store.CacheStore;
-import org.apache.ignite.lang.IgniteBiInClosure;
-import org.apache.ignite.resources.IgniteInstanceResource;
-import org.apache.ignite.resources.SpringApplicationContextResource;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code IgniteCacheStore} is a partial implementation of a {@code CacheStore} which provides
- * efficient implementations for {@code loadAll()} and {@code storeAll()} (using SQL {@code IN}
- * clauses for the former and JDBC batching for the latter).
+ * {@code IgniteCacheStore} is a partial implementation of a {@code CacheWriter} which provides
+ * efficient implementations for cache loading and {@code storeAll()} (using Ignite data streaming
+ * for the former and JDBC batching for the latter).
  *
  * @author jeremy
  * @param <K>
@@ -42,20 +36,28 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *            the entity value type
  */
 public abstract class IgniteCacheStore<K, V extends Keyed<K>>
-        implements CacheStore<K, V>, RowMapper<V> {
+        implements CacheWriter<K, V>, RowMapper<V> {
+    private final Ignite igniteInstance;
+
+    private final IgniteDataStreamer<K, V> dataStreamer;
+    private final JdbcTemplate jdbcTemplate;
     private final String cacheName;
-    private BeanContext applicationContext;
-    private Ignite igniteInstance;
-    private JdbcTemplate jdbcTemplate;
 
     /**
-     * Creates a new {@code IgniteCacheStore} which uses the injected {@code ApplicationContext} to
-     * resolve resources.
+     * Creates a new {@code IgniteCacheStore}.
      *
+     * @param igniteInstance
+     *            the {@code Ignite} instance for which to stream data
+     * @param dataSource
+     *            the {@code DataSource} from which to stream data
      * @param cacheName
      *            the name of the cache served by this store
      */
-    protected IgniteCacheStore(String cacheName) {
+    protected IgniteCacheStore(Ignite igniteInstance, DataSource dataSource, String cacheName) {
+        this.igniteInstance = igniteInstance;
+        dataStreamer = igniteInstance.dataStreamer(cacheName);
+        dataStreamer.allowOverwrite(true);
+        jdbcTemplate = new JdbcTemplate(dataSource);
         this.cacheName = cacheName;
     }
 
@@ -64,46 +66,12 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
         keys.forEach(k -> delete(k));
     }
 
-    @Override
-    public final V load(K key) {
-        Map<K, V> values = loadAll(List.of(key));
-
-        return (values.isEmpty() ? null : values.get(0));
-    }
-
-    @Override
-    public Map<K, V> loadAll(Iterable<? extends K> keys) {
-        String[] keyColumns = getKeyColumnNames();
-        StringBuilder query = new StringBuilder(getLoadSelect());
-        query.append(" where (").append(String.join(",", keyColumns) + ") in (values ");
-
-        ArrayList<Object> parameters = new ArrayList<>();
-        int keyIndex = 0;
-        for (K key : keys) {
-            if (keyIndex > 0) {
-                query.append(", ");
-            }
-            query.append("(");
-            Object[] keyComponents = getKeyComponents(key);
-            for (int keyComponentIndex =
-                    0; keyComponentIndex < keyComponents.length; keyComponentIndex++) {
-                if (keyComponentIndex > 0) {
-                    query.append(", ");
-                }
-                query.append("?");
-                parameters.add(keyComponents[keyComponentIndex]);
-            }
-            query.append(")");
-            keyIndex++;
-        }
-        query.append(")");
-        return getJdbcTemplate().query(query.toString(), parameters.toArray(), this).stream()
-                .collect(Collectors.toMap(v -> v.getKey(), v -> v));
-    }
-
-    @Override
-    public void loadCache(IgniteBiInClosure<K, V> cacher, @Nullable Object... args)
-            throws CacheLoaderException {
+    /**
+     * Loads/streams all available records from the database into the associated cache.
+     *
+     * @return the number of records loaded
+     */
+    public int loadAll() {
         // use affinity to determine which partitions to load
         Affinity<K> cacheAffinity = igniteInstance.affinity(cacheName);
         int[] localPartitions =
@@ -111,33 +79,27 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
 
         StringBuilder query = new StringBuilder(getLoadSelect());
         // FIXME sometimes the partition list can be empty
-        if (localPartitions.length > 0) {
-            query.append(" where partition_id in (");
-            query.append(IntStream.of(localPartitions).mapToObj(i -> String.valueOf(i))
-                    .collect(Collectors.joining(",")));
-            query.append(")");
-        }
+        // if (localPartitions.length > 0) {
+        // query.append(" where partition_id in (");
+        // query.append(IntStream.of(localPartitions).mapToObj(i -> String.valueOf(i))
+        // .collect(Collectors.joining(",")));
+        // query.append(")");
+        // }
+        RowCountCallbackHandler rowHandler = new RowCountCallbackHandler() {
+            @Override
+            protected void processRow(ResultSet rs, int rowNum) throws SQLException {
+                V entity = mapRow(rs, rowNum);
+                dataStreamer.addData(entity.getKey(), entity);
+            }
+        };
         try {
-            getJdbcTemplate().query(query.toString(), this)
-                    .forEach(v -> cacher.apply(v.getKey(), v));
+            getJdbcTemplate().query(query.toString(), rowHandler);
+            return rowHandler.getRowCount();
         } catch (DataAccessException e) {
             throw new CacheLoaderException("could not load cache from " + getTableName(), e);
+        } finally {
+            dataStreamer.close(false);
         }
-    }
-
-    @Override
-    public void sessionEnd(boolean commit) {
-        // nothing to do
-    }
-
-    @SpringApplicationContextResource
-    public void setApplicationContext(BeanContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-
-    @IgniteInstanceResource
-    public void setIgniteInstance(Ignite igniteInstance) {
-        this.igniteInstance = igniteInstance;
     }
 
     @Override
@@ -191,10 +153,6 @@ public abstract class IgniteCacheStore<K, V extends Keyed<K>>
      * @return a {@code JdbcTemplate}
      */
     protected JdbcTemplate getJdbcTemplate() {
-        if (jdbcTemplate == null) {
-            jdbcTemplate = new JdbcTemplate(applicationContext.getBean(DataSource.class));
-        }
-
         return jdbcTemplate;
     }
 

@@ -12,7 +12,6 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 
-import org.apache.ignite.Ignite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.TransactionStatus;
@@ -22,13 +21,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PimcoBenchmarkDatabaseLoader} populates the Panoptes database (using Ignite
- * {@code CacheStore}s) with data based on the PIMCO benchmarks.
+ * {@code PimcoBenchmarkDatabaseLoader} populates the Panoptes database (using
+ * {@code IgniteCacheStore}s) with data based on the PIMCO benchmarks.
  *
  * @author jeremy
  */
@@ -50,7 +48,7 @@ public class PimcoBenchmarkDatabaseLoader {
 
     /**
      * Loads the cache (and then flushes to the database) using data from the PIMCO data source. We
-     * slightly abuse the {@code CacheStore}s in doing so (by using them to store data that was
+     * slightly abuse the {@code CacheWriter}s in doing so (by using them to store data that was
      * never in the cache in the first place).
      *
      * @param event
@@ -60,16 +58,12 @@ public class PimcoBenchmarkDatabaseLoader {
     protected void onStartup(StartupEvent event) throws Exception {
         @SuppressWarnings("resource")
         BeanContext beanContext = event.getSource();
-        Ignite igniteInstance = beanContext.getBean(Ignite.class);
 
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
         TransactionTemplate txTemplate = beanContext.getBean(TransactionTemplate.class);
 
         LOG.info("persisting {} Securities", pimcoDataSource.getSecurityMap().size());
-        SecurityCacheStore securityCacheStore =
-                new SecurityCacheStore(AssetCache.SECURITY_CACHE_NAME);
-        securityCacheStore.setApplicationContext(beanContext);
-        securityCacheStore.setIgniteInstance(igniteInstance);
+        SecurityCacheStore securityCacheStore = beanContext.getBean(SecurityCacheStore.class);
 
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -85,9 +79,7 @@ public class PimcoBenchmarkDatabaseLoader {
             portfolios.add(portfolio);
         });
 
-        RuleCacheStore ruleCacheStore = new RuleCacheStore(AssetCache.RULE_CACHE_NAME);
-        ruleCacheStore.setApplicationContext(beanContext);
-        ruleCacheStore.setIgniteInstance(igniteInstance);
+        RuleCacheStore ruleCacheStore = beanContext.getBean(RuleCacheStore.class);
         portfolios.stream().forEach(pf -> {
             LOG.info("persisting {} Rules for Portfolio \"{}\"", pf.getRules().count(),
                     pf.getName());
@@ -101,10 +93,7 @@ public class PimcoBenchmarkDatabaseLoader {
             });
         });
 
-        PositionCacheStore positionCacheStore =
-                new PositionCacheStore(AssetCache.POSITION_CACHE_NAME);
-        positionCacheStore.setApplicationContext(beanContext);
-        positionCacheStore.setIgniteInstance(igniteInstance);
+        PositionCacheStore positionCacheStore = beanContext.getBean(PositionCacheStore.class);
         portfolios.stream().forEach(pf -> {
             LOG.info("persisting {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
                     pf.getName());
@@ -118,10 +107,7 @@ public class PimcoBenchmarkDatabaseLoader {
             });
         });
 
-        PortfolioCacheStore portfolioCacheStore =
-                new PortfolioCacheStore(AssetCache.PORTFOLIO_CACHE_NAME);
-        portfolioCacheStore.setApplicationContext(beanContext);
-        portfolioCacheStore.setIgniteInstance(igniteInstance);
+        PortfolioCacheStore portfolioCacheStore = beanContext.getBean(PortfolioCacheStore.class);
         // persist the benchmarks first
         LOG.info("persisting 4 benchmark Portfolios");
         txTemplate.execute(new TransactionCallbackWithoutResult() {

@@ -5,15 +5,22 @@
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
     </contextListener>
-    
+
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
+    <logger name="dev-updater" level="warn" />
+    <logger name="dev-webpack" level="warn" />
+    <logger
+        name="org.apache.ignite.internal.processors.cache.distributed.dht.preloader.GridDhtPartitionsExchangeFuture"
+        level="warn" />
     <logger name="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi" level="warn" />
     <logger name="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi" level="warn" />
+    <logger name="org.atmosphere" level="warn" />
+    <logger name="org.eclipse.jetty" level="warn" />
     <logger name="p6spy" level="error" />
 
     <root level="info">

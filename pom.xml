@@ -23,14 +23,17 @@
         <vaadin.version>14.0.7</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
-            --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+            -XX:+DisableExplicitGC --add-modules java.se
+            --add-exports
+            java.base/jdk.internal.ref=ALL-UNNAMED
             --add-opens
             java.base/java.lang=ALL-UNNAMED
             --add-opens java.base/java.nio=ALL-UNNAMED
             --add-opens
             java.base/sun.nio.ch=ALL-UNNAMED
             --add-opens java.management/sun.management=ALL-UNNAMED
-            --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
+            --add-opens
+            jdk.management/com.sun.management.internal=ALL-UNNAMED
             -Xms512m</globalJvmArgs>
     </properties>
 
@@ -63,6 +66,7 @@
                             <jvmFlag>-XX:+UseG1GC</jvmFlag>
                             <jvmFlag>-XX:+UseStringDeduplication</jvmFlag>
                             <jvmFlag>-XX:MaxGCPauseMillis=5000</jvmFlag>
+                            <jvmFlag>-XX:+DisableExplicitGC</jvmFlag>
                             <jvmFlag>--add-modules</jvmFlag>
                             <jvmFlag>java.se</jvmFlag>
                             <jvmFlag>--add-exports</jvmFlag>

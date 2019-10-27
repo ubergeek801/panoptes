@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
+import org.apache.ignite.Ignite;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -29,16 +33,18 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
+@Singleton
 public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfolio> {
     /**
-     * Creates a new {@code PortfolioCacheStore} which obtains resources from the global
-     * {@code ApplicationContext}.
+     * Creates a new {@code PortfolioCacheStore}.
      *
-     * @param cacheName
-     *            the name of the cache served by this store
+     * @param igniteInstance
+     *            the {@code Ignite} instance for which to stream data
+     * @param dataSource
+     *            the {@code DataSource} from which to stream data
      */
-    public PortfolioCacheStore(String cacheName) {
-        super(cacheName);
+    protected PortfolioCacheStore(Ignite igniteInstance, DataSource dataSource) {
+        super(igniteInstance, dataSource, AssetCache.PORTFOLIO_CACHE_NAME);
     }
 
     @Override

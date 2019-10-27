@@ -14,13 +14,16 @@ import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 
 import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.ClusterReadyEvent;
+import org.slaq.slaqworx.panoptes.data.IgniteCacheStore;
+import org.slaq.slaqworx.panoptes.data.PortfolioCacheStore;
+import org.slaq.slaqworx.panoptes.data.PositionCacheStore;
+import org.slaq.slaqworx.panoptes.data.RuleCacheStore;
+import org.slaq.slaqworx.panoptes.data.SecurityCacheStore;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance.
@@ -71,16 +74,12 @@ public class Panoptes {
     }
 
     /**
-     * (Pre-)loads the given {@code IgniteCache}.
+     * Loads the cache associated with the given {@code IgniteCacheStore}.
      *
-     * @param cache
-     *            the {@code IgniteCache} to be loaded
-     * @return the cache itself
+     * @return the number of items loaded
      */
-    protected IgniteCache<?, ?> loadCache(IgniteCache<?, ?> cache) {
-        cache.localLoadCache(null);
-
-        return cache;
+    protected int loadCache(IgniteCacheStore<?, ?> cacheStore) {
+        return cacheStore.loadAll();
     }
 
     /**
@@ -90,7 +89,7 @@ public class Panoptes {
      *            a {@code ClusterReadyEvent}
      */
     @EventListener
-    protected void onClusterReady(@SuppressWarnings("unused") ClusterReadyEvent event) {
+    protected void onClusterReady(ClusterReadyEvent event) {
         if (!isMain) {
             return;
         }
@@ -101,21 +100,21 @@ public class Panoptes {
         isClusterInitialized = true;
 
         // the ApplicationContext should be accessible when an event of this type occurs
+        @SuppressWarnings("resource")
         BeanContext applicationContext = ApplicationContextProvider.getApplicationContext();
-        AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
         LOG.info("initializing cache data");
 
-        int numSecurities = loadCache(assetCache.getSecurityCache()).size();
+        int numSecurities = loadCache(applicationContext.getBean(SecurityCacheStore.class));
         LOG.info("{} Securities in cache", numSecurities);
 
-        int numPositions = loadCache(assetCache.getPositionCache()).size();
+        int numPositions = loadCache(applicationContext.getBean(PositionCacheStore.class));
         LOG.info("{} Positions in cache", numPositions);
 
-        int numRules = loadCache(assetCache.getRuleCache()).size();
+        int numRules = loadCache(applicationContext.getBean(RuleCacheStore.class));
         LOG.info("{} Rules in cache", numRules);
 
-        int numPortfolios = loadCache(assetCache.getPortfolioCache()).size();
+        int numPortfolios = loadCache(applicationContext.getBean(PortfolioCacheStore.class));
         LOG.info("{} Portfolios in cache", numPortfolios);
 
         LOG.info("Panoptes cluster node ready");
@@ -140,6 +139,7 @@ public class Panoptes {
         }
         isWebAppInitialized = true;
 
+        @SuppressWarnings("resource")
         BeanContext applicationContext = event.getSource();
         ApplicationContextProvider.setApplicationContext(applicationContext);
 

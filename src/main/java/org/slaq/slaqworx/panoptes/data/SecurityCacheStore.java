@@ -4,8 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
+import org.apache.ignite.Ignite;
+
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
@@ -14,16 +20,18 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
  *
  * @author jeremy
  */
+@Singleton
 public class SecurityCacheStore extends IgniteCacheStore<SecurityKey, Security> {
     /**
-     * Creates a new {@code SecurityCacheStore} which obtains resources from the global
-     * {@code ApplicationContext}.
+     * Creates a new {@code SecurityCacheStore}.
      *
-     * @param cacheName
-     *            the name of the cache served by this store
+     * @param igniteInstance
+     *            the {@code Ignite} instance for which to stream data
+     * @param dataSource
+     *            the {@code DataSource} from which to stream data
      */
-    public SecurityCacheStore(String cacheName) {
-        super(cacheName);
+    protected SecurityCacheStore(Ignite igniteInstance, DataSource dataSource) {
+        super(igniteInstance, dataSource, AssetCache.SECURITY_CACHE_NAME);
     }
 
     @Override

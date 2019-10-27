@@ -4,6 +4,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
+import org.apache.ignite.Ignite;
+
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -15,16 +21,18 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  *
  * @author jeremy
  */
+@Singleton
 public class RuleCacheStore extends IgniteCacheStore<RuleKey, ConfigurableRule> {
     /**
-     * Creates a new {@code RuleCacheStore} which obtains resources from the global
-     * {@code ApplicationContext}.
+     * Creates a new {@code RuleCacheStore}.
      *
-     * @param cacheName
-     *            the name of the cache served by this store
+     * @param igniteInstance
+     *            the {@code Ignite} instance for which to stream data
+     * @param dataSource
+     *            the {@code DataSource} from which to stream data
      */
-    public RuleCacheStore(String cacheName) {
-        super(cacheName);
+    protected RuleCacheStore(Ignite igniteInstance, DataSource dataSource) {
+        super(igniteInstance, dataSource, AssetCache.RULE_CACHE_NAME);
     }
 
     @Override
