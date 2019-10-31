@@ -8,17 +8,17 @@ import java.util.concurrent.ForkJoinPool;
 
 import javax.cache.Cache.Entry;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -70,10 +70,10 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
         TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
 
         // FIXME don't assume that these exist
-        Portfolio portfolio = assetCache.getPortfolio(new PortfolioKey(portfolioId, 1));
+        PortfolioKey portfolioKey = new PortfolioKey(portfolioId, 1);
         Security security = assetCache.getSecurityCache().get(new SecurityKey(assetId));
 
-        double room = tradeEvaluator.evaluateRoom(portfolio, security, targetAmount);
+        double room = tradeEvaluator.evaluateRoom(portfolioKey, security, targetAmount);
         return String.valueOf(room);
     }
 

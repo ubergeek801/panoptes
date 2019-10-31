@@ -112,8 +112,8 @@ public class TradeEvaluator {
      * FIXME room calculation should take cash (which presumably would be used to acquire the
      * {@code Security}) into account
      *
-     * @param portfolio
-     *            the {@code Portfolio} in which to find room
+     * @param portfolioKey
+     *            the {@code PortfolioKey} identifying the {@code Portfolio} in which to find room
      * @param security
      *            the {@code Security} for which to find room
      * @param targetValue
@@ -126,13 +126,13 @@ public class TradeEvaluator {
      * @throws ExcecutionException
      *             if the calculation could not be processed
      */
-    public double evaluateRoom(Portfolio portfolio, Security security, double targetValue)
+    public double evaluateRoom(PortfolioKey portfolioKey, Security security, double targetValue)
             throws InterruptedException, ExecutionException {
         // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
         double minCompliantValue = MIN_ALLOCATION;
         double trialValue = minCompliantValue;
-        TradeEvaluationResult evaluationResult = testRoom(portfolio, security, trialValue);
+        TradeEvaluationResult evaluationResult = testRoom(portfolioKey, security, trialValue);
         if (!evaluationResult.isCompliant()) {
             // even the minimum allocation failed; give up now
             return 0;
@@ -145,7 +145,7 @@ public class TradeEvaluator {
         double minNoncompliantValue = trialValue;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            evaluationResult = testRoom(portfolio, security, trialValue);
+            evaluationResult = testRoom(portfolioKey, security, trialValue);
             if (evaluationResult.isCompliant()) {
                 if (minCompliantValue < trialValue) {
                     // we have a new low-water mark for what is compliant
@@ -174,8 +174,8 @@ public class TradeEvaluator {
      * Tests for the requested amount of room in the given {@code Security} for the given
      * {@code Portfolio}.
      *
-     * @param portfolio
-     *            the {@code Portfolio} in which to find room
+     * @param portfolioKey
+     *            the @code PortfolioKey} identifying the {@code Portfolio} in which to find room
      * @param security
      *            the {@code Security} for which to find room
      * @param targetValue
@@ -186,11 +186,11 @@ public class TradeEvaluator {
      * @throws ExcecutionException
      *             if the calculation could not be processed
      */
-    protected TradeEvaluationResult testRoom(Portfolio portfolio, Security security,
+    protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, Security security,
             double targetValue) throws InterruptedException, ExecutionException {
         Position trialAllocation = new Position(targetValue, security);
-        Transaction trialTransaction = new Transaction(portfolio, List.of(trialAllocation));
-        Trade trialTrade = new Trade(Map.of(portfolio.getKey(), trialTransaction));
+        Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
+        Trade trialTrade = new Trade(Map.of(portfolioKey, trialTransaction));
 
         return evaluate(trialTrade, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
     }

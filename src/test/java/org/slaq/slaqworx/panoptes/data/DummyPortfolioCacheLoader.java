@@ -49,10 +49,10 @@ public class DummyPortfolioCacheLoader
 
     private static final String PORTFOLIO_NAMES_FILE = "portfolionames.txt";
 
-    private static final int NUM_PORTFOLIOS = 400;
-    private static final int MIN_POSITIONS = 800;
-    private static final int MAX_ADDITIONAL_POSITIONS = 800;
-    private static final int NUM_RULES = 200;
+    private static final int NUM_PORTFOLIOS = 500;
+    private static final int MIN_POSITIONS = 1000;
+    private static final int MAX_ADDITIONAL_POSITIONS = 1000;
+    private static final int NUM_RULES = 30;
 
     private final Portfolio[] benchmarks;
     private final ArrayList<String> portfolioNames;
@@ -96,78 +96,6 @@ public class DummyPortfolioCacheLoader
                 portfolioNames.add(portfolioName);
             }
         }
-    }
-
-    @Override
-    public Portfolio getPortfolio(PortfolioKey key) {
-        return portfolioMap.get(key);
-    }
-
-    @Override
-    public ConfigurableRule getRule(RuleKey key) {
-        return ruleMap.get(key);
-    }
-
-    @Override
-    public Iterator<PortfolioKey> inputIterator(Object... args) {
-        LOG.info("loading all keys");
-
-        // This Iterable produces NUM_PORTFOLIOS + 4 Portfolio IDs; the first four are the PIMCO
-        // benchmarks and the remaining NUM_PORTFOLIOS are randomly-generated Portfolios
-        return new Iterator<>() {
-            private int currentPosition = -4;
-
-            @Override
-            public boolean hasNext() {
-                return currentPosition < NUM_PORTFOLIOS;
-            }
-
-            @Override
-            public PortfolioKey next() {
-                switch (++currentPosition) {
-                case -3:
-                    return PimcoBenchmarkDataSource.EMAD_KEY;
-                case -2:
-                    return PimcoBenchmarkDataSource.GLAD_KEY;
-                case -1:
-                    return PimcoBenchmarkDataSource.ILAD_KEY;
-                case 0:
-                    return PimcoBenchmarkDataSource.PGOV_KEY;
-                default:
-                    return new PortfolioKey("test" + currentPosition, 1);
-                }
-            }
-        };
-    }
-
-    @Override
-    public Portfolio load(PortfolioKey key) {
-        return portfolioMap.computeIfAbsent(key, k -> {
-            // if the key corresponds to a benchmark, return the corresponding benchmark
-            Portfolio benchmark = dataSource.getBenchmark(k);
-            if (benchmark != null) {
-                return benchmark;
-            }
-
-            // otherwise generate a random Portfolio
-            int seed;
-            try {
-                seed = Integer.parseInt(k.getId().substring(4));
-            } catch (Exception e) {
-                seed = 0;
-            }
-            Random random = new Random(seed);
-
-            List<Security> securityList = Collections
-                    .unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
-            Set<Position> positions = generatePositions(securityList, random);
-            Set<ConfigurableRule> rules = generateRules(random);
-            Portfolio portfolio = new Portfolio(k, portfolioNames.get(portfolioIndex++), positions,
-                    benchmarks[random.nextInt(5)], rules);
-            LOG.info("created Portfolio {} with {} Positions", k, portfolio.size());
-
-            return portfolio;
-        });
     }
 
     /**
@@ -275,6 +203,78 @@ public class DummyPortfolioCacheLoader
 
         ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));
         return rules;
+    }
+
+    @Override
+    public Portfolio getPortfolio(PortfolioKey key) {
+        return portfolioMap.get(key);
+    }
+
+    @Override
+    public ConfigurableRule getRule(RuleKey key) {
+        return ruleMap.get(key);
+    }
+
+    @Override
+    public Iterator<PortfolioKey> inputIterator(Object... args) {
+        LOG.info("loading all keys");
+
+        // This Iterable produces NUM_PORTFOLIOS + 4 Portfolio IDs; the first four are the PIMCO
+        // benchmarks and the remaining NUM_PORTFOLIOS are randomly-generated Portfolios
+        return new Iterator<>() {
+            private int currentPosition = -4;
+
+            @Override
+            public boolean hasNext() {
+                return currentPosition < NUM_PORTFOLIOS;
+            }
+
+            @Override
+            public PortfolioKey next() {
+                switch (++currentPosition) {
+                case -3:
+                    return PimcoBenchmarkDataSource.EMAD_KEY;
+                case -2:
+                    return PimcoBenchmarkDataSource.GLAD_KEY;
+                case -1:
+                    return PimcoBenchmarkDataSource.ILAD_KEY;
+                case 0:
+                    return PimcoBenchmarkDataSource.PGOV_KEY;
+                default:
+                    return new PortfolioKey("test" + currentPosition, 1);
+                }
+            }
+        };
+    }
+
+    @Override
+    public Portfolio load(PortfolioKey key) {
+        return portfolioMap.computeIfAbsent(key, k -> {
+            // if the key corresponds to a benchmark, return the corresponding benchmark
+            Portfolio benchmark = dataSource.getBenchmark(k);
+            if (benchmark != null) {
+                return benchmark;
+            }
+
+            // otherwise generate a random Portfolio
+            int seed;
+            try {
+                seed = Integer.parseInt(k.getId().substring(4));
+            } catch (Exception e) {
+                seed = 0;
+            }
+            Random random = new Random(seed);
+
+            List<Security> securityList = Collections
+                    .unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
+            Set<Position> positions = generatePositions(securityList, random);
+            Set<ConfigurableRule> rules = generateRules(random);
+            Portfolio portfolio = new Portfolio(k, portfolioNames.get(portfolioIndex++), positions,
+                    benchmarks[random.nextInt(5)], rules);
+            LOG.info("created Portfolio {} with {} Positions", k, portfolio.size());
+
+            return portfolio;
+        });
     }
 
     @Override

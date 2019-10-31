@@ -18,9 +18,9 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
         <ignite.version>2.7.6</ignite.version>
-        <jetty.version>9.4.20.v20190813</jetty.version>
-        <micronaut.version>1.2.2</micronaut.version>
-        <vaadin.version>14.0.7</vaadin.version>
+        <jetty.version>9.4.22.v20191022</jetty.version>
+        <micronaut.version>1.2.5</micronaut.version>
+        <vaadin.version>14.0.10</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication -XX:MaxGCPauseMillis=5000
             -XX:+DisableExplicitGC --add-modules java.se
@@ -34,7 +34,7 @@
             --add-opens java.management/sun.management=ALL-UNNAMED
             --add-opens
             jdk.management/com.sun.management.internal=ALL-UNNAMED
-            -Xms512m</globalJvmArgs>
+            -Xms512m -Xmx1536m</globalJvmArgs>
     </properties>
 
     <build>
@@ -43,7 +43,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>1.6.1</version>
+                <version>1.7.0</version>
                 <executions>
                     <execution>
                         <phase>install</phase>
@@ -55,7 +55,7 @@
                 <configuration>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
                     <from>
-                        <image>bellsoft/liberica-openjdk-alpine:13-aarch64</image>
+                        <image>bellsoft/liberica-openjdk-alpine:13.0.1-aarch64</image>
                     </from>
                     <to>
                         <image>ubergeek801/slaqworx</image>
@@ -82,8 +82,8 @@
                             <jvmFlag>--add-opens</jvmFlag>
                             <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
                             <jvmFlag>-Xms512m</jvmFlag>
+                            <jvmFlag>-Xmx1536m</jvmFlag>
 
-                            <jvmFlag>-Xmx2560m</jvmFlag>
                             <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>
                             <jvmFlag>-XX:ActiveProcessorCount=6</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>

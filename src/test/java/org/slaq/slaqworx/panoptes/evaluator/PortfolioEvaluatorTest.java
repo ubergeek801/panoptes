@@ -13,9 +13,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.micronaut.test.annotation.MicronautTest;
-
 import org.junit.jupiter.api.Test;
+
+import io.micronaut.test.annotation.MicronautTest;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -86,17 +86,17 @@ public class PortfolioEvaluatorTest {
      * rule evaluation.
      */
     private static class UseBenchmarkRule extends GenericRule {
-        private final Portfolio benchmark;
+        private final PortfolioKey benchmarkKey;
 
-        public UseBenchmarkRule(String description, Portfolio benchmark) {
+        public UseBenchmarkRule(String description, PortfolioKey benchmarkKey) {
             super(description);
-            this.benchmark = benchmark;
+            this.benchmarkKey = benchmarkKey;
         }
 
         @Override
         public RuleResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
-            return new RuleResult(benchmark.equals(benchmarkPositions.getPortfolio()));
+            return new RuleResult(benchmarkKey.equals(benchmarkPositions.getPortfolioKey()));
         }
     }
 
@@ -349,7 +349,7 @@ public class PortfolioEvaluatorTest {
         DummyRule passRule = new DummyRule("testPass", true);
         DummyRule failRule = new DummyRule("testFail", false);
         UseBenchmarkRule usePortfolioBenchmarkRule =
-                new UseBenchmarkRule("testBenchmarkId", portfolioBenchmark);
+                new UseBenchmarkRule("testBenchmarkId", portfolioBenchmark.getKey());
 
         HashMap<RuleKey, Rule> portfolioRules = new HashMap<>();
         portfolioRules.put(passRule.getKey(), passRule);

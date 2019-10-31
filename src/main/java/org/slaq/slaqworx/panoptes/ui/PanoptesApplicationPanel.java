@@ -3,9 +3,13 @@ package org.slaq.slaqworx.panoptes.ui;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
+import javax.cache.Cache;
+
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.query.ScanQuery;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -29,8 +33,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import org.apache.ignite.IgniteCache;
-
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -38,6 +40,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.util.FakeSet;
 
 /**
  * {@code PanoptesApplicationPanel} is the top-level layout for an experimental user interface.
@@ -91,19 +94,19 @@ public class PanoptesApplicationPanel extends AppLayout {
                 ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         IgniteCache<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
 
-        // unfortunately there's not a very good way to page through entries of an IgniteCache
-        ArrayList<Security> securityList = StreamSupport.stream(securityCache.spliterator(), false)
-                .map(e -> e.getValue()).collect(Collectors.toCollection(ArrayList::new));
-        Collections.sort(securityList, (s1, s2) -> s1.getKey().compareTo(s2.getKey()));
+        // TODO make securities sortable
+        List<SecurityKey> securityKeys = new ArrayList<>(securityCache
+                .query(new ScanQuery<SecurityKey, Security>(), Cache.Entry::getKey).getAll());
+        Collections.sort(securityKeys, (s1, s2) -> s1.compareTo(s2));
 
         CallbackDataProvider<Security, Void> securityProvider =
-                DataProvider
-                        .fromCallbacks(
-                                query -> securityList.subList(query.getOffset(),
+                DataProvider.fromCallbacks(
+                        query -> securityCache
+                                .getAll(new FakeSet<>(securityKeys.subList(query.getOffset(),
                                         Math.min(query.getOffset() + query.getLimit(),
-                                                securityList.size()))
-                                        .stream(),
-                                query -> securityList.size());
+                                                securityKeys.size()))))
+                                .values().stream(),
+                        query -> securityKeys.size());
 
         Grid<Security> securityGrid = new Grid<>();
         securityGrid.setColumnReorderingAllowed(true);
@@ -159,21 +162,33 @@ public class PanoptesApplicationPanel extends AppLayout {
 
         IgniteCache<PortfolioKey, Portfolio> portfolioCache = assetCache.getPortfolioCache();
 
-        // unfortunately there's not a very good way to page through entries of an IgniteCache
-        ArrayList<Portfolio> portfolioList =
-                StreamSupport.stream(portfolioCache.spliterator(), false).map(e -> e.getValue())
-                        .collect(Collectors.toCollection(ArrayList::new));
-        Collections.sort(portfolioList, (p1, p2) -> p1.getName().compareTo(p2.getName()));
+        // TODO make portfolios sortable
+        List<PortfolioKey> portfolioKeys = new ArrayList<>(portfolioCache
+                .query(new ScanQuery<PortfolioKey, Portfolio>(), Cache.Entry::getKey).getAll());
+        Collections.sort(portfolioKeys, (k1, k2) -> k1.compareTo(k2));
 
-        CallbackDataProvider<Portfolio, Void> portfolioProvider =
-                DataProvider.fromCallbacks(
-                        query -> portfolioList.subList(query.getOffset(),
-                                Math.min(query.getOffset() + query.getLimit(),
-                                        portfolioList.size()))
-                                .stream(),
-                        query -> portfolioList.size());
+        CallbackDataProvider<PortfolioSummary, Void> portfolioProvider =
+                DataProvider
+                        .fromCallbacks(
+                                query -> portfolioCache
+                                        .invokeAll(
+                                                new FakeSet<>(
+                                                        portfolioKeys.subList(query.getOffset(),
+                                                                Math.min(
+                                                                        query.getOffset()
+                                                                                + query.getLimit(),
+                                                                        portfolioKeys.size()))),
+                                                (entry, args) -> {
+                                                    Portfolio p = entry.getValue();
+                                                    return new PortfolioSummary(p.getKey(),
+                                                            p.getName(), p.getBenchmarkKey(),
+                                                            p.getTotalMarketValue(),
+                                                            p.isAbstract());
+                                                })
+                                        .values().stream().map(r -> r.get()),
+                                query -> portfolioKeys.size());
 
-        Grid<Portfolio> portfolioGrid = new Grid<>();
+        Grid<PortfolioSummary> portfolioGrid = new Grid<>();
         portfolioGrid.setColumnReorderingAllowed(true);
         portfolioGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_COMPACT);

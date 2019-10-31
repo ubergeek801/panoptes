@@ -122,5 +122,4 @@ public interface ConfigurableRule extends Rule, JsonConfigurable {
     default public String getGroovyFilter() {
         return null;
     }
-
 }

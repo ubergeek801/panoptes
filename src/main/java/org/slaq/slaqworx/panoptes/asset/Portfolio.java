@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * @author jeremy
  */
 public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
-    private final PortfolioKey id;
+    private final PortfolioKey key;
     private final String name;
     private final PortfolioKey benchmarkKey;
     private Portfolio benchmark;
@@ -51,7 +51,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
      * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
      * {@code Rule}s.
      *
-     * @param id
+     * @param key
      *            the unique {@code Portfolio} key
      * @param name
      *            the {@code Portfolio} name/description
@@ -64,13 +64,13 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
      */
-    public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions,
+    public Portfolio(PortfolioKey key, String name, Set<? extends Position> positions,
             PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
-        this.id = id;
+        this.key = key;
         this.name = name;
         this.benchmarkKey = benchmarkKey;
         this.rules = (rules == null ? new HashSet<>() : new HashSet<>(rules));
-        positionSet = new PositionSet(positions, this);
+        positionSet = new PositionSet(positions, key);
     }
 
     /**
@@ -100,11 +100,11 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
             return false;
         }
         Portfolio other = (Portfolio)obj;
-        if (id == null) {
-            if (other.id != null) {
+        if (key == null) {
+            if (other.key != null) {
                 return false;
             }
-        } else if (!id.equals(other.id)) {
+        } else if (!key.equals(other.key)) {
             return false;
         }
         return true;
@@ -135,7 +135,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
 
     @Override
     public PortfolioKey getKey() {
-        return id;
+        return key;
     }
 
     /**
@@ -149,8 +149,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
 
     @JsonIgnore
     @Override
-    public Portfolio getPortfolio() {
-        return this;
+    public PortfolioKey getPortfolioKey() {
+        return key;
     }
 
     @Override
@@ -169,7 +169,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return key.hashCode();
     }
 
     /**
@@ -189,6 +189,6 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
 
     @Override
     public String toString() {
-        return "Portfolio[id=\"" + id + "\"]";
+        return "Portfolio[id=\"" + key + "\"]";
     }
 }

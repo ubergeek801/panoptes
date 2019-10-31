@@ -27,7 +27,7 @@ public class PositionSet implements HierarchicalPositionSupplier {
     // even though we assume Set semantics, keeping positions in contiguous memory improves
     // calculation performance by 20%
     private final ArrayList<Position> positions;
-    private final Portfolio portfolio;
+    private final PortfolioKey portfolioKey;
     private Double totalMarketValue;
 
     /**
@@ -47,13 +47,13 @@ public class PositionSet implements HierarchicalPositionSupplier {
      *
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}
-     * @param portfolio
-     *            the (possibly {@code null}) {@code Portfolio} associated with this
+     * @param portfolioKey
+     *            the (possibly {@code null}) {@code PortfolioKey} associated with this
      *            {@code PositionSet}
      */
-    public PositionSet(Collection<? extends Position> positions, Portfolio portfolio) {
+    public PositionSet(Collection<? extends Position> positions, PortfolioKey portfolioKey) {
         this.positions = new ArrayList<>(positions);
-        this.portfolio = portfolio;
+        this.portfolioKey = portfolioKey;
     }
 
     /**
@@ -62,17 +62,17 @@ public class PositionSet implements HierarchicalPositionSupplier {
      *
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}
-     * @param portfolio
-     *            the (possibly {@code null}) {@code Portfolio} associated with this {@code
+     * @param portfolioKey
+     *            the (possibly {@code null}) {@code PortfolioKey} associated with this {@code
      *            PositionSet}
      */
-    public PositionSet(Stream<? extends Position> positions, Portfolio portfolio) {
-        this(positions.collect(Collectors.toList()), portfolio);
+    public PositionSet(Stream<? extends Position> positions, PortfolioKey portfolioKey) {
+        this(positions.collect(Collectors.toList()), portfolioKey);
     }
 
     @Override
-    public Portfolio getPortfolio() {
-        return portfolio;
+    public PortfolioKey getPortfolioKey() {
+        return portfolioKey;
     }
 
     @Override

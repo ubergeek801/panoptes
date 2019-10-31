@@ -14,9 +14,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.micronaut.test.annotation.MicronautTest;
-
 import org.junit.jupiter.api.Test;
+
+import io.micronaut.test.annotation.MicronautTest;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -96,8 +96,8 @@ public class TradeEvaluatorTest {
 
         Position t1Alloc1 = new Position(1_000, s2);
         List<Position> t1Allocations = Arrays.asList(t1Alloc1);
-        Transaction t1 = new Transaction(p1, t1Allocations);
-        Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolio().getKey(), t1);
+        Transaction t1 = new Transaction(p1.getKey(), t1Allocations);
+        Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolioKey(), t1);
 
         Trade trade = new Trade(transactions);
         TradeEvaluator evaluator =
@@ -175,8 +175,8 @@ public class TradeEvaluatorTest {
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
         double room =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-                        TestUtil.testPortfolioProvider()).evaluateRoom(portfolio, trialSecurity,
-                                3_000_000);
+                        TestUtil.testPortfolioProvider()).evaluateRoom(portfolio.getKey(),
+                                trialSecurity, 3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
 
         // perform the same test with the clustered evaluator
@@ -194,7 +194,7 @@ public class TradeEvaluatorTest {
         portfolio = TestUtil.createTestPortfolio(assetCache, null, "test 1", p1Positions, null,
                 cachedP1Rules.values());
 
-        room = new TradeEvaluator(clusterEvaluator, assetCache).evaluateRoom(portfolio,
+        room = new TradeEvaluator(clusterEvaluator, assetCache).evaluateRoom(portfolio.getKey(),
                 trialSecurity, 3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }

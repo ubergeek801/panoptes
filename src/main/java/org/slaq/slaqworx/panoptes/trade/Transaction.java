@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.trade;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -18,20 +18,21 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 public class Transaction implements PositionSupplier {
     private final TransactionKey key;
     private Trade trade;
-    private final Portfolio portfolio;
+    private final PortfolioKey portfolioKey;
     private final PositionSet positions;
 
     /**
      * Creates a new {@code Transaction}, with a generated ID, acting on the given {@code Portfolio}
      * with the given allocations.
      *
-     * @param portfolio
-     *            the {@code Portfolio} affected by this {@code Transaction}
+     * @param portfolioKey
+     *            the {@code PortfolioKey} identifying the {@code Portfolio} affected by this
+     *            {@code Transaction}
      * @param allocations
      *            the allocations of the {@code Transaction}
      */
-    public Transaction(Portfolio portfolio, Collection<Position> allocations) {
-        this(null, portfolio, allocations);
+    public Transaction(PortfolioKey portfolioKey, Collection<Position> allocations) {
+        this(null, portfolioKey, allocations);
     }
 
     /**
@@ -40,15 +41,17 @@ public class Transaction implements PositionSupplier {
      *
      * @param key
      *            the unique key of the {@code Transaction}
-     * @param portfolio
-     *            the {@code Portfolio} affected by this {@code Transaction}
+     * @param portfolioKey
+     *            the {@code PortfolioKey} identifying the {@code Portfolio} affected by this
+     *            {@code Transaction}
      * @param allocations
      *            the allocations of the {@code Transaction}
      */
-    public Transaction(TransactionKey key, Portfolio portfolio, Collection<Position> allocations) {
+    public Transaction(TransactionKey key, PortfolioKey portfolioKey,
+            Collection<Position> allocations) {
         this.key = (key == null ? new TransactionKey(null) : key);
-        this.portfolio = portfolio;
-        positions = new PositionSet(allocations, portfolio);
+        this.portfolioKey = portfolioKey;
+        positions = new PositionSet(allocations, portfolioKey);
     }
 
     @Override
@@ -76,8 +79,8 @@ public class Transaction implements PositionSupplier {
     }
 
     @Override
-    public Portfolio getPortfolio() {
-        return portfolio;
+    public PortfolioKey getPortfolioKey() {
+        return portfolioKey;
     }
 
     @Override
@@ -99,11 +102,6 @@ public class Transaction implements PositionSupplier {
         return key.hashCode();
     }
 
-    @Override
-    public int size() {
-        return positions.size();
-    }
-
     /**
      * Specifies the {@code Trade} associated with this {@code Transaction}.
      *
@@ -112,5 +110,10 @@ public class Transaction implements PositionSupplier {
      */
     protected void setTrade(Trade trade) {
         this.trade = trade;
+    }
+
+    @Override
+    public int size() {
+        return positions.size();
     }
 }

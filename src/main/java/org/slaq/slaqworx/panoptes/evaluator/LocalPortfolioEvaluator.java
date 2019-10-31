@@ -88,6 +88,8 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 portfolio.getName());
         long startTime = System.currentTimeMillis();
 
+        evaluationContext.setPortfolioMarketValue(portfolio.getTotalMarketValue());
+
         // evaluation may be short-circuited, but at least one short-circuiting result needs to be
         // included in the evaluation results for impact to be determined properly
         Map<RuleKey, EvaluationResult> shortCircuitResults =

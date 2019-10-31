@@ -4,15 +4,13 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.event.ApplicationEventPublisher;
-
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCheckedException;
 import org.apache.ignite.IgniteSystemProperties;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataRegionConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.ExecutorConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.events.EventType;
@@ -21,6 +19,10 @@ import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
+
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.event.ApplicationEventPublisher;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -66,8 +68,8 @@ public class PanoptesCacheConfiguration {
     protected <K, V> CacheConfiguration<K, V> createCacheConfiguration(String cacheName) {
         CacheConfiguration<K, V> cacheConfig =
                 new CacheConfiguration<K, V>(cacheName).setCacheMode(CacheMode.REPLICATED);
-        // these don't seem to affect (single-node) performance but they seem reasonable
-        cacheConfig.setCopyOnRead(false).setEventsDisabled(true).setStoreByValue(false);
+        // minor (or not) performance tweaks
+        cacheConfig.setEventsDisabled(true).setStoreByValue(false);
 
         return cacheConfig;
     }
@@ -94,7 +96,11 @@ public class PanoptesCacheConfiguration {
         System.setProperty("java.net.preferIPv4Stack", "true");
 
         IgniteConfiguration config = new IgniteConfiguration().setIgniteInstanceName("panoptes")
-                .setGridLogger(new Slf4jLogger()).setMetricsLogFrequency(0);
+                .setGridLogger(new Slf4jLogger()).setMetricsLogFrequency(0)
+                .setDataStorageConfiguration(
+                        new DataStorageConfiguration().setDefaultDataRegionConfiguration(
+                                new DataRegionConfiguration().setInitialSize(1536L * 1024 * 1024)
+                                        .setMaxSize(1536L * 1024 * 1024)));
         // parallelism is at the Rule level so set Portfolio-level concurrency conservatively
         config.setExecutorConfiguration(
                 new ExecutorConfiguration(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR).setSize(1));

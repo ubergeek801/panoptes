@@ -90,7 +90,7 @@ public class RuleEvaluatorPerformanceTest {
                         evaluator.evaluate(p, new EvaluationContext()).get()));
             });
             // wait for all of the evaluations to complete
-            for (int i = 0; i < portfolios.size(); i++) {
+            for (Portfolio portfolio : portfolios) {
                 Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result =
                         completionService.take().get();
                 numPortfolioRuleEvalutions += result.getRight().size();
@@ -114,7 +114,7 @@ public class RuleEvaluatorPerformanceTest {
                     new TradeEvaluator(new LocalPortfolioEvaluator(mapLoader), mapLoader);
             HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
             portfolios.stream().limit(i * 62).forEach(portfolio -> {
-                Transaction transaction = new Transaction(portfolio, positions);
+                Transaction transaction = new Transaction(portfolio.getKey(), positions);
                 transactions.put(portfolio.getKey(), transaction);
             });
             Trade trade = new Trade(transactions);

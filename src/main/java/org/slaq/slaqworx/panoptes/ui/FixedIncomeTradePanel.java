@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
+import javax.cache.Cache;
+
+import org.apache.ignite.cache.query.ScanQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
@@ -18,9 +22,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -65,10 +66,9 @@ public class FixedIncomeTradePanel extends FormLayout {
                 }
 
                 TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
-
                 try {
-                    double roomMarketValue =
-                            tradeEvaluator.evaluateRoom(portfolio, security, tradeMarketValue);
+                    double roomMarketValue = tradeEvaluator.evaluateRoom(portfolio.getKey(),
+                            security, tradeMarketValue);
                     marketValueField.setValue(roomMarketValue);
                     amountField.setValue(tradePrice == null ? null : roomMarketValue / tradePrice);
                 } catch (InterruptedException | ExecutionException e) {
@@ -177,14 +177,19 @@ public class FixedIncomeTradePanel extends FormLayout {
             int numPortfolios = assetCache.getPortfolioCache().size();
             int numRemaining[] = new int[] { numPortfolios };
             TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
-            // TODO running roomEvaluatorExecutor directly on the spliterator doesn't parallelize
-            List<Portfolio> portfolios =
-                    StreamSupport.stream(assetCache.getPortfolioCache().spliterator(), false)
-                            .map(e -> e.getValue()).collect(Collectors.toList());
+            List<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache()
+                    .query(new ScanQuery<PortfolioKey, Portfolio>(), Cache.Entry::getKey).getAll();
             long startTime = System.currentTimeMillis();
             ForkJoinTask<?> future = roomEvaluatorExecutor
-                    .submit(() -> portfolios.parallelStream().forEach(portfolio -> {
+                    .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
+                            PortfolioSummary portfolio = assetCache.getPortfolioCache()
+                                    .invoke(portfolioKey, (entry, args) -> {
+                                        Portfolio p = entry.getValue();
+                                        return new PortfolioSummary(p.getKey(), p.getName(),
+                                                p.getBenchmarkKey(), p.getTotalMarketValue(),
+                                                p.isAbstract());
+                                    });
                             if (portfolio.isAbstract()) {
                                 // don't evaluate benchmarks
                                 return;
@@ -192,12 +197,12 @@ public class FixedIncomeTradePanel extends FormLayout {
 
                             double roomMarketValue;
                             try {
-                                roomMarketValue = tradeEvaluator.evaluateRoom(portfolio, security,
-                                        tradeMarketValue);
+                                roomMarketValue = tradeEvaluator.evaluateRoom(portfolioKey,
+                                        security, tradeMarketValue);
                             } catch (Exception ex) {
                                 // FIXME handle this
-                                LOG.error("could not evaluate room for Portfolio {}",
-                                        portfolio.getKey(), ex);
+                                LOG.error("could not evaluate room for Portfolio {}", portfolioKey,
+                                        ex);
                                 return;
                             }
                             ui.access(() -> {
@@ -207,8 +212,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                                     // add at the next position
                                     allocations.addComponentAtIndex(allocationIndex[0]++,
                                             allocationPanel);
-                                    allocationPanel.portfolioIdField
-                                            .setValue(portfolio.getKey().getId());
+                                    allocationPanel.portfolioIdField.setValue(portfolioKey.getId());
                                     allocationPanel.portfolioNameField
                                             .setValue(portfolio.getName());
                                     allocationPanel.amountField.setValue(tradePrice == null ? null

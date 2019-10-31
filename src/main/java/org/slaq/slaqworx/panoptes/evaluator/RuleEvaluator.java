@@ -84,7 +84,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
     public EvaluationResult call() {
         LOG.debug("evaluating Rule {} (\"{}\") on {} Positions for Portfolio {}", rule.getKey(),
                 rule.getDescription(), portfolioPositions.size(),
-                portfolioPositions.getPortfolio());
+                portfolioPositions.getPortfolioKey());
 
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
@@ -184,14 +184,14 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
                             bpos = null;
                         } else {
                             bpos = new PositionSet(classifiedBenchmarkPositions.get(group),
-                                    benchmarkPositions.getPortfolio());
+                                    benchmarkPositions.getPortfolioKey());
                         }
                     }
 
                     // TODO revisit whether reusing benchmark calculations is worthwhile
-                    RuleResult singleResult =
-                            rule.evaluate(new PositionSet(ppos, portfolioPositions.getPortfolio()),
-                                    bpos, evaluationContext);
+                    RuleResult singleResult = rule.evaluate(
+                            new PositionSet(ppos, portfolioPositions.getPortfolioKey()), bpos,
+                            evaluationContext);
 
                     // wasn't that easy?
                     return singleResult;

@@ -16,11 +16,11 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  */
 public interface PositionSupplier {
     /**
-     * Obtains this {@code PositionSupplier}'s related {@code Portfolio}, if any.
+     * Obtains the key of this {@code PositionSupplier}'s related {@code Portfolio}, if any.
      *
      * @return the related {@code Portfolio}, or {@code null} if none is associated
      */
-    public Portfolio getPortfolio();
+    public PortfolioKey getPortfolioKey();
 
     /**
      * Obtains this {@code PositionSupplier}'s {@code Position}s as a (new) {@code Stream}.

@@ -26,6 +26,7 @@ public class EvaluationContext implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final EvaluationMode evaluationMode;
+    private Double portfolioMarketValue;
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
@@ -52,5 +53,24 @@ public class EvaluationContext implements Serializable {
      */
     public EvaluationMode getEvaluationMode() {
         return evaluationMode;
+    }
+
+    /**
+     * Obtains the market value of the {@code Portfolio} being evaluated.
+     *
+     * @return the {@code Portfolio} market value
+     */
+    public Double getPortfolioMarketValue() {
+        return portfolioMarketValue;
+    }
+
+    /**
+     * Specifies the market value of the {@code Portfolio} being evaluated.
+     *
+     * @param portfolioMarketValue
+     *            the {@code Portfolio} market value
+     */
+    public void setPortfolioMarketValue(Double portfolioMarketValue) {
+        this.portfolioMarketValue = portfolioMarketValue;
     }
 }

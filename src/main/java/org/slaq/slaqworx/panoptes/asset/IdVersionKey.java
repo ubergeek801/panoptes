@@ -2,12 +2,14 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.UUID;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
+
 /**
  * {@code IdVersionKey} is a key used to reference some asset types (using trivial subclasses).
  *
  * @author jeremy
  */
-public abstract class IdVersionKey {
+public abstract class IdVersionKey implements Comparable<IdVersionKey> {
     /**
      * Obtains a generated ID of the form used by an {@code IdVersionKey}.
      *
@@ -31,6 +33,11 @@ public abstract class IdVersionKey {
     public IdVersionKey(String id, long version) {
         this.id = (id == null ? generateId() : id);
         this.version = version;
+    }
+
+    @Override
+    public int compareTo(IdVersionKey o) {
+        return new CompareToBuilder().append(id, o.id).append(version, o.version).toComparison();
     }
 
     @Override
