@@ -1,5 +1,5 @@
 # ignore Maven artifacts
-target/
+/target/
 
 # ignore Eclipse artifacts
 .classpath
@@ -14,4 +14,4 @@ webpack.generated.js
 node_modules/
 
 # ignore Ignite artifacts
-ignite/
+/ignite/

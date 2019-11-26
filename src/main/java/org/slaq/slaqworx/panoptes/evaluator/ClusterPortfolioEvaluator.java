@@ -88,14 +88,14 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
         IgniteFuture<Map<RuleKey, EvaluationResult>> futureResult = igniteInstance.compute()
                 .withExecutor(PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
                 .callAsync(new RemotePortfolioEvaluator(portfolio, transaction, evaluationContext));
-        if (transaction != null) {
-            // arrange to remove the temporary Trade from the cache when finished
-            futureResult.listen(result -> {
-                LOG.info("received results for Portfolio {} in {} ms", portfolio.getKey(),
-                        System.currentTimeMillis() - startTime);
+        futureResult.listen(result -> {
+            LOG.info("received results for Portfolio {} in {} ms", portfolio.getKey(),
+                    System.currentTimeMillis() - startTime);
+            // remove the temporary Trade from the cache when finished
+            if (transaction != null) {
                 assetCache.getTradeCache().remove(transaction.getTrade().getKey());
-            });
-        }
+            }
+        });
 
         return futureResult;
     }
@@ -109,6 +109,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      * @return {@code true} if the given {@code Portfolio} is local, {@code false} otherwise
      */
     protected boolean isLocal(Portfolio portfolio) {
-        return affinity.isPrimaryOrBackup(localNode, portfolio.getKey());
+        return false;
+        // FIXME enable the real logic when the cache is partitioned
+        // return affinity.isPrimaryOrBackup(localNode, portfolio.getKey());
     }
 }

@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.cache;
 
-import io.micronaut.context.event.ApplicationEventPublisher;
-
 import org.apache.ignite.Ignite;
 import org.apache.ignite.events.DiscoveryEvent;
 import org.apache.ignite.events.EventType;
@@ -11,6 +9,8 @@ import org.apache.ignite.services.Service;
 import org.apache.ignite.services.ServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.micronaut.context.event.ApplicationEventPublisher;
 
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 
@@ -57,13 +57,14 @@ public class ClusterInitializer implements Service {
             }
 
             int clusterSize = event.topologyNodes().size();
-            if (clusterSize >= 4) {
+            if (clusterSize < 4) {
+                LOG.info("cluster size now {} of 4 expected", clusterSize);
+                return true;
+            } else {
                 // publishEvent() is synchronous so execute in a separate thread
                 new Thread(() -> ApplicationContextProvider.getApplicationContext()
                         .getBean(ApplicationEventPublisher.class)
                         .publishEvent(new ClusterReadyEvent()), "cluster-initializer").start();
-            } else {
-                LOG.info("cluster size now {} of 4 expected", clusterSize);
             }
 
             // once we've initialized, there's no going back, so no further events needed

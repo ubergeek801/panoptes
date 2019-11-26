@@ -22,6 +22,7 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.env.Environment;
 import io.micronaut.context.event.ApplicationEventPublisher;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -46,12 +47,14 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
 public class PanoptesCacheConfiguration {
     public static final String REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR = "remote-portfolio-evaluator";
 
+    private final Environment environment;
+
     /**
      * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
      * should be obtained through the {@code ApplicationContext} (if it is needed at all).
      */
-    protected PanoptesCacheConfiguration() {
-        // nothing to do
+    protected PanoptesCacheConfiguration(Environment environment) {
+        this.environment = environment;
     }
 
     /**
@@ -124,9 +127,11 @@ public class PanoptesCacheConfiguration {
             // use Kubernetes discovery
             TcpDiscoveryKubernetesIpFinder k8sDiscovery = new TcpDiscoveryKubernetesIpFinder();
             k8sDiscovery.setServiceName("panoptes-ignite");
-            config.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(k8sDiscovery));
+            config.setDiscoverySpi(
+                    new TcpDiscoverySpi().setIpFinder(k8sDiscovery).setJoinTimeout(30000));
 
-            config.setIncludeEventTypes(EventType.EVT_NODE_JOINED);
+            config.setIncludeEventTypes(EventType.EVT_NODE_JOINED)
+                    .setFailureDetectionTimeout(30000);
         } else {
             // not running in Kubernetes; run standalone
             config.setDiscoverySpi(new TcpDiscoverySpi()
@@ -172,6 +177,7 @@ public class PanoptesCacheConfiguration {
      * @return {@code true} if a clustered environment is detected, {@code false} otherwise
      */
     protected boolean isClustered() {
-        return (System.getenv("KUBERNETES_SERVICE_HOST") != null);
+        return (environment.getActiveNames().contains("k8s")
+                || environment.getActiveNames().contains("cloud"));
     }
 }

@@ -113,7 +113,7 @@ public class FixedIncomeTradePanel extends FormLayout {
     private static final int NUM_COLUMNS = 7;
 
     private final ForkJoinPool roomEvaluatorExecutor =
-            ForkJoinPoolFactory.newForkJoinPool(1, "ui-room-evaluator");
+            ForkJoinPoolFactory.newForkJoinPool(4, "ui-room-evaluator");
 
     private final PortfolioEvaluator portfolioEvaluator;
     private final AssetCache assetCache;
