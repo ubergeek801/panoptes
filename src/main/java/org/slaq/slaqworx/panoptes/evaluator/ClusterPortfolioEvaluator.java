@@ -109,7 +109,7 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
      * @return {@code true} if the given {@code Portfolio} is local, {@code false} otherwise
      */
     protected boolean isLocal(Portfolio portfolio) {
-        return false;
+        return true;
         // FIXME enable the real logic when the cache is partitioned
         // return affinity.isPrimaryOrBackup(localNode, portfolio.getKey());
     }

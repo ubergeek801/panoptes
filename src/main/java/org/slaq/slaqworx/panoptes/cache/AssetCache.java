@@ -46,7 +46,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      *            the {@code Ignite} through which to access cached data
      */
     protected AssetCache(Ignite igniteInstance) {
-        this.ignite = igniteInstance;
+        ignite = igniteInstance;
     }
 
     /**

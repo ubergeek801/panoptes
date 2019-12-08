@@ -90,7 +90,7 @@ public class RuleEvaluatorPerformanceTest {
                         evaluator.evaluate(p, new EvaluationContext()).get()));
             });
             // wait for all of the evaluations to complete
-            for (Portfolio portfolio : portfolios) {
+            for (int i = 0; i < portfolios.size(); i++) {
                 Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result =
                         completionService.take().get();
                 numPortfolioRuleEvalutions += result.getRight().size();

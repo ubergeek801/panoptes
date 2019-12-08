@@ -4,6 +4,11 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.env.Environment;
+import io.micronaut.context.event.ApplicationEventPublisher;
+
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCheckedException;
 import org.apache.ignite.IgniteSystemProperties;
@@ -13,17 +18,13 @@ import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.ExecutorConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.configuration.NearCacheConfiguration;
 import org.apache.ignite.events.EventType;
 import org.apache.ignite.internal.IgnitionEx;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
-
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.env.Environment;
-import io.micronaut.context.event.ApplicationEventPublisher;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -72,7 +73,8 @@ public class PanoptesCacheConfiguration {
         CacheConfiguration<K, V> cacheConfig =
                 new CacheConfiguration<K, V>(cacheName).setCacheMode(CacheMode.REPLICATED);
         // minor (or not) performance tweaks
-        cacheConfig.setEventsDisabled(true).setStoreByValue(false);
+        cacheConfig.setEventsDisabled(true).setStoreByValue(false)
+                .setNearConfiguration(new NearCacheConfiguration<K, V>());
 
         return cacheConfig;
     }

@@ -81,16 +81,12 @@ public class SecurityAttributes {
      * @return the value of the given attribute, or {@code null} if not assigned
      */
     public Object getValue(int attributeIndex) {
-        try {
-            return attributeValues.get(attributeIndex);
-        } catch (IndexOutOfBoundsException e) {
-            // this attribute must not exist; prevent future IndexOutOfBoundsExceptions
-            attributeValues.ensureCapacity(attributeIndex + 1);
-            while (attributeValues.size() < attributeIndex + 1) {
-                attributeValues.add(null);
-            }
-            return null;
-        }
+    	if (attributeIndex >= attributeValues.size()) {
+    		// the attribute is not assigned
+    		return null;
+    	}
+
+    	return attributeValues.get(attributeIndex);
     }
 
     /**

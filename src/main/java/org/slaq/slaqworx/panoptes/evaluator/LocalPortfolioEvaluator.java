@@ -135,8 +135,8 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 new HashMap<>(shortCircuitResults.size() + results.size());
         allResults.putAll(shortCircuitResults);
         allResults.putAll(results);
-        LOG.info("evaluated {} Rules {} over {} Positions for Portfolio {} in {} ms",
-                allResults.size(), (shortCircuitResults.isEmpty() ? "" : "(short-circuited)"),
+        LOG.info("evaluated {} Rules{} over {} Positions for Portfolio {} in {} ms",
+                allResults.size(), (shortCircuitResults.isEmpty() ? "" : " (short-circuited)"),
                 portfolio.size(), portfolio.getKey(), System.currentTimeMillis() - startTime);
 
         return allResults;
