@@ -12,6 +12,3 @@ package-lock.json
 package.json
 webpack.generated.js
 node_modules/
-
-# ignore Ignite artifacts
-/ignite/

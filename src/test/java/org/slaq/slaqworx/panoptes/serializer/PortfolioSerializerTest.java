@@ -72,7 +72,7 @@ public class PortfolioSerializerTest {
 
         Set<? extends Position> positions = TestUtil.p1Positions;
         Rule testRule = TestUtil.testRuleProvider().newConcentrationRule(null, "test rule",
-                new GroovyPositionFilter("s.region == \"Emerging Markets\""), null, 0.1, null);
+                GroovyPositionFilter.of("s.region == \"Emerging Markets\""), null, 0.1, null);
         Collection<Rule> rules = Set.of(testRule);
         portfolio = new Portfolio(new PortfolioKey("test", 31337), "Test Portfolio", positions,
                 new PortfolioKey("benchmark", 1), rules);

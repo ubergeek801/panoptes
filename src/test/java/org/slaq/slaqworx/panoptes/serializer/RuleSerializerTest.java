@@ -30,7 +30,7 @@ public class RuleSerializerTest {
         RuleSerializer serializer = new RuleSerializer();
 
         ConfigurableRule rule = new ConcentrationRule(new RuleKey("foo"), "test rule",
-                new GroovyPositionFilter("p.amount > 1_000_000"), 1d, 2d,
+                GroovyPositionFilter.of("p.amount > 1_000_000"), 1d, 2d,
                 new TopNSecurityAttributeAggregator(SecurityAttribute.country, 5));
 
         byte[] buffer = serializer.write(rule);

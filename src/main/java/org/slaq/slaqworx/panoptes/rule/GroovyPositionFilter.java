@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 import groovy.lang.GroovyClassLoader;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -21,52 +23,38 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  */
 public class GroovyPositionFilter implements Predicate<PositionEvaluationContext> {
     private static final GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
-    private static final ConcurrentHashMap<String, Predicate<PositionEvaluationContext>> expressionFilterMap =
-            new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, GroovyPositionFilter> expressionFilterMap =
+            new ConcurrentHashMap<>(25_000);
     private static final Pattern expressionTranslationPattern = Pattern.compile("s\\.(\\w+)");
 
-    private final String expression;
+    /**
+     * Obtains a {@code GroovyPositionFilter} corresponding to the given filter expression.
+     *
+     * @param expression
+     *            the expression for which to obtain a filter
+     * @return a {@code GroovyPositionFilter} compiled from the given expression, or {@code null} if
+     *         the expression is empty
+     */
+    public static GroovyPositionFilter of(String expression) {
+        if (StringUtils.isEmpty(expression)) {
+            return null;
+        }
 
-    private transient Predicate<PositionEvaluationContext> groovyFilter;
+        return expressionFilterMap.computeIfAbsent(expression, GroovyPositionFilter::new);
+    }
+
+    private final String expression;
+    private final Predicate<PositionEvaluationContext> groovyFilter;
 
     /**
-     * Creates a new {@code GroovyPositionFilter} using the given Groovy expression.
+     * Creates a new {@code GroovyPositionFilter} using the given Groovy expression. Restricted
+     * because instances of this class should be obtained through the {@code of()} factory method.
      *
      * @param expression
      *            a Groovy expression suitable for use as a {@code Position} filter
      */
-    public GroovyPositionFilter(String expression) {
+    private GroovyPositionFilter(String expression) {
         this.expression = expression;
-        compile();
-    }
-
-    /**
-     * Obtains the Groovy expression used to implement this filter.
-     *
-     * @return a Groovy expression
-     */
-    public String getExpression() {
-        return expression;
-    }
-
-    @Override
-    public boolean test(PositionEvaluationContext position) {
-        if (groovyFilter == null) {
-            // must have been deserialized; recompile from the expression
-            compile();
-        }
-
-        return groovyFilter.test(position);
-    }
-
-    /**
-     * Compiles this filter.
-     */
-    protected void compile() {
-        groovyFilter = expressionFilterMap.get(expression);
-        if (groovyFilter != null) {
-            return;
-        }
 
         // translate "shorthand" expressions like s.coupon into an equivalent
         // getAttributeValue() invocation, which is much faster
@@ -104,10 +92,23 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
             Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
                     filterClass.getConstructor();
             groovyFilter = filterClassConstructor.newInstance();
-            expressionFilterMap.put(expression, groovyFilter);
         } catch (Exception ex) {
             // TODO throw a better exception
             throw new RuntimeException("could not instantiate Groovy filter", ex);
         }
+    }
+
+    /**
+     * Obtains the Groovy expression used to implement this filter.
+     *
+     * @return a Groovy expression
+     */
+    public String getExpression() {
+        return expression;
+    }
+
+    @Override
+    public boolean test(PositionEvaluationContext evaluationContext) {
+        return groovyFilter.test(evaluationContext);
     }
 }

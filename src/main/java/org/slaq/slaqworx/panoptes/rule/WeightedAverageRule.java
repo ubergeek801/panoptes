@@ -63,7 +63,7 @@ public class WeightedAverageRule extends ValueRule {
         SecurityAttribute<Double> calculationAttribute =
                 (SecurityAttribute<Double>)SecurityAttribute.of(configuration.attribute);
         return new WeightedAverageRule(key, description,
-                (groovyFilter == null ? null : new GroovyPositionFilter(groovyFilter)),
+                (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
                 calculationAttribute, configuration.lowerLimit, configuration.upperLimit,
                 groupClassifier);
     }

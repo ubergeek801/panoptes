@@ -14,11 +14,6 @@
 
     <logger name="dev-updater" level="warn" />
     <logger name="dev-webpack" level="warn" />
-    <logger
-        name="org.apache.ignite.internal.processors.cache.distributed.dht.preloader.GridDhtPartitionsExchangeFuture"
-        level="warn" />
-    <logger name="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi" level="warn" />
-    <logger name="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi" level="warn" />
     <logger name="org.atmosphere" level="warn" />
     <logger name="org.eclipse.jetty" level="warn" />
     <logger name="p6spy" level="warn" />

@@ -84,10 +84,10 @@ public class DummyPortfolioMapLoader
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.ILAD_KEY),
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY) };
 
-        currencyUsdFilter = new GroovyPositionFilter("s.currency == \"USD\"");
-        currencyBrlFilter = new GroovyPositionFilter("s.currency == \"BRL\"");
-        duration3Filter = new GroovyPositionFilter("s.duration > 3.0");
-        regionEmergingMarketFilter = new GroovyPositionFilter("s.region == \"Emerging Markets\"");
+        currencyUsdFilter = GroovyPositionFilter.of("s.currency == \"USD\"");
+        currencyBrlFilter = GroovyPositionFilter.of("s.currency == \"BRL\"");
+        duration3Filter = GroovyPositionFilter.of("s.duration > 3.0");
+        regionEmergingMarketFilter = GroovyPositionFilter.of("s.region == \"Emerging Markets\"");
 
         portfolioNames = new ArrayList<>(1000);
         try (BufferedReader portfolioNameReader = new BufferedReader(new InputStreamReader(

@@ -74,7 +74,7 @@ public class ConcentrationRuleTest {
         // repeat the first test with a GroovyPositionFilter
 
         rule = new ConcentrationRule(null, "test rule",
-                new GroovyPositionFilter("s.region == \"Emerging Markets\""), null, 0.1, null);
+                GroovyPositionFilter.of("s.region == \"Emerging Markets\""), null, 0.1, null);
 
         // create a Portfolio with 50% concentration in Emerging Markets
         positions = new HashSet<>();
@@ -89,7 +89,7 @@ public class ConcentrationRuleTest {
         // repeat the first test with a faulty GroovyPositionFilter
 
         rule = new ConcentrationRule(null, "test rule",
-                new GroovyPositionFilter("s.bogusProperty == \"Emerging Markets\""), null, 0.1,
+                GroovyPositionFilter.of("s.bogusProperty == \"Emerging Markets\""), null, 0.1,
                 null);
 
         // create a Portfolio with 50% concentration in Emerging Markets

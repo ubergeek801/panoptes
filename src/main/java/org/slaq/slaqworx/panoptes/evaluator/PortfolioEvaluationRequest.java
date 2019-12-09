@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code PortfolioEvaluationRequest} is an {@code IgniteCallable} which facilitates clustered
+ * {@code PortfolioEvaluationRequest} is a {@code Callable} which facilitates clustered
  * {@code Portfolio} evaluation by serializing the evaluation parameters for execution on a remote
  * cluster node.
  *

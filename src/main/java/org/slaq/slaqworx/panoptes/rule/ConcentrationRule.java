@@ -68,7 +68,7 @@ public class ConcentrationRule extends ValueRule {
         }
 
         return new ConcentrationRule(key, description,
-                (groovyFilter == null ? null : new GroovyPositionFilter(groovyFilter)),
+                (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
                 configuration.lowerLimit, configuration.upperLimit, groupClassifier);
     }
 
