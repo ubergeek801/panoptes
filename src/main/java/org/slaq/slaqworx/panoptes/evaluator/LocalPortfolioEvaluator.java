@@ -3,14 +3,14 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.ignite.internal.util.future.IgniteFinishedFutureImpl;
-import org.apache.ignite.lang.IgniteFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,16 +50,16 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+    public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
             EvaluationContext evaluationContext) throws InterruptedException, ExecutionException {
         return evaluate(portfolio, null, evaluationContext);
     }
 
     @Override
-    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+    public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
             Transaction transaction, EvaluationContext evaluationContext)
             throws ExecutionException, InterruptedException {
-        return new IgniteFinishedFutureImpl<>(
+        return CompletableFuture.completedFuture(
                 evaluate(portfolio.getRules(), portfolio, transaction, evaluationContext));
     }
 

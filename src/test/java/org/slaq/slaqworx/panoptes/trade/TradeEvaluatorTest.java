@@ -14,9 +14,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Test;
-
 import io.micronaut.test.annotation.MicronautTest;
+
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
@@ -105,25 +105,25 @@ public class TradeEvaluatorTest {
                         TestUtil.testPortfolioProvider());
         TradeEvaluationResult result = evaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
 
-        Map<EvaluationGroup<?>, Impact> p1r1Impact =
+        Map<EvaluationGroup, Impact> p1r1Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
         assertNotNull(p1r1Impact, "should have found impact for p1Rule1");
         assertEquals(Impact.NEGATIVE, p1r1Impact.get(EvaluationGroup.defaultGroup()),
                 "p1Rule1 should have failed");
 
-        Map<EvaluationGroup<?>, Impact> p1r2Impact =
+        Map<EvaluationGroup, Impact> p1r2Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule2.getKey()));
         assertNotNull(p1r2Impact, "should have found impact for p1Rule2");
         assertEquals(Impact.NEGATIVE, p1r2Impact.get(EvaluationGroup.defaultGroup()),
                 "p1Rule2 should have failed");
 
-        Map<EvaluationGroup<?>, Impact> p1r3Impact =
+        Map<EvaluationGroup, Impact> p1r3Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule3.getKey()));
         assertNotNull(p1r3Impact, "should have found impact for p1Rule3");
         assertEquals(Impact.POSITIVE, p1r3Impact.get(EvaluationGroup.defaultGroup()),
                 "p1Rule3 should have passed");
 
-        Map<EvaluationGroup<?>, Impact> p1r4Impact =
+        Map<EvaluationGroup, Impact> p1r4Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule4.getKey()));
         assertNotNull(p1r4Impact, "should have found impact for p1Rule4");
         assertEquals(Impact.NEUTRAL, p1r4Impact.get(EvaluationGroup.defaultGroup()),

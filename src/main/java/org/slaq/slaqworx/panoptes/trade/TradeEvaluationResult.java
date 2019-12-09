@@ -100,7 +100,7 @@ public class TradeEvaluationResult {
 
     private Impact aggregateImpact = Impact.POSITIVE;
 
-    private final ConcurrentHashMap<PortfolioRuleKey, Map<EvaluationGroup<?>, Impact>> ruleImpactMap =
+    private final ConcurrentHashMap<PortfolioRuleKey, Map<EvaluationGroup, Impact>> ruleImpactMap =
             new ConcurrentHashMap<>();
 
     /**
@@ -124,8 +124,8 @@ public class TradeEvaluationResult {
      *            the impact that was determined during evaluation
      */
     public void addImpact(PortfolioKey portfolioKey, RuleKey ruleKey,
-            EvaluationGroup<?> evaluationGroup, Impact impact) {
-        Map<EvaluationGroup<?>, Impact> groupImpactMap = ruleImpactMap
+            EvaluationGroup evaluationGroup, Impact impact) {
+        Map<EvaluationGroup, Impact> groupImpactMap = ruleImpactMap
                 .computeIfAbsent(new PortfolioRuleKey(portfolioKey, ruleKey), r -> new HashMap<>());
         groupImpactMap.put(evaluationGroup, impact);
 
@@ -170,7 +170,7 @@ public class TradeEvaluationResult {
      *         {@code Map} associating an individual {@code EvaluationGroup} with its measured
      *         impact
      */
-    public Map<PortfolioRuleKey, Map<EvaluationGroup<?>, Impact>> getImpacts() {
+    public Map<PortfolioRuleKey, Map<EvaluationGroup, Impact>> getImpacts() {
         return ruleImpactMap;
     }
 

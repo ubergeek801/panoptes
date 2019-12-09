@@ -88,11 +88,11 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
-        Map<EvaluationGroup<?>, Collection<Position>> classifiedPortfolioPositions =
+        Map<EvaluationGroup, Collection<Position>> classifiedPortfolioPositions =
                 classify(portfolioPositions.getPositions());
 
         // do the same for the proposed Positions, if specified
-        Map<EvaluationGroup<?>, Collection<Position>> classifiedProposedPositions;
+        Map<EvaluationGroup, Collection<Position>> classifiedProposedPositions;
         if (proposedPositions == null) {
             classifiedProposedPositions = null;
         } else {
@@ -101,7 +101,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         }
 
         // do the same for the benchmark, if specified
-        Map<EvaluationGroup<?>, Collection<Position>> classifiedBenchmarkPositions;
+        Map<EvaluationGroup, Collection<Position>> classifiedBenchmarkPositions;
         if (benchmarkPositions == null) {
             classifiedBenchmarkPositions = null;
         } else {
@@ -117,7 +117,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
                 classifiedProposedPositions.putAll(a.aggregate(classifiedProposedPositions));
             }
             if (classifiedBenchmarkPositions != null) {
-                Map<? extends EvaluationGroup<?>, Collection<Position>> aggregateBenchmarkPositions =
+                Map<? extends EvaluationGroup, Collection<Position>> aggregateBenchmarkPositions =
                         a.aggregate(classifiedBenchmarkPositions);
                 classifiedBenchmarkPositions.putAll(aggregateBenchmarkPositions);
                 if (classifiedProposedPositions != null) {
@@ -128,10 +128,10 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
         // for each group of Positions, evaluate the Rule against the group, for the Portfolio,
         // proposed (if specified) and the Benchmark (if specified)
-        Map<EvaluationGroup<?>, RuleResult> ruleResults =
+        Map<EvaluationGroup, RuleResult> ruleResults =
                 evaluate(classifiedPortfolioPositions, classifiedBenchmarkPositions);
 
-        Map<EvaluationGroup<?>, RuleResult> proposedResults;
+        Map<EvaluationGroup, RuleResult> proposedResults;
         if (classifiedProposedPositions == null) {
             proposedResults = null;
         } else {
@@ -149,7 +149,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      * @return a {@code Map} associating each distinct classification group to the {@code Position}s
      *         comprising the group
      */
-    protected Map<EvaluationGroup<?>, Collection<Position>> classify(Stream<Position> positions) {
+    protected Map<EvaluationGroup, Collection<Position>> classify(Stream<Position> positions) {
         return positions.collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
                 Collectors.toCollection(ArrayList::new)));
     }
@@ -164,12 +164,12 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      *            the (possibly {@code null} benchmark {@code Position}s to be evaluated against
      * @return the {@code Rule} evaluation results grouped by {@code EvaluationGroup}
      */
-    protected Map<EvaluationGroup<?>, RuleResult> evaluate(
-            Map<EvaluationGroup<?>, Collection<Position>> evaluatedPositions,
-            Map<EvaluationGroup<?>, Collection<Position>> classifiedBenchmarkPositions) {
+    protected Map<EvaluationGroup, RuleResult> evaluate(
+            Map<EvaluationGroup, Collection<Position>> evaluatedPositions,
+            Map<EvaluationGroup, Collection<Position>> classifiedBenchmarkPositions) {
         return evaluatedPositions.entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> {
-                    EvaluationGroup<?> group = e.getKey();
+                    EvaluationGroup group = e.getKey();
                     Collection<Position> ppos = e.getValue();
                     // create PositionSets for the grouped Positions, being careful to relate to the
                     // original Portfolios, as some Rules will require them

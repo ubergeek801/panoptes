@@ -6,11 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import javax.cache.Cache;
-
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.cache.query.ScanQuery;
-
+import com.hazelcast.map.IMap;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.details.Details;
@@ -92,11 +88,10 @@ public class PanoptesApplicationPanel extends AppLayout {
 
         AssetCache assetCache =
                 ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        IgniteCache<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
+        IMap<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
 
         // TODO make securities sortable
-        List<SecurityKey> securityKeys = new ArrayList<>(securityCache
-                .query(new ScanQuery<SecurityKey, Security>(), Cache.Entry::getKey).getAll());
+        List<SecurityKey> securityKeys = new ArrayList<>(securityCache.keySet());
         Collections.sort(securityKeys, (s1, s2) -> s1.compareTo(s2));
 
         CallbackDataProvider<Security, Void> securityProvider =
@@ -160,32 +155,25 @@ public class PanoptesApplicationPanel extends AppLayout {
 
         mainLayout.add(securityGrid);
 
-        IgniteCache<PortfolioKey, Portfolio> portfolioCache = assetCache.getPortfolioCache();
+        IMap<PortfolioKey, Portfolio> portfolioCache = assetCache.getPortfolioCache();
 
         // TODO make portfolios sortable
-        List<PortfolioKey> portfolioKeys = new ArrayList<>(portfolioCache
-                .query(new ScanQuery<PortfolioKey, Portfolio>(), Cache.Entry::getKey).getAll());
+        List<PortfolioKey> portfolioKeys = new ArrayList<>(portfolioCache.keySet());
         Collections.sort(portfolioKeys, (k1, k2) -> k1.compareTo(k2));
 
         CallbackDataProvider<PortfolioSummary, Void> portfolioProvider =
                 DataProvider
                         .fromCallbacks(
                                 query -> portfolioCache
-                                        .invokeAll(
+                                        .executeOnKeys(
                                                 new FakeSet<>(
                                                         portfolioKeys.subList(query.getOffset(),
                                                                 Math.min(
                                                                         query.getOffset()
                                                                                 + query.getLimit(),
                                                                         portfolioKeys.size()))),
-                                                (entry, args) -> {
-                                                    Portfolio p = entry.getValue();
-                                                    return new PortfolioSummary(p.getKey(),
-                                                            p.getName(), p.getBenchmarkKey(),
-                                                            p.getTotalMarketValue(),
-                                                            p.isAbstract());
-                                                })
-                                        .values().stream().map(r -> r.get()),
+                                                e -> PortfolioSummary.fromPortfolio(e.getValue()))
+                                        .values().stream(),
                                 query -> portfolioKeys.size());
 
         Grid<PortfolioSummary> portfolioGrid = new Grid<>();

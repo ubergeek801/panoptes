@@ -7,8 +7,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * SecurityAttributeGroupClassifier is an EvaluationGroupClassifier which classifies Positions based
- * on the value of a specified SecurityAttribute.
+ * {@code SecurityAttributeGroupClassifier} is an {@code EvaluationGroupClassifier} which classifies
+ * {@code Position}s based on the value of a specified {@code SecurityAttribute}.
  *
  * @author jeremy
  */
@@ -54,10 +54,10 @@ public class SecurityAttributeGroupClassifier
     }
 
     @Override
-    public EvaluationGroup<SecurityAttribute<?>> classify(Position position) {
-        return new EvaluationGroup<>(
+    public EvaluationGroup classify(Position position) {
+        return new EvaluationGroup(
                 String.valueOf(position.getSecurity().getAttributeValue(securityAttribute)),
-                securityAttribute);
+                securityAttribute.getName());
     }
 
     @Override

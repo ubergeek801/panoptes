@@ -10,8 +10,7 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * {@code SecurityAttributeLoader} is a service that initializes the known
- * {@code SecurityAttribute}s.
+ * A service that initializes the known {@code SecurityAttribute}s.
  */
 @Singleton
 public class SecurityAttributeLoader {

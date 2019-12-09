@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+package org.slaq.slaqworx.panoptes.proto;
+
+message IdVersionKeyMsg {
+    string id = 1;
+    int64 version = 2;
+}
+
+message IdKeyMsg {
+    string id = 1;
+}
+
+message PortfolioMsg {
+    IdVersionKeyMsg key = 1;
+    string name = 2;
+    IdVersionKeyMsg benchmarkKey = 3;
+    repeated IdKeyMsg ruleKey = 4;
+    repeated IdKeyMsg positionKey = 5;
+}
+
+message PortfolioSummaryMsg {
+    IdVersionKeyMsg key = 1;
+    string name = 2;
+    IdVersionKeyMsg benchmarkKey = 3;
+    double totalMarketValue = 4;
+    bool isAbstract = 5;
+}
+
+message PositionMsg {
+    IdKeyMsg key = 1;
+    double amount = 2;
+    IdKeyMsg securityKey = 3;
+}
+
+message RuleMsg {
+    IdKeyMsg key = 1;
+    string description = 2;
+    string type = 3;
+    string configuration = 4;
+    string filter = 5;
+    string classifierType = 6;
+    string classifierConfiguration = 7;
+}
+
+message SecurityMsg {
+    map<string, string> attributes = 1;
+}
+
+message TransactionMsg {
+    IdKeyMsg key = 1;
+    IdVersionKeyMsg portfolioKey = 2;
+    repeated PositionMsg position = 3;
+}
+
+message TradeMsg {
+    IdKeyMsg key = 1;
+    repeated TransactionMsg transaction = 2;
+}
+
+message PortfolioEvaluationRequestMsg {
+    IdVersionKeyMsg portfolioKey = 1;
+    TransactionMsg transaction = 2;
+    string evaluationMode = 3;
+    google.protobuf.DoubleValue portfolioMarketValue = 4;
+}
+
+message ExceptionMsg {
+    string exceptionClass = 1;
+    string message = 2;
+    repeated string stackEntry = 3;
+    ExceptionMsg cause = 4;
+}
+
+message RuleResultMsg {
+    string id = 1;
+    google.protobuf.StringValue aggregationKey = 2;
+    bool isPassed = 3;
+    google.protobuf.StringValue threshold = 4;
+    google.protobuf.DoubleValue value = 5;
+    ExceptionMsg exception = 6;
+}
+
+message EvaluationResultMsg {
+    IdKeyMsg ruleKey = 1;
+    repeated RuleResultMsg result = 2;
+    repeated RuleResultMsg proposedResult = 3;
+}
+
+message RuleImpactMsg {
+    string id = 1;
+    google.protobuf.StringValue aggregationKey = 2;
+    string impact = 3;
+}
+
+message PortfolioRuleImpactMsg {
+    IdVersionKeyMsg portfolioKey = 1;
+    IdKeyMsg ruleKey = 2;
+    repeated RuleImpactMsg ruleImpact = 3;
+}
+
+message TradeEvaluationResultMsg {
+    repeated PortfolioRuleImpactMsg portfolioRuleImpact = 1;
+}

@@ -56,7 +56,7 @@ public interface Rule extends Keyed<RuleKey> {
      *
      * @return a (possibly empty) {@code Stream} of {@code GroupAggregator}s
      */
-    public Stream<GroupAggregator<?>> getGroupAggregators();
+    public Stream<GroupAggregator> getGroupAggregators();
 
     /**
      * Obtain's this {@code Rule}'s (possibly {@code null}) {@code EvaluationGroupClassifier}.

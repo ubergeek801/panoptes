@@ -2,16 +2,10 @@ package org.slaq.slaqworx.panoptes.service;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ForkJoinPool;
-
-import javax.cache.Cache.Entry;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -19,6 +13,10 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -96,11 +94,11 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
 
         long startTime = System.currentTimeMillis();
         Iterator<Entry<PortfolioKey, Portfolio>> portfolioEntryIter =
-                assetCache.getPortfolioCache().iterator();
+                assetCache.getPortfolioCache().entrySet().iterator();
         int[] numPortfolios = new int[1];
         portfolioEntryIter.forEachRemaining(entry -> {
             numPortfolios[0]++;
-            completionService.submit(() -> new ImmutablePair<>(entry.getValue(),
+            completionService.submit(() -> Pair.of(entry.getValue(),
                     portfolioEvaluator.evaluate(entry.getValue(), new EvaluationContext()).get()));
         });
 

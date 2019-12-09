@@ -2,8 +2,7 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import org.apache.ignite.lang.IgniteFuture;
+import java.util.concurrent.Future;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -26,14 +25,13 @@ public interface PortfolioEvaluator {
      *            the {@code Portfolio} to be evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
-     * @return an {@code IgniteFuture} {@code Map} associating each evaluated {@code Rule} with its
-     *         result
+     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the {@code Rule}s could not be processed
      */
-    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+    public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
             EvaluationContext evaluationContext) throws InterruptedException, ExecutionException;
 
     /**
@@ -47,14 +45,13 @@ public interface PortfolioEvaluator {
      *            evaluation
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
-     * @return an {@code IgniteFuture} {@code Map} associating each evaluated {@code Rule} with its
-     *         result
+     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the {@code Rule}s could not be processed
      */
-    public IgniteFuture<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
+    public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
             Transaction transaction, EvaluationContext evaluationContext)
             throws InterruptedException, ExecutionException;
 }

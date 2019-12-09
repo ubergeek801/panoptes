@@ -10,11 +10,9 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * new groups.
  *
  * @author jeremy
- * @param <K>
- *            the EvaluationGroup key on which the function operates
  */
 @FunctionalInterface
-public interface GroupAggregator<K> {
+public interface GroupAggregator {
     /**
      * Aggregates the given Position classifications into zero or more new classifications. For
      * example, a GroupAggregator may select Positions held in the top five issuers and create a new
@@ -24,6 +22,6 @@ public interface GroupAggregator<K> {
      *            the Positions already classified
      * @return a Map relating zero or more new EvaluationGroups to their constituent Positions
      */
-    public Map<EvaluationGroup<K>, Collection<Position>>
-            aggregate(Map<EvaluationGroup<?>, Collection<Position>> classifiedPositions);
+    public Map<EvaluationGroup, Collection<Position>>
+            aggregate(Map<EvaluationGroup, Collection<Position>> classifiedPositions);
 }

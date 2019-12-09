@@ -7,38 +7,34 @@ import java.sql.SQLException;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 
-import org.apache.ignite.Ignite;
+import org.springframework.jdbc.core.RowMapper;
 
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * {@code RuleCacheStore} is an Ignite {@code CacheStore} that provides {@code Rule} persistence
- * services.
+ * RuleMapStore is a Hazelcast MapStore that provides Rule persistence services.
  *
  * @author jeremy
  */
 @Singleton
-public class RuleCacheStore extends IgniteCacheStore<RuleKey, ConfigurableRule> {
+public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     /**
-     * Creates a new {@code RuleCacheStore}.
+     * Creates a new RuleMapStore. Restricted because instances of this class should be created
+     * through the {@code ApplicationContext}.
      *
-     * @param igniteInstance
-     *            the {@code Ignite} instance for which to stream data
      * @param dataSource
-     *            the {@code DataSource} from which to stream data
+     *            the DataSource through which to access the database
      */
-    protected RuleCacheStore(Ignite igniteInstance, DataSource dataSource) {
-        super(igniteInstance, dataSource, AssetCache.RULE_CACHE_NAME);
+    protected RuleMapStore(DataSource dataSource) {
+        super(dataSource);
     }
 
     @Override
-    public void delete(Object keyObject) {
-        RuleKey key = (RuleKey)keyObject;
-
+    public void delete(RuleKey key) {
         getJdbcTemplate().update("delete from portfolio_rule where rule_id = ?", key.getId());
         getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
     }
@@ -53,7 +49,7 @@ public class RuleCacheStore extends IgniteCacheStore<RuleKey, ConfigurableRule> 
         String classifierTypeName = rs.getString(6);
         String classifierConfiguration = rs.getString(7);
 
-        return ConfigurableRule.constructRule(id, description, ruleTypeName, configuration,
+        return RuleSerializer.constructRule(id, description, ruleTypeName, configuration,
                 groovyFilter, classifierTypeName, classifierConfiguration);
     }
 
@@ -68,26 +64,31 @@ public class RuleCacheStore extends IgniteCacheStore<RuleKey, ConfigurableRule> 
     }
 
     @Override
+    protected RowMapper<RuleKey> getKeyMapper() {
+        return (rs, rowNum) -> new RuleKey(rs.getString(1));
+    }
+
+    @Override
     protected String getLoadSelect() {
         return "select id, description, type, configuration, filter, classifier_type,"
                 + " classifier_configuration from " + getTableName();
     }
 
     @Override
-    protected String getTableName() {
-        return "rule";
+    protected String getStoreSql() {
+        return "insert into " + getTableName()
+                + " (id, description, type, configuration, filter, classifier_type,"
+                + " classifier_configuration) values (?, ?, ?, ?::json, ?, ?, ?::json)"
+                + " on conflict on constraint rule_pk do update"
+                + " set description = excluded.description, type = excluded.type,"
+                + " configuration = excluded.configuration, filter = excluded.filter,"
+                + " classifier_type = excluded.classifier_type,"
+                + " classifier_configuration = excluded.classifier_configuration";
     }
 
     @Override
-    protected String getWriteSql() {
-        return "insert into " + getTableName()
-                + " (id, description, type, configuration, filter, classifier_type,"
-                + " classifier_configuration, partition_id) values (?, ?, ?, ?::json, ?, ?,"
-                + " ?::json, ?) on conflict on constraint rule_pk do update set description ="
-                + " excluded.description, type = excluded.type, configuration ="
-                + " excluded.configuration, filter = excluded.filter, classifier_type ="
-                + " excluded.classifier_type, classifier_configuration ="
-                + " excluded.classifier_configuration, partition_id = excluded.partition_id";
+    protected String getTableName() {
+        return "rule";
     }
 
     @Override
@@ -112,6 +113,5 @@ public class RuleCacheStore extends IgniteCacheStore<RuleKey, ConfigurableRule> 
         ps.setString(5, rule.getGroovyFilter());
         ps.setString(6, classifierType);
         ps.setString(7, classifierConfiguration);
-        ps.setShort(8, getPartition(rule.getKey()));
     }
 }

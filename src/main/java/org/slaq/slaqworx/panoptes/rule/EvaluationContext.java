@@ -1,14 +1,12 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
-
 /**
  * {@code EvaluationContext} provides contextual information related to the execution of
  * {@code Portfolio} evaluation.
  *
  * @author jeremy
  */
-public class EvaluationContext implements Serializable {
+public class EvaluationContext {
     /**
      * {@code EvaluationMode} specifies behaviors to be observed during evaluation.
      */
@@ -22,8 +20,6 @@ public class EvaluationContext implements Serializable {
          */
         SHORT_CIRCUIT_EVALUATION
     }
-
-    private static final long serialVersionUID = 1L;
 
     private final EvaluationMode evaluationMode;
     private Double portfolioMarketValue;
@@ -46,6 +42,31 @@ public class EvaluationContext implements Serializable {
         this.evaluationMode = evaluationMode;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        EvaluationContext other = (EvaluationContext)obj;
+        if (evaluationMode != other.evaluationMode) {
+            return false;
+        }
+        if (portfolioMarketValue == null) {
+            if (other.portfolioMarketValue != null) {
+                return false;
+            }
+        } else if (!portfolioMarketValue.equals(other.portfolioMarketValue)) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Obtains the {@code TradeEvaluationMode} in effect for this context.
      *
@@ -62,6 +83,16 @@ public class EvaluationContext implements Serializable {
      */
     public Double getPortfolioMarketValue() {
         return portfolioMarketValue;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((evaluationMode == null) ? 0 : evaluationMode.hashCode());
+        result = prime * result
+                + ((portfolioMarketValue == null) ? 0 : portfolioMarketValue.hashCode());
+        return result;
     }
 
     /**

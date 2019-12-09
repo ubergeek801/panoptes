@@ -1,33 +1,27 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
-
 /**
  * {@code EvaluationGroup} is a value type used as a key when classifying rule evaluation results.
  *
  * @author jeremy
- * @param <K>
- *            the aggregation key type, e.g. {@code SecurityAttribute}
  */
-public class EvaluationGroup<K> implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class EvaluationGroup {
     public static final String DEFAULT_EVALUATION_GROUP_ID = "portfolio";
 
-    private static final EvaluationGroup<?> DEFAULT_GROUP =
-            new EvaluationGroup<>(DEFAULT_EVALUATION_GROUP_ID, null);
+    private static final EvaluationGroup DEFAULT_GROUP =
+            new EvaluationGroup(DEFAULT_EVALUATION_GROUP_ID, null);
 
     /**
      * Obtains the default ({@code Portfolio}-level) {@code EvaluationGroup}.
      *
      * @return the default {@code EvaluationGroup}
      */
-    public static EvaluationGroup<?> defaultGroup() {
+    public static EvaluationGroup defaultGroup() {
         return DEFAULT_GROUP;
     }
 
     private final String id;
-    private final K aggregationKey;
+    private final String aggregationKey;
 
     /**
      * Creates a new {@code EvaluationGroup} with the given ID and aggregation key.
@@ -38,7 +32,7 @@ public class EvaluationGroup<K> implements Serializable {
      *            the aggregation key used to define this {@code valuationGroup}, or {@code null}
      *            for the default
      */
-    public EvaluationGroup(String id, K aggregationKey) {
+    public EvaluationGroup(String id, String aggregationKey) {
         this.id = id;
         this.aggregationKey = aggregationKey;
     }
@@ -54,7 +48,7 @@ public class EvaluationGroup<K> implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        EvaluationGroup<?> other = (EvaluationGroup<?>)obj;
+        EvaluationGroup other = (EvaluationGroup)obj;
         return id.equals(other.id);
     }
 
@@ -64,7 +58,7 @@ public class EvaluationGroup<K> implements Serializable {
      *
      * @return this {@code EvalulationGroup}'s aggregation key
      */
-    public K getAggregationKey() {
+    public String getAggregationKey() {
         return aggregationKey;
     }
 

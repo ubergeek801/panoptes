@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.data.DummyPortfolioCacheLoader;
+import org.slaq.slaqworx.panoptes.data.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
@@ -60,9 +59,9 @@ public class RuleEvaluatorPerformanceTest {
 
         // initialize the Portfolios to be evaluated
 
-        DummyPortfolioCacheLoader mapLoader = new DummyPortfolioCacheLoader();
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
         ArrayList<Portfolio> portfolios = new ArrayList<>();
-        mapLoader.inputIterator().forEachRemaining(key -> {
+        mapLoader.loadAllKeys().iterator().forEachRemaining(key -> {
             Portfolio benchmark = dataSource.getBenchmark(key);
             if (benchmark != null) {
                 // the Portfolio is a benchmark; skip it
@@ -86,11 +85,11 @@ public class RuleEvaluatorPerformanceTest {
 
             portfolioStartTime = System.currentTimeMillis();
             portfolios.forEach(p -> {
-                completionService.submit(() -> new ImmutablePair<>(p.getKey(),
+                completionService.submit(() -> Pair.of(p.getKey(),
                         evaluator.evaluate(p, new EvaluationContext()).get()));
             });
             // wait for all of the evaluations to complete
-            for (int i = 0; i < portfolios.size(); i++) {
+            for (Portfolio portfolio : portfolios) {
                 Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result =
                         completionService.take().get();
                 numPortfolioRuleEvalutions += result.getRight().size();

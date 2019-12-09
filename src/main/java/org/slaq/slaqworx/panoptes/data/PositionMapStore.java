@@ -4,41 +4,42 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 
-import org.apache.ignite.Ignite;
+import io.micronaut.context.ApplicationContext;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
+import org.springframework.jdbc.core.RowMapper;
+
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
- * {@code PositionCacheStore} is an Ignite {@code CacheStore} that provides {@code Position}
+ * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
  * persistence services.
  *
  * @author jeremy
  */
-@Singleton
-public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> {
+public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
+    private final ApplicationContext applicationContext;
+
     /**
-     * Creates a new {@code PositionCacheStore}.
+     * Creates a new PositionMapStore. Restricted because instances of this class should be created
+     * through the {@code HazelcastMapStoreFactory}.
      *
-     * @param igniteInstance
-     *            the {@code Ignite} instance for which to stream data
+     * @param applicationContext
+     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
      * @param dataSource
-     *            the {@code DataSource} from which to stream data
+     *            the {@code DataSource} through which to access the database
      */
-    protected PositionCacheStore(Ignite igniteInstance, DataSource dataSource) {
-        super(igniteInstance, dataSource, AssetCache.POSITION_CACHE_NAME);
+    protected PositionMapStore(ApplicationContext applicationContext, DataSource dataSource) {
+        super(dataSource);
+        this.applicationContext = applicationContext;
     }
 
     @Override
-    public void delete(Object keyObject) {
-        PositionKey key = (PositionKey)keyObject;
-
+    public void delete(PositionKey key) {
         getJdbcTemplate().update("delete from portfolio_position where position_id = ?",
                 key.getId());
         getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
@@ -55,10 +56,11 @@ public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> 
     }
 
     /**
-     * Obtains the {@code AssetCache} to be used to resolve references.
+     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
+     * circular injection dependency.
      */
     protected AssetCache getAssetCache() {
-        return ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
+        return applicationContext.getBean(AssetCache.class);
     }
 
     @Override
@@ -72,8 +74,20 @@ public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> 
     }
 
     @Override
+    protected RowMapper<PositionKey> getKeyMapper() {
+        return (rs, rowNum) -> new PositionKey(rs.getString(1));
+    }
+
+    @Override
     protected String getLoadSelect() {
         return "select id, amount, security_id from " + getTableName();
+    }
+
+    @Override
+    protected String getStoreSql() {
+        return "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
+                + " on conflict on constraint position_pk do update"
+                + " set amount = excluded.amount, security_id = excluded.security_id";
     }
 
     @Override
@@ -82,18 +96,9 @@ public class PositionCacheStore extends IgniteCacheStore<PositionKey, Position> 
     }
 
     @Override
-    protected String getWriteSql() {
-        return "insert into " + getTableName()
-                + " (id, amount, security_id, partition_id) values (?, ?, ?, ?) on conflict on"
-                + " constraint position_pk do update set amount = excluded.amount, security_id ="
-                + " excluded.security_id, partition_id = excluded.partition_id";
-    }
-
-    @Override
     protected void setValues(PreparedStatement ps, Position position) throws SQLException {
         ps.setString(1, position.getKey().getId());
         ps.setDouble(2, position.getAmount());
         ps.setString(3, position.getSecurity().getKey().getId());
-        ps.setShort(4, getPartition(position.getKey()));
     }
 }

@@ -45,7 +45,6 @@ public class Trade {
     public Trade(TradeKey key, Map<PortfolioKey, Transaction> transactions) {
         this.key = (key == null ? new TradeKey(null) : key);
         this.transactions = transactions;
-        this.transactions.values().forEach(t -> t.setTrade(this));
     }
 
     @Override

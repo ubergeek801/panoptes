@@ -22,7 +22,7 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * @author jeremy
  */
 public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClassifier
-        implements GroupAggregator<SecurityAttribute<?>> {
+        implements GroupAggregator {
     static class Configuration {
         public String attribute;
         public int count;
@@ -68,8 +68,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     }
 
     @Override
-    public Map<EvaluationGroup<SecurityAttribute<?>>, Collection<Position>>
-            aggregate(Map<EvaluationGroup<?>, Collection<Position>> classifiedPositions) {
+    public Map<EvaluationGroup, Collection<Position>>
+            aggregate(Map<EvaluationGroup, Collection<Position>> classifiedPositions) {
         ArrayList<Position> aggregatePositions = new ArrayList<>();
         // if we already have fewer groups than the desired, then just collect it all
         if (classifiedPositions.size() <= count) {
@@ -91,10 +91,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
             }
         }
 
-        return Map.of(
-                new EvaluationGroup<SecurityAttribute<?>>(
-                        getSecurityAttribute() + ".top(" + count + ")", getSecurityAttribute()),
-                aggregatePositions);
+        return Map.of(new EvaluationGroup(getSecurityAttribute() + ".top(" + count + ")",
+                getSecurityAttribute().getName()), aggregatePositions);
     }
 
     @Override

@@ -17,7 +17,6 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  */
 public class Transaction implements PositionSupplier {
     private final TransactionKey key;
-    private Trade trade;
     private final PortfolioKey portfolioKey;
     private final PositionSet positions;
 
@@ -93,23 +92,9 @@ public class Transaction implements PositionSupplier {
         return positions.getTotalMarketValue();
     }
 
-    public Trade getTrade() {
-        return trade;
-    }
-
     @Override
     public int hashCode() {
         return key.hashCode();
-    }
-
-    /**
-     * Specifies the {@code Trade} associated with this {@code Transaction}.
-     *
-     * @param trade
-     *            the {@code Trade} containing this {@code Transaction}
-     */
-    protected void setTrade(Trade trade) {
-        this.trade = trade;
     }
 
     @Override

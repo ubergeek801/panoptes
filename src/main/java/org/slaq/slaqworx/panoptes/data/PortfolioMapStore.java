@@ -10,14 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 
-import org.apache.ignite.Ignite;
+import io.micronaut.context.ApplicationContext;
+
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -28,29 +27,30 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PortfolioCacheStore} is an Ignite {@code CacheStore} that provides {@code Portfolio}
+ * {@code PortfolioMapStore} is a Hazelcast {@code MapStore} that provides {@code Portfolio}
  * persistence services.
  *
  * @author jeremy
  */
-@Singleton
-public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfolio> {
+public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
+    private ApplicationContext applicationContext;
+
     /**
-     * Creates a new {@code PortfolioCacheStore}.
+     * Creates a new {@code PortfolioMapStore}. Restricted because instances of this class should be
+     * obtained through the {@code HazelcastMapStoreFactory}.
      *
-     * @param igniteInstance
-     *            the {@code Ignite} instance for which to stream data
+     * @param applicationContext
+     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
      * @param dataSource
-     *            the {@code DataSource} from which to stream data
+     *            the {@code DataSource} through which to access the database
      */
-    protected PortfolioCacheStore(Ignite igniteInstance, DataSource dataSource) {
-        super(igniteInstance, dataSource, AssetCache.PORTFOLIO_CACHE_NAME);
+    protected PortfolioMapStore(ApplicationContext applicationContext, DataSource dataSource) {
+        super(dataSource);
+        this.applicationContext = applicationContext;
     }
 
     @Override
-    public void delete(Object keyObject) {
-        PortfolioKey key = (PortfolioKey)keyObject;
-
+    public void delete(PortfolioKey key) {
         getJdbcTemplate().update(
                 "delete from portfolio_position where portfolio_id = ? and portfolio_version = ?",
                 key.getId(), key.getVersion());
@@ -93,10 +93,11 @@ public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfoli
     }
 
     /**
-     * Obtains the {@code AssetCache} to be used to resolve references.
+     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
+     * circular injection dependency.
      */
     protected AssetCache getAssetCache() {
-        return ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
+        return applicationContext.getBean(AssetCache.class);
     }
 
     @Override
@@ -110,8 +111,22 @@ public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfoli
     }
 
     @Override
+    protected RowMapper<PortfolioKey> getKeyMapper() {
+        return (rs, rowNum) -> new PortfolioKey(rs.getString(1), rs.getInt(2));
+    }
+
+    @Override
     protected String getLoadSelect() {
         return "select id, version, name, benchmark_id, benchmark_version from " + getTableName();
+    }
+
+    @Override
+    protected String getStoreSql() {
+        return "insert into " + getTableName()
+                + " (id, version, name, benchmark_id, benchmark_version) values (?, ?, ?, ?, ?)"
+                + " on conflict on constraint portfolio_pk do update"
+                + " set name = excluded.name, benchmark_id = excluded.benchmark_id,"
+                + " benchmark_version = excluded.benchmark_version";
     }
 
     @Override
@@ -120,17 +135,7 @@ public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfoli
     }
 
     @Override
-    protected String getWriteSql() {
-        return "insert into " + getTableName()
-                + " (id, version, name, benchmark_id, benchmark_version, partition_id) values"
-                + " (?, ?, ?, ?, ?, ?) on conflict on constraint portfolio_pk do update"
-                + " set name = excluded.name, benchmark_id = excluded.benchmark_id,"
-                + " benchmark_version = excluded.benchmark_version, partition_id ="
-                + " excluded.partition_id";
-    }
-
-    @Override
-    protected void postWriteAll(Map<? extends PortfolioKey, ? extends Portfolio> map) {
+    protected void postStoreAll(Map<PortfolioKey, Portfolio> map) {
         // now that the Portfolios have been inserted, store the Position and Rule relationships
 
         for (Portfolio portfolio : map.values()) {
@@ -189,6 +194,5 @@ public class PortfolioCacheStore extends IgniteCacheStore<PortfolioKey, Portfoli
         } else {
             ps.setLong(5, benchmarkKey.getVersion());
         }
-        ps.setShort(6, getPartition(portfolio.getKey()));
     }
 }

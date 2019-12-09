@@ -1,16 +1,10 @@
 package org.slaq.slaqworx.panoptes.ui;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
-
-import javax.cache.Cache;
-
-import org.apache.ignite.cache.query.ScanQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
@@ -22,6 +16,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -177,19 +174,14 @@ public class FixedIncomeTradePanel extends FormLayout {
             int numPortfolios = assetCache.getPortfolioCache().size();
             int numRemaining[] = new int[] { numPortfolios };
             TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
-            List<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache()
-                    .query(new ScanQuery<PortfolioKey, Portfolio>(), Cache.Entry::getKey).getAll();
+            Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
             long startTime = System.currentTimeMillis();
             ForkJoinTask<?> future = roomEvaluatorExecutor
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
-                            PortfolioSummary portfolio = assetCache.getPortfolioCache()
-                                    .invoke(portfolioKey, (entry, args) -> {
-                                        Portfolio p = entry.getValue();
-                                        return new PortfolioSummary(p.getKey(), p.getName(),
-                                                p.getBenchmarkKey(), p.getTotalMarketValue(),
-                                                p.isAbstract());
-                                    });
+                            PortfolioSummary portfolio =
+                                    assetCache.getPortfolioCache().executeOnKey(portfolioKey,
+                                            e -> PortfolioSummary.fromPortfolio(e.getValue()));
                             if (portfolio.isAbstract()) {
                                 // don't evaluate benchmarks
                                 return;

@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.io.Serializable;
-
 /**
  * {@code RuleResult} encapsulates the results of a {@code Rule} evaluation, typically grouped by
  * {@code EvaluationGroup} and aggregated into an {@code EvaluationResult}. Currently this class
@@ -9,7 +7,7 @@ import java.io.Serializable;
  *
  * @author jeremy
  */
-public class RuleResult implements Serializable {
+public class RuleResult {
     /**
      * {@code Impact} describes the impact of some change (such as a proposed {@code Trade}) on a
      * {@code Rule}, as evaluated before and after the proposed changes are considered.
@@ -43,12 +41,9 @@ public class RuleResult implements Serializable {
         BELOW, WITHIN, ABOVE
     }
 
-    private static final long serialVersionUID = 1L;
-
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
-
     private final Throwable exception;
 
     /**
@@ -179,6 +174,10 @@ public class RuleResult implements Serializable {
      */
     public Throwable getException() {
         return exception;
+    }
+
+    public Threshold getThreshold() {
+        return threshold;
     }
 
     /**

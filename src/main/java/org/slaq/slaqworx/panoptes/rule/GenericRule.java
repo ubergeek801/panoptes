@@ -15,7 +15,7 @@ public abstract class GenericRule implements Rule {
     private final RuleKey key;
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
-    private final ArrayList<GroupAggregator<?>> groupAggregators = new ArrayList<>();
+    private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();
 
     /**
      * Creates a new {@code GenericRule} with the given key and description.
@@ -50,7 +50,7 @@ public abstract class GenericRule implements Rule {
         } else {
             this.groupClassifier = groupClassifier;
             if (groupClassifier instanceof GroupAggregator) {
-                groupAggregators.add((GroupAggregator<?>)groupClassifier);
+                groupAggregators.add((GroupAggregator)groupClassifier);
             }
         }
     }
@@ -96,7 +96,7 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
-    public Stream<GroupAggregator<?>> getGroupAggregators() {
+    public Stream<GroupAggregator> getGroupAggregators() {
         return groupAggregators.stream();
     }
 

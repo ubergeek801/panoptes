@@ -17,7 +17,7 @@ public class DefaultEvaluationGroupClassifier implements EvaluationGroupClassifi
     }
 
     @Override
-    public EvaluationGroup<?> classify(Position position) {
+    public EvaluationGroup classify(Position position) {
         return EvaluationGroup.defaultGroup();
     }
 }

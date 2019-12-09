@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -13,12 +12,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult;
  *
  * @author jeremy
  */
-public class EvaluationResult implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class EvaluationResult {
     private final RuleKey ruleKey;
-    private final Map<EvaluationGroup<?>, RuleResult> results;
-    private final Map<EvaluationGroup<?>, RuleResult> proposedResults;
+    private final Map<EvaluationGroup, RuleResult> results;
+    private final Map<EvaluationGroup, RuleResult> proposedResults;
 
     /**
      * Creates a new {@code EvaluationResult} for the specified {@code Rule} using the given grouped
@@ -29,7 +26,7 @@ public class EvaluationResult implements Serializable {
      * @param results
      *            a {@code Map} containing the grouped evaluation results
      */
-    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup<?>, RuleResult> results) {
+    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, RuleResult> results) {
         this(ruleKey, results, null);
     }
 
@@ -45,8 +42,8 @@ public class EvaluationResult implements Serializable {
      *            a (possibly {@code null} {code Map} containing the grouped evaluation results of a
      *            proposed set of {@code Position}s, if requested
      */
-    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup<?>, RuleResult> results,
-            Map<EvaluationGroup<?>, RuleResult> proposedResults) {
+    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, RuleResult> results,
+            Map<EvaluationGroup, RuleResult> proposedResults) {
         this.ruleKey = ruleKey;
         this.results = results;
         this.proposedResults = (proposedResults == null ? Collections.emptyMap() : proposedResults);
@@ -60,7 +57,7 @@ public class EvaluationResult implements Serializable {
      * @return a {@code RuleResult} describing the requested proposed results, or {@code null} if
      *         there were no proposed results for the specified group
      */
-    public RuleResult getProposedResult(EvaluationGroup<?> group) {
+    public RuleResult getProposedResult(EvaluationGroup group) {
         return proposedResults.get(group);
     }
 
@@ -69,7 +66,7 @@ public class EvaluationResult implements Serializable {
      *
      * @return a {@code Map} of {@code EvaluationGroup} to its corresponding proposed result
      */
-    public Map<EvaluationGroup<?>, RuleResult> getProposedResults() {
+    public Map<EvaluationGroup, RuleResult> getProposedResults() {
         return proposedResults;
     }
 
@@ -81,7 +78,7 @@ public class EvaluationResult implements Serializable {
      * @return a {@code RuleResult} describing the requested results, or {@code null} if there were
      *         no results for the specified group
      */
-    public RuleResult getResult(EvaluationGroup<?> group) {
+    public RuleResult getResult(EvaluationGroup group) {
         return results.get(group);
     }
 
@@ -90,7 +87,7 @@ public class EvaluationResult implements Serializable {
      *
      * @return a {@code Map} of {@code EvaluationGroup} to its corresponding result
      */
-    public Map<EvaluationGroup<?>, RuleResult> getResults() {
+    public Map<EvaluationGroup, RuleResult> getResults() {
         return results;
     }
 

@@ -28,8 +28,8 @@ public class TradeEvaluationResultTest {
         PortfolioKey portfolioKey = new PortfolioKey("test", 1);
         RuleKey rule1Key = new RuleKey("rule1");
         RuleKey rule2Key = new RuleKey("rule2");
-        EvaluationGroup<Integer> evalGroup1 = new EvaluationGroup<>("group1", 1);
-        EvaluationGroup<Integer> evalGroup2 = new EvaluationGroup<>("group2", 2);
+        EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
+        EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
         RuleResult PASS = new RuleResult(true);
         RuleResult FAIL = new RuleResult(false);
 

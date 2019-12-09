@@ -13,9 +13,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Test;
-
 import io.micronaut.test.annotation.MicronautTest;
+
+import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -303,13 +303,13 @@ public class PortfolioEvaluatorTest {
 
         // the duration rule is grouped by currency, so we should find results for USD, NZD, CAD;
         // USD duration = (300 + 600) / (100 + 200) = 3 which should pass
-        assertTrue(durationResults.getResult(new EvaluationGroup<>("USD", null)).isPassed(),
+        assertTrue(durationResults.getResult(new EvaluationGroup("USD", null)).isPassed(),
                 "duration rule should have passed for USD");
         // NZD duration = (1_200 + 1_600) / (300 + 400) = 4 which should pass
-        assertTrue(durationResults.getResult(new EvaluationGroup<>("NZD", null)).isPassed(),
+        assertTrue(durationResults.getResult(new EvaluationGroup("NZD", null)).isPassed(),
                 "duration rule should have passed for NZD");
         // CAD duration = (2_500 + 3_000) / (500 + 600) = 5 which should fail
-        assertFalse(durationResults.getResult(new EvaluationGroup<>("CAD", null)).isPassed(),
+        assertFalse(durationResults.getResult(new EvaluationGroup("CAD", null)).isPassed(),
                 "duration rule should have failed for CAD");
 
         // the quality rule is not grouped, so should have a single result for the default group
@@ -318,10 +318,10 @@ public class PortfolioEvaluatorTest {
 
         // the issuer rule is grouped by issuer, so we should find results for ISSFOO, ISSBAR;
         // ISSFOO concentration = (100 + 200 + 300 + 400) / 2_100 = 0.476190476 which should pass
-        assertTrue(issuerResults.getResult(new EvaluationGroup<>("ISSFOO", null)).isPassed(),
+        assertTrue(issuerResults.getResult(new EvaluationGroup("ISSFOO", null)).isPassed(),
                 "issuer rule should have passed for ISSFOO");
         // ISSBAR concentration = (500 + 600) / 2_100 = 0.523809524 which should fail
-        assertFalse(issuerResults.getResult(new EvaluationGroup<>("ISSBAR", null)).isPassed(),
+        assertFalse(issuerResults.getResult(new EvaluationGroup("ISSBAR", null)).isPassed(),
                 "issuer rule should have failed for ISSBAR");
     }
 
