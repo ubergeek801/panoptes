@@ -13,14 +13,14 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>12</java.version>
+		<java.version>13</java.version>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 
 		<jetty.version>9.4.24.v20191120</jetty.version>
 		<micronaut.version>1.2.7</micronaut.version>
 		<protobuf.version>3.11.1</protobuf.version>
-		<vaadin.version>14.1.1</vaadin.version>
+		<vaadin.version>14.1.2</vaadin.version>
 
 		<globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
 			-XX:MaxGCPauseMillis=5000
@@ -188,7 +188,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.2.1.RELEASE</version>
+				<version>2.2.2.RELEASE</version>
 				<executions>
 					<execution>
 						<goals>
@@ -355,7 +355,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.2.8</version>
+			<version>42.2.9</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
