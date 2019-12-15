@@ -10,9 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Provider;
 import javax.sql.DataSource;
-
-import io.micronaut.context.ApplicationContext;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,20 +32,21 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
-    private ApplicationContext applicationContext;
+    private final Provider<AssetCache> assetCacheProvider;
 
     /**
      * Creates a new {@code PortfolioMapStore}. Restricted because instances of this class should be
-     * obtained through the {@code HazelcastMapStoreFactory}.
+     * created through the {@code HazelcastMapStoreFactory}.
      *
-     * @param applicationContext
-     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
+     * @param assetCacheProvider
+     *            the {@code AsssetCache} from which to obtained cached data, wrapped in a
+     *            {@code Provider} to avoid a circular injection dependency
      * @param dataSource
      *            the {@code DataSource} through which to access the database
      */
-    protected PortfolioMapStore(ApplicationContext applicationContext, DataSource dataSource) {
+    protected PortfolioMapStore(Provider<AssetCache> assetCacheProvider, DataSource dataSource) {
         super(dataSource);
-        this.applicationContext = applicationContext;
+        this.assetCacheProvider = assetCacheProvider;
     }
 
     @Override
@@ -75,8 +75,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         + " where portfolio_id = ? and portfolio_version = ?",
                 new Object[] { id, version },
                 (RowMapper<PositionKey>)(rsPos, rowNumPos) -> new PositionKey(rsPos.getString(1)));
-        Set<Position> positions = positionKeys.stream().map(k -> getAssetCache().getPosition(k))
-                .collect(Collectors.toSet());
+        Set<Position> positions = positionKeys.stream()
+                .map(k -> assetCacheProvider.get().getPosition(k)).collect(Collectors.toSet());
 
         // get the keys for the related Rules
         List<RuleKey> ruleKeys = getJdbcTemplate().query(
@@ -84,20 +84,12 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                         + " where portfolio_id = ? and portfolio_version = ?",
                 new Object[] { id, version },
                 (RowMapper<RuleKey>)(rsPos, rowNumPos) -> new RuleKey(rsPos.getString(1)));
-        Set<ConfigurableRule> rules =
-                ruleKeys.stream().map(k -> getAssetCache().getRule(k)).collect(Collectors.toSet());
+        Set<ConfigurableRule> rules = ruleKeys.stream()
+                .map(k -> assetCacheProvider.get().getRule(k)).collect(Collectors.toSet());
 
         return new Portfolio(new PortfolioKey(id, version), name, positions,
                 (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
                 rules);
-    }
-
-    /**
-     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
-     * circular injection dependency.
-     */
-    protected AssetCache getAssetCache() {
-        return applicationContext.getBean(AssetCache.class);
     }
 
     @Override

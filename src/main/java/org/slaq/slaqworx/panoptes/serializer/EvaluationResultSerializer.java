@@ -69,6 +69,15 @@ public class EvaluationResultSerializer implements ByteArraySerializer<Evaluatio
         return out.toByteArray();
     }
 
+    /**
+     * Converts an {@code EvaluationGroup}/{@code RuleResult} pair into its serialized form.
+     *
+     * @param evaluationGroup
+     *            the {@code EvaluationGroup} from which to create a {@code RuleResultMsg}
+     * @param ruleResult
+     *            the {@code RuleResult} from which to create a {@code RuleResultMsg}
+     * @return a {@code RuleResultMsg} providing a serialization of the given data
+     */
     protected RuleResultMsg convert(EvaluationGroup evaluationGroup, RuleResult ruleResult) {
         RuleResultMsg.Builder resultMsgBuilder = RuleResultMsg.newBuilder();
         resultMsgBuilder.setId(evaluationGroup.getId());
@@ -94,6 +103,13 @@ public class EvaluationResultSerializer implements ByteArraySerializer<Evaluatio
         return resultMsgBuilder.build();
     }
 
+    /**
+     * Converts a {@code RuleResultMsg} into its deserialized form.
+     *
+     * @param resultMsg
+     *            the {@code RuleResultMsg} to be deserialized
+     * @return a {@code RuleResult} constructed from the serialized data
+     */
     protected RuleResult convert(RuleResultMsg resultMsg) {
         if (resultMsg.hasException()) {
             ExceptionMsg exceptionMsg = resultMsg.getException();
@@ -113,6 +129,14 @@ public class EvaluationResultSerializer implements ByteArraySerializer<Evaluatio
                 resultMsg.getValue().getValue());
     }
 
+    /**
+     * Converts a collection of {@code RuleResultMsg}s into deserialized form.
+     *
+     * @param resultMsgs
+     *            the {@code RuleResultMsg}s to be deserialized
+     * @return a {@code Map} correlating each {@code EvaluationGroup} to the {@code RuleResult}
+     *         computed for that group
+     */
     protected Map<EvaluationGroup, RuleResult>
             convertResults(Collection<RuleResultMsg> resultMsgs) {
         return resultMsgs.stream().map(resultMsg -> {
@@ -124,6 +148,14 @@ public class EvaluationResultSerializer implements ByteArraySerializer<Evaluatio
         }).collect(Collectors.toMap(p -> p.getLeft(), p -> p.getRight()));
     }
 
+    /**
+     * Converts a map of evaluation results to serialized form.
+     *
+     * @param results
+     *            a {@code Map} correlating each {@code EvaluationGroup} to the {@code RuleResult}
+     *            computed for that group
+     * @return a {@code Collection<RuleResultMsg>} representing the serialized form
+     */
     protected Collection<RuleResultMsg> convertResults(Map<EvaluationGroup, RuleResult> results) {
         return results.entrySet().stream().map(e -> convert(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());

@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.util;
 
 /**
- * Keyed indicates that an entity can be referenced by a key of the specified type.
+ * {@code Keyed} indicates that an entity can be referenced by a key of the specified type.
  *
  * @author jeremy
  * @param <T>

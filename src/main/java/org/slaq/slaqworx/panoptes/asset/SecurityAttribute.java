@@ -102,7 +102,6 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
 
     private final String name;
     private final int index;
-
     private final Class<T> type;
 
     /**

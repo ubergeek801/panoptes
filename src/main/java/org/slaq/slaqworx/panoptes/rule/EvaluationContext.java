@@ -26,7 +26,7 @@ public class EvaluationContext {
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
-     * evaluation
+     * evaluation.
      */
     public EvaluationContext() {
         this(EvaluationMode.FULL_EVALUATION);

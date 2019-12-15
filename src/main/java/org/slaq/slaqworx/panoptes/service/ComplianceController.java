@@ -31,8 +31,8 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
- * ComplianceController is a simple "Web service" that evaluates all {@code Portfolio}s and outputs
- * quasi-formatted results.
+ * {@code ComplianceController} is a simple "Web service" that evaluates all {@code Portfolio}s and
+ * outputs quasi-formatted results.
  *
  * @author jeremy
  */

@@ -4,7 +4,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.Security;
 
 /**
- * An {@code EligibilityRule} stipulates which {@code Securities} can be held by a
+ * An {@code EligibilityRule} stipulates which {@code Securities} are permitted to be held by a
  * {@code Portfolio}, using some algorithm which is independent of the {@code Portfolio}'s holdings
  * (and which typically considers only the {@code Security} itself).
  *

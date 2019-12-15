@@ -92,9 +92,9 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
             Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
                     filterClass.getConstructor();
             groovyFilter = filterClassConstructor.newInstance();
-        } catch (Exception ex) {
+        } catch (Exception e) {
             // TODO throw a better exception
-            throw new RuntimeException("could not instantiate Groovy filter", ex);
+            throw new RuntimeException("could not instantiate Groovy filter", e);
         }
     }
 

@@ -14,6 +14,12 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
+/**
+ * {@code PanoptesUIConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
+ * related to the experimental Vaadin user interface.
+ *
+ * @author jeremy
+ */
 @Factory
 public class PanoptesUIConfiguration {
     /**
@@ -24,6 +30,11 @@ public class PanoptesUIConfiguration {
         // nothing to do
     }
 
+    /**
+     * Provides a Jetty {@code Server} to host the Vaadin interface.
+     *
+     * @return a {@code Server}
+     */
     @Bean
     protected Server servletServer() {
         Server server = new Server(8090);

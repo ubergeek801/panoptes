@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * JsonConfigurable is an interface for components that can be configured through JSON.
+ * {@code JsonConfigurable} is an interface for components that can be configured through JSON.
  *
  * @author jeremy
  */

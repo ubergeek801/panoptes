@@ -10,8 +10,8 @@ import java.util.Iterator;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
- * KeyIterator is an {@code Iterator} (which is itself {@code Iterable}) which facilitates loading
- * of keys iteratively (rather than loading the complete set as a {@code List}). A
+ * {@code KeyIterator} is an {@code Iterator} (which is itself {@code Iterable}) which facilitates
+ * loading of keys iteratively (rather than loading the complete set as a {@code List}). A
  * {@code HazelcastMapStore} could use it in the following way:
  *
  * <pre>
@@ -40,6 +40,17 @@ public class KeyIterator<K> implements Iterator<K>, Iterable<K>, Closeable {
     private boolean isHasNextCalled;
     private boolean isHasNext;
 
+    /**
+     * Creates a new {@code KeyIterator} which uses the given statement to fetch keys, and the given
+     * {@code RowMapper} to map each {@code ResultSet} row to a key.
+     *
+     * @param statement
+     *            a SQL statement to be executed to obtain keys
+     * @param keyMapper
+     *            a {@code RowMapper} which maps a {@code ResultSet} row to a key value
+     * @throws SQLException
+     *             if the query could not be executed or processed
+     */
     public KeyIterator(PreparedStatement statement, RowMapper<K> keyMapper) throws SQLException {
         this.keyMapper = keyMapper;
 

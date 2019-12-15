@@ -124,5 +124,4 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
         // membership in a WHITELIST indicates eligibility
         return eligibilityList.contains(security.getAttributeValue(eligibilityAttribute));
     }
-
 }

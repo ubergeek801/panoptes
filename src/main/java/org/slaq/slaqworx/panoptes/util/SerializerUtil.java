@@ -32,11 +32,11 @@ public class SerializerUtil {
     private static final JdkSerializer defaultJdkSerializer = new JdkSerializer();
 
     /**
-     * Serializes the given SecurityAttributes values to JSON.
+     * Serializes the given {@code SecurityAttribute}s values to JSON.
      *
      * @param attributes
-     *            the SecurityAttributes to be serialized
-     * @return a JSON representation of the SecurityAttributes
+     *            the {@code SecurityAttribute}s to be serialized
+     * @return a JSON representation of the {@code SecurityAttribute}s
      * @throws JsonProcessingException
      *             if the attributes could not be serialized
      */
@@ -46,7 +46,8 @@ public class SerializerUtil {
     }
 
     /**
-     * Attempts to coerce the given value into the type specified by the given SecurityAttribute.
+     * Attempts to coerce the given value into the type specified by the given
+     * {@code SecurityAttribute}.
      *
      * @param attribute
      *            the attribute indicating the type to coerce the value to
@@ -123,10 +124,10 @@ public class SerializerUtil {
     }
 
     /**
-     * Deserializes the given JSON to a Map of SecurityAttribute values.
+     * Deserializes the given JSON to a Map of {@code SecurityAttribute} values.
      *
      * @param jsonAttributes
-     * @return a Map of SecurityAttribute to its value
+     * @return a {@code Map} correlating a {@code SecurityAttribute} to its value
      */
     public static Map<SecurityAttribute<?>, ? super Object>
             jsonToAttributes(String jsonAttributes) {

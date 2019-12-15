@@ -4,11 +4,20 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+/**
+ * {@code SecurityFilterPanel} is a component of the experimental user interface, providing the
+ * means to filter the master security list by a variety of attributes.
+ *
+ * @author jeremy
+ */
 public class SecurityFilterPanel extends FormLayout {
     private static final long serialVersionUID = 1L;
 
     private static final int NUM_COLUMNS = 7; // TODO this isn't very "responsive"
 
+    /**
+     * Creates a new {@code SecurityFilterPanel}.
+     */
     public SecurityFilterPanel() {
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
 

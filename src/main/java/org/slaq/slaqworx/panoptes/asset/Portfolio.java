@@ -129,6 +129,13 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
         return benchmark;
     }
 
+    /**
+     * Obtains the {@code PortfolioKey} corresponding to this {@code Portfolio}'s benchmark, if it
+     * has one.
+     *
+     * @return the benchmark's {@code PortfolioKey}, or {@code null} if this {@code Portfolio} has
+     *         no associated benchmark
+     */
     public PortfolioKey getBenchmarkKey() {
         return benchmarkKey;
     }
@@ -158,6 +165,11 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
         return positionSet.getPositions();
     }
 
+    /**
+     * Obtains the {@code Rule}s associated with this {@code Portfolio}.
+     *
+     * @return a {@code Stream} of {@code Rule}s
+     */
     public Stream<Rule> getRules() {
         return rules.stream();
     }

@@ -25,9 +25,7 @@ public class PortfolioSummary implements Keyed<PortfolioKey> {
     }
 
     private final PortfolioKey key;
-
     private final String name;
-
     private final PortfolioKey benchmarkKey;
     private final double totalMarketValue;
     private final boolean isAbstract;
@@ -99,6 +97,13 @@ public class PortfolioSummary implements Keyed<PortfolioKey> {
         return true;
     }
 
+    /**
+     * Obtains the {@code PortfolioKey} corresponding to the {@code Portfolio}'s benchmark, if it
+     * has one.
+     *
+     * @return the benchmark's {@code PortfolioKey}, or {@code null} if the {@code Portfolio} has no
+     *         associated benchmark
+     */
     public PortfolioKey getBenchmarkKey() {
         return benchmarkKey;
     }
@@ -108,10 +113,20 @@ public class PortfolioSummary implements Keyed<PortfolioKey> {
         return key;
     }
 
+    /**
+     * Obtains the name/description of the {@code Portfolio}.
+     *
+     * @return the {@code Portfolio} name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Obtains the total market value of the {@code Portfolio}.
+     *
+     * @return
+     */
     public double getTotalMarketValue() {
         return totalMarketValue;
     }
@@ -130,6 +145,12 @@ public class PortfolioSummary implements Keyed<PortfolioKey> {
         return result;
     }
 
+    /**
+     * Indicates whether the {@code Portfolio} is considered abstract, such as a synthetic benchmark
+     * or analysis model.
+     *
+     * @return true if the {@code Portfolio} is considered abstract, false otherwise
+     */
     public boolean isAbstract() {
         return isAbstract;
     }

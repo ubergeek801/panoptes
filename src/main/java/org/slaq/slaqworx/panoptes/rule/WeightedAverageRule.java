@@ -24,6 +24,9 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * @author jeremy
  */
 public class WeightedAverageRule extends ValueRule {
+    /**
+     * {@code Configuration} mirrors the structure of the JSON configuration.
+     */
     static class Configuration {
         public String attribute;
         public Double lowerLimit;

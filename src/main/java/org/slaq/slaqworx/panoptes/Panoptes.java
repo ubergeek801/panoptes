@@ -20,7 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
- * Panoptes is a prototype system for investment portfolio compliance assurance.
+ * Panoptes is a prototype system for investment portfolio compliance assurance. {@code Panoptes} is
+ * the entry point of the application.
  *
  * @author jeremy
  */
@@ -72,7 +73,6 @@ public class Panoptes {
     protected void onStartup(StartupEvent event) throws Exception {
         @SuppressWarnings("resource")
         BeanContext applicationContext = event.getSource();
-        ApplicationContextProvider.setApplicationContext(applicationContext);
         AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
         int numSecurities = assetCache.getSecurityCache().size();

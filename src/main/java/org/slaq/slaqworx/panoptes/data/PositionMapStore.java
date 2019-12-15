@@ -4,9 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Provider;
 import javax.sql.DataSource;
-
-import io.micronaut.context.ApplicationContext;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -22,20 +21,21 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  * @author jeremy
  */
 public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
-    private final ApplicationContext applicationContext;
+    private final Provider<AssetCache> assetCacheProvider;
 
     /**
-     * Creates a new PositionMapStore. Restricted because instances of this class should be created
-     * through the {@code HazelcastMapStoreFactory}.
+     * Creates a new {@code PositionMapStore}. Restricted because instances of this class should be
+     * created through the {@code HazelcastMapStoreFactory}.
      *
-     * @param applicationContext
-     *            the {@code ApplicationContext} from which to resolve dependent {@code Bean}s
+     * @param assetCacheProvider
+     *            the {@code AsssetCache} from which to obtained cached data, wrapped in a
+     *            {@code Provider} to avoid a circular injection dependency
      * @param dataSource
      *            the {@code DataSource} through which to access the database
      */
-    protected PositionMapStore(ApplicationContext applicationContext, DataSource dataSource) {
+    protected PositionMapStore(Provider<AssetCache> assetCacheProvider, DataSource dataSource) {
         super(dataSource);
-        this.applicationContext = applicationContext;
+        this.assetCacheProvider = assetCacheProvider;
     }
 
     @Override
@@ -52,15 +52,7 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
         String securityId = rs.getString(3);
 
         return new Position(new PositionKey(id), amount,
-                getAssetCache().getSecurity(new SecurityKey(securityId)));
-    }
-
-    /**
-     * Obtains the {@code AssetCache} to be used to resolve references. Lazily obtained to avoid a
-     * circular injection dependency.
-     */
-    protected AssetCache getAssetCache() {
-        return applicationContext.getBean(AssetCache.class);
+                assetCacheProvider.get().getSecurity(new SecurityKey(securityId)));
     }
 
     @Override

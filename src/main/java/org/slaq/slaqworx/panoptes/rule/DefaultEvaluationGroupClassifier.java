@@ -10,7 +10,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  */
 public class DefaultEvaluationGroupClassifier implements EvaluationGroupClassifier {
     /**
-     * Creates a new DefaultEvaluationGroupClassifier.
+     * Creates a new {@code DefaultEvaluationGroupClassifier}.
      */
     public DefaultEvaluationGroupClassifier() {
         // nothing to do

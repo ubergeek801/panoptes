@@ -31,7 +31,18 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
+/**
+ * {code FixedIncomeTradePanel} is a component of the experimental user interface, used to enter
+ * parameters of a simple fixed income security trade and calculate room in portfolios for that
+ * security name.
+ *
+ * @author jeremy
+ */
 public class FixedIncomeTradePanel extends FormLayout {
+    /**
+     * {code AllocationPanel} summarizes the details of an allocation (portfolio, amount and market
+     * value) and provides actions that can be taken on that allocation.
+     */
     class AllocationPanel extends HorizontalLayout {
         private static final long serialVersionUID = 1L;
 
@@ -42,6 +53,12 @@ public class FixedIncomeTradePanel extends FormLayout {
 
         private Portfolio portfolio;
 
+        /**
+         * Creates a new {code AllocationPanel} with the given parent.
+         *
+         * @param parent
+         *            the parent of the {code AllocationPanel} component
+         */
         AllocationPanel(HasComponents parent) {
             portfolioIdField = ComponentUtil.createTextField("Portfolio ID");
             portfolioIdField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -122,6 +139,9 @@ public class FixedIncomeTradePanel extends FormLayout {
     private Double tradePrice;
     private Double tradeMarketValue;
 
+    /**
+     * Creates a new {code FixedIncomeTradePanel}.
+     */
     public FixedIncomeTradePanel() {
         portfolioEvaluator = ApplicationContextProvider.getApplicationContext()
                 .getBean(ClusterPortfolioEvaluator.class);
@@ -289,6 +309,10 @@ public class FixedIncomeTradePanel extends FormLayout {
         });
     }
 
+    /**
+     * Calculates and displays the total market value of a trade when trade amount and price are
+     * both specified.
+     */
     protected void updateTradeMarketValue() {
         if (tradeAmount == null || tradePrice == null) {
             tradeMarketValue = null;

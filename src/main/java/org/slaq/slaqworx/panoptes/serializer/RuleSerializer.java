@@ -94,20 +94,21 @@ public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
     }
 
     /**
-     * Resolves the Class with the given name.
+     * Resolves the {@code Class} with the given name.
      *
      * @param <T>
-     *            the expected type of the returned Class
+     *            the expected type of the returned {@code Class}
      * @param className
-     *            the name of the Class to resolve
+     *            the name of the {@code Class} to resolve
      * @param function
      *            the function that the class serves (for logging purposes)
      * @param ruleId
-     *            the rule ID for which the Class is being instantiated (for logging purposes)
-     * @param ruleDescription
-     *            the rule description for which the Class is being instantiated (for logging
+     *            the rule ID for which the {@code Class} is being instantiated (for logging
      *            purposes)
-     * @return the requested Class, or null if the given class name was null
+     * @param ruleDescription
+     *            the rule description for which the {@code Class} is being instantiated (for
+     *            logging purposes)
+     * @return the requested {@code Class}, or {@code null} if the given class name was {@code null}
      */
     protected static <T> Class<T> resolveClass(String className, String function, String ruleId,
             String ruleDescription) {

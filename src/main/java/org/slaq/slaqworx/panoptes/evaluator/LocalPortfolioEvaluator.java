@@ -124,6 +124,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             shortCircuitPredicate = (result -> true);
         }
 
+        // evaluate the Rules in parallel
         Map<RuleKey, EvaluationResult> results = ruleEvaluationThreadPool.submit(() -> rules
                 .parallel()
                 .map(r -> new RuleEvaluator(r, portfolio, transaction,
@@ -131,6 +132,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 .takeWhile(shortCircuitPredicate)
                 .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result))).get();
 
+        // collect the results and return
         Map<RuleKey, EvaluationResult> allResults =
                 new HashMap<>(shortCircuitResults.size() + results.size());
         allResults.putAll(shortCircuitResults);

@@ -2,13 +2,13 @@ package org.slaq.slaqworx.panoptes.data;
 
 import java.util.Properties;
 
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 
 import com.hazelcast.map.MapLoader;
 import com.hazelcast.map.MapStoreFactory;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Requires;
 
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -23,21 +23,22 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 @Singleton
 @Requires(notEnv = "test")
 public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object> {
-    private final ApplicationContext applicationContext;
+    private final Provider<AssetCache> assetCacheProvider;
     private final DataSource dataSource;
 
     /**
      * Creates a new {@code HazelcastMapStoreFactory}. Restricted because instances of this class
      * should be obtained from the {@code ApplicationContext}.
      *
-     * @param applicationContext
-     *            the {@code ApplicationContext} to use for {@code MapStore}s which require it
+     * @param assetCacheProvider
+     *            the {@code AsssetCache} from which to obtained cached data, wrapped in a
+     *            {@code Provider} to avoid a circular injection dependency
      * @param dataSource
      *            the {@code DataSource} to use for all {@code MapStore}s
      */
-    protected HazelcastMapStoreFactory(ApplicationContext applicationContext,
+    protected HazelcastMapStoreFactory(Provider<AssetCache> assetCacheProvider,
             DataSource dataSource) {
-        this.applicationContext = applicationContext;
+        this.assetCacheProvider = assetCacheProvider;
         this.dataSource = dataSource;
     }
 
@@ -46,9 +47,9 @@ public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object>
     public MapLoader newMapStore(String mapName, Properties properties) {
         switch (mapName) {
         case AssetCache.PORTFOLIO_CACHE_NAME:
-            return new PortfolioMapStore(applicationContext, dataSource);
+            return new PortfolioMapStore(assetCacheProvider, dataSource);
         case AssetCache.POSITION_CACHE_NAME:
-            return new PositionMapStore(applicationContext, dataSource);
+            return new PositionMapStore(assetCacheProvider, dataSource);
         case AssetCache.RULE_CACHE_NAME:
             return new RuleMapStore(dataSource);
         case AssetCache.SECURITY_CACHE_NAME:

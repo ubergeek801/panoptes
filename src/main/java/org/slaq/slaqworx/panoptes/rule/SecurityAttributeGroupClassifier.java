@@ -14,17 +14,21 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  */
 public class SecurityAttributeGroupClassifier
         implements EvaluationGroupClassifier, JsonConfigurable {
+    /**
+     * {@code Configuration} mirrors the structure of the JSON configuration (which currently is
+     * trivial).
+     */
     static class Configuration {
         public String attribute;
     }
 
     /**
-     * Creates a new SecurityAttributeGroupClassifier which classifies Positions based on the
-     * SecurityAttribute specified in the JSON configuration.
+     * Creates a new {@code SecurityAttributeGroupClassifier} which classifies {@code Position}s
+     * based on the {@code SecurityAttribute} specified in the JSON configuration.
      *
      * @param jsonConfiguration
-     *            a JSON configuration specifying the SecurityAttribute on which to classify
-     *            Positions
+     *            a JSON configuration specifying the {@code SecurityAttribute} on which to classify
+     *            {@code Position}s
      */
     public static SecurityAttributeGroupClassifier fromJson(String jsonConfiguration) {
         Configuration configuration;
@@ -43,11 +47,11 @@ public class SecurityAttributeGroupClassifier
     private final SecurityAttribute<?> securityAttribute;
 
     /**
-     * Creates a new SecurityAttributeGroupClassifier which classifies Positions based on the
-     * specified SecurityAttribute.
+     * Creates a new {@code SecurityAttributeGroupClassifier} which classifies {@code Position}s
+     * based on the specified {@code SecurityAttribute}.
      *
      * @param securityAttribute
-     *            the SecurityAttribute on which to classify Positions
+     *            the {@code SecurityAttribute} on which to classify {@code Position}s
      */
     public SecurityAttributeGroupClassifier(SecurityAttribute<?> securityAttribute) {
         this.securityAttribute = securityAttribute;
@@ -74,9 +78,9 @@ public class SecurityAttributeGroupClassifier
     }
 
     /**
-     * Obtains the SecurityAttribute on which this classifier aggregates.
+     * Obtains the {@code SecurityAttribute} on which this classifier aggregates.
      *
-     * @return the SecurityAttribute
+     * @return the {@code SecurityAttribute}
      */
     public SecurityAttribute<?> getSecurityAttribute() {
         return securityAttribute;

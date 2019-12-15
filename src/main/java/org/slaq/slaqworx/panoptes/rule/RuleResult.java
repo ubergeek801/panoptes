@@ -176,6 +176,11 @@ public class RuleResult {
         return exception;
     }
 
+    /**
+     * Obtains the {@code Threshold} associated with this result.
+     *
+     * @return the {@code Threshold} applied by the {@code Rule} that generated this result
+     */
     public Threshold getThreshold() {
         return threshold;
     }

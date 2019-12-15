@@ -16,18 +16,19 @@ import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * RuleMapStore is a Hazelcast MapStore that provides Rule persistence services.
+ * {@code RuleMapStore} is a Hazelcast {@code MapStore} that provides {@code Rule} persistence
+ * services.
  *
  * @author jeremy
  */
 @Singleton
 public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     /**
-     * Creates a new RuleMapStore. Restricted because instances of this class should be created
-     * through the {@code ApplicationContext}.
+     * Creates a new {@code RuleMapStore}. Restricted because instances of this class should be
+     * created through the {@code ApplicationContext}.
      *
      * @param dataSource
-     *            the DataSource through which to access the database
+     *            the {@code DataSource} through which to access the database
      */
     protected RuleMapStore(DataSource dataSource) {
         super(dataSource);
