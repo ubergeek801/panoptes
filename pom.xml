@@ -18,7 +18,7 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 
 		<jetty.version>9.4.24.v20191120</jetty.version>
-		<micronaut.version>1.2.7</micronaut.version>
+		<micronaut.version>1.2.8</micronaut.version>
 		<protobuf.version>3.11.1</protobuf.version>
 		<vaadin.version>14.1.2</vaadin.version>
 
@@ -37,6 +37,20 @@
 			jdk.management/com.sun.management.internal=ALL-UNNAMED
 			-Xms2560m -Xmx2560m</globalJvmArgs>
 	</properties>
+
+	<repositories>
+	   <!-- bintray is sometimes needed for fresh Micronaut releases -->
+		<repository>
+			<id>bintray</id>
+			<url>https://dl.bintray.com/micronaut/core-releases-local</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
