@@ -29,7 +29,8 @@ public class PortfolioTest {
      */
     @Test
     public void testGetPositions() {
-        Security dummySecurity = securityProvider.newSecurity("dummy", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity("dummy",
+                Map.of(SecurityAttribute.price, new BigDecimal("1.00")));
         HashSet<Position> positions = new HashSet<>();
         positions.add(new Position(100, dummySecurity));
         positions.add(new Position(200, dummySecurity));

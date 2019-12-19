@@ -3,8 +3,9 @@ package org.slaq.slaqworx.panoptes.asset;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
+import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,8 @@ public class PositionTest {
     public void testHash() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security dummySecurity = securityProvider.newSecurity("dummy", Collections.emptyMap());
+        Security dummySecurity = securityProvider.newSecurity("dummy",
+                Map.of(SecurityAttribute.price, new BigDecimal("1.00")));
         Position p1 = new Position(new PositionKey("p1"), 100, dummySecurity);
         Position p2 = new Position(new PositionKey("p2"), 100, dummySecurity);
         Position p3 = new Position(new PositionKey("p3"), 100, dummySecurity);

@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.rule;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,14 +27,14 @@ public class EligibilityListRuleTest {
      */
     @Test
     public void testEvaluateBlacklist() {
-        Security usSecurity = TestUtil.testSecurityProvider().newSecurity("usSec",
-                Map.of(SecurityAttribute.country, "US"));
+        Security usSecurity = TestUtil.testSecurityProvider().newSecurity("usSec", Map.of(
+                SecurityAttribute.country, "US", SecurityAttribute.price, new BigDecimal("1.00")));
         Position usPosition = new Position(1, usSecurity);
-        Security nzSecurity = TestUtil.testSecurityProvider().newSecurity("nzSec",
-                Map.of(SecurityAttribute.country, "NZ"));
+        Security nzSecurity = TestUtil.testSecurityProvider().newSecurity("nzSec", Map.of(
+                SecurityAttribute.country, "NZ", SecurityAttribute.price, new BigDecimal("1.00")));
         Position nzPosition = new Position(1, nzSecurity);
-        Security caSecurity = TestUtil.testSecurityProvider().newSecurity("caSec",
-                Map.of(SecurityAttribute.country, "CA"));
+        Security caSecurity = TestUtil.testSecurityProvider().newSecurity("caSec", Map.of(
+                SecurityAttribute.country, "CA", SecurityAttribute.price, new BigDecimal("1.00")));
         Position caPosition = new Position(1, caSecurity);
 
         Set<String> countryBlacklist = Set.of("US", "NZ");
@@ -58,14 +59,14 @@ public class EligibilityListRuleTest {
      */
     @Test
     public void testEvaluateWhitelist() {
-        Security usSecurity = TestUtil.testSecurityProvider().newSecurity("usSec",
-                Map.of(SecurityAttribute.country, "US"));
+        Security usSecurity = TestUtil.testSecurityProvider().newSecurity("usSec", Map.of(
+                SecurityAttribute.country, "US", SecurityAttribute.price, new BigDecimal("1.00")));
         Position usPosition = new Position(1, usSecurity);
-        Security nzSecurity = TestUtil.testSecurityProvider().newSecurity("nzSec",
-                Map.of(SecurityAttribute.country, "NZ"));
+        Security nzSecurity = TestUtil.testSecurityProvider().newSecurity("nzSec", Map.of(
+                SecurityAttribute.country, "NZ", SecurityAttribute.price, new BigDecimal("1.00")));
         Position nzPosition = new Position(1, nzSecurity);
-        Security caSecurity = TestUtil.testSecurityProvider().newSecurity("caSec",
-                Map.of(SecurityAttribute.country, "CA"));
+        Security caSecurity = TestUtil.testSecurityProvider().newSecurity("caSec", Map.of(
+                SecurityAttribute.country, "CA", SecurityAttribute.price, new BigDecimal("1.00")));
         Position caPosition = new Position(1, caSecurity);
 
         Set<String> assetIdWhitelist = Set.of("nzSec");

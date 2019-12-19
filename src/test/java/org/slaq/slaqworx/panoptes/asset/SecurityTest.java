@@ -31,7 +31,7 @@ public class SecurityTest {
                 Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
                         SecurityAttribute.duration, 3.1, SecurityAttribute.coupon,
                         new BigDecimal("4.00"), SecurityAttribute.maturityDate,
-                        LocalDate.of(2019, 8, 5)));
+                        LocalDate.of(2019, 8, 5), SecurityAttribute.price, new BigDecimal("1.00")));
         SecurityAttributes attributes = s.getAttributes();
         assertEquals("US", attributes.getValue(SecurityAttribute.country),
                 "country value should have matched");
