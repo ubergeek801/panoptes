@@ -44,7 +44,7 @@ public class PanoptesUIConfiguration {
         context.setContextPath("/panoptes");
         context.setBaseResource(
                 Resource.newResource(getClass().getClassLoader().getResource("ui")));
-        context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
+        context.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
         context.setConfigurationDiscovered(true);
         context.setConfigurations(new Configuration[] { new AnnotationConfiguration(),
                 new WebInfConfiguration(), new WebXmlConfiguration(), new MetaInfConfiguration() });
