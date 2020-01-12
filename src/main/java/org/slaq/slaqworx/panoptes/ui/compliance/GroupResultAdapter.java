@@ -8,14 +8,30 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
+/**
+ * {@code GroupResultAdapter} adapts evaluationg roup-level results to a tabular representation. Its
+ * parent is typically a {@code PortfolioRuleResultAdapter}.
+ *
+ * @author jeremy
+ */
 public class GroupResultAdapter implements EvaluationResultRow {
     private final PortfolioRuleResultAdapter parent;
     private final Map.Entry<EvaluationGroup, RuleResult> groupResult;
 
+    /**
+     * Creates a new {@code GroupResultAdapter} with the given parent and mapping the given group
+     * result.
+     *
+     * @param parent
+     *            the parent row of this row
+     * @param groupResult
+     *            the {@code EvaluationGroup} and its corresponding {@code RuleResult} to be adapted
+     *            to row format
+     */
     public GroupResultAdapter(PortfolioRuleResultAdapter parent,
-            Entry<EvaluationGroup, RuleResult> e) {
+            Entry<EvaluationGroup, RuleResult> groupResult) {
         this.parent = parent;
-        groupResult = e;
+        this.groupResult = groupResult;
     }
 
     @Override
@@ -51,11 +67,6 @@ public class GroupResultAdapter implements EvaluationResultRow {
     @Override
     public Double getValue() {
         return groupResult.getValue().getValue();
-    }
-
-    @Override
-    public boolean hasChildren() {
-        return false;
     }
 
     @Override

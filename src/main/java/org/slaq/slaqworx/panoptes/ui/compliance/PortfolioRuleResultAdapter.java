@@ -13,13 +13,31 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
+/**
+ * {@code PortfolioRuleResultAdapter} adapts portfolio-level results to a tabular representation.
+ * Its children are typically {@code GroupResultAdapter}s.
+ *
+ * @author jeremy
+ */
 public class PortfolioRuleResultAdapter implements EvaluationResultRow {
+    /**
+     * A {@Comparator} that compares {@code EvaluationGroup}s lexically by ID.
+     */
     private static final Comparator<? super Entry<EvaluationGroup, RuleResult>> groupComparator =
             ((e1, o2) -> e1.getKey().getId().compareTo(o2.getKey().getId()));
 
     private final Map.Entry<RuleKey, EvaluationResult> evaluationResult;
     private final AssetCache assetCache;
 
+    /**
+     * Creates a new {@code PortfolioRuleResultAdapter} adapting the given portfolio-level result
+     * and using the given {@code AssetCache} to resolve cached references.
+     *
+     * @param evaluationResult
+     *            the {@code EvaluationResult} to be adapted
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve cached references
+     */
     public PortfolioRuleResultAdapter(Map.Entry<RuleKey, EvaluationResult> evaluationResult,
             AssetCache assetCache) {
         this.evaluationResult = evaluationResult;
@@ -49,6 +67,11 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
         return null;
     }
 
+    /**
+     * Obtains the {@code Rule} associated with this row's evaluation.
+     *
+     * @return the evaluated {@code Rule}
+     */
     public Rule getRule() {
         return assetCache.getRule(evaluationResult.getKey());
     }
@@ -58,6 +81,11 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
         return getRule().getDescription() + " (" + getRule().getParameterDescription() + ")";
     }
 
+    /**
+     * Obtains an abbreviated {@code Rule} description suitable for repeating in child rows.
+     *
+     * @return a short {@code Rule} description
+     */
     public String getShortRuleDescription() {
         return getRule().getDescription();
     }
@@ -75,16 +103,17 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
     }
 
     @Override
-    public boolean hasChildren() {
-        return !getGroupResults().isEmpty();
-    }
-
-    @Override
     public Boolean isPassed() {
         // not applicable at this level
         return null;
     }
 
+    /**
+     * Obtains a {@code Map} associating each {@code EvaluationGroup} to its corresponding
+     * {@code RuleResult}.
+     *
+     * @return a {@code Map} associating {@code EvaluationGroup} to {@code RuleResult}
+     */
     protected Map<EvaluationGroup, RuleResult> getGroupResults() {
         return evaluationResult.getValue().getResults();
     }

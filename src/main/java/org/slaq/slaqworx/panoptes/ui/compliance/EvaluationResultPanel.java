@@ -23,13 +23,17 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code EvaluationResultPanel} presents the results of portfolio compliance evaluation.
+ * {@code EvaluationResultPanel} presents the results of portfolio compliance evaluation. This is
+ * very much a work in progress.
  *
  * @author jeremy
  */
 public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates a new {@code EvaluationResultPanel}.
+     */
     public EvaluationResultPanel() {
         addHierarchyColumn(EvaluationResultRow::getRuleDescription).setAutoWidth(true)
                 .setHeader("Rule");
@@ -78,7 +82,7 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
                         if (item == null) {
                             return !portfolioResults.isEmpty();
                         }
-                        return item.hasChildren();
+                        return item.getChildCount() > 0;
                     }
 
                     @Override
