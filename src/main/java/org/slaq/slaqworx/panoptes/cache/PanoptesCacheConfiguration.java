@@ -16,7 +16,9 @@ import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ManagedContext;
 
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -49,6 +51,7 @@ import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
+import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
  * {@code PanoptesCacheConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
@@ -120,7 +123,7 @@ public class PanoptesCacheConfiguration {
             @Named("portfolio") MapConfig portfolioMapConfig,
             @Named("position") MapConfig positionMapConfig,
             @Named("security") MapConfig securityMapConfig, @Named("rule") MapConfig ruleMapConfig,
-            Provider<AssetCache> assetCacheProvider) {
+            Provider<AssetCache> assetCacheProvider, ApplicationContext applicationContext) {
         securityAttributeLoader.loadSecurityAttributes();
 
         boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
@@ -131,6 +134,16 @@ public class PanoptesCacheConfiguration {
         if (isClustered) {
             config.setProperty("hazelcast.initial.min.cluster.size", "4");
         }
+
+        // use Hazelcast's ManagedContext mechanism to make the ApplicationContext available to
+        // Hazelcast-instantiated objects (such as those that are deserialized by Hazelcast)
+        ManagedContext applicationContextInjector = instance -> {
+            if (instance instanceof ApplicationContextAware) {
+                ((ApplicationContextAware)instance).setApplicationContext(applicationContext);
+            }
+            return instance;
+        };
+        config.setManagedContext(applicationContextInjector);
 
         // set up the entity caches (Portfolio, Position, etc.); note that Trades and Transactions
         // are non-persistent for now

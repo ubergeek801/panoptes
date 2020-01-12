@@ -1,10 +1,8 @@
 package org.slaq.slaqworx.panoptes.calc;
 
-import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
@@ -37,51 +35,14 @@ public abstract class PositionCalculator<T> {
     }
 
     /**
-     * Performs a calculation against the given {@code Position}s, using no filter.
+     * Performs a calculation against the given {@code Position}s.
      *
      * @param positions
-     *            the {@code Position}s on which to perform a calculation
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to calculate
+     *            the {@code Position}s on which to perform a calculation, within a given
+     *            {@code PositionEvaluationContext}
      * @return the result of the calculation
      */
-    public final double calculate(PositionSupplier positions, EvaluationContext evaluationContext) {
-        return calculate(positions, null, evaluationContext);
-    }
-
-    /**
-     * Performs a calculation against the given {@code Position}s, first applying the given filter.
-     *
-     * @param positions
-     *            the {@code Position}s on which to perform a calculation
-     * @param positionFilter
-     *            the (possibly {@code null}) filter to be applied
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to calculate
-     * @return the result of the calculation
-     */
-    public final double calculate(PositionSupplier positions,
-            Predicate<PositionEvaluationContext> positionFilter,
-            EvaluationContext evaluationContext) {
-        return calc(positions, positionFilter == null ? p -> true : positionFilter,
-                evaluationContext);
-    }
-
-    /**
-     * Performs a calculation against the given {@code Position}s, first applying the given filter.
-     * Public {@code calculate(}) methods ultimately delegate to this method.
-     *
-     * @param positions
-     *            the {@code Position}s on which to perform a calculation
-     * @param positionFilter
-     *            the (never {@code null}) filter to be applied
-     * @param evaluationContext
-     *            the {@code EvaluationContext} under which to calculate
-     * @return the result of the calculation
-     */
-    protected abstract double calc(PositionSupplier positions,
-            Predicate<PositionEvaluationContext> positionFilter,
-            EvaluationContext evaluationContext);
+    public abstract double calculate(Stream<PositionEvaluationContext> positions);
 
     /**
      * Obtains the {@code SecurityAttribute} type to be used in calculations.

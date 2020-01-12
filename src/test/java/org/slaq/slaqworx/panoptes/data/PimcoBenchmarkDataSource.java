@@ -53,10 +53,10 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
     private static final BigDecimal MARKET_VALUE_MULTIPLIER = new BigDecimal("10000.00");
 
-    protected static final PortfolioKey EMAD_KEY = new PortfolioKey("EMAD", 1);
-    protected static final PortfolioKey GLAD_KEY = new PortfolioKey("GLAD", 1);
-    protected static final PortfolioKey ILAD_KEY = new PortfolioKey("ILAD", 1);
-    protected static final PortfolioKey PGOV_KEY = new PortfolioKey("PGOV", 1);
+    public static final PortfolioKey EMAD_KEY = new PortfolioKey("EMAD", 1);
+    public static final PortfolioKey GLAD_KEY = new PortfolioKey("GLAD", 1);
+    public static final PortfolioKey ILAD_KEY = new PortfolioKey("ILAD", 1);
+    public static final PortfolioKey PGOV_KEY = new PortfolioKey("PGOV", 1);
 
     static {
         // these rating symbols are used in the PIMCO benchmarks; the numeric equivalents are a
@@ -298,7 +298,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         WeightedAveragePositionCalculator averageRatingCalc =
                 new WeightedAveragePositionCalculator(SecurityAttribute.rating1Value);
         String averageRating = pimcoRatingScale
-                .getRatingNotch(averageRatingCalc.calculate(benchmark, new EvaluationContext()))
+                .getRatingNotch(averageRatingCalc
+                        .calculate(benchmark.getPositionsWithContext(new EvaluationContext())))
                 .getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
                 positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue),

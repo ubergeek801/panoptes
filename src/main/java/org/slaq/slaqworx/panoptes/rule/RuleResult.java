@@ -44,6 +44,7 @@ public class RuleResult {
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
+    private final Double benchmarkValue;
     private final Throwable exception;
 
     /**
@@ -56,6 +57,7 @@ public class RuleResult {
         this.isPassed = isPassed;
         threshold = null;
         value = null;
+        benchmarkValue = null;
         exception = null;
     }
 
@@ -70,9 +72,26 @@ public class RuleResult {
      *            the actual evaluation result value
      */
     public RuleResult(Threshold threshold, double value) {
+        this(threshold, value, null);
+    }
+
+    /**
+     * Creates a new value-based {@code RuleResult} indicating the threshold status for evaluation,
+     * the actual result value and the benchmark result value.
+     *
+     * @param threshold
+     *            a {@code Threshold} value indicating whether the value is within the evaluation
+     *            threshold
+     * @param value
+     *            the actual evaluation result value
+     * @param benchmarkValue
+     *            the corresponding benchmark evaluation value, or {@code null} if not applicable
+     */
+    public RuleResult(Threshold threshold, double value, Double benchmarkValue) {
         isPassed = (threshold == Threshold.WITHIN);
         this.threshold = threshold;
         this.value = value;
+        this.benchmarkValue = benchmarkValue;
         exception = null;
     }
 
@@ -87,6 +106,7 @@ public class RuleResult {
         isPassed = false;
         threshold = null;
         value = null;
+        benchmarkValue = null;
         this.exception = exception;
     }
 
@@ -165,6 +185,16 @@ public class RuleResult {
                 return Impact.NEUTRAL;
             }
         }
+    }
+
+    /**
+     * Obtains the value associated with this result, as calculated for the benchmark, if any.
+     *
+     * @return the value associated with this result (if value-based), or {@code null} if it does
+     *         not exist (Boolean-based or value-based with no benchmark specified)
+     */
+    public Double getBenchmarkValue() {
+        return benchmarkValue;
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.ArrayList;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -43,7 +44,7 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
             EvaluationGroupClassifier groupClassifier) {
         super(key, description, groupClassifier);
-        this.positionFilter = positionFilter;
+        this.positionFilter = (positionFilter == null ? (p -> true) : positionFilter);
         this.calculationAttribute = calculationAttribute;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -63,25 +64,53 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
     }
 
     @Override
+    public String getParameterDescription() {
+        ArrayList<String> descriptions = new ArrayList<>();
+        if (positionFilter != null && positionFilter instanceof GroovyPositionFilter) {
+            descriptions.add(
+                    "filter=\"" + ((GroovyPositionFilter)positionFilter).getExpression() + "\"");
+        }
+        if (calculationAttribute != null) {
+            descriptions.add("attribute=\"" + calculationAttribute.getName() + "\"");
+        }
+        if (lowerLimit != null) {
+            descriptions.add("lower=" + lowerLimit);
+        }
+        if (upperLimit != null) {
+            descriptions.add("upper=" + upperLimit);
+        }
+
+        return String.join(",", descriptions);
+    }
+
+    @Override
+    public Predicate<PositionEvaluationContext> getPositionFilter() {
+        return positionFilter;
+    }
+
+    @Override
     protected final RuleResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions, evaluationContext);
+        Double benchmarkValue;
         if (benchmarkPositions != null) {
-            double benchmarkValue = getValue(benchmarkPositions, evaluationContext);
+            benchmarkValue = getValue(benchmarkPositions, evaluationContext);
             // rescale the value to the benchmark; this may result in NaN, which means that the
             // Position's portfolio concentration is infinitely greater than the benchmark
             value /= benchmarkValue;
+        } else {
+            benchmarkValue = null;
         }
 
         if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
-            return new RuleResult(Threshold.BELOW, value);
+            return new RuleResult(Threshold.BELOW, value, benchmarkValue);
         }
 
         if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
-            return new RuleResult(Threshold.ABOVE, value);
+            return new RuleResult(Threshold.ABOVE, value, benchmarkValue);
         }
 
-        return new RuleResult(Threshold.WITHIN, value);
+        return new RuleResult(Threshold.WITHIN, value, benchmarkValue);
     }
 
     /**
@@ -100,15 +129,6 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
      */
     protected Double getLowerLimit() {
         return lowerLimit;
-    }
-
-    /**
-     * Obtains this {@code Rule}'s (possibly {@code null}) {@code Position} filter.
-     *
-     * @return a {@code Predicate} realizing the position filter
-     */
-    protected Predicate<PositionEvaluationContext> getPositionFilter() {
-        return positionFilter;
     }
 
     /**

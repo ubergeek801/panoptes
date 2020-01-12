@@ -4,14 +4,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
@@ -100,10 +98,7 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
     }
 
     @Override
-    public double calc(PositionSupplier positions,
-            Predicate<PositionEvaluationContext> positionFilter,
-            EvaluationContext evaluationContext) {
-        return positions.getPositionsWithContext(evaluationContext).filter(positionFilter)
-                .collect(new WeightedAveragePositionCollector());
+    public double calculate(Stream<PositionEvaluationContext> positions) {
+        return positions.collect(new WeightedAveragePositionCollector());
     }
 }

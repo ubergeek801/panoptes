@@ -91,8 +91,10 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
             }
         }
 
-        return Map.of(new EvaluationGroup(getSecurityAttribute() + ".top(" + count + ")",
-                getSecurityAttribute().getName()), aggregatePositions);
+        return Map.of(
+                new EvaluationGroup("top(" + count + "," + getSecurityAttribute().getName() + ")",
+                        getSecurityAttribute().getName()),
+                aggregatePositions);
     }
 
     @Override

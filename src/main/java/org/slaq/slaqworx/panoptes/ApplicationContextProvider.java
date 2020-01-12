@@ -2,10 +2,10 @@ package org.slaq.slaqworx.panoptes;
 
 import javax.inject.Singleton;
 
-import io.micronaut.context.BeanContext;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
-import io.micronaut.context.event.StartupEvent;
-import io.micronaut.runtime.event.annotation.EventListener;
+import io.micronaut.context.event.ApplicationEventListener;
+import io.micronaut.runtime.event.ApplicationStartupEvent;
 
 /**
  * {@code ApplicationContextProvider} provides access to the {@code ApplicationContext} of the
@@ -17,15 +17,16 @@ import io.micronaut.runtime.event.annotation.EventListener;
  */
 @Singleton
 @Context
-public class ApplicationContextProvider {
-    private static BeanContext applicationContext;
+public class ApplicationContextProvider
+        implements ApplicationEventListener<ApplicationStartupEvent> {
+    private static ApplicationContext applicationContext;
 
     /**
      * Obtains the application context of the running Panoptes instance.
      *
      * @return the current {@code ApplicationContext}
      */
-    public static BeanContext getApplicationContext() {
+    public static ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
@@ -37,14 +38,8 @@ public class ApplicationContextProvider {
         // nothing to do
     }
 
-    /**
-     * Invoked upon application/context startup to capture the context instance.
-     *
-     * @param event
-     *            the {@code StartupEvent} containing the application context
-     */
-    @EventListener
-    protected void onStartup(StartupEvent event) {
-        applicationContext = event.getSource();
+    @Override
+    public void onApplicationEvent(ApplicationStartupEvent event) {
+        applicationContext = event.getSource().getApplicationContext();
     }
 }

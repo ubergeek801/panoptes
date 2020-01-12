@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -64,4 +65,24 @@ public interface Rule extends Keyed<RuleKey> {
      * @return the {@code Rule}'s {@code EvaluationGroupClassifier}
      */
     public EvaluationGroupClassifier getGroupClassifier();
+
+    /**
+     * Obtains a description (more or less suitable for human viewing) of this {@code Rule}'s
+     * parameters.
+     *
+     * @return a {@code String} describing this {@code Rule}'s parameters
+     */
+    public String getParameterDescription();
+
+    /**
+     * Obtains a {@code Predicate} which serves as a pre-evaluation {@code Position} filter. A
+     * {@code null} filter (the default value) implies that all {@code Position}s should be
+     * evaluated.
+     *
+     * @return a {@code Predicate} to be used to filter {@code Positions} for evaluation, or
+     *         {@code null} to include all {@code Position}s
+     */
+    public default Predicate<PositionEvaluationContext> getPositionFilter() {
+        return null;
+    }
 }

@@ -119,8 +119,8 @@ public class ConcentrationRule extends ValueRule {
 
         TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
 
-        double subtotalAmount =
-                calculator.calculate(positions, getPositionFilter(), evaluationContext);
+        double subtotalAmount = calculator.calculate(
+                positions.getPositionsWithContext(evaluationContext).filter(getPositionFilter()));
         double totalAmount;
         if (positions instanceof Portfolio) {
             // use the Portfolio itself to obtain the market value

@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.ui;
+package org.slaq.slaqworx.panoptes.ui.trading;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -29,6 +29,8 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
+import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
+import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**

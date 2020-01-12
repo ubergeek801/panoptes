@@ -115,6 +115,12 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
     }
 
     @Override
+    public String getParameterDescription() {
+        return eligibilityListType + " of " + eligibilityAttribute + ": ["
+                + String.join(",", eligibilityList) + "]";
+    }
+
+    @Override
     public boolean isEligible(Security security) {
         if (EligibilityListType.BLACKLIST.equals(eligibilityListType)) {
             // membership in a BLACKLIST indicates ineligibility

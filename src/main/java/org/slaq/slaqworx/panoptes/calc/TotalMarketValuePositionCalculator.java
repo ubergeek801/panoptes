@@ -1,10 +1,8 @@
 package org.slaq.slaqworx.panoptes.calc;
 
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
@@ -22,10 +20,7 @@ public class TotalMarketValuePositionCalculator extends PositionCalculator<Doubl
     }
 
     @Override
-    public double calc(PositionSupplier positions,
-            Predicate<PositionEvaluationContext> positionFilter,
-            EvaluationContext evaluationContext) {
-        return positions.getPositionsWithContext(evaluationContext).filter(positionFilter)
-                .collect(Collectors.summingDouble(c -> c.getPosition().getMarketValue()));
+    public double calculate(Stream<PositionEvaluationContext> positions) {
+        return positions.collect(Collectors.summingDouble(c -> c.getPosition().getMarketValue()));
     }
 }

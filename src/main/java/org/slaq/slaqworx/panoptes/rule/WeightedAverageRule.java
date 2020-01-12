@@ -118,6 +118,6 @@ public class WeightedAverageRule extends ValueRule {
         WeightedAveragePositionCalculator calculator =
                 new WeightedAveragePositionCalculator(getCalculationAttribute());
 
-        return calculator.calculate(positions, getPositionFilter(), evaluationContext);
+        return calculator.calculate(positions.getPositionsWithContext(evaluationContext));
     }
 }

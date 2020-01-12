@@ -3,15 +3,15 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import io.micronaut.context.BeanContext;
+import io.micronaut.context.ApplicationContext;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
+import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
  * {@code PortfolioEvaluationRequest} is a {@code Callable} which facilitates clustered
@@ -20,10 +20,13 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  *
  * @author jeremy
  */
-public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, EvaluationResult>> {
+public class PortfolioEvaluationRequest
+        implements Callable<Map<RuleKey, EvaluationResult>>, ApplicationContextAware {
     private final PortfolioKey portfolioKey;
     private final Transaction transaction;
     private final EvaluationContext evaluationContext;
+
+    private ApplicationContext applicationContext;
 
     /**
      * Creates a new {@code RemotePortfolioEvaluator} with the given parameters.
@@ -45,8 +48,7 @@ public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, Evaluat
 
     @Override
     public Map<RuleKey, EvaluationResult> call() throws Exception {
-        BeanContext context = ApplicationContextProvider.getApplicationContext();
-        AssetCache assetCache = context.getBean(AssetCache.class);
+        AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
         Portfolio portfolio = assetCache.getPortfolio(portfolioKey);
 
@@ -110,5 +112,10 @@ public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, Evaluat
         result = prime * result + ((portfolioKey == null) ? 0 : portfolioKey.hashCode());
         result = prime * result + ((transaction == null) ? 0 : transaction.hashCode());
         return result;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 }

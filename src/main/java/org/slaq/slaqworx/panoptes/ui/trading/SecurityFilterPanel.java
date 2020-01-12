@@ -1,8 +1,10 @@
-package org.slaq.slaqworx.panoptes.ui;
+package org.slaq.slaqworx.panoptes.ui.trading;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+
+import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 
 /**
  * {@code SecurityFilterPanel} is a component of the experimental user interface, providing the

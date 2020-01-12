@@ -111,6 +111,11 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
+    public String getParameterDescription() {
+        return "unknown configuration";
+    }
+
+    @Override
     public int hashCode() {
         return key.hashCode();
     }

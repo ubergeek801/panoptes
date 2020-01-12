@@ -171,7 +171,7 @@ public class TradeEvaluatorTest {
         EvaluationContext evaluationContext = new EvaluationContext();
         assertEquals(3.0,
                 new WeightedAveragePositionCalculator(SecurityAttribute.duration)
-                        .calculate(portfolio, evaluationContext),
+                        .calculate(portfolio.getPositionsWithContext(evaluationContext)),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
         double room =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),

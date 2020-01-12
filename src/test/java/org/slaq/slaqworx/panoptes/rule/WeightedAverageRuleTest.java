@@ -9,13 +9,13 @@ import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * WeightedAverageRuleTest tests the functionality of the WeightedAverageRule.
+ * {@code WeightedAverageRuleTest} tests the functionality of the {@code WeightedAverageRule}.
  *
  * @author jeremy
  */
 public class WeightedAverageRuleTest {
     /**
-     * Tests that evaluate() behaves as expected.
+     * Tests that {@code evaluate()} behaves as expected.
      */
     @Test
     public void testEvaluate() {

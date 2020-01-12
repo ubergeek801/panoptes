@@ -80,7 +80,8 @@ message RuleResultMsg {
     bool isPassed = 3;
     google.protobuf.StringValue threshold = 4;
     google.protobuf.DoubleValue value = 5;
-    ExceptionMsg exception = 6;
+    google.protobuf.DoubleValue benchmarkValue = 6;
+    ExceptionMsg exception = 7;
 }
 
 message EvaluationResultMsg {

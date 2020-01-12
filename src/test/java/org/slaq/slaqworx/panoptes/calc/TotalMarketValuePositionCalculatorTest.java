@@ -41,7 +41,8 @@ public class TotalMarketValuePositionCalculatorTest {
         positions.add(new Position(300, dummySecurity));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-        double totalMarketValue = calculator.calculate(portfolio, new EvaluationContext());
+        double totalMarketValue =
+                calculator.calculate(portfolio.getPositionsWithContext(new EvaluationContext()));
         // the total should merely be the sum of the (amounts * price)
         assertEquals(1200, totalMarketValue, TestUtil.EPSILON, "unexpected total market value");
     }

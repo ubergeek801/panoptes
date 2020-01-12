@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,6 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
 
@@ -89,15 +91,16 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
         Map<EvaluationGroup, Collection<Position>> classifiedPortfolioPositions =
-                classify(portfolioPositions.getPositions());
+                classify(portfolioPositions.getPositionsWithContext(evaluationContext));
 
         // do the same for the proposed Positions, if specified
         Map<EvaluationGroup, Collection<Position>> classifiedProposedPositions;
         if (proposedPositions == null) {
             classifiedProposedPositions = null;
         } else {
-            classifiedProposedPositions = classify(Stream.concat(portfolioPositions.getPositions(),
-                    proposedPositions.getPositions()));
+            classifiedProposedPositions = classify(
+                    Stream.concat(portfolioPositions.getPositionsWithContext(evaluationContext),
+                            proposedPositions.getPositionsWithContext(evaluationContext)));
         }
 
         // do the same for the benchmark, if specified
@@ -105,7 +108,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         if (benchmarkPositions == null) {
             classifiedBenchmarkPositions = null;
         } else {
-            classifiedBenchmarkPositions = classify(benchmarkPositions.getPositions());
+            classifiedBenchmarkPositions =
+                    classify(benchmarkPositions.getPositionsWithContext(evaluationContext));
         }
 
         // Execute the Rule's GroupAggregators (if any) to create additional EvaluationGroups. For
@@ -145,13 +149,20 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      * Classifies the given {@code Position}s according to the {@code Rule}'s classifier.
      *
      * @param positions
-     *            a {@code Stream} of {@code Position}s to be classified
+     *            a {@code Stream} of {@code Position}s to be classified in an
+     *            {@code EvaluationContext}
      * @return a {@code Map} associating each distinct classification group to the {@code Position}s
      *         comprising the group
      */
-    protected Map<EvaluationGroup, Collection<Position>> classify(Stream<Position> positions) {
-        return positions.collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
-                Collectors.toCollection(ArrayList::new)));
+    protected Map<EvaluationGroup, Collection<Position>>
+            classify(Stream<PositionEvaluationContext> positions) {
+        Predicate<PositionEvaluationContext> positionFilter = rule.getPositionFilter();
+        if (positionFilter == null) {
+            positionFilter = (p -> true);
+        }
+        return positions.filter(positionFilter).map(c -> c.getPosition())
+                .collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
+                        Collectors.toCollection(ArrayList::new)));
     }
 
     /**
