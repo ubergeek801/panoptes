@@ -64,7 +64,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      * @param portfolioPositions
      *            the {@code Position}s against which to evaluate the {@code Rule}
      * @param proposedPositions
-     *            the (possibly {@code null}) proposed {code Position}s (e.g. by a proposed
+     *            the (possibly {@code null}) proposed {@code Position}s (e.g. by a proposed
      *            {@code Trade} to be combined with the {@code Portfolio} {@code Position}s in a
      *            separate evaluation
      * @param benchmarkPositions

@@ -39,8 +39,8 @@ public class EvaluationResult {
      * @param results
      *            a {@code Map} containing the grouped evaluation results
      * @param proposedResults
-     *            a (possibly {@code null} {code Map} containing the grouped evaluation results of a
-     *            proposed set of {@code Position}s, if requested
+     *            a (possibly {@code null} {@code Map} containing the grouped evaluation results of
+     *            a proposed set of {@code Position}s, if requested
      */
     public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, RuleResult> results,
             Map<EvaluationGroup, RuleResult> proposedResults) {

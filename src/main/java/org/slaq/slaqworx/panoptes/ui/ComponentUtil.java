@@ -152,7 +152,7 @@ public class ComponentUtil {
      *
      * @param labelText
      *            the name of the attribute for which the values apply
-     * @return a {@code HorizontalLayout} containing a {code Label} and a pair of {code
+     * @return a {@code HorizontalLayout} containing a {@code Label} and a pair of {@code
      *         NumberField}s for the minimum and maximum values
      */
     public static HorizontalLayout createMinMaxNumberField(String labelText) {
@@ -164,11 +164,11 @@ public class ComponentUtil {
     }
 
     /**
-     * Creates a new {code NumberField}.
+     * Creates a new {@code NumberField}.
      *
      * @param placeholderText
      *            the placeholder text to appear in the number field
-     * @return a {code NumberField}
+     * @return a {@code NumberField}
      */
     public static NumberField createNumberField(String placeholderText) {
         NumberField numberField = new NumberField();
@@ -183,13 +183,13 @@ public class ComponentUtil {
     }
 
     /**
-     * Creates a new {code Select}.
+     * Creates a new {@code Select}.
      *
      * @param labelText
      *            the text to be used as the select label
      * @param options
      *            the options to be populated in the select
-     * @return a {code Select}
+     * @return a {@code Select}
      */
     public static Select<String> createSelect(String labelText, String... options) {
         Select<String> select = new Select<>(options);
@@ -199,11 +199,11 @@ public class ComponentUtil {
     }
 
     /**
-     * Creates a new {code TextField}.
+     * Creates a new {@code TextField}.
      *
      * @param placeholderText
      *            the placeholder text to appear in the text field
-     * @return a {code TextField}
+     * @return a {@code TextField}
      */
     public static TextField createTextField(String placeholderText) {
         TextField textField = new TextField();

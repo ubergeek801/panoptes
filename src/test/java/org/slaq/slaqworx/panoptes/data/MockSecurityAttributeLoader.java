@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 import io.micronaut.context.annotation.Primary;
 
 /**
- * {@code MockSecurityAttributeLoader} is a {code SecurityAttributeLoader} that does nothing
+ * {@code MockSecurityAttributeLoader} is a {@code SecurityAttributeLoader} that does nothing
  * (leaving the default {@code SecurityAttribute}s in place).
  *
  * @author jeremy

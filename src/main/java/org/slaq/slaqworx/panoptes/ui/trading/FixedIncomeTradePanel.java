@@ -34,7 +34,7 @@ import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
- * {code FixedIncomeTradePanel} is a component of the experimental user interface, used to enter
+ * {@code FixedIncomeTradePanel} is a component of the experimental user interface, used to enter
  * parameters of a simple fixed income security trade and calculate room in portfolios for that
  * security name.
  *
@@ -42,7 +42,7 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
  */
 public class FixedIncomeTradePanel extends FormLayout {
     /**
-     * {code AllocationPanel} summarizes the details of an allocation (portfolio, amount and market
+     * {@code AllocationPanel} summarizes the details of an allocation (portfolio, amount and market
      * value) and provides actions that can be taken on that allocation.
      */
     class AllocationPanel extends HorizontalLayout {
@@ -56,10 +56,10 @@ public class FixedIncomeTradePanel extends FormLayout {
         private Portfolio portfolio;
 
         /**
-         * Creates a new {code AllocationPanel} with the given parent.
+         * Creates a new {@code AllocationPanel} with the given parent.
          *
          * @param parent
-         *            the parent of the {code AllocationPanel} component
+         *            the parent of the {@code AllocationPanel} component
          */
         AllocationPanel(HasComponents parent) {
             portfolioIdField = ComponentUtil.createTextField("Portfolio ID");
@@ -142,7 +142,7 @@ public class FixedIncomeTradePanel extends FormLayout {
     private Double tradeMarketValue;
 
     /**
-     * Creates a new {code FixedIncomeTradePanel}.
+     * Creates a new {@code FixedIncomeTradePanel}.
      */
     public FixedIncomeTradePanel() {
         portfolioEvaluator = ApplicationContextProvider.getApplicationContext()

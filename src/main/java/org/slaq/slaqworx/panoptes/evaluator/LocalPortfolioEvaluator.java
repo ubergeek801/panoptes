@@ -69,7 +69,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
      * @param rules
      *            the {@code Rule}s to be evaluated
      * @param portfolio
-     *            the {code Portfolio} against which to evaluate the {@code Rule}s
+     *            the {@code Portfolio} against which to evaluate the {@code Rule}s
      * @param transaction
      *            a (possibly {@code null} {@code Transaction} to optionally evaluate with the
      *            {@code Portfolio}
