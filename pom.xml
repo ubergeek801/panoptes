@@ -17,10 +17,10 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
-        <jetty.version>9.4.25.v20191220</jetty.version>
-        <micronaut.version>1.2.8</micronaut.version>
+        <jetty.version>9.4.26.v20200117</jetty.version>
+        <micronaut.version>1.2.10</micronaut.version>
         <protobuf.version>3.11.1</protobuf.version>
-        <vaadin.version>14.1.4</vaadin.version>
+        <vaadin.version>14.1.5</vaadin.version>
 
         <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
             -XX:MaxGCPauseMillis=5000
@@ -58,6 +58,7 @@
             <plugin>
                 <groupId>com.github.os72</groupId>
                 <artifactId>protoc-jar-maven-plugin</artifactId>
+                <!-- this is usually but not always the same as ${protobuf.version} -->
                 <version>3.11.1</version>
                 <executions>
                     <execution>
@@ -95,7 +96,8 @@
                 <configuration>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
                     <from>
-                        <image>bellsoft/liberica-openjdk-alpine:13.0.1-aarch64</image>
+                        <!-- :13.0.2-aarch64 -->
+                        <image>bellsoft/liberica-openjdk-alpine@sha256:eec1b1edfd1c65f23c342ca228a1c3fae0ad7d3e3cdbbfb35bc8dfe527245040</image>
                     </from>
                     <to>
                         <image>ubergeek801/slaqworx</image>
