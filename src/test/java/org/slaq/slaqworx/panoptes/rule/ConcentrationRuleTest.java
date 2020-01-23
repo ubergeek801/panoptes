@@ -107,7 +107,7 @@ public class ConcentrationRuleTest {
      * Tests that benchmark-relative {@code ConcentrationRule} evaluation behaves as expected.
      */
     @Test
-    public void testEvaluateBenchmarkRelative() {
+    public void testEvaluate_benchmarkRelative() {
         // the Rule tests that the concentration of currency = BRL is between 95% and 105% of the
         // benchmark
         ConcentrationRule rule = new ConcentrationRule(null, "test rule", c -> "BRL".equals(

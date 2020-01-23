@@ -8,14 +8,14 @@ import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * WeightedAveragePositionCalculatorTest tests the functionality of the
- * WeightedAveragePositionCalculator.
+ * {@code WeightedAveragePositionCalculatorTest} tests the functionality of the
+ * {@code WeightedAveragePositionCalculator}.
  *
  * @author jeremy
  */
 public class WeightedAveragePositionCalculatorTest {
     /**
-     * Tests that calculateWeightedAverage() behaves as expected.
+     * Tests that {@code calculateWeightedAverage()} behaves as expected.
      */
     @Test
     public void testCalculateWeightedAverage() {

@@ -16,6 +16,18 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  */
 public interface PositionSupplier {
     /**
+     * "Concatenates" the given {@code PositionSupplier}s into a single logical
+     * {@code PositionSupplier}.
+     *
+     * @param suppliers
+     *            the {@code PositionSupplier}s to be concatenated
+     * @return a {@code PositionSupplier} representing the concatenation of the suppliers
+     */
+    public static PositionSupplier concat(PositionSupplier... suppliers) {
+        return new CompoundPositionSupplier(suppliers);
+    }
+
+    /**
      * Obtains the key of this {@code PositionSupplier}'s related {@code Portfolio}, if any.
      *
      * @return the related {@code Portfolio}, or {@code null} if none is associated

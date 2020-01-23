@@ -24,10 +24,10 @@ public class WeightedAverageRuleTest {
         // 1.019230769. So a rule requiring 102% of the benchmark (p2) should fail, while a rule
         // requiring 101.5% should pass.
 
-        ValueRule rule =
+        WeightedAverageRule rule =
                 new WeightedAverageRule(null, "test", null, TestUtil.moovyRating, 1.02, null, null);
-        assertFalse(rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext()).isPassed(),
-                "rule with 102% lower limit should have failed");
+        RuleResult result = rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext());
+        assertFalse(result.isPassed(), "rule with 102% lower limit should have failed");
 
         rule = new WeightedAverageRule(null, "test", null, TestUtil.moovyRating, 1.015, null, null);
         assertTrue(rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext()).isPassed(),

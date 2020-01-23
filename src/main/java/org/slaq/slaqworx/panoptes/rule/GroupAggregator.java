@@ -1,9 +1,8 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import java.util.Collection;
 import java.util.Map;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
  * {@code GroupAggregator} is the interface for functions which aggregate existing groups of
@@ -24,6 +23,6 @@ public interface GroupAggregator {
      * @return a {@code Map} relating zero or more new {@code EvaluationGroup}s to their constituent
      *         {@code Position}s
      */
-    public Map<EvaluationGroup, Collection<Position>>
-            aggregate(Map<EvaluationGroup, Collection<Position>> classifiedPositions);
+    public Map<EvaluationGroup, PositionSupplier>
+            aggregate(Map<EvaluationGroup, PositionSupplier> classifiedPositions);
 }

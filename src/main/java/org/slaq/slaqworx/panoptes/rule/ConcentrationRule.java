@@ -4,7 +4,6 @@ import java.util.function.Predicate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
@@ -121,13 +120,12 @@ public class ConcentrationRule extends ValueRule {
 
         double subtotalAmount = calculator.calculate(
                 positions.getPositionsWithContext(evaluationContext).filter(getPositionFilter()));
-        double totalAmount;
-        if (positions instanceof Portfolio) {
-            // use the Portfolio itself to obtain the market value
+
+        // if the context contains a portfolio market value, use it as the total
+        Double totalAmount = evaluationContext.getPortfolioMarketValue();
+        if (totalAmount == null) {
+            // otherwise use that of the PositionSupplier
             totalAmount = positions.getTotalMarketValue();
-        } else {
-            // expect the market value to be set in the context
-            totalAmount = evaluationContext.getPortfolioMarketValue();
         }
 
         return subtotalAmount / totalAmount;

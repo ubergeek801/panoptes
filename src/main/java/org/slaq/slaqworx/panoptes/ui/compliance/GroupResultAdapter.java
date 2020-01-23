@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
 /**
- * {@code GroupResultAdapter} adapts evaluationg roup-level results to a tabular representation. Its
+ * {@code GroupResultAdapter} adapts evaluation group-level results to a tabular representation. Its
  * parent is typically a {@code PortfolioRuleResultAdapter}.
  *
  * @author jeremy

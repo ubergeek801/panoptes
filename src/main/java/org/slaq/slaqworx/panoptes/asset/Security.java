@@ -2,9 +2,9 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.Map;
 
-import org.slaq.slaqworx.panoptes.util.Keyed;
-
 import groovy.lang.MissingPropertyException;
+
+import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
  * A {@code Security} is an investable instrument. Unlike most other asset-related entities, a

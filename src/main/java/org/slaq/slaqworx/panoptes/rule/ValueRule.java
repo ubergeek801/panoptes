@@ -92,21 +92,23 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
     protected final RuleResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions, evaluationContext);
+        double scaledValue;
         Double benchmarkValue;
         if (benchmarkPositions != null) {
             benchmarkValue = getValue(benchmarkPositions, evaluationContext);
             // rescale the value to the benchmark; this may result in NaN, which means that the
             // Position's portfolio concentration is infinitely greater than the benchmark
-            value /= benchmarkValue;
+            scaledValue = value / benchmarkValue;
         } else {
             benchmarkValue = null;
+            scaledValue = value;
         }
 
-        if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
+        if (lowerLimit != null && (scaledValue != Double.NaN && scaledValue < lowerLimit)) {
             return new RuleResult(Threshold.BELOW, value, benchmarkValue);
         }
 
-        if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
+        if (upperLimit != null && (scaledValue == Double.NaN || scaledValue > upperLimit)) {
             return new RuleResult(Threshold.ABOVE, value, benchmarkValue);
         }
 

@@ -59,15 +59,21 @@ public class TestUtil {
     public static final Set<Position> p1Positions =
             Set.of(positionProvider.newPosition(null, 1000, s1),
                     positionProvider.newPosition(null, 500, s2));
-
     public static final Portfolio p1 = portfolioProvider.newPortfolio("TestUtilP1", "TestUtilP1",
             p1Positions, null, Collections.emptyList());
+
     public static final Set<Position> p2Positions =
             Set.of(positionProvider.newPosition(null, 500, s1),
                     positionProvider.newPosition(null, 1000, s2));
-
     public static final Portfolio p2 = portfolioProvider.newPortfolio("TestUtilP2", "TestUtilP2",
             p2Positions, null, Collections.emptyList());
+
+    public static final Set<Position> p3Positions =
+            Set.of(positionProvider.newPosition(null, 500, s1),
+                    positionProvider.newPosition(null, 1000, s2),
+                    positionProvider.newPosition(null, 200, s3));
+    public static final Portfolio p3 = portfolioProvider.newPortfolio("TestUtilP3", "TestUtilP3",
+            p3Positions, null, Collections.emptyList());
 
     /**
      * Creates and caches a {@code ConcentrationRule} with the given parameters.
