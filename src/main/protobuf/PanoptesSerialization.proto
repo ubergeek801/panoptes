@@ -64,7 +64,6 @@ message PortfolioEvaluationRequestMsg {
     IdVersionKeyMsg portfolioKey = 1;
     TransactionMsg transaction = 2;
     string evaluationMode = 3;
-    google.protobuf.DoubleValue portfolioMarketValue = 4;
 }
 
 message ExceptionMsg {

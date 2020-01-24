@@ -8,12 +8,6 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 /**
  * {@code PositionCalculator} is the parent of classes which perform calculations on
  * {@code Position}s, typically to be employed in the implementation of {@code Rule}s.
- * <p>
- * Note that a {@code PositionCalculator} may employ a {@code Position} filters, for example to
- * compute a concentration of {@code Position}s matching the filter in proportion to an entire
- * {@code Portfolio}. This should not be confused with a {@code Rule}-level {@code Position} filter
- * which, while employing an identical mechanism, serves the purpose of limiting {@code Rule}
- * evaluations to a subset of a {@code Portfolio}'s {@code Position}s.
  *
  * @author jeremy
  * @param <T>

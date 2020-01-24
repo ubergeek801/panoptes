@@ -38,7 +38,7 @@ public class EligibilityListRuleTest {
         Position caPosition = new Position(1, caSecurity);
 
         Set<String> countryBlacklist = Set.of("US", "NZ");
-        EligibilityListRule rule = new EligibilityListRule(null, "test rule",
+        EligibilityListRule rule = new EligibilityListRule(null, "test rule", null,
                 EligibilityListType.BLACKLIST, SecurityAttribute.country, countryBlacklist);
 
         Portfolio portfolio = new Portfolio(null, "test portfolio", Set.of(usPosition));
@@ -70,7 +70,7 @@ public class EligibilityListRuleTest {
         Position caPosition = new Position(1, caSecurity);
 
         Set<String> assetIdWhitelist = Set.of("nzSec");
-        EligibilityListRule rule = new EligibilityListRule(null, "test rule",
+        EligibilityListRule rule = new EligibilityListRule(null, "test rule", null,
                 EligibilityListType.WHITELIST, SecurityAttribute.isin, assetIdWhitelist);
 
         Portfolio portfolio = new Portfolio(null, "test portfolio", Set.of(usPosition));

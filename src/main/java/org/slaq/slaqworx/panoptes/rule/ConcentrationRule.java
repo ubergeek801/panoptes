@@ -121,13 +121,6 @@ public class ConcentrationRule extends ValueRule {
         double subtotalAmount = calculator.calculate(
                 positions.getPositionsWithContext(evaluationContext).filter(getPositionFilter()));
 
-        // if the context contains a portfolio market value, use it as the total
-        Double totalAmount = evaluationContext.getPortfolioMarketValue();
-        if (totalAmount == null) {
-            // otherwise use that of the PositionSupplier
-            totalAmount = positions.getTotalMarketValue();
-        }
-
-        return subtotalAmount / totalAmount;
+        return subtotalAmount / positions.getTotalMarketValue();
     }
 }

@@ -229,18 +229,11 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
             positionFilter = (p -> true);
         }
 
-        // if the context already has a portfolio market value, always use it
-        Double effectivePortfolioMarketValue = evaluationContext.getPortfolioMarketValue();
-        if (effectivePortfolioMarketValue == null) {
-            // otherwise use the provided value
-            effectivePortfolioMarketValue = portfolioMarketValue;
-        }
-
         return positions.getPositionsWithContext(evaluationContext).filter(positionFilter)
                 .collect(Collectors.groupingBy(
                         p -> rule.getGroupClassifier().classify(p.getPosition()),
                         new PositionSupplierCollector(positions.getPortfolioKey(),
-                                effectivePortfolioMarketValue)));
+                                portfolioMarketValue)));
     }
 
     /**

@@ -5,11 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EligibilityListRule;
+import org.slaq.slaqworx.panoptes.rule.EligibilityListRule.EligibilityListType;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
@@ -77,5 +81,18 @@ public class RuleSerializerTest {
                     ((JsonConfigurable)deserialized.getGroupClassifier()).getJsonConfiguration(),
                     "deserialized group classifier should have same configuration as original");
         }
+
+        rule = new EligibilityListRule(new RuleKey("foo"), "test rule", null,
+                EligibilityListType.BLACKLIST, SecurityAttribute.isin, Set.of("FOO"));
+
+        buffer = serializer.write(rule);
+        deserialized = serializer.read(buffer);
+
+        assertEquals(rule, deserialized, "deserialized value should equals() original value");
+        assertEquals(rule.getDescription(), deserialized.getDescription(),
+                "deserialized value should have same description as original");
+        assertNull(deserialized.getGroovyFilter(), "deserialized value should have null filter");
+        assertEquals(rule.getJsonConfiguration(), deserialized.getJsonConfiguration(),
+                "deserialized value should have same configuration as original");
     }
 }

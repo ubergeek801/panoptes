@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.hazelcast.map.MapStore;
@@ -29,12 +28,12 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EligibilityListRule;
+import org.slaq.slaqworx.panoptes.rule.EligibilityListRule.EligibilityListType;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
-import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
-import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
@@ -53,7 +52,6 @@ public class DummyPortfolioMapLoader
     private static final int NUM_PORTFOLIOS = 500;
     private static final int MIN_POSITIONS = 1000;
     private static final int MAX_ADDITIONAL_POSITIONS = 1000;
-    private static final int NUM_RULES = 30;
 
     private final Portfolio[] benchmarks;
     private final ArrayList<String> portfolioNames;
@@ -62,10 +60,14 @@ public class DummyPortfolioMapLoader
 
     private final PimcoBenchmarkDataSource dataSource;
 
-    private final GroovyPositionFilter currencyUsdFilter;
-    private final GroovyPositionFilter currencyBrlFilter;
-    private final GroovyPositionFilter duration3Filter;
-    private final GroovyPositionFilter regionEmergingMarketFilter;
+    private final GroovyPositionFilter belowInvestmentGradeFilter =
+            GroovyPositionFilter.of("s.rating1Value < 70");
+    private final GroovyPositionFilter regionEmergingMarketFilter =
+            GroovyPositionFilter.of("s.region == \"Emerging Markets\"");
+    private final GroovyPositionFilter nonUsInternalBondFilter =
+            GroovyPositionFilter.of("s.country != \"US\" && s.sector == \"Internal Bond\"");
+    private final EvaluationGroupClassifier top5IssuerClassifier =
+            new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 5);
 
     private int portfolioIndex;
 
@@ -83,11 +85,6 @@ public class DummyPortfolioMapLoader
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.GLAD_KEY),
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.ILAD_KEY),
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY) };
-
-        currencyUsdFilter = GroovyPositionFilter.of("s.currency == \"USD\"");
-        currencyBrlFilter = GroovyPositionFilter.of("s.currency == \"BRL\"");
-        duration3Filter = GroovyPositionFilter.of("s.duration > 3.0");
-        regionEmergingMarketFilter = GroovyPositionFilter.of("s.region == \"Emerging Markets\"");
 
         portfolioNames = new ArrayList<>(1000);
         try (BufferedReader portfolioNameReader = new BufferedReader(new InputStreamReader(
@@ -140,9 +137,10 @@ public class DummyPortfolioMapLoader
             List<Security> securityList = Collections
                     .unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
             Set<Position> positions = generatePositions(securityList, random);
-            Set<ConfigurableRule> rules = generateRules(random);
+            Portfolio portfolioBenchmark = benchmarks[random.nextInt(5)];
+            Set<ConfigurableRule> rules = generateRules(random, portfolioBenchmark != null);
             Portfolio portfolio = new Portfolio(k, portfolioNames.get(portfolioIndex++), positions,
-                    benchmarks[random.nextInt(5)], rules);
+                    portfolioBenchmark, rules);
             LOG.info("created Portfolio {} with {} Positions", k, portfolio.size());
 
             return portfolio;
@@ -225,79 +223,114 @@ public class DummyPortfolioMapLoader
     }
 
     /**
-     * Generates a random set of {@code Rule}s.
+     * Generates a random-ish set of {@code Rule}s.
      *
      * @param random
      *            the random number generator to use
+     * @param hasBenchmark
+     *            {@code true} if the target {@code Portfolio} has an associated benchmark,
+     *            {@code false} otherwise
      * @return a new {@code Set} of random {@code Rule}s
      */
-    protected Set<ConfigurableRule> generateRules(Random random) {
-        HashSet<ConfigurableRule> rules = new HashSet<>(NUM_RULES * 2);
+    protected Set<ConfigurableRule> generateRules(Random random, boolean hasBenchmark) {
+        HashSet<ConfigurableRule> rules = new HashSet<>(60);
 
-        for (int i = 1; i <= NUM_RULES; i++) {
-            Predicate<PositionEvaluationContext> filter = null;
-            SecurityAttribute<Double> compareAttribute = null;
-            switch (random.nextInt(6)) {
-            case 0:
-                filter = currencyUsdFilter;
-                break;
-            case 1:
-                filter = currencyBrlFilter;
-                break;
-            case 2:
-                filter = duration3Filter;
-                break;
-            case 3:
-                filter = regionEmergingMarketFilter;
-                break;
-            case 4:
-                compareAttribute = SecurityAttribute.rating1Value;
-                break;
-            default:
-                compareAttribute = SecurityAttribute.duration;
-            }
+        // with high probability, only investment-grade Securities will be permitted (disallow
+        // rating < 70)
+        double rand = random.nextDouble();
+        if (rand < 0.9) {
+            rules.add(new EligibilityListRule(null, "Investment-Grade Only",
+                    belowInvestmentGradeFilter, EligibilityListType.WHITELIST,
+                    SecurityAttribute.isin, Collections.emptySet()));
+        }
 
-            EvaluationGroupClassifier groupClassifier;
-            switch (random.nextInt(9)) {
-            case 0:
-                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.currency);
-                break;
-            case 1:
-                // description is a proxy for issuer
-                groupClassifier =
-                        new SecurityAttributeGroupClassifier(SecurityAttribute.description);
-                break;
-            case 2:
-                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.region);
-                break;
-            case 3:
-                groupClassifier = new SecurityAttributeGroupClassifier(SecurityAttribute.country);
-                break;
-            case 4:
-                groupClassifier =
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.currency, 5);
-                break;
-            case 5:
-                groupClassifier =
-                        new TopNSecurityAttributeAggregator(SecurityAttribute.description, 5);
-                break;
-            case 6:
-                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.region, 5);
-                break;
-            case 7:
-                groupClassifier = new TopNSecurityAttributeAggregator(SecurityAttribute.country, 5);
-                break;
-            default:
-                groupClassifier = null;
+        // with high probability, a minimum level of average quality will be required
+        rand = random.nextDouble();
+        if (hasBenchmark) {
+            if (rand < 0.5) {
+                // require average quality somewhat close to the benchmark
+                rules.add(new WeightedAverageRule(null, "Average Quality >= 85% of Benchmark", null,
+                        SecurityAttribute.rating1Value, 0.85, null, null));
+            } else if (rand < 0.8) {
+                // require average quality somewhat closer to the benchmark
+                rules.add(new WeightedAverageRule(null, "Average Quality >= 90% of Benchmark", null,
+                        SecurityAttribute.rating1Value, 0.90, null, null));
             }
+        } else {
+            if (rand < 0.5) {
+                // require somewhat high average quality
+                rules.add(new WeightedAverageRule(null, "Average Quality >= A3", null,
+                        SecurityAttribute.rating1Value, 79d, null, null));
+            } else if (rand < 0.8) {
+                // require somewhat higher average quality
+                rules.add(new WeightedAverageRule(null, "Average Quality >= A1", null,
+                        SecurityAttribute.rating1Value, 85d, null, null));
+            }
+        }
 
-            if (filter != null) {
-                rules.add(new ConcentrationRule(null, "ConcentrationRule " + i, filter, 0.8, 1.2,
-                        groupClassifier));
-            } else if (compareAttribute != null) {
-                rules.add(new WeightedAverageRule(null, "WeightedAverageRule " + i, null,
-                        compareAttribute, 0.8, 1.2, groupClassifier));
+        // with moderate probability, Emerging Markets will be limited or disallowed entirely
+        rand = random.nextDouble();
+        if (rand < 0.1) {
+            // disallow Emerging Markets altogether
+            rules.add(new EligibilityListRule(null, "No Emerging Markets", null,
+                    EligibilityListType.BLACKLIST, SecurityAttribute.region,
+                    Set.of("Emerging Markets")));
+        } else if (rand < 0.3) {
+            if (hasBenchmark) {
+                // permit Emerging Markets relative to the benchmark
+                rules.add(new ConcentrationRule(null, "Emerging Markets <= 120% of Benchmark",
+                        regionEmergingMarketFilter, null, 1.2, null));
+            } else {
+                // permit a limited concentration in Emerging Benchmarks
+                if (random.nextBoolean()) {
+                    // permit a little
+                    rules.add(new ConcentrationRule(null, "Emerging Markets <= 10% of Portfolio",
+                            regionEmergingMarketFilter, null, 0.1, null));
+                } else {
+                    // permit a little more
+                    rules.add(new ConcentrationRule(null, "Emerging Markets <= 20% of Portfolio",
+                            regionEmergingMarketFilter, null, 0.2, null));
+                }
             }
+        }
+
+        // with moderate probability, for Portfolios with a benchmark, concentrations in the top 5
+        // issuers will be restricted relative to the benchmark
+        rand = random.nextDouble();
+        if (hasBenchmark) {
+            if (rand < 0.1) {
+                rules.add(new ConcentrationRule(null,
+                        "Top 5 Issuer Concentrations Within 20% of Benchmark", null, 0.8, 1.2,
+                        top5IssuerClassifier));
+            } else if (rand < 0.3) {
+                rules.add(new ConcentrationRule(null,
+                        "Top 5 Issuer Concentrations Within 30% of Benchmark", null, 0.7, 1.3,
+                        top5IssuerClassifier));
+            }
+        }
+
+        // with low probability, Anheuser-Busch issues will be disallowed
+        rand = random.nextDouble();
+        if (rand < 0.2) {
+            rules.add(new EligibilityListRule(null, "No Anheuser-Busch Issues", null,
+                    EligibilityListType.BLACKLIST, SecurityAttribute.issuer,
+                    Set.of("Anheuser-Busch")));
+        }
+
+        // with moderate probability, issues in certain currencies will be disallowed
+        rand = random.nextDouble();
+        if (rand < 0.5) {
+            rules.add(new EligibilityListRule(null, "No PLN-, RON- or RUB-Denominated Issues", null,
+                    EligibilityListType.BLACKLIST, SecurityAttribute.currency,
+                    Set.of("PLN", "RON", "RUB")));
+        }
+
+        // with moderate probability, non-US internal bonds will be disallowed
+        rand = random.nextDouble();
+        if (rand < 0.5) {
+            rules.add(new EligibilityListRule(null, "No Non-US Internal Bonds",
+                    nonUsInternalBondFilter, EligibilityListType.WHITELIST, SecurityAttribute.isin,
+                    Collections.emptySet()));
         }
 
         ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));

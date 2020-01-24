@@ -87,7 +87,7 @@ public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
         } catch (Exception e) {
             // TODO throw a better exception
             throw new RuntimeException("could not instantiate rule class " + ruleClassName
-                    + " for rule " + id + "(" + description + ")", e);
+                    + " for rule " + id + " (" + description + ")", e);
         }
 
         return rule;

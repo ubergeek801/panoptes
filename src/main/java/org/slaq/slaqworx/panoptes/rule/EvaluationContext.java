@@ -22,7 +22,6 @@ public class EvaluationContext {
     }
 
     private final EvaluationMode evaluationMode;
-    private Double portfolioMarketValue;
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
@@ -57,13 +56,6 @@ public class EvaluationContext {
         if (evaluationMode != other.evaluationMode) {
             return false;
         }
-        if (portfolioMarketValue == null) {
-            if (other.portfolioMarketValue != null) {
-                return false;
-            }
-        } else if (!portfolioMarketValue.equals(other.portfolioMarketValue)) {
-            return false;
-        }
         return true;
     }
 
@@ -76,32 +68,11 @@ public class EvaluationContext {
         return evaluationMode;
     }
 
-    /**
-     * Obtains the market value of the {@code Portfolio} being evaluated.
-     *
-     * @return the {@code Portfolio} market value
-     */
-    public Double getPortfolioMarketValue() {
-        return portfolioMarketValue;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((evaluationMode == null) ? 0 : evaluationMode.hashCode());
-        result = prime * result
-                + ((portfolioMarketValue == null) ? 0 : portfolioMarketValue.hashCode());
         return result;
-    }
-
-    /**
-     * Specifies the market value of the {@code Portfolio} being evaluated.
-     *
-     * @param portfolioMarketValue
-     *            the {@code Portfolio} market value
-     */
-    public void setPortfolioMarketValue(Double portfolioMarketValue) {
-        this.portfolioMarketValue = portfolioMarketValue;
     }
 }

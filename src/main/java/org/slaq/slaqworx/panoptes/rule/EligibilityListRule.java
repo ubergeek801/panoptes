@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -10,12 +11,19 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
  * {@code EligibilityListRule} is an {@EligibilityRule} that determines eligibility of a
- * {@Security} based on whether certain of its attributes appears in a specified blacklist or
+ * {@code Security} based on whether certain of its attributes appears in a specified blacklist or
  * whitelist.
+ * <p>
+ * By incorporating a filter and an empty whitelist, an {@code EligibilityListRule} can be used to
+ * exclude all {@code Securities} that match the filter.
  *
  * @author jeremy
  */
 public class EligibilityListRule extends EligibilityRule implements ConfigurableRule {
+    public enum EligibilityListType {
+        BLACKLIST, WHITELIST
+    }
+
     /**
      * {@code Configuration} encapsulates the properties of a {@code EligibilityListRule} which are
      * configurable via e.g. JSON.
@@ -24,10 +32,6 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
         public EligibilityListType listType;
         public String securityAttribute;
         public Set<String> eligibilityList;
-    }
-
-    enum EligibilityListType {
-        BLACKLIST, WHITELIST
     }
 
     /**
@@ -69,8 +73,9 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
         SecurityAttribute<String> eligibilityAttribute =
                 (SecurityAttribute<String>)SecurityAttribute.of(configuration.securityAttribute);
 
-        return new EligibilityListRule(key, description, configuration.listType,
-                eligibilityAttribute, configuration.eligibilityList);
+        return new EligibilityListRule(key, description,
+                (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
+                configuration.listType, eligibilityAttribute, configuration.eligibilityList);
     }
 
     private final EligibilityListType eligibilityListType;
@@ -84,6 +89,8 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
      *            the unique key of this rule, or {@code null} to generate one
      * @param description
      *            the rule description
+     * @param positionFilter
+     *            the (possibly {@code null}) filter to be applied to {@code Position}s
      * @param eligibilityListType
      *            the type of list which specifies {@code Security} eligibility
      * @param securityAttribute
@@ -93,6 +100,7 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
      *            list type
      */
     public EligibilityListRule(RuleKey key, String description,
+            Predicate<PositionEvaluationContext> positionFilter,
             EligibilityListType eligibilityListType, SecurityAttribute<String> securityAttribute,
             Set<String> eligibilityList) {
         super(key, description);
@@ -104,10 +112,13 @@ public class EligibilityListRule extends EligibilityRule implements Configurable
 
     @Override
     public String getJsonConfiguration() {
-        // FIXME implement
+        Configuration configuration = new Configuration();
+        configuration.listType = eligibilityListType;
+        configuration.securityAttribute = eligibilityAttribute.getName();
+        configuration.eligibilityList = eligibilityList;
 
         try {
-            return JsonConfigurable.defaultObjectMapper().writeValueAsString(null);
+            return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);
         } catch (JsonProcessingException e) {
             // TODO throw a better exception
             throw new RuntimeException("could not serialize JSON configuration", e);

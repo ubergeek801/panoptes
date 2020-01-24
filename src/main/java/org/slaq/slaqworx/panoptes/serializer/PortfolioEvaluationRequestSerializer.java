@@ -6,7 +6,6 @@ import java.io.IOException;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import com.google.protobuf.DoubleValue;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -78,10 +77,6 @@ public class PortfolioEvaluationRequestSerializer
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
         EvaluationContext evaluationContext =
                 new EvaluationContext(EvaluationMode.valueOf(requestMsg.getEvaluationMode()));
-        if (requestMsg.hasPortfolioMarketValue()) {
-            evaluationContext
-                    .setPortfolioMarketValue(requestMsg.getPortfolioMarketValue().getValue());
-        }
 
         Portfolio portfolio = portfolioProvider.get().getPortfolio(key);
         Transaction transaction;
@@ -105,10 +100,6 @@ public class PortfolioEvaluationRequestSerializer
                 PortfolioEvaluationRequestMsg.newBuilder();
         requestBuilder.setPortfolioKey(portfolioKeyBuilder);
         requestBuilder.setEvaluationMode(request.getEvaluationContext().getEvaluationMode().name());
-        Double portfolioMarketValue = request.getEvaluationContext().getPortfolioMarketValue();
-        if (portfolioMarketValue != null) {
-            requestBuilder.setPortfolioMarketValue(DoubleValue.of(portfolioMarketValue));
-        }
         if (request.getTransaction() != null) {
             requestBuilder.setTransaction(TransactionSerializer.convert(request.getTransaction()));
         }

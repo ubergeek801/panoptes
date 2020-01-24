@@ -75,4 +75,9 @@ public class EvaluationGroup {
     public int hashCode() {
         return id.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return (aggregationKey == null ? DEFAULT_EVALUATION_GROUP_ID : (aggregationKey + "=" + id));
+    }
 }

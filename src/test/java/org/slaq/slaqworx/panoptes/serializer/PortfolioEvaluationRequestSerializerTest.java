@@ -34,7 +34,6 @@ public class PortfolioEvaluationRequestSerializerTest {
         Transaction t1 = new Transaction(TestUtil.p1.getKey(), List.of(p1, p2));
         Portfolio portfolio = TestUtil.p1;
         EvaluationContext evaluationContext = new EvaluationContext(EvaluationMode.FULL_EVALUATION);
-        evaluationContext.setPortfolioMarketValue(100_000_000d);
 
         PortfolioEvaluationRequest request =
                 new PortfolioEvaluationRequest(portfolio, t1, evaluationContext);
