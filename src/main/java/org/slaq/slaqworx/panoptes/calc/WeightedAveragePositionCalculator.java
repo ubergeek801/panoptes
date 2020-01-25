@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  *
  * @author jeremy
  */
-public class WeightedAveragePositionCalculator extends PositionCalculator<Double> {
+public class WeightedAveragePositionCalculator extends PositionCalculator<Number> {
     /**
      * {@code AccountAccumulator} accumulates the weighted and raw sums from the visited
      * {@code Position}s.
@@ -48,13 +48,13 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
             // accumulate the Position's amount and weighted amount
             return (a, c) -> {
                 Position p = c.getPosition();
-                Double attributeValue =
+                Number attributeValue =
                         p.getSecurity().getAttributeValue(getCalculationAttribute());
                 if (attributeValue == null) {
                     // FIXME this is probably not appropriate
                     return;
                 }
-                a.weightedMarketValue += p.getMarketValue() * attributeValue;
+                a.weightedMarketValue += p.getMarketValue() * attributeValue.doubleValue();
                 a.marketValue += p.getMarketValue();
             };
         }
@@ -93,7 +93,8 @@ public class WeightedAveragePositionCalculator extends PositionCalculator<Double
      * @param calculationAttribute
      *            the attribute on which to calculate
      */
-    public WeightedAveragePositionCalculator(SecurityAttribute<Double> calculationAttribute) {
+    public WeightedAveragePositionCalculator(
+            SecurityAttribute<? extends Number> calculationAttribute) {
         super(calculationAttribute);
     }
 

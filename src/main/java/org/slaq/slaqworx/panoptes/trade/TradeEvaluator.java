@@ -8,16 +8,20 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 
 /**
  * {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
@@ -135,6 +139,16 @@ public class TradeEvaluator {
         TradeEvaluationResult evaluationResult = testRoom(portfolioKey, security, trialValue);
         if (!evaluationResult.isCompliant()) {
             // even the minimum allocation failed; give up now
+            evaluationResult.getImpacts().forEach((key, groups) -> {
+                groups.forEach((group, impact) -> {
+                    if (impact == Impact.NEGATIVE || impact == Impact.UNKNOWN) {
+                        Rule rule = ApplicationContextProvider.getApplicationContext()
+                                .getBean(AssetCache.class).getRule(key.getRuleKey());
+                        System.err
+                                .println("failed: " + rule.getDescription() + " on group " + group);
+                    }
+                });
+            });
             return 0;
         }
 
@@ -161,6 +175,18 @@ public class TradeEvaluator {
                     }
                 }
             } else {
+                evaluationResult.getImpacts().forEach((key, groups) -> {
+                    groups.forEach((group, impact) -> {
+                        if (impact == Impact.NEGATIVE || impact == Impact.UNKNOWN) {
+                            Rule rule = ApplicationContextProvider.getApplicationContext()
+                                    .getBean(AssetCache.class).getRule(key.getRuleKey());
+                            System.err.println("failed: "
+                                    + (rule == null ? "<unknown rule> " : rule.getDescription())
+                                    + " on group " + group);
+                        }
+                    });
+                });
+
                 minNoncompliantValue = trialValue;
                 trialValue = (minCompliantValue + trialValue) / 2;
             }

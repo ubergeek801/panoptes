@@ -41,6 +41,9 @@ public class RuleResult {
         BELOW, WITHIN, ABOVE
     }
 
+    // results with differences within this margin of error are treated as equal
+    private static final double EPSILON = 0.000_001;
+
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
@@ -150,17 +153,18 @@ public class RuleResult {
             case BELOW:
                 // impact is negative, neutral or positive depending on if value decreased, remained
                 // or increased
-                if (value < originalResult.value) {
+                double diff = value - originalResult.value;
+                if (Math.abs(diff) < EPSILON) {
+                    return Impact.NEUTRAL;
+                }
+                if (diff < 0) {
                     return Impact.NEGATIVE;
                 }
-                if (value > originalResult.value) {
-                    return Impact.POSITIVE;
-                }
-                return Impact.NEUTRAL;
+                return Impact.POSITIVE;
             case ABOVE:
             default:
                 // going from one extreme to the other seems unusual, but is possible; simply treat
-                // is a negative impact
+                // as a negative impact
                 return Impact.NEGATIVE;
             }
         case ABOVE:
@@ -176,13 +180,14 @@ public class RuleResult {
             default:
                 // impact is negative, neutral or positive depending on if value increased, remained
                 // or decreased
-                if (value > originalResult.value) {
+                double diff = value - originalResult.value;
+                if (Math.abs(diff) < EPSILON) {
+                    return Impact.NEUTRAL;
+                }
+                if (diff > 0) {
                     return Impact.NEGATIVE;
                 }
-                if (value < originalResult.value) {
-                    return Impact.POSITIVE;
-                }
-                return Impact.NEUTRAL;
+                return Impact.POSITIVE;
             }
         }
     }

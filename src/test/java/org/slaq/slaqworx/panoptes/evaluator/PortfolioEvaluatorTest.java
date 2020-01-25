@@ -421,10 +421,11 @@ public class PortfolioEvaluatorTest {
         assertNotNull(top3IssuerResults, "should have found results for top 3 issuer rule");
         assertNotNull(top10IssuerResults, "should have found results for top 10 issuer rule");
 
-        // all Rules should create one group for each issuer (6) plus one for the aggregate
-        assertEquals(7, top2IssuerResults.size(),
+        // all Rules should create one group for each top-N issuer (capped at 6 which is the number
+        // of distinct issuers in the test) plus one for the aggregate
+        assertEquals(3, top2IssuerResults.size(),
                 "unexpected number of groups for top 2 issuer rule");
-        assertEquals(7, top3IssuerResults.size(),
+        assertEquals(4, top3IssuerResults.size(),
                 "unexpected number of groups for top 3 issuer rule");
         assertEquals(7, top10IssuerResults.size(),
                 "unexpected number of groups for top 10 issuer rule");

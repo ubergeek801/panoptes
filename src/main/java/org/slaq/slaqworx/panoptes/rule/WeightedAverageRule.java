@@ -92,8 +92,8 @@ public class WeightedAverageRule extends ValueRule {
      */
     public WeightedAverageRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter,
-            SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
-            EvaluationGroupClassifier groupClassifier) {
+            SecurityAttribute<? extends Number> calculationAttribute, Double lowerLimit,
+            Double upperLimit, EvaluationGroupClassifier groupClassifier) {
         super(key, description, positionFilter, calculationAttribute, lowerLimit, upperLimit,
                 groupClassifier);
     }

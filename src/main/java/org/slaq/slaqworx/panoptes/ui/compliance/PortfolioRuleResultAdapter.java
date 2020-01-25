@@ -104,8 +104,7 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
 
     @Override
     public Boolean isPassed() {
-        // not applicable at this level
-        return null;
+        return evaluationResult.getValue().isPassed();
     }
 
     /**

@@ -2,6 +2,8 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,9 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 /**
  * {@code TopNSecurityAttributeAggregator} is a {@code SecurityAttributeGroupClassifier} which
  * classifies {@code Positions} based on a specified {@code SecurityAttribute}, and also (as a
- * {@code GroupAggregator}) aggregates the "top n" resulting groups into a composite group.
+ * {@code GroupAggregator}) aggregates the "top n" resulting groups into a composite group. The
+ * number of classified groups is limited to n + 1 (and will be smaller if the number of distinct
+ * attribute values is smaller than n).
  *
  * @author jeremy
  */
@@ -73,36 +77,50 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
             return Collections.emptyMap();
         }
 
+        HashMap<EvaluationGroup, PositionSupplier> filteredClassifiedPositions =
+                new HashMap<>(count + 1);
+
         ArrayList<Position> aggregatePositions = new ArrayList<>();
         // if we already have fewer groups than the desired, then just collect it all
         if (classifiedPositions.size() <= count) {
+            filteredClassifiedPositions.putAll(classifiedPositions);
             classifiedPositions.values().forEach(
                     positions -> positions.getPositions().forEach(p -> aggregatePositions.add(p)));
         } else {
-            // create a list of PositionSuppliers and sort it by total amount, descending
+            // create a list of PositionSuppliers and sort it by total amount, descending; also
+            // build an IdentityHashMap to relate the PositionSuppliers to their EvaluationGroups
             ArrayList<PositionSupplier> sortedClassifiedPositions =
                     new ArrayList<>(classifiedPositions.size());
+            IdentityHashMap<PositionSupplier, EvaluationGroup> supplierGroupMap =
+                    new IdentityHashMap<>(classifiedPositions.size());
             classifiedPositions.forEach((g, positions) -> {
                 sortedClassifiedPositions.add(positions);
+                supplierGroupMap.put(positions, g);
             });
             Collections.sort(sortedClassifiedPositions,
                     (s1, s2) -> Double.compare(s2.getTotalMarketValue(), s1.getTotalMarketValue()));
 
-            // collect the first "count" PositionSuppliers into a single supplier
+            // collect the first "count" PositionSuppliers into a single supplier, and also into the
+            // filtered map
             for (int i = 0; i < count; i++) {
-                aggregatePositions.addAll(sortedClassifiedPositions.get(i).getPositions()
-                        .collect(Collectors.toList()));
+                PositionSupplier positionSupplier = sortedClassifiedPositions.get(i);
+                aggregatePositions
+                        .addAll(positionSupplier.getPositions().collect(Collectors.toList()));
+                filteredClassifiedPositions.put(supplierGroupMap.get(positionSupplier),
+                        positionSupplier);
             }
         }
 
         // the Positions are presumed to be from the same Portfolio, so just grab the first
         PositionSupplier aPositionSupplier = classifiedPositions.values().iterator().next();
 
-        return Map.of(
+        filteredClassifiedPositions.put(
                 new EvaluationGroup("top(" + count + "," + getSecurityAttribute().getName() + ")",
                         getSecurityAttribute().getName()),
                 new PositionSet(aggregatePositions, aPositionSupplier.getPortfolioKey(),
                         aPositionSupplier.getTotalMarketValue()));
+
+        return filteredClassifiedPositions;
     }
 
     @Override

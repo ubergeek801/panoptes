@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.ui.compliance;
 
+import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -31,6 +33,13 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
     private static final long serialVersionUID = 1L;
 
+    private static final NumberFormat valueNumberFormat;
+
+    static {
+        valueNumberFormat = NumberFormat.getInstance();
+        valueNumberFormat.setMaximumFractionDigits(4);
+    }
+
     /**
      * Creates a new {@code EvaluationResultPanel}.
      */
@@ -38,8 +47,10 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
         addHierarchyColumn(EvaluationResultRow::getRuleDescription).setAutoWidth(true)
                 .setHeader("Rule");
         addColumn(EvaluationResultRow::getGroup).setAutoWidth(true).setHeader("Group");
-        addColumn(EvaluationResultRow::getValue).setAutoWidth(true).setHeader("Value");
-        addColumn(EvaluationResultRow::getBenchmarkValue).setAutoWidth(true).setHeader("Benchmark");
+        addColumn(new NumberRenderer<>(EvaluationResultRow::getValue, valueNumberFormat))
+                .setAutoWidth(true).setHeader("Value");
+        addColumn(new NumberRenderer<>(EvaluationResultRow::getBenchmarkValue, valueNumberFormat))
+                .setAutoWidth(true).setHeader("Benchmark");
         addColumn(EvaluationResultRow::getThreshold).setAutoWidth(true).setHeader("Threshold");
         addColumn(r -> r.isPassed() == null ? null : (r.isPassed() ? "Pass" : "Fail"))
                 .setAutoWidth(true).setHeader("Result");

@@ -22,6 +22,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.GroupAggregator;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
@@ -180,20 +181,15 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         // Execute the Rule's GroupAggregators (if any) to create additional EvaluationGroups. For
         // example, a Rule may aggregate the Positions holding the top five issuers in the Portfolio
         // into a new group.
-        rule.getGroupAggregators().forEach(a -> {
-            classifiedPortfolioPositions.putAll(a.aggregate(classifiedPortfolioPositions));
+        for (GroupAggregator a : rule.getGroupAggregators()) {
+            classifiedPortfolioPositions = a.aggregate(classifiedPortfolioPositions);
             if (classifiedProposedPositions != null) {
-                classifiedProposedPositions.putAll(a.aggregate(classifiedProposedPositions));
+                classifiedProposedPositions = a.aggregate(classifiedProposedPositions);
             }
             if (classifiedBenchmarkPositions != null) {
-                Map<EvaluationGroup, PositionSupplier> aggregateBenchmarkPositions =
-                        a.aggregate(classifiedBenchmarkPositions);
-                classifiedBenchmarkPositions.putAll(aggregateBenchmarkPositions);
-                if (classifiedProposedPositions != null) {
-                    classifiedProposedPositions.putAll(aggregateBenchmarkPositions);
-                }
+                classifiedBenchmarkPositions = a.aggregate(classifiedBenchmarkPositions);
             }
-        });
+        }
 
         // for each group of Positions, evaluate the Rule against the group, for the Portfolio,
         // proposed (if specified) and the Benchmark (if specified)

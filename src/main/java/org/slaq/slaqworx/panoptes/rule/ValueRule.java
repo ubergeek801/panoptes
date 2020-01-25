@@ -15,7 +15,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
  */
 public abstract class ValueRule extends GenericRule implements ConfigurableRule {
     private final Predicate<PositionEvaluationContext> positionFilter;
-    private final SecurityAttribute<Double> calculationAttribute;
+    private final SecurityAttribute<? extends Number> calculationAttribute;
     private final Double lowerLimit;
     private final Double upperLimit;
 
@@ -41,8 +41,8 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
      */
     protected ValueRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter,
-            SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
-            EvaluationGroupClassifier groupClassifier) {
+            SecurityAttribute<? extends Number> calculationAttribute, Double lowerLimit,
+            Double upperLimit, EvaluationGroupClassifier groupClassifier) {
         super(key, description, groupClassifier);
         this.positionFilter = (positionFilter == null ? (p -> true) : positionFilter);
         this.calculationAttribute = calculationAttribute;
@@ -120,7 +120,7 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
      *
      * @return the {@code SecurityAttribute} on which to perform calculations
      */
-    protected SecurityAttribute<Double> getCalculationAttribute() {
+    protected SecurityAttribute<? extends Number> getCalculationAttribute() {
         return calculationAttribute;
     }
 

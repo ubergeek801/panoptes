@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
@@ -96,8 +95,8 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
-    public Stream<GroupAggregator> getGroupAggregators() {
-        return groupAggregators.stream();
+    public Iterable<GroupAggregator> getGroupAggregators() {
+        return groupAggregators;
     }
 
     @Override

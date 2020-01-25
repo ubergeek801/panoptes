@@ -34,6 +34,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
+import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
@@ -60,14 +61,27 @@ public class DummyPortfolioMapLoader
 
     private final PimcoBenchmarkDataSource dataSource;
 
+    private final GroovyPositionFilter belowAA3Filter =
+            GroovyPositionFilter.of("s.rating1Value < 88");
     private final GroovyPositionFilter belowInvestmentGradeFilter =
             GroovyPositionFilter.of("s.rating1Value < 70");
-    private final GroovyPositionFilter regionEmergingMarketFilter =
+    private final GroovyPositionFilter emergingMarketFilter =
             GroovyPositionFilter.of("s.region == \"Emerging Markets\"");
+    private final GroovyPositionFilter mbsFilter =
+            GroovyPositionFilter.of("s.country == \"US\" && s.sector == \"Securitized\"");
     private final GroovyPositionFilter nonUsInternalBondFilter =
             GroovyPositionFilter.of("s.country != \"US\" && s.sector == \"Internal Bond\"");
-    private final EvaluationGroupClassifier top5IssuerClassifier =
-            new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 5);
+    private final GroovyPositionFilter nonUsCurrencyForwardFilter =
+            GroovyPositionFilter.of("s.country != \"US\" && s.sector == \"Currency\"");
+
+    private final SecurityAttributeGroupClassifier issuerClassifier =
+            new SecurityAttributeGroupClassifier(SecurityAttribute.issuer);
+    private final SecurityAttributeGroupClassifier sectorClassifier =
+            new SecurityAttributeGroupClassifier(SecurityAttribute.sector);
+    private final EvaluationGroupClassifier top5CurrencyClassifier =
+            new TopNSecurityAttributeAggregator(SecurityAttribute.currency, 5);
+    private final EvaluationGroupClassifier top20IssuerClassifier =
+            new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 20);
 
     private int portfolioIndex;
 
@@ -244,6 +258,19 @@ public class DummyPortfolioMapLoader
                     SecurityAttribute.isin, Collections.emptySet()));
         }
 
+        // with high probability, for each issuer, a maximum concentration of Securities below AA3
+        // (88) will be set
+        rand = random.nextDouble();
+        if (rand < 0.5) {
+            // allow some concentration
+            rules.add(new ConcentrationRule(null, "<= 20% Concentration in < AA3 per Issuer",
+                    belowAA3Filter, null, 0.2, issuerClassifier));
+        } else if (rand < 0.9) {
+            // allow less concentration
+            rules.add(new ConcentrationRule(null, "<= 10% Concentration in < AA3 per Issuer",
+                    belowAA3Filter, null, 0.1, issuerClassifier));
+        }
+
         // with high probability, a minimum level of average quality will be required
         rand = random.nextDouble();
         if (hasBenchmark) {
@@ -254,7 +281,7 @@ public class DummyPortfolioMapLoader
             } else if (rand < 0.8) {
                 // require average quality somewhat closer to the benchmark
                 rules.add(new WeightedAverageRule(null, "Average Quality >= 90% of Benchmark", null,
-                        SecurityAttribute.rating1Value, 0.90, null, null));
+                        SecurityAttribute.rating1Value, 0.9, null, null));
             }
         } else {
             if (rand < 0.5) {
@@ -268,6 +295,106 @@ public class DummyPortfolioMapLoader
             }
         }
 
+        // with high probability, a lower limit on average yield will be set
+        rand = random.nextDouble();
+        if (hasBenchmark) {
+            if (rand < 0.5) {
+                // require yield somewhat close to benchmark
+                rules.add(new WeightedAverageRule(null, "Yield >= 90% of Benchmark", null,
+                        SecurityAttribute.yield, 0.9, null, null));
+            } else if (rand < 0.8) {
+                // require yield somewhat closer to benchmark
+                rules.add(new WeightedAverageRule(null, "Yield >= 95% of Benchmark", null,
+                        SecurityAttribute.yield, 0.95, null, null));
+            }
+        } else {
+            if (rand < 0.5) {
+                // require a modest yield
+                rules.add(new WeightedAverageRule(null, "Yield >= 4.0", null,
+                        SecurityAttribute.yield, 4d, null, null));
+            } else if (rand < 0.8) {
+                // require a higher yield
+                rules.add(new WeightedAverageRule(null, "Yield >= 6.0", null,
+                        SecurityAttribute.yield, 6d, null, null));
+            }
+        }
+
+        // with moderate probability, an upper limit on average duration will be set
+        rand = random.nextDouble();
+        if (hasBenchmark) {
+            if (rand < 0.2) {
+                // require duration somewhat close to benchmark
+                rules.add(new WeightedAverageRule(null, "Duration within 20% of Benchmark", null,
+                        SecurityAttribute.duration, 0.8, 1.2, null));
+            } else if (rand < 0.5) {
+                // require duration somewhat closer to benchmark
+                rules.add(new WeightedAverageRule(null, "Duration within 10% of Benchmark", null,
+                        SecurityAttribute.duration, 0.9, 1.1, null));
+            }
+        } else {
+            if (rand < 0.2) {
+                // require a relatively low duration
+                rules.add(new WeightedAverageRule(null, "Duration < 3.0", null,
+                        SecurityAttribute.duration, null, 3d, null));
+            } else if (rand < 0.5) {
+                // allow a somewhat higher duration
+                rules.add(new WeightedAverageRule(null, "Duration < 5.0", null,
+                        SecurityAttribute.duration, null, 5d, null));
+            }
+        }
+
+        // with moderate probability, concentrations in sectors will be limited, either absolutely
+        // or relative to the benchmark
+        rand = random.nextDouble();
+        if (hasBenchmark) {
+            if (rand < 0.2) {
+                // require somewhat close to the benchmark
+                rules.add(new ConcentrationRule(null,
+                        "Concentration per Sector Within 20% of Benchmark", null, 0.8, 1.2,
+                        sectorClassifier));
+            } else if (rand < 0.5) {
+                // require somewhat closer to the benchmark
+                rules.add(new ConcentrationRule(null,
+                        "Concentration per Sector Within 10% of Benchmark", null, 0.9, 1.1,
+                        sectorClassifier));
+            }
+        } else {
+            if (rand < 0.2) {
+                // impose a modest concentration limit
+                rules.add(new ConcentrationRule(null, "Concentration per Sector < 10%", null, null,
+                        0.1, sectorClassifier));
+            } else if (rand < 0.5) {
+                // impose a stricter concentration limit
+                rules.add(new ConcentrationRule(null, "Concentration per Sector < 5%", null, null,
+                        0.05, sectorClassifier));
+            }
+        }
+
+        // with moderate probability, MBS will be limited or disallowed entirely
+        rand = random.nextDouble();
+        if (rand < 0.1) {
+            // disallow MBS altogether
+            rules.add(new EligibilityListRule(null, "No MBS", mbsFilter,
+                    EligibilityListType.WHITELIST, SecurityAttribute.isin, Collections.emptySet()));
+        } else if (rand < 0.5) {
+            if (hasBenchmark) {
+                // permit MBS relative to the benchmark
+                rules.add(new ConcentrationRule(null, "MBS <= 100% of Benchmark", mbsFilter, null,
+                        1d, null));
+            } else {
+                // permit a limited concentration in MBS
+                if (random.nextBoolean()) {
+                    // permit a little
+                    rules.add(new ConcentrationRule(null, "MBS <= 1% of Portfolio", mbsFilter, null,
+                            0.01, null));
+                } else {
+                    // permit a little more
+                    rules.add(new ConcentrationRule(null, "MBS <= 2% of Portfolio", mbsFilter, null,
+                            0.02, null));
+                }
+            }
+        }
+
         // with moderate probability, Emerging Markets will be limited or disallowed entirely
         rand = random.nextDouble();
         if (rand < 0.1) {
@@ -275,46 +402,53 @@ public class DummyPortfolioMapLoader
             rules.add(new EligibilityListRule(null, "No Emerging Markets", null,
                     EligibilityListType.BLACKLIST, SecurityAttribute.region,
                     Set.of("Emerging Markets")));
-        } else if (rand < 0.3) {
+        } else if (rand < 0.4) {
             if (hasBenchmark) {
                 // permit Emerging Markets relative to the benchmark
                 rules.add(new ConcentrationRule(null, "Emerging Markets <= 120% of Benchmark",
-                        regionEmergingMarketFilter, null, 1.2, null));
+                        emergingMarketFilter, null, 1.2, null));
             } else {
-                // permit a limited concentration in Emerging Benchmarks
+                // permit a limited concentration in Emerging Markets
                 if (random.nextBoolean()) {
                     // permit a little
                     rules.add(new ConcentrationRule(null, "Emerging Markets <= 10% of Portfolio",
-                            regionEmergingMarketFilter, null, 0.1, null));
+                            emergingMarketFilter, null, 0.1, null));
                 } else {
                     // permit a little more
                     rules.add(new ConcentrationRule(null, "Emerging Markets <= 20% of Portfolio",
-                            regionEmergingMarketFilter, null, 0.2, null));
+                            emergingMarketFilter, null, 0.2, null));
                 }
             }
         }
 
-        // with moderate probability, for Portfolios with a benchmark, concentrations in the top 5
+        // with moderate probability, for Portfolios with a benchmark, concentrations in the top 20
         // issuers will be restricted relative to the benchmark
         rand = random.nextDouble();
         if (hasBenchmark) {
-            if (rand < 0.1) {
+            if (rand < 0.2) {
                 rules.add(new ConcentrationRule(null,
-                        "Top 5 Issuer Concentrations Within 20% of Benchmark", null, 0.8, 1.2,
-                        top5IssuerClassifier));
-            } else if (rand < 0.3) {
+                        "Top 20 Issuer Concentrations Within 20% of Benchmark", null, 0.8, 1.2,
+                        top20IssuerClassifier));
+            } else if (rand < 0.4) {
                 rules.add(new ConcentrationRule(null,
-                        "Top 5 Issuer Concentrations Within 30% of Benchmark", null, 0.7, 1.3,
-                        top5IssuerClassifier));
+                        "Top 20 Issuer Concentrations Within 30% of Benchmark", null, 0.7, 1.3,
+                        top20IssuerClassifier));
             }
         }
 
-        // with low probability, Anheuser-Busch issues will be disallowed
+        // with moderate probability, for Portfolios with a benchmark, concentrations in the top 5
+        // currencies will be restricted relative to the benchmark
         rand = random.nextDouble();
-        if (rand < 0.2) {
-            rules.add(new EligibilityListRule(null, "No Anheuser-Busch Issues", null,
-                    EligibilityListType.BLACKLIST, SecurityAttribute.issuer,
-                    Set.of("Anheuser-Busch")));
+        if (hasBenchmark) {
+            if (rand < 0.2) {
+                rules.add(new ConcentrationRule(null,
+                        "Top 5 Currency Concentrations Within 20% of Benchmark", null, 0.8, 1.2,
+                        top5CurrencyClassifier));
+            } else if (rand < 0.4) {
+                rules.add(new ConcentrationRule(null,
+                        "Top 5 Currency Concentrations Within 30% of Benchmark", null, 0.7, 1.3,
+                        top5CurrencyClassifier));
+            }
         }
 
         // with moderate probability, issues in certain currencies will be disallowed
@@ -331,6 +465,22 @@ public class DummyPortfolioMapLoader
             rules.add(new EligibilityListRule(null, "No Non-US Internal Bonds",
                     nonUsInternalBondFilter, EligibilityListType.WHITELIST, SecurityAttribute.isin,
                     Collections.emptySet()));
+        }
+
+        // with low probability, non-US currency forwards will be disallowed
+        rand = random.nextDouble();
+        if (rand < 0.3) {
+            rules.add(new EligibilityListRule(null, "No Non-US Currency Forwards",
+                    nonUsCurrencyForwardFilter, EligibilityListType.WHITELIST,
+                    SecurityAttribute.isin, Collections.emptySet()));
+        }
+
+        // with low probability, Anheuser-Busch issues will be disallowed
+        rand = random.nextDouble();
+        if (rand < 0.2) {
+            rules.add(new EligibilityListRule(null, "No Anheuser-Busch Issues", null,
+                    EligibilityListType.BLACKLIST, SecurityAttribute.issuer,
+                    Set.of("Anheuser-Busch")));
         }
 
         ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));

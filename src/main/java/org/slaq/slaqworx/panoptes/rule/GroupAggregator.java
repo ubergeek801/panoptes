@@ -20,8 +20,9 @@ public interface GroupAggregator {
      *
      * @param classifiedPositions
      *            the {@code Position}s already classified
-     * @return a {@code Map} relating zero or more new {@code EvaluationGroup}s to their constituent
-     *         {@code Position}s
+     * @return a {@code Map} consisting of the existing classified {@code Position}s (possibly
+     *         filtered) while adding zero or more new mappings of {@code EvaluationGroup}s to their
+     *         constituent {@code Position}s
      */
     public Map<EvaluationGroup, PositionSupplier>
             aggregate(Map<EvaluationGroup, PositionSupplier> classifiedPositions);

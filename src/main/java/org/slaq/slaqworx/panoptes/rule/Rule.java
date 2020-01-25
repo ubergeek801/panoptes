@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.util.Keyed;
@@ -53,11 +52,11 @@ public interface Rule extends Keyed<RuleKey> {
     public String getDescription();
 
     /**
-     * Obtains this {@code Rule}'s {@code GroupAggregator}s (if any) as a {@code Stream}.
+     * Obtains this {@code Rule}'s {@code GroupAggregator}s (if any) as an {@code Iterable}.
      *
-     * @return a (possibly empty) {@code Stream} of {@code GroupAggregator}s
+     * @return a (possibly empty) {@code Iterable} of {@code GroupAggregator}s
      */
-    public Stream<GroupAggregator> getGroupAggregators();
+    public Iterable<GroupAggregator> getGroupAggregators();
 
     /**
      * Obtain's this {@code Rule}'s (possibly {@code null}) {@code EvaluationGroupClassifier}.
