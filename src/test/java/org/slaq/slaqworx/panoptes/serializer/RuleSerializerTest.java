@@ -5,16 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
-import org.slaq.slaqworx.panoptes.rule.EligibilityListRule;
-import org.slaq.slaqworx.panoptes.rule.EligibilityListRule.EligibilityListType;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
+import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
@@ -82,8 +79,7 @@ public class RuleSerializerTest {
                     "deserialized group classifier should have same configuration as original");
         }
 
-        rule = new EligibilityListRule(new RuleKey("foo"), "test rule", null,
-                EligibilityListType.BLACKLIST, SecurityAttribute.isin, Set.of("FOO"));
+        rule = new MarketValueRule(new RuleKey("foo"), "test rule", null, 1d, 2d);
 
         buffer = serializer.write(rule);
         deserialized = serializer.read(buffer);

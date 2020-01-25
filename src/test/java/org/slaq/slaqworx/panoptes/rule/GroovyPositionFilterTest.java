@@ -30,8 +30,8 @@ public class GroovyPositionFilterTest {
                 "Position of 500K should not have passed");
 
         // create a filter which should include Positions in a Security with a moovyRating > 88
-        GroovyPositionFilter filterMoovy88 = GroovyPositionFilter
-                .of("s.getAttributeValue(SecurityAttribute.of(\"Moovy\")) > 88");
+        GroovyPositionFilter filterMoovy88 =
+                GroovyPositionFilter.of("s.getAttributeValue(SecurityAttribute.of('Moovy')) > 88");
 
         Position p3 = new Position(1_000_000, TestUtil.s1);
         assertTrue(filterMoovy88.test(new PositionEvaluationContext(p3, evaluationContext)),
@@ -49,7 +49,7 @@ public class GroovyPositionFilterTest {
                 "Position with 85 rating should not have passed");
 
         // create a filter which should include Positions in a Security with a country = "NZ"
-        GroovyPositionFilter filterCountryNZ = GroovyPositionFilter.of("s.country == \"NZ\"");
+        GroovyPositionFilter filterCountryNZ = GroovyPositionFilter.of("s.country == 'NZ'");
         assertFalse(filterCountryNZ.test(new PositionEvaluationContext(p3, evaluationContext)),
                 "Position with country US should not have passed");
         assertTrue(filterCountryNZ.test(new PositionEvaluationContext(p4, evaluationContext)),
@@ -60,7 +60,7 @@ public class GroovyPositionFilterTest {
 
         Position p5 = new Position(1_000_000, TestUtil.s3);
         GroovyPositionFilter filterCountryUSorNZ =
-                GroovyPositionFilter.of("s.country == \"US\" || s.country == \"NZ\"");
+                GroovyPositionFilter.of("s.country == 'US' || s.country == 'NZ'");
         assertFalse(filterCountryUSorNZ.test(new PositionEvaluationContext(p5, evaluationContext)),
                 "Position with country CA should not have passed");
         assertTrue(filterCountryUSorNZ.test(new PositionEvaluationContext(p3, evaluationContext)),

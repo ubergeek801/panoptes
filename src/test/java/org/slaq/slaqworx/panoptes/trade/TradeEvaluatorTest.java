@@ -3,8 +3,10 @@ package org.slaq.slaqworx.panoptes.trade;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +35,8 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
+import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
@@ -135,6 +139,65 @@ public class TradeEvaluatorTest {
         result = evaluator.evaluate(trade, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
         assertFalse(result.isCompliant(),
                 "short-circuit evaluation should have yielded non-compliance");
+    }
+
+    /**
+     * Tests that {@code evaluate()} behaves as expected when using a {@code MarketValueRule} to
+     * evaluate {@code Transaction} eligibility.
+     */
+    @Test
+    public void testEvaluateEligibility() throws Exception {
+        Security sec1 =
+                TestUtil.createTestSecurity(assetCache, "sec1", "nobody", new BigDecimal("100"));
+
+        // create an eligibility Rule excluding sec1
+        GroovyPositionFilter sec1Filter = GroovyPositionFilter.of("s.isin == 'sec1'");
+        ArrayList<ConfigurableRule> rules = new ArrayList<>();
+        MarketValueRule rule = new MarketValueRule(null, "no sec1", sec1Filter, null, 0d);
+        rules.add(rule);
+
+        // create a Portfolio with no initial Positions
+        HashSet<Position> portfolioPositions = new HashSet<>();
+        Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(
+                "TradeEvaluatorTestPortfolio", "test", portfolioPositions, null, rules);
+
+        // create a Transaction attempting to buy sec1
+        HashSet<Position> buyAllocations = new HashSet<>();
+        Position buyAlloc1 = TestUtil.createTestPosition(assetCache, 100, sec1);
+        buyAllocations.add(buyAlloc1);
+        Transaction buyTransaction = new Transaction(portfolio.getKey(), buyAllocations);
+        Trade buyTrade = new Trade(Map.of(portfolio.getKey(), buyTransaction));
+
+        TradeEvaluator evaluator =
+                new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
+                        TestUtil.testPortfolioProvider());
+        TradeEvaluationResult result = evaluator.evaluate(buyTrade, EvaluationMode.FULL_EVALUATION);
+        assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
+
+        // create a Transaction attempting to sell sec1 (never mind that the Portfolio doesn't hold
+        // it)
+        HashSet<Position> sellAllocations = new HashSet<>();
+        Position sellAlloc1 = TestUtil.createTestPosition(assetCache, -100, sec1);
+        sellAllocations.add(sellAlloc1);
+        Transaction sellTransaction = new Transaction(null, sellAllocations);
+        Trade sellTrade = new Trade(Map.of(portfolio.getKey(), sellTransaction));
+
+        result = evaluator.evaluate(sellTrade, EvaluationMode.FULL_EVALUATION);
+        assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");
+
+        // create a Portfolio with an initial Position in sec1
+        portfolioPositions = new HashSet<>();
+        portfolioPositions.add(TestUtil.createTestPosition(assetCache, 1000d, sec1));
+        portfolio = TestUtil.testPortfolioProvider().newPortfolio("TradeEvaluatorTestPortfolio",
+                "test", portfolioPositions, null, rules);
+
+        // try to buy again
+        result = evaluator.evaluate(buyTrade, EvaluationMode.FULL_EVALUATION);
+        assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
+
+        // try to sell again
+        result = evaluator.evaluate(sellTrade, EvaluationMode.FULL_EVALUATION);
+        assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");
     }
 
     /**

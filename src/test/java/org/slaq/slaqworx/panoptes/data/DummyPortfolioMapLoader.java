@@ -28,10 +28,9 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
-import org.slaq.slaqworx.panoptes.rule.EligibilityListRule;
-import org.slaq.slaqworx.panoptes.rule.EligibilityListRule.EligibilityListType;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
+import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
@@ -65,15 +64,16 @@ public class DummyPortfolioMapLoader
             GroovyPositionFilter.of("s.rating1Value < 88");
     private final GroovyPositionFilter belowInvestmentGradeFilter =
             GroovyPositionFilter.of("s.rating1Value < 70");
-    private final GroovyPositionFilter emergingMarketFilter =
-            GroovyPositionFilter.of("s.region == \"Emerging Markets\"");
+    private final GroovyPositionFilter emergingMarketsFilter =
+            GroovyPositionFilter.of("s.region == 'Emerging Markets'");
     private final GroovyPositionFilter mbsFilter =
-            GroovyPositionFilter.of("s.country == \"US\" && s.sector == \"Securitized\"");
+            GroovyPositionFilter.of("s.country == 'US' && s.sector == 'Securitized'");
     private final GroovyPositionFilter nonUsInternalBondFilter =
-            GroovyPositionFilter.of("s.country != \"US\" && s.sector == \"Internal Bond\"");
+            GroovyPositionFilter.of("s.country != 'US' && s.sector == 'Internal Bond'");
     private final GroovyPositionFilter nonUsCurrencyForwardFilter =
-            GroovyPositionFilter.of("s.country != \"US\" && s.sector == \"Currency\"");
-
+            GroovyPositionFilter.of("s.country != 'US' && s.sector == 'Currency'");
+    private final GroovyPositionFilter restrictedCurrencyFilter =
+            GroovyPositionFilter.of("!['PLN', 'RON', 'RUB'].contains(s.currency)");
     private final SecurityAttributeGroupClassifier issuerClassifier =
             new SecurityAttributeGroupClassifier(SecurityAttribute.issuer);
     private final SecurityAttributeGroupClassifier sectorClassifier =
@@ -253,9 +253,8 @@ public class DummyPortfolioMapLoader
         // rating < 70)
         double rand = random.nextDouble();
         if (rand < 0.9) {
-            rules.add(new EligibilityListRule(null, "Investment-Grade Only",
-                    belowInvestmentGradeFilter, EligibilityListType.WHITELIST,
-                    SecurityAttribute.isin, Collections.emptySet()));
+            rules.add(new MarketValueRule(null, "Investment-Grade Only", belowInvestmentGradeFilter,
+                    null, 0d));
         }
 
         // with high probability, for each issuer, a maximum concentration of Securities below AA3
@@ -374,8 +373,7 @@ public class DummyPortfolioMapLoader
         rand = random.nextDouble();
         if (rand < 0.1) {
             // disallow MBS altogether
-            rules.add(new EligibilityListRule(null, "No MBS", mbsFilter,
-                    EligibilityListType.WHITELIST, SecurityAttribute.isin, Collections.emptySet()));
+            rules.add(new MarketValueRule(null, "No MBS", mbsFilter, null, 0d));
         } else if (rand < 0.5) {
             if (hasBenchmark) {
                 // permit MBS relative to the benchmark
@@ -399,24 +397,23 @@ public class DummyPortfolioMapLoader
         rand = random.nextDouble();
         if (rand < 0.1) {
             // disallow Emerging Markets altogether
-            rules.add(new EligibilityListRule(null, "No Emerging Markets", null,
-                    EligibilityListType.BLACKLIST, SecurityAttribute.region,
-                    Set.of("Emerging Markets")));
+            rules.add(new MarketValueRule(null, "No Emerging Markets", emergingMarketsFilter, null,
+                    0d));
         } else if (rand < 0.4) {
             if (hasBenchmark) {
                 // permit Emerging Markets relative to the benchmark
                 rules.add(new ConcentrationRule(null, "Emerging Markets <= 120% of Benchmark",
-                        emergingMarketFilter, null, 1.2, null));
+                        emergingMarketsFilter, null, 1.2, null));
             } else {
                 // permit a limited concentration in Emerging Markets
                 if (random.nextBoolean()) {
                     // permit a little
                     rules.add(new ConcentrationRule(null, "Emerging Markets <= 10% of Portfolio",
-                            emergingMarketFilter, null, 0.1, null));
+                            emergingMarketsFilter, null, 0.1, null));
                 } else {
                     // permit a little more
                     rules.add(new ConcentrationRule(null, "Emerging Markets <= 20% of Portfolio",
-                            emergingMarketFilter, null, 0.2, null));
+                            emergingMarketsFilter, null, 0.2, null));
                 }
             }
         }
@@ -454,33 +451,28 @@ public class DummyPortfolioMapLoader
         // with moderate probability, issues in certain currencies will be disallowed
         rand = random.nextDouble();
         if (rand < 0.5) {
-            rules.add(new EligibilityListRule(null, "No PLN-, RON- or RUB-Denominated Issues", null,
-                    EligibilityListType.BLACKLIST, SecurityAttribute.currency,
-                    Set.of("PLN", "RON", "RUB")));
+            rules.add(new MarketValueRule(null, "No PLN-, RON- or RUB-Denominated Issues",
+                    restrictedCurrencyFilter, null, 0d));
         }
 
         // with moderate probability, non-US internal bonds will be disallowed
         rand = random.nextDouble();
         if (rand < 0.5) {
-            rules.add(new EligibilityListRule(null, "No Non-US Internal Bonds",
-                    nonUsInternalBondFilter, EligibilityListType.WHITELIST, SecurityAttribute.isin,
-                    Collections.emptySet()));
+            rules.add(new MarketValueRule(null, "No Non-US Internal Bonds", nonUsInternalBondFilter,
+                    null, 0d));
         }
 
         // with low probability, non-US currency forwards will be disallowed
         rand = random.nextDouble();
         if (rand < 0.3) {
-            rules.add(new EligibilityListRule(null, "No Non-US Currency Forwards",
-                    nonUsCurrencyForwardFilter, EligibilityListType.WHITELIST,
-                    SecurityAttribute.isin, Collections.emptySet()));
+            rules.add(new MarketValueRule(null, "No Non-US Currency Forwards",
+                    nonUsCurrencyForwardFilter, null, 0d));
         }
 
         // with low probability, Anheuser-Busch issues will be disallowed
         rand = random.nextDouble();
         if (rand < 0.2) {
-            rules.add(new EligibilityListRule(null, "No Anheuser-Busch Issues", null,
-                    EligibilityListType.BLACKLIST, SecurityAttribute.issuer,
-                    Set.of("Anheuser-Busch")));
+            rules.add(new MarketValueRule(null, "No Anheuser-Busch Issues", null, null, 0d));
         }
 
         ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));
