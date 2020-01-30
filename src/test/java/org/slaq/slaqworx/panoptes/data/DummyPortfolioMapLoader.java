@@ -391,23 +391,14 @@ public class DummyPortfolioMapLoader
         if (rand < 0.1) {
             // disallow MBS altogether
             rules.add(new MarketValueRule(null, "No MBS", mbsFilter, null, 0d));
+        } else if (rand < 0.3) {
+            // permit a limited concentration in MBS
+            rules.add(new ConcentrationRule(null, "MBS <= 1% of Portfolio", mbsFilter, null, 0.01,
+                    null));
         } else if (rand < 0.5) {
-            if (hasBenchmark) {
-                // permit MBS relative to the benchmark
-                rules.add(new ConcentrationRule(null, "MBS <= 100% of Benchmark", mbsFilter, null,
-                        1d, null));
-            } else {
-                // permit a limited concentration in MBS
-                if (random.nextBoolean()) {
-                    // permit a little
-                    rules.add(new ConcentrationRule(null, "MBS <= 1% of Portfolio", mbsFilter, null,
-                            0.01, null));
-                } else {
-                    // permit a little more
-                    rules.add(new ConcentrationRule(null, "MBS <= 2% of Portfolio", mbsFilter, null,
-                            0.02, null));
-                }
-            }
+            // permit a little more
+            rules.add(new ConcentrationRule(null, "MBS <= 2% of Portfolio", mbsFilter, null, 0.02,
+                    null));
         }
 
         // with moderate probability, Emerging Markets will be limited or disallowed entirely
