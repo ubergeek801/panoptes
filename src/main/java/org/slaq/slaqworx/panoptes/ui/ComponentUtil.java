@@ -33,10 +33,25 @@ public class ComponentUtil {
      *            the listener to be invoked when the button is clicked
      * @return a {@code Button}
      */
+    public static Button createButton(String labelText) {
+        return createButton(labelText, null);
+    }
+
+    /**
+     * Creates a new {@code Button}.
+     *
+     * @param labelText
+     *            the text to be used as the button label
+     * @param clickListener
+     *            the listener to be invoked when the button is clicked
+     * @return a {@code Button}
+     */
     public static Button createButton(String labelText,
             ComponentEventListener<ClickEvent<Button>> clickListener) {
         Button button = new Button(labelText);
-        button.addClickListener(clickListener);
+        if (clickListener != null) {
+            button.addClickListener(clickListener);
+        }
         button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 
         return button;

@@ -65,7 +65,7 @@ public class PanoptesApplicationPanel extends AppLayout {
         Span aboutApplicationTagline = new Span("watchful portfolio compliance");
         aboutApplicationTagline.getStyle().set("font-style", "italic");
         aboutPanel.add(aboutApplicationTagline);
-        Span aboutApplicationDescription = new Span("by slaq.org slaqworks");
+        Span aboutApplicationDescription = new Span("© Jeremy Rosenberger | slaq.org slaqworx");
         aboutPanel.add(aboutApplicationDescription);
         aboutPanel.setSizeFull();
 
