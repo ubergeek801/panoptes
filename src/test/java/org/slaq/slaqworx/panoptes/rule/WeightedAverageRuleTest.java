@@ -24,23 +24,24 @@ public class WeightedAverageRuleTest {
         // 1.019230769. So a rule requiring 102% of the benchmark (p2) should fail, while a rule
         // requiring 101.5% should pass.
 
-        WeightedAverageRule rule =
-                new WeightedAverageRule(null, "test", null, TestUtil.moovyRating, 1.02, null, null);
+        WeightedAverageRule<?> rule = new WeightedAverageRule<>(null, "test", null,
+                TestUtil.moovyRating, 1.02, null, null);
         RuleResult result = rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext());
         assertFalse(result.isPassed(), "rule with 102% lower limit should have failed");
 
-        rule = new WeightedAverageRule(null, "test", null, TestUtil.moovyRating, 1.015, null, null);
+        rule = new WeightedAverageRule<>(null, "test", null, TestUtil.moovyRating, 1.015, null,
+                null);
         assertTrue(rule.evaluate(TestUtil.p1, TestUtil.p2, new EvaluationContext()).isPassed(),
                 "rule with 101.5% lower limit should have passed");
 
         // both TestUtil.p1 and TestUtil.p2 should have an average duration of 4.0
 
-        rule = new WeightedAverageRule(null, "test", null, SecurityAttribute.duration, null, 3.9,
+        rule = new WeightedAverageRule<>(null, "test", null, SecurityAttribute.duration, null, 3.9,
                 null);
         assertFalse(rule.evaluate(TestUtil.p1, null, new EvaluationContext()).isPassed(),
                 "rule with 3.9 upper limit should have failed");
 
-        rule = new WeightedAverageRule(null, "test", null, SecurityAttribute.duration, null, 4d,
+        rule = new WeightedAverageRule<>(null, "test", null, SecurityAttribute.duration, null, 4d,
                 null);
         assertTrue(rule.evaluate(TestUtil.p1, null, new EvaluationContext()).isPassed(),
                 "rule with 4.0 upper limit should have passed");

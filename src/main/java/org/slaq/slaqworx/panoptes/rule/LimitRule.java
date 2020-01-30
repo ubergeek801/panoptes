@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
-import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
 /**
@@ -13,9 +12,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
  *
  * @author jeremy
  */
-public abstract class ValueRule extends GenericRule implements ConfigurableRule {
+public abstract class LimitRule extends GenericRule implements ConfigurableRule {
     private final Predicate<PositionEvaluationContext> positionFilter;
-    private final SecurityAttribute<? extends Number> calculationAttribute;
     private final Double lowerLimit;
     private final Double upperLimit;
 
@@ -29,8 +27,6 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
      * @param positionFilter
      *            the (possibly {@code null}) filter to be applied to {@code Position}s during
      *            evaluation of the {@code Rule}
-     * @param calculationAttribute
-     *            the attribute on which to calculate
      * @param lowerLimit
      *            the lower limit of acceptable concentration values
      * @param upperLimit
@@ -39,13 +35,11 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
      */
-    protected ValueRule(RuleKey key, String description,
-            Predicate<PositionEvaluationContext> positionFilter,
-            SecurityAttribute<? extends Number> calculationAttribute, Double lowerLimit,
+    protected LimitRule(RuleKey key, String description,
+            Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
             Double upperLimit, EvaluationGroupClassifier groupClassifier) {
         super(key, description, groupClassifier);
         this.positionFilter = (positionFilter == null ? (p -> true) : positionFilter);
-        this.calculationAttribute = calculationAttribute;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
     }
@@ -69,9 +63,6 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
         if (positionFilter != null && positionFilter instanceof GroovyPositionFilter) {
             descriptions.add(
                     "filter=\"" + ((GroovyPositionFilter)positionFilter).getExpression() + "\"");
-        }
-        if (calculationAttribute != null) {
-            descriptions.add("attribute=\"" + calculationAttribute.getName() + "\"");
         }
         if (lowerLimit != null) {
             descriptions.add("lower=" + lowerLimit);
@@ -113,15 +104,6 @@ public abstract class ValueRule extends GenericRule implements ConfigurableRule 
         }
 
         return new RuleResult(Threshold.WITHIN, value, benchmarkValue);
-    }
-
-    /**
-     * Obtains this {@code Rule}'s (possibly {@code null}) calculation attribute.
-     *
-     * @return the {@code SecurityAttribute} on which to perform calculations
-     */
-    protected SecurityAttribute<? extends Number> getCalculationAttribute() {
-        return calculationAttribute;
     }
 
     /**

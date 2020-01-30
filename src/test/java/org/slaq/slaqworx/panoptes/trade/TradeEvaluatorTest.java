@@ -76,22 +76,22 @@ public class TradeEvaluatorTest {
         HashMap<RuleKey, ConfigurableRule> p1Rules = new HashMap<>();
         // since the Portfolio is already within (at) the limit, and the Trade pushes it out, this
         // Rule should fail
-        ConfigurableRule p1Rule1 = new WeightedAverageRule(new RuleKey("p1Rule1"),
+        ConfigurableRule p1Rule1 = new WeightedAverageRule<>(new RuleKey("p1Rule1"),
                 "WeightedAverage<=3.0", null, SecurityAttribute.duration, null, 3d, null);
         p1Rules.put(p1Rule1.getKey(), p1Rule1);
         // since the Portfolio is already above the limit, and the Trade makes it worse, this Rule
         // should fail
-        ConfigurableRule p1Rule2 = new WeightedAverageRule(new RuleKey("p1Rule2"),
+        ConfigurableRule p1Rule2 = new WeightedAverageRule<>(new RuleKey("p1Rule2"),
                 "WeightedAverage<=2.0", null, SecurityAttribute.duration, null, 2d, null);
         p1Rules.put(p1Rule2.getKey(), p1Rule2);
         // since the Portfolio is already below the limit, and the Trade improves it, this Rule
         // should pass
-        ConfigurableRule p1Rule3 = new WeightedAverageRule(new RuleKey("p1Rule3"),
+        ConfigurableRule p1Rule3 = new WeightedAverageRule<>(new RuleKey("p1Rule3"),
                 "WeightedAverage>=4.0", null, SecurityAttribute.duration, 4d, null, null);
         p1Rules.put(p1Rule3.getKey(), p1Rule3);
         // since the Portfolio is already within the limit, and remains so with the Trade, this Rule
         // should pass
-        ConfigurableRule p1Rule4 = new WeightedAverageRule(new RuleKey("p1Rule4"),
+        ConfigurableRule p1Rule4 = new WeightedAverageRule<>(new RuleKey("p1Rule4"),
                 "WeightedAverage<=4.0", null, SecurityAttribute.duration, null, 4d, null);
         p1Rules.put(p1Rule4.getKey(), p1Rule4);
 
@@ -214,8 +214,8 @@ public class TradeEvaluatorTest {
                 TestUtil.testPositionProvider().newPosition(null, 1_000_000, security1);
         Set<Position> p1Positions = Set.of(position1);
 
-        WeightedAverageRule rule1 =
-                new WeightedAverageRule(null, "weighted average: duration <= 3.5", null,
+        WeightedAverageRule<Double> rule1 =
+                new WeightedAverageRule<>(null, "weighted average: duration <= 3.5", null,
                         SecurityAttribute.duration, null, 3.5, null);
         Map<RuleKey, ? extends ConfigurableRule> p1Rules = Map.of(rule1.getKey(), rule1);
 
@@ -233,7 +233,7 @@ public class TradeEvaluatorTest {
 
         EvaluationContext evaluationContext = new EvaluationContext();
         assertEquals(3.0,
-                new WeightedAveragePositionCalculator(SecurityAttribute.duration)
+                new WeightedAveragePositionCalculator<>(SecurityAttribute.duration)
                         .calculate(portfolio.getPositionsWithContext(evaluationContext)),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
         double room =

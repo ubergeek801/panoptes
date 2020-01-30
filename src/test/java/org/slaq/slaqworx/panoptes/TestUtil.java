@@ -18,6 +18,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
@@ -30,11 +31,11 @@ public class TestUtil {
 
     // additional SecurityAttributes used by test cases
     public static final SecurityAttribute<Double> moovyRating =
-            SecurityAttribute.of("Moovy", 16, Double.class);
+            SecurityAttribute.of("Moovy", 16, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<Double> npRating =
-            SecurityAttribute.of("N&P", 17, Double.class);
+            SecurityAttribute.of("N&P", 17, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<Double> fetchRating =
-            SecurityAttribute.of("Fetch", 18, Double.class);
+            SecurityAttribute.of("Fetch", 18, Double.class, ValueProvider.forDouble());
 
     private static final TestPortfolioProvider portfolioProvider = new TestPortfolioProvider();
     private static final TestPositionProvider positionProvider = new TestPositionProvider();
@@ -213,12 +214,12 @@ public class TestUtil {
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
      */
-    public static WeightedAverageRule createTestWeightedAverageRule(AssetCache assetCache,
+    public static WeightedAverageRule<Double> createTestWeightedAverageRule(AssetCache assetCache,
             RuleKey key, String description, Predicate<PositionEvaluationContext> positionFilter,
             SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
             EvaluationGroupClassifier groupClassifier) {
-        WeightedAverageRule rule = new WeightedAverageRule(key, description, positionFilter,
-                calculationAttribute, lowerLimit, upperLimit, groupClassifier);
+        WeightedAverageRule<Double> rule = new WeightedAverageRule<>(key, description,
+                positionFilter, calculationAttribute, lowerLimit, upperLimit, groupClassifier);
         assetCache.getRuleCache().put(rule.getKey(), rule);
 
         return rule;

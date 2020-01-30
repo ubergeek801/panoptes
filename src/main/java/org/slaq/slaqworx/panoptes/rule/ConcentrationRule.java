@@ -27,7 +27,7 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  *
  * @author jeremy
  */
-public class ConcentrationRule extends ValueRule {
+public class ConcentrationRule extends LimitRule {
     /**
      * {@code Configuration} encapsulates the properties of a {@code ConcentrationRule} which are
      * configurable via e.g. JSON.
@@ -92,7 +92,7 @@ public class ConcentrationRule extends ValueRule {
     public ConcentrationRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
             Double upperLimit, EvaluationGroupClassifier groupClassifier) {
-        super(key, description, positionFilter, null, lowerLimit, upperLimit, groupClassifier);
+        super(key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
     }
 
     @Override

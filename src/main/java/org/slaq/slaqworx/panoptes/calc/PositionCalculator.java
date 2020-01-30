@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  *            the type on which the calculator can operate
  */
 public abstract class PositionCalculator<T> {
-    private final SecurityAttribute<? extends T> calculationAttribute;
+    private final SecurityAttribute<T> calculationAttribute;
 
     /**
      * Creates a new {@code PositionCalculator} which operates on the given
@@ -24,7 +24,7 @@ public abstract class PositionCalculator<T> {
      * @param calculationAttribute
      *            the (possibly {@code null}) {@code SecurityAttriute} type on which to calculate
      */
-    protected PositionCalculator(SecurityAttribute<? extends T> calculationAttribute) {
+    protected PositionCalculator(SecurityAttribute<T> calculationAttribute) {
         this.calculationAttribute = calculationAttribute;
     }
 
@@ -43,7 +43,19 @@ public abstract class PositionCalculator<T> {
      *
      * @return a (possibly {@code null}) {@code SecurityAttribute}
      */
-    protected SecurityAttribute<? extends T> getCalculationAttribute() {
+    protected SecurityAttribute<T> getCalculationAttribute() {
         return calculationAttribute;
+    }
+
+    /**
+     * Obtains the {@code Double} value corresponding to the given attribute value.
+     *
+     * @param attributeValue
+     *            the attribute value for which to obtain a corresponding {@code Double} value
+     * @return the interpreted value of the given attribute value
+     */
+    protected Double getValue(T attributeValue) {
+        return (calculationAttribute == null ? null
+                : calculationAttribute.getValueProvider().apply(attributeValue));
     }
 }

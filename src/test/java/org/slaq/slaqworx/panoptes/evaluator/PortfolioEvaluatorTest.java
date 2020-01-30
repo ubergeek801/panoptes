@@ -266,12 +266,12 @@ public class PortfolioEvaluatorTest {
         positions.add(cadPosition2);
 
         HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
-        ConfigurableRule durationRule = new WeightedAverageRule(null,
+        ConfigurableRule durationRule = new WeightedAverageRule<>(null,
                 "currency-grouped duration rule", null, SecurityAttribute.duration, null, 4d,
                 new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
         rules.put(durationRule.getKey(), durationRule);
-        ConfigurableRule qualityRule = new WeightedAverageRule(null, "ungrouped quality rule", null,
-                SecurityAttribute.rating1Value, 80d, null, null);
+        ConfigurableRule qualityRule = new WeightedAverageRule<>(null, "ungrouped quality rule",
+                null, SecurityAttribute.rating1Value, 80d, null, null);
         rules.put(qualityRule.getKey(), qualityRule);
         ConfigurableRule issuerRule =
                 new ConcentrationRule(null, "issuer-grouped concentration rule", null, null, 0.5,

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 
 /**
  * A service that initializes the known {@code SecurityAttribute}s from a JDBC data source.
@@ -38,7 +39,8 @@ public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {
                     String name = rs.getString(1);
                     int index = rs.getInt(2);
                     String className = rs.getString(3);
-                    Class<?> clazz;
+                    @SuppressWarnings("rawtypes")
+                    Class clazz;
                     try {
                         clazz = Class.forName(className);
                     } catch (ClassNotFoundException e) {
@@ -46,7 +48,9 @@ public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {
                         LOG.warn("cannot locate class {} for SecurityAttribute {}", className,
                                 name);
                     }
-                    SecurityAttribute.of(name, index, clazz);
+                    @SuppressWarnings({ "unchecked", "unused" })
+                    SecurityAttribute<?> notUsed =
+                            SecurityAttribute.of(name, index, clazz, ValueProvider.forClass(clazz));
                 }));
     }
 }

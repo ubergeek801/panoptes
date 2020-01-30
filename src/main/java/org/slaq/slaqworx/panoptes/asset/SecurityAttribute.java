@@ -8,6 +8,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import org.slaq.slaqworx.panoptes.rule.ValueProvider;
+
 /**
  * A {@code SecurityAttribute} identifies a particular attribute of a {@code Security}.
  *
@@ -22,34 +24,39 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
             new HashMap<>(100, 0.5f);
 
     // the "standard" SecurityAttributes; there may be more defined in the database
-    public static final SecurityAttribute<String> cusip = of("cusip", 0, String.class);
-    public static final SecurityAttribute<String> isin = of("isin", 1, String.class);
-    public static final SecurityAttribute<String> description = of("description", 2, String.class);
-    public static final SecurityAttribute<String> country = of("country", 3, String.class);
-    public static final SecurityAttribute<String> region = of("region", 4, String.class);
-    public static final SecurityAttribute<String> sector = of("sector", 5, String.class);
-    public static final SecurityAttribute<String> currency = of("currency", 6, String.class);
-    public static final SecurityAttribute<BigDecimal> coupon = of("coupon", 7, BigDecimal.class);
+    public static final SecurityAttribute<String> cusip = of("cusip", 0, String.class, null);
+    public static final SecurityAttribute<String> isin = of("isin", 1, String.class, null);
+    public static final SecurityAttribute<String> description =
+            of("description", 2, String.class, null);
+    public static final SecurityAttribute<String> country = of("country", 3, String.class, null);
+    public static final SecurityAttribute<String> region = of("region", 4, String.class, null);
+    public static final SecurityAttribute<String> sector = of("sector", 5, String.class, null);
+    public static final SecurityAttribute<String> currency = of("currency", 6, String.class, null);
+    public static final SecurityAttribute<BigDecimal> coupon =
+            of("coupon", 7, BigDecimal.class, ValueProvider.forBigDecimal());
     public static final SecurityAttribute<LocalDate> maturityDate =
-            of("maturityDate", 8, LocalDate.class);
-    public static final SecurityAttribute<BigDecimal> yield = of("yield", 9, BigDecimal.class);
-    public static final SecurityAttribute<Double> duration = of("duration", 10, Double.class);
-    public static final SecurityAttribute<String> issuer = of("issuer", 11, String.class);
-    public static final SecurityAttribute<BigDecimal> price = of("price", 12, BigDecimal.class);
+            of("maturityDate", 8, LocalDate.class, ValueProvider.forDaysUntilDate());
+    public static final SecurityAttribute<BigDecimal> yield =
+            of("yield", 9, BigDecimal.class, ValueProvider.forBigDecimal());
+    public static final SecurityAttribute<Double> duration =
+            of("duration", 10, Double.class, ValueProvider.forDouble());
+    public static final SecurityAttribute<String> issuer = of("issuer", 11, String.class, null);
+    public static final SecurityAttribute<BigDecimal> price =
+            of("price", 12, BigDecimal.class, ValueProvider.forBigDecimal());
     public static final SecurityAttribute<PortfolioKey> portfolio =
-            of("portfolio", 13, PortfolioKey.class);
+            of("portfolio", 13, PortfolioKey.class, null);
     public static final SecurityAttribute<String> rating1Symbol =
-            of("rating1Symbol", 14, String.class);
+            of("rating1Symbol", 14, String.class, null);
     public static final SecurityAttribute<Double> rating1Value =
-            of("rating1Value", 15, Double.class);
+            of("rating1Value", 15, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating2Symbol =
-            of("rating2Symbol", 16, String.class);
+            of("rating2Symbol", 16, String.class, null);
     public static final SecurityAttribute<Double> rating2Value =
-            of("rating2Value", 17, Double.class);
+            of("rating2Value", 17, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating3Symbol =
-            of("rating3Symbol", 18, String.class);
+            of("rating3Symbol", 18, String.class, null);
     public static final SecurityAttribute<Double> rating3Value =
-            of("rating3Value", 19, Double.class);
+            of("rating3Value", 19, Double.class, ValueProvider.forDouble());
 
     /**
      * Obtains the {@code SecurityAttribute} corresponding to the given index, if it exists. For
@@ -88,13 +95,18 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
      *            the index of the {@code SecurityAttribute} in an attributes array
      * @param type
      *            the {@code Class} of the value type
+     * @param valueProvider
+     *            a {@code ValueProvider} capable of interpreting {@code SecurityAttribute} values,
+     *            or {@code null} if not applicable
      * @return an existing {@code SecurityAttribute} if already defined, otherwise a new
      *         {@code SecurityAttribute}
      */
-    public static <T> SecurityAttribute<T> of(String name, int index, Class<T> type) {
+    public static <T> SecurityAttribute<T> of(String name, int index, Class<T> type,
+            ValueProvider<T> valueProvider) {
         @SuppressWarnings("unchecked")
-        SecurityAttribute<T> attribute = (SecurityAttribute<T>)attributesByName
-                .computeIfAbsent(name, n -> new SecurityAttribute<>(name, index, type));
+        SecurityAttribute<T> attribute =
+                (SecurityAttribute<T>)attributesByName.computeIfAbsent(name,
+                        n -> new SecurityAttribute<>(name, index, type, valueProvider));
         attributesByIndex.put(index, attribute);
 
         return attribute;
@@ -103,6 +115,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
     private final String name;
     private final int index;
     private final Class<T> type;
+    private final ValueProvider<T> valueProvider;
 
     /**
      * Creates a new {@code SecurityAttribute} with the given name and index. Restricted to enforce
@@ -114,11 +127,16 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
      *            the index of the {@code SecurityAttribute} in an attributes array
      * @param type
      *            the {@code Class} of the value type
+     * @param valueProvider
+     *            a {@code ValueProvider} capable of interpreting {@code SecurityAttribute} values,
+     *            or {@code null} if not applicable
      */
-    private SecurityAttribute(String name, int index, Class<T> type) {
+    private SecurityAttribute(String name, int index, Class<T> type,
+            ValueProvider<T> valueProvider) {
         this.name = name;
         this.index = index;
         this.type = type;
+        this.valueProvider = valueProvider;
     }
 
     @Override
@@ -169,6 +187,16 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
      */
     public Class<T> getType() {
         return type;
+    }
+
+    /**
+     * Obtains a {@code ValueProvider} capable of interpreting values of this
+     * {@code SecurityAttribute} type.
+     *
+     * @return a {@code ValueProvider} or {@code null} if not applicable
+     */
+    public ValueProvider<T> getValueProvider() {
+        return valueProvider;
     }
 
     @Override

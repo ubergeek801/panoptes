@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.ArrayList;
 import java.util.function.Predicate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +24,7 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  *
  * @author jeremy
  */
-public class WeightedAverageRule extends ValueRule {
+public class WeightedAverageRule<T> extends LimitRule {
     /**
      * {@code Configuration} mirrors the structure of the JSON configuration.
      */
@@ -50,7 +51,7 @@ public class WeightedAverageRule extends ValueRule {
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
      */
-    public static WeightedAverageRule fromJson(String jsonConfiguration, RuleKey key,
+    public static WeightedAverageRule<?> fromJson(String jsonConfiguration, RuleKey key,
             String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
         Configuration configuration;
         try {
@@ -62,14 +63,17 @@ public class WeightedAverageRule extends ValueRule {
                     e);
         }
 
-        @SuppressWarnings("unchecked")
-        SecurityAttribute<Double> calculationAttribute =
-                (SecurityAttribute<Double>)SecurityAttribute.of(configuration.attribute);
-        return new WeightedAverageRule(key, description,
+        SecurityAttribute<?> calculationAttribute = SecurityAttribute.of(configuration.attribute);
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        WeightedAverageRule<?> rule = new WeightedAverageRule(key, description,
                 (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
                 calculationAttribute, configuration.lowerLimit, configuration.upperLimit,
                 groupClassifier);
+        return rule;
     }
+
+    private final SecurityAttribute<T> calculationAttribute;
 
     /**
      * Creates a new {@code WeightedAverageRule} with the given parameters.
@@ -92,10 +96,10 @@ public class WeightedAverageRule extends ValueRule {
      */
     public WeightedAverageRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter,
-            SecurityAttribute<? extends Number> calculationAttribute, Double lowerLimit,
-            Double upperLimit, EvaluationGroupClassifier groupClassifier) {
-        super(key, description, positionFilter, calculationAttribute, lowerLimit, upperLimit,
-                groupClassifier);
+            SecurityAttribute<T> calculationAttribute, Double lowerLimit, Double upperLimit,
+            EvaluationGroupClassifier groupClassifier) {
+        super(key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
+        this.calculationAttribute = calculationAttribute;
     }
 
     @Override
@@ -114,9 +118,32 @@ public class WeightedAverageRule extends ValueRule {
     }
 
     @Override
+    public String getParameterDescription() {
+        ArrayList<String> descriptions = new ArrayList<>();
+        String superDescription = super.getParameterDescription();
+        if (superDescription != null) {
+            descriptions.add(superDescription);
+        }
+        if (calculationAttribute != null) {
+            descriptions.add("attribute=\"" + calculationAttribute.getName() + "\"");
+        }
+
+        return String.join(",", descriptions);
+    }
+
+    /**
+     * Obtains this {@code Rule}'s (possibly {@code null}) calculation attribute.
+     *
+     * @return the {@code SecurityAttribute} on which to perform calculations
+     */
+    protected SecurityAttribute<T> getCalculationAttribute() {
+        return calculationAttribute;
+    }
+
+    @Override
     protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
-        WeightedAveragePositionCalculator calculator =
-                new WeightedAveragePositionCalculator(getCalculationAttribute());
+        WeightedAveragePositionCalculator<T> calculator =
+                new WeightedAveragePositionCalculator<>(calculationAttribute);
 
         return calculator.calculate(positions.getPositionsWithContext(evaluationContext));
     }

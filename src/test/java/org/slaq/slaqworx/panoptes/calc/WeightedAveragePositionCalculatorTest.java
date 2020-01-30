@@ -19,8 +19,8 @@ public class WeightedAveragePositionCalculatorTest {
      */
     @Test
     public void testCalculateWeightedAverage() {
-        WeightedAveragePositionCalculator calculator =
-                new WeightedAveragePositionCalculator(TestUtil.moovyRating);
+        WeightedAveragePositionCalculator<Double> calculator =
+                new WeightedAveragePositionCalculator<>(TestUtil.moovyRating);
 
         // 1000 of s1 = 1000 * s1.moovyRating = 1000 * 90 = 90_000
         // 500 of s2 = 500 * s2.moovyRating = 500 * 85 = 42_500
@@ -38,7 +38,7 @@ public class WeightedAveragePositionCalculatorTest {
                 calculator.calculate(TestUtil.p2.getPositionsWithContext(new EvaluationContext())),
                 TestUtil.EPSILON, "unexpected weighted average for p2");
 
-        calculator = new WeightedAveragePositionCalculator(TestUtil.fetchRating);
+        calculator = new WeightedAveragePositionCalculator<>(TestUtil.fetchRating);
 
         // 1000 of s1 = 1000 * s1.fetchRating = 1000 * 88 = 88_000
         // 500 of s2 = 500 * s2.fetchRating = 500 * (no rating) = (not applicable)

@@ -275,21 +275,21 @@ public class DummyPortfolioMapLoader
         if (hasBenchmark) {
             if (rand < 0.5) {
                 // require average quality somewhat close to the benchmark
-                rules.add(new WeightedAverageRule(null, "Average Quality >= 85% of Benchmark", null,
-                        SecurityAttribute.rating1Value, 0.85, null, null));
+                rules.add(new WeightedAverageRule<>(null, "Average Quality >= 85% of Benchmark",
+                        null, SecurityAttribute.rating1Value, 0.85, null, null));
             } else if (rand < 0.8) {
                 // require average quality somewhat closer to the benchmark
-                rules.add(new WeightedAverageRule(null, "Average Quality >= 90% of Benchmark", null,
-                        SecurityAttribute.rating1Value, 0.9, null, null));
+                rules.add(new WeightedAverageRule<>(null, "Average Quality >= 90% of Benchmark",
+                        null, SecurityAttribute.rating1Value, 0.9, null, null));
             }
         } else {
             if (rand < 0.5) {
                 // require somewhat high average quality
-                rules.add(new WeightedAverageRule(null, "Average Quality >= A3", null,
+                rules.add(new WeightedAverageRule<>(null, "Average Quality >= A3", null,
                         SecurityAttribute.rating1Value, 79d, null, null));
             } else if (rand < 0.8) {
                 // require somewhat higher average quality
-                rules.add(new WeightedAverageRule(null, "Average Quality >= A1", null,
+                rules.add(new WeightedAverageRule<>(null, "Average Quality >= A1", null,
                         SecurityAttribute.rating1Value, 85d, null, null));
             }
         }
@@ -299,22 +299,39 @@ public class DummyPortfolioMapLoader
         if (hasBenchmark) {
             if (rand < 0.5) {
                 // require yield somewhat close to benchmark
-                rules.add(new WeightedAverageRule(null, "Yield >= 90% of Benchmark", null,
+                rules.add(new WeightedAverageRule<>(null, "Yield >= 90% of Benchmark", null,
                         SecurityAttribute.yield, 0.9, null, null));
             } else if (rand < 0.8) {
                 // require yield somewhat closer to benchmark
-                rules.add(new WeightedAverageRule(null, "Yield >= 95% of Benchmark", null,
+                rules.add(new WeightedAverageRule<>(null, "Yield >= 95% of Benchmark", null,
                         SecurityAttribute.yield, 0.95, null, null));
             }
         } else {
             if (rand < 0.5) {
                 // require a modest yield
-                rules.add(new WeightedAverageRule(null, "Yield >= 4.0", null,
+                rules.add(new WeightedAverageRule<>(null, "Yield >= 4.0", null,
                         SecurityAttribute.yield, 4d, null, null));
             } else if (rand < 0.8) {
                 // require a higher yield
-                rules.add(new WeightedAverageRule(null, "Yield >= 6.0", null,
+                rules.add(new WeightedAverageRule<>(null, "Yield >= 6.0", null,
                         SecurityAttribute.yield, 6d, null, null));
+            }
+        }
+
+        // with high probability, the average days to maturity will be limited relative to the
+        // benchmark (if applicable)
+        if (hasBenchmark) {
+            rand = random.nextDouble();
+            if (rand < 0.5) {
+                // require average days to maturity somewhat close to the benchmark
+                rules.add(
+                        new WeightedAverageRule<>(null, "Days to Maturity within 20% of Benchmark",
+                                null, SecurityAttribute.maturityDate, 0.8, 1.2, null));
+            } else if (rand < 0.8) {
+                // require average days to maturity somewhat closer to the benchmark
+                rules.add(
+                        new WeightedAverageRule<>(null, "Days to Maturity within 10% of Benchmark",
+                                null, SecurityAttribute.maturityDate, 0.9, 1.1, null));
             }
         }
 
@@ -323,21 +340,21 @@ public class DummyPortfolioMapLoader
         if (hasBenchmark) {
             if (rand < 0.2) {
                 // require duration somewhat close to benchmark
-                rules.add(new WeightedAverageRule(null, "Duration within 20% of Benchmark", null,
+                rules.add(new WeightedAverageRule<>(null, "Duration within 20% of Benchmark", null,
                         SecurityAttribute.duration, 0.8, 1.2, null));
             } else if (rand < 0.5) {
                 // require duration somewhat closer to benchmark
-                rules.add(new WeightedAverageRule(null, "Duration within 10% of Benchmark", null,
+                rules.add(new WeightedAverageRule<>(null, "Duration within 10% of Benchmark", null,
                         SecurityAttribute.duration, 0.9, 1.1, null));
             }
         } else {
             if (rand < 0.2) {
                 // require a relatively low duration
-                rules.add(new WeightedAverageRule(null, "Duration < 3.0", null,
+                rules.add(new WeightedAverageRule<>(null, "Duration < 3.0", null,
                         SecurityAttribute.duration, null, 3d, null));
             } else if (rand < 0.5) {
                 // allow a somewhat higher duration
-                rules.add(new WeightedAverageRule(null, "Duration < 5.0", null,
+                rules.add(new WeightedAverageRule<>(null, "Duration < 5.0", null,
                         SecurityAttribute.duration, null, 5d, null));
             }
         }

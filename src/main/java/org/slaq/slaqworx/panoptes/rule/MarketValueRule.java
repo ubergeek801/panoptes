@@ -16,7 +16,7 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  *
  * @author jeremy
  */
-public class MarketValueRule extends ValueRule {
+public class MarketValueRule extends LimitRule {
     /**
      * {@code Configuration} mirrors the structure of the JSON configuration.
      */
@@ -75,7 +75,7 @@ public class MarketValueRule extends ValueRule {
     public MarketValueRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
             Double upperLimit) {
-        super(key, description, positionFilter, null, lowerLimit, upperLimit, null);
+        super(key, description, positionFilter, lowerLimit, upperLimit, null);
     }
 
     @Override

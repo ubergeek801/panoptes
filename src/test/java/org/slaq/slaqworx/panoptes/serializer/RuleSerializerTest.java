@@ -55,7 +55,7 @@ public class RuleSerializerTest {
                     "deserialized group classifier should have same configuration as original");
         }
 
-        rule = new WeightedAverageRule(new RuleKey("foo"), "test rule", null,
+        rule = new WeightedAverageRule<>(new RuleKey("foo"), "test rule", null,
                 SecurityAttribute.duration, 1d, 2d,
                 new TopNSecurityAttributeAggregator(SecurityAttribute.duration, 10));
 

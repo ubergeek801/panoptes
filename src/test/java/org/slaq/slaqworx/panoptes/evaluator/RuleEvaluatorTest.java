@@ -64,7 +64,7 @@ public class RuleEvaluatorTest {
         // a dumb filter that matches Positions in s1
         Predicate<PositionEvaluationContext> filter =
                 (c -> c.getPosition().getSecurity().getKey().equals(TestUtil.s1.getKey()));
-        Rule rule = new WeightedAverageRule(null, "test rule", filter, SecurityAttribute.duration,
+        Rule rule = new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration,
                 0d, 3.9, classifier);
 
         EvaluationResult result =
@@ -77,7 +77,7 @@ public class RuleEvaluatorTest {
         RuleResult ruleResult = groupedResults.values().iterator().next();
         assertFalse(ruleResult.isPassed(), "rule with 3.9 upper limit should have failed");
 
-        rule = new WeightedAverageRule(null, "test rule", filter, SecurityAttribute.duration, 3.9,
+        rule = new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration, 3.9,
                 4.1, classifier);
         result = new RuleEvaluator(rule, TestUtil.p1, null, new EvaluationContext()).call();
         assertTrue(result.isPassed(),
@@ -107,13 +107,13 @@ public class RuleEvaluatorTest {
         // of s3 (200 * 80), for a weighted moovyRating of (45_000 + 16_000) / 700 = 87.142857143.
         // Thus p1's weighted average is 1.032786885 * p3's.
 
-        Rule rule = new WeightedAverageRule(null, "test", filter, TestUtil.moovyRating, 1.035, null,
-                null);
+        Rule rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.035,
+                null, null);
         EvaluationResult result =
                 new RuleEvaluator(rule, TestUtil.p1, TestUtil.p3, new EvaluationContext()).call();
         assertFalse(result.isPassed(), "rule with 103.5% lower limit should have failed");
 
-        rule = new WeightedAverageRule(null, "test", filter, TestUtil.moovyRating, 1.03, null,
+        rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.03, null,
                 null);
         result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.p3, new EvaluationContext()).call();
         assertTrue(result.isPassed(), "rule with 103% lower limit should have passed");
