@@ -4,20 +4,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import javax.inject.Singleton;
 
-import io.micronaut.context.BeanContext;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.context.event.StartupEvent;
+import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.runtime.Micronaut;
-import io.micronaut.runtime.event.annotation.EventListener;
+import io.micronaut.runtime.event.ApplicationStartupEvent;
 
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
+import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance. {@code Panoptes} is
@@ -26,8 +33,9 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  * @author jeremy
  */
 @Singleton
+@Context
 @Requires(notEnv = "test")
-public class Panoptes {
+public class Panoptes implements ApplicationEventListener<ApplicationStartupEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
     /**
@@ -61,39 +69,94 @@ public class Panoptes {
         // nothing to do
     }
 
+    @Override
+    public void onApplicationEvent(ApplicationStartupEvent event) {
+        try {
+            @SuppressWarnings("resource")
+            ApplicationContext applicationContext = event.getSource().getApplicationContext();
+            AssetCache assetCache = applicationContext.getBean(AssetCache.class);
+
+            if (applicationContext.getEnvironment().getActiveNames().contains("offline")) {
+                initializeCache(assetCache);
+            }
+
+            int numSecurities = assetCache.getSecurityCache().size();
+            LOG.info("{} Securities in cache", numSecurities);
+
+            int numPositions = assetCache.getPositionCache().size();
+            LOG.info("{} Positions in cache", numPositions);
+
+            int numRules = assetCache.getRuleCache().size();
+            LOG.info("{} Rules in cache", numRules);
+
+            int numPortfolios = assetCache.getPortfolioCache().size();
+            LOG.info("{} Portfolios in cache", numPortfolios);
+
+            LOG.info("Panoptes cluster node ready");
+
+            LOG.info("starting Web application service");
+
+            Server servletServer = applicationContext.getBean(Server.class);
+            servletServer.start();
+
+            LOG.info("Panoptes Web application ready");
+        } catch (Exception e) {
+            // FIXME throw a better exception
+            throw new RuntimeException("could not initialize Panoptes", e);
+        }
+    }
+
     /**
-     * Initializes the Panoptes Web application upon startup.
+     * Initializes the cache for offline mode from dummy data, in much the same way as
+     * {@code PimcoBenchmarkDatabaseLoader} initializes the persistent store.
      *
-     * @param event
-     *            a {@code StartupEvent}
-     * @throws Exception
-     *             if initialization could not be completed
+     * @param assetCache
+     *            the cache to be initialized
+     * @throws IOException
+     *             if source data could not be read
      */
-    @EventListener
-    protected void onStartup(StartupEvent event) throws Exception {
-        @SuppressWarnings("resource")
-        BeanContext applicationContext = event.getSource();
-        AssetCache assetCache = applicationContext.getBean(AssetCache.class);
+    protected void initializeCache(AssetCache assetCache) throws IOException {
+        PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
 
-        int numSecurities = assetCache.getSecurityCache().size();
-        LOG.info("{} Securities in cache", numSecurities);
+        LOG.info("initializing {} Securities", pimcoDataSource.getSecurityMap().size());
+        assetCache.getSecurityCache().putAll(pimcoDataSource.getSecurityMap());
 
-        int numPositions = assetCache.getPositionCache().size();
-        LOG.info("{} Positions in cache", numPositions);
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
+        ArrayList<Portfolio> portfolios = new ArrayList<>();
+        for (PortfolioKey key : mapLoader.loadAllKeys()) {
+            Portfolio portfolio = mapLoader.load(key);
+            portfolios.add(portfolio);
+        }
 
-        int numRules = assetCache.getRuleCache().size();
-        LOG.info("{} Rules in cache", numRules);
+        portfolios.stream().forEach(pf -> {
+            LOG.info("initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(),
+                    pf.getName());
+            pf.getRules()
+                    .forEach(r -> assetCache.getRuleCache().put(r.getKey(), (ConfigurableRule)r));
+        });
 
-        int numPortfolios = assetCache.getPortfolioCache().size();
-        LOG.info("{} Portfolios in cache", numPortfolios);
+        portfolios.stream().forEach(pf -> {
+            LOG.info("initializing {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
+                    pf.getName());
+            pf.getPositions().forEach(p -> assetCache.getPositionCache().put(p.getKey(), p));
+        });
 
-        LOG.info("Panoptes cluster node ready");
+        // initialize the benchmarks first
+        LOG.info("initializing 4 benchmark Portfolios");
+        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.EMAD_KEY,
+                pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.EMAD_KEY));
+        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.GLAD_KEY,
+                pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.GLAD_KEY));
+        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.ILAD_KEY,
+                pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.ILAD_KEY));
+        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.PGOV_KEY,
+                pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.PGOV_KEY));
 
-        LOG.info("starting Web application service");
+        portfolios.stream().filter(p -> p.getKey().getId().length() != 4).forEach(p -> {
+            LOG.info("initializing Portfolio {}", p.getKey());
+            assetCache.getPortfolioCache().put(p.getKey(), p);
+        });
 
-        Server servletServer = applicationContext.getBean(Server.class);
-        servletServer.start();
-
-        LOG.info("Panoptes Web application ready");
+        LOG.info("completed cache initialization");
     }
 }

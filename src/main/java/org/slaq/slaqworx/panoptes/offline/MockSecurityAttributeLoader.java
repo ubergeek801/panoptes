@@ -1,8 +1,11 @@
-package org.slaq.slaqworx.panoptes.data;
+package org.slaq.slaqworx.panoptes.offline;
 
 import javax.inject.Singleton;
 
 import io.micronaut.context.annotation.Primary;
+import io.micronaut.context.annotation.Requires;
+
+import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 
 /**
  * {@code MockSecurityAttributeLoader} is a {@code SecurityAttributeLoader} that does nothing
@@ -12,6 +15,7 @@ import io.micronaut.context.annotation.Primary;
  */
 @Singleton
 @Primary
+@Requires(env = { "offline", "test" })
 public class MockSecurityAttributeLoader implements SecurityAttributeLoader {
     /**
      * Creates a new {@code MockSecurityAttributeLoader}. Restricted because this class should be

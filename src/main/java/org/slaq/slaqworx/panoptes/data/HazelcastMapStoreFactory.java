@@ -21,7 +21,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  * @author jeremy
  */
 @Singleton
-@Requires(notEnv = "test")
+@Requires(notEnv = { "test", "offline" })
 public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object> {
     private final Provider<AssetCache> assetCacheProvider;
     private final DataSource dataSource;

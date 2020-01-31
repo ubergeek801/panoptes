@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.data;
+package org.slaq.slaqworx.panoptes.offline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,6 +52,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     private static final Random random = new Random(0);
 
     private static final BigDecimal MARKET_VALUE_MULTIPLIER = new BigDecimal("10000.00");
+
+    public static final String RESOURCE_PATH = "offline/";
 
     public static final PortfolioKey EMAD_KEY = new PortfolioKey("EMAD", 1);
     public static final PortfolioKey GLAD_KEY = new PortfolioKey("GLAD", 1);
@@ -197,7 +199,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         HashSet<Position> positions = new HashSet<>();
         double portfolioMarketValue = 0;
         try (BufferedReader constituentReader = new BufferedReader(new InputStreamReader(
-                getClass().getClassLoader().getResourceAsStream(sourceFile)))) {
+                getClass().getClassLoader().getResourceAsStream(RESOURCE_PATH + sourceFile)))) {
             // throw away the header row
             String row = constituentReader.readLine();
             while ((row = constituentReader.readLine()) != null) {

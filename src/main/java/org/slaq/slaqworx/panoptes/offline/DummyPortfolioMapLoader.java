@@ -1,4 +1,4 @@
-package org.slaq.slaqworx.panoptes.data;
+package org.slaq.slaqworx.panoptes.offline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -101,8 +101,9 @@ public class DummyPortfolioMapLoader
                         dataSource.getBenchmark(PimcoBenchmarkDataSource.PGOV_KEY) };
 
         portfolioNames = new ArrayList<>(1000);
-        try (BufferedReader portfolioNameReader = new BufferedReader(new InputStreamReader(
-                getClass().getClassLoader().getResourceAsStream(PORTFOLIO_NAMES_FILE)))) {
+        try (BufferedReader portfolioNameReader = new BufferedReader(
+                new InputStreamReader(getClass().getClassLoader().getResourceAsStream(
+                        PimcoBenchmarkDataSource.RESOURCE_PATH + PORTFOLIO_NAMES_FILE)))) {
             String portfolioName;
             while ((portfolioName = portfolioNameReader.readLine()) != null) {
                 portfolioNames.add(portfolioName);
@@ -319,19 +320,29 @@ public class DummyPortfolioMapLoader
         }
 
         // with high probability, the average days to maturity will be limited relative to the
-        // benchmark (if applicable)
+        // benchmark, if applicable, otherwise to some fixed limit
+        rand = random.nextDouble();
         if (hasBenchmark) {
-            rand = random.nextDouble();
             if (rand < 0.5) {
                 // require average days to maturity somewhat close to the benchmark
-                rules.add(
-                        new WeightedAverageRule<>(null, "Days to Maturity within 20% of Benchmark",
-                                null, SecurityAttribute.maturityDate, 0.8, 1.2, null));
+                rules.add(new WeightedAverageRule<>(null,
+                        "Average Days to Maturity within 20% of Benchmark", null,
+                        SecurityAttribute.maturityDate, 0.8, 1.2, null));
             } else if (rand < 0.8) {
                 // require average days to maturity somewhat closer to the benchmark
-                rules.add(
-                        new WeightedAverageRule<>(null, "Days to Maturity within 10% of Benchmark",
-                                null, SecurityAttribute.maturityDate, 0.9, 1.1, null));
+                rules.add(new WeightedAverageRule<>(null,
+                        "Average Days to Maturity within 10% of Benchmark", null,
+                        SecurityAttribute.maturityDate, 0.9, 1.1, null));
+            }
+        } else {
+            if (rand < 0.5) {
+                // require average days to maturity < 7 years
+                rules.add(new WeightedAverageRule<>(null, "Average Days to Maturity < 7 Years",
+                        null, SecurityAttribute.maturityDate, null, 7 * 365d, null));
+            } else if (rand < 0.8) {
+                // require average days to maturity < 8 years
+                rules.add(new WeightedAverageRule<>(null, "Average Days to Maturity < 8 Years",
+                        null, SecurityAttribute.maturityDate, null, 8 * 365d, null));
             }
         }
 

@@ -96,6 +96,8 @@
                 <configuration>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
                     <from>
+                        <!-- :13.0.2-amd64 -->
+                        <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:56a832ff972d60e4ed47a6a99812624910a9e5755d12f658a680a180f36e038e</image> -->
                         <!-- :13.0.2-aarch64 -->
                         <image>bellsoft/liberica-openjdk-alpine@sha256:eec1b1edfd1c65f23c342ca228a1c3fae0ad7d3e3cdbbfb35bc8dfe527245040</image>
                     </from>
@@ -197,7 +199,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
                 <configuration>
-                    <argLine>${globalJvmArgs} -Dmicronaut.environments=standalone</argLine>
+                    <argLine>${globalJvmArgs}</argLine>
                 </configuration>
             </plugin>
             <!-- produce build-info to include in the application package -->
@@ -333,6 +335,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-jdbc-hikari</artifactId>
             <scope>runtime</scope>
@@ -365,11 +372,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>io.micronaut.test</groupId>
             <artifactId>micronaut-test-junit5</artifactId>
