@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * {@code PortfolioTest} tests the functionality of {@code Portfolio}.
@@ -32,10 +33,10 @@ public class PortfolioTest {
         Security dummySecurity = securityProvider.newSecurity("dummy",
                 Map.of(SecurityAttribute.price, new BigDecimal("1.00")));
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity));
-        positions.add(new Position(200, dummySecurity));
-        positions.add(new Position(300, dummySecurity));
-        positions.add(new Position(400, dummySecurity));
+        positions.add(new Position(100, dummySecurity.getKey()));
+        positions.add(new Position(200, dummySecurity.getKey()));
+        positions.add(new Position(300, dummySecurity.getKey()));
+        positions.add(new Position(400, dummySecurity.getKey()));
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), "test", positions);
 
@@ -65,17 +66,19 @@ public class PortfolioTest {
      */
     @Test
     public void testGetTotalMarketValue() {
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
+
         Security dummySecurity = securityProvider.newSecurity("dummy",
                 Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity));
-        positions.add(new Position(200, dummySecurity));
-        positions.add(new Position(300, dummySecurity));
-        positions.add(new Position(400, dummySecurity));
+        positions.add(new Position(100, dummySecurity.getKey()));
+        positions.add(new Position(200, dummySecurity.getKey()));
+        positions.add(new Position(300, dummySecurity.getKey()));
+        positions.add(new Position(400, dummySecurity.getKey()));
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
         // the total amount is merely the sum of the amounts (100 + 200 + 300 + 400) * 2.00 = 2000
-        assertEquals(2000, portfolio.getTotalMarketValue(), TestUtil.EPSILON,
+        assertEquals(2000, portfolio.getTotalMarketValue(evaluationContext), TestUtil.EPSILON,
                 "unexpected total amount");
     }
 

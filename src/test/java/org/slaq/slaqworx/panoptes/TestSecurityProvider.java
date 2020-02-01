@@ -7,6 +7,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * {@code TestSecurityProvider} is a {@code SecurityProvider} suitable for testing purposes.
@@ -25,7 +26,7 @@ public class TestSecurityProvider implements SecurityProvider {
     }
 
     @Override
-    public Security getSecurity(SecurityKey key) {
+    public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext) {
         return securityMap.get(key);
     }
 

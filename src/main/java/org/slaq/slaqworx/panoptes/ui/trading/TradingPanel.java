@@ -76,7 +76,7 @@ public class TradingPanel extends VerticalLayout {
                 GridVariant.LUMO_COMPACT);
         securityGrid.setDataProvider(securityProvider);
 
-        final EvaluationContext context = new EvaluationContext();
+        final EvaluationContext context = new EvaluationContext(assetCache);
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
         securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, context))
@@ -147,7 +147,8 @@ public class TradingPanel extends VerticalLayout {
                                                                         query.getOffset()
                                                                                 + query.getLimit(),
                                                                         portfolioKeys.size()))),
-                                                e -> PortfolioSummary.fromPortfolio(e.getValue()))
+                                                e -> PortfolioSummary.fromPortfolio(e.getValue(),
+                                                        context))
                                         .values().stream(),
                                 query -> portfolioKeys.size());
 

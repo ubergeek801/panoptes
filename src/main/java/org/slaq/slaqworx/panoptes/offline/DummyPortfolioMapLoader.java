@@ -231,7 +231,7 @@ public class DummyPortfolioMapLoader
                             / 100d;
             // use a given Security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
-            positions.add(new Position(amount, security));
+            positions.add(new Position(amount, security.getKey()));
         }
 
         return positions;

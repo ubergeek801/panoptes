@@ -121,6 +121,6 @@ public class ConcentrationRule extends LimitRule {
         double subtotalAmount = calculator.calculate(
                 positions.getPositionsWithContext(evaluationContext).filter(getPositionFilter()));
 
-        return subtotalAmount / positions.getTotalMarketValue();
+        return subtotalAmount / positions.getTotalMarketValue(evaluationContext);
     }
 }

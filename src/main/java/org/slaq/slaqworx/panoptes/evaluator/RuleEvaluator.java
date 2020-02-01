@@ -32,6 +32,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult;
  * {@code Position}s (and optionally a set of benchmark {@code Position}s). The results are grouped
  * by the {@code EvaluationGroupClassifier} defined by the {@code Rule}; there is always at least
  * one group (unless the input set of {@code Position}s is empty).
+ * <p>
+ * Given that a {@code RuleEvaluator} requires a {@code EvaluationContext} at construction time, the
+ * evaluator can only be used for that context. {@code RuleEvaluator} creation is meant to be
+ * inexpensive, however, so a new one can be created for each evaluation session.
  *
  * @author jeremy
  */
@@ -156,7 +160,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
         Map<EvaluationGroup, PositionSupplier> classifiedPortfolioPositions = classify(
-                portfolioPositions, evaluationContext, portfolioPositions.getTotalMarketValue());
+                portfolioPositions, portfolioPositions.getTotalMarketValue(evaluationContext));
 
         // do the same for the proposed Positions, if specified
         Map<EvaluationGroup, PositionSupplier> classifiedProposedPositions;
@@ -165,8 +169,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         } else {
             PositionSupplier concatPositions =
                     PositionSupplier.concat(portfolioPositions, proposedPositions);
-            classifiedProposedPositions = classify(concatPositions, evaluationContext,
-                    concatPositions.getTotalMarketValue());
+            classifiedProposedPositions = classify(concatPositions,
+                    concatPositions.getTotalMarketValue(evaluationContext));
         }
 
         // do the same for the benchmark, if specified
@@ -174,20 +178,23 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         if (benchmarkPositions == null) {
             classifiedBenchmarkPositions = null;
         } else {
-            classifiedBenchmarkPositions = classify(benchmarkPositions, evaluationContext,
-                    benchmarkPositions.getTotalMarketValue());
+            classifiedBenchmarkPositions = classify(benchmarkPositions,
+                    benchmarkPositions.getTotalMarketValue(evaluationContext));
         }
 
         // Execute the Rule's GroupAggregators (if any) to create additional EvaluationGroups. For
         // example, a Rule may aggregate the Positions holding the top five issuers in the Portfolio
         // into a new group.
         for (GroupAggregator a : rule.getGroupAggregators()) {
-            classifiedPortfolioPositions = a.aggregate(classifiedPortfolioPositions);
+            classifiedPortfolioPositions =
+                    a.aggregate(classifiedPortfolioPositions, evaluationContext);
             if (classifiedProposedPositions != null) {
-                classifiedProposedPositions = a.aggregate(classifiedProposedPositions);
+                classifiedProposedPositions =
+                        a.aggregate(classifiedProposedPositions, evaluationContext);
             }
             if (classifiedBenchmarkPositions != null) {
-                classifiedBenchmarkPositions = a.aggregate(classifiedBenchmarkPositions);
+                classifiedBenchmarkPositions =
+                        a.aggregate(classifiedBenchmarkPositions, evaluationContext);
             }
         }
 
@@ -211,15 +218,13 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      *
      * @param positions
      *            the {@code Position}s to be classified
-     * @param evaluationContext
-     *            the {@code EvaluationContext} to be applied
      * @param portfolioMarketValue
      *            the (possibly {@code null} portfolio market value to use
      * @return a {@code Map} associating each distinct classification group to the {@code Position}s
      *         comprising the group
      */
     protected Map<EvaluationGroup, PositionSupplier> classify(PositionSupplier positions,
-            EvaluationContext evaluationContext, Double portfolioMarketValue) {
+            Double portfolioMarketValue) {
         Predicate<PositionEvaluationContext> positionFilter = rule.getPositionFilter();
         if (positionFilter == null) {
             positionFilter = (p -> true);

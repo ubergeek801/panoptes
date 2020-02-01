@@ -20,10 +20,13 @@ public interface GroupAggregator {
      *
      * @param classifiedPositions
      *            the {@code Position}s already classified
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which to perform the evaluation
      * @return a {@code Map} consisting of the existing classified {@code Position}s (possibly
      *         filtered) while adding zero or more new mappings of {@code EvaluationGroup}s to their
      *         constituent {@code Position}s
      */
-    public Map<EvaluationGroup, PositionSupplier>
-            aggregate(Map<EvaluationGroup, PositionSupplier> classifiedPositions);
+    public Map<EvaluationGroup, PositionSupplier> aggregate(
+            Map<EvaluationGroup, PositionSupplier> classifiedPositions,
+            EvaluationContext evaluationContext);
 }

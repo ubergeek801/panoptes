@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.ui;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -16,11 +17,14 @@ public class PortfolioSummary implements Keyed<PortfolioKey> {
      *
      * @param portfolio
      *            the {@code Portfolio} to summarize
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in whichi to perform evaluations
      * @return a {@code PortfolioSummary} summarizing the given {@code Portfolio}
      */
-    public static PortfolioSummary fromPortfolio(Portfolio portfolio) {
+    public static PortfolioSummary fromPortfolio(Portfolio portfolio,
+            EvaluationContext evaluationContext) {
         return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
-                portfolio.getBenchmarkKey(), portfolio.getTotalMarketValue(),
+                portfolio.getBenchmarkKey(), portfolio.getTotalMarketValue(evaluationContext),
                 portfolio.isAbstract());
     }
 

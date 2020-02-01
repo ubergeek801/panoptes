@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         return instance;
     }
 
-    private final Map<SecurityKey, Security> securityMap;
+    private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
     private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
     /**
@@ -118,21 +117,10 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     private PimcoBenchmarkDataSource() throws IOException {
         // load the PIMCO benchmarks, which are also a source of Security information
 
-        HashMap<String, Security> assetIdSecurityMap = new HashMap<>();
-        Portfolio gladBenchmark =
-                loadPimcoBenchmark(GLAD_KEY, GLAD_CONSTITUENTS_FILE, assetIdSecurityMap);
-        Portfolio emadBenchmark =
-                loadPimcoBenchmark(EMAD_KEY, EMAD_CONSTITUENTS_FILE, assetIdSecurityMap);
-        Portfolio iladBenchmark =
-                loadPimcoBenchmark(ILAD_KEY, ILAD_CONSTITUENTS_FILE, assetIdSecurityMap);
-        Portfolio pgovBenchmark =
-                loadPimcoBenchmark(PGOV_KEY, PGOV_CONSTITUENTS_FILE, assetIdSecurityMap);
-        benchmarkMap.put(GLAD_KEY, gladBenchmark);
-        benchmarkMap.put(EMAD_KEY, emadBenchmark);
-        benchmarkMap.put(ILAD_KEY, iladBenchmark);
-        benchmarkMap.put(PGOV_KEY, pgovBenchmark);
-        securityMap = assetIdSecurityMap.values().stream()
-                .collect(Collectors.toMap(s -> s.getKey(), s -> s));
+        loadPimcoBenchmark(GLAD_KEY, GLAD_CONSTITUENTS_FILE);
+        loadPimcoBenchmark(EMAD_KEY, EMAD_CONSTITUENTS_FILE);
+        loadPimcoBenchmark(ILAD_KEY, ILAD_CONSTITUENTS_FILE);
+        loadPimcoBenchmark(PGOV_KEY, PGOV_CONSTITUENTS_FILE);
         LOG.info("loaded {} distinct securities", securityMap.size());
     }
 
@@ -154,7 +142,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     }
 
     @Override
-    public Security getSecurity(SecurityKey key) {
+    public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext) {
         return securityMap.get(key);
     }
 
@@ -181,21 +169,18 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
     /**
      * Loads data from the given PIMCO constituents file (converted to tab-separated values) and
-     * creates a new {@code Portfolio} with the data.
+     * creates a new {@code Portfolio} with the data, populating the {@code benchmarkMap} with the
+     * created {@code Portfolio} and the {@code securityMap} with the created {@code Securities}.
      *
      * @param benchmarkKey
      *            the benchmark key
      * @param sourceFile
      *            the name of the source file (on the classpath)
-     * @param assetIdSecurityMap
-     *            a {@code Map} of asset ID to {@code Security} in which to cache loaded
-     *            {@code Securities}
-     * @return a {@code Portfolio} consisting of the {@code Positions} loaded from the file
      * @throws IOException
      *             if the file could not be read
      */
-    protected Portfolio loadPimcoBenchmark(PortfolioKey benchmarkKey, String sourceFile,
-            Map<String, Security> assetIdSecurityMap) throws IOException {
+    protected void loadPimcoBenchmark(PortfolioKey benchmarkKey, String sourceFile)
+            throws IOException {
         HashSet<Position> positions = new HashSet<>();
         double portfolioMarketValue = 0;
         try (BufferedReader constituentReader = new BufferedReader(new InputStreamReader(
@@ -283,30 +268,29 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
                 BigDecimal price = calculatePrice(asOfDate, maturityDate, yield);
                 attributes.put(SecurityAttribute.price, price);
-                Security security =
-                        assetIdSecurityMap.computeIfAbsent(isin, i -> new Security(attributes));
+                Security security = securityMap.computeIfAbsent(new SecurityKey(isin),
+                        i -> new Security(attributes));
 
                 positions.add(new Position(
                         marketValueUsd.divide(price, RoundingMode.HALF_UP).doubleValue(),
-                        security));
+                        security.getKey()));
                 portfolioMarketValue += marketValueUsd.doubleValue();
             }
         }
 
         Portfolio benchmark =
                 new Portfolio(benchmarkKey, benchmarkKey.getId() + " Benchmark", positions);
+        benchmarkMap.put(benchmarkKey, benchmark);
 
         // average rating is kind of interesting, so let's calculate it
         WeightedAveragePositionCalculator<Double> averageRatingCalc =
                 new WeightedAveragePositionCalculator<>(SecurityAttribute.rating1Value);
         String averageRating = pimcoRatingScale
                 .getRatingNotch(averageRatingCalc
-                        .calculate(benchmark.getPositionsWithContext(new EvaluationContext())))
+                        .calculate(benchmark.getPositionsWithContext(new EvaluationContext(this))))
                 .getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
                 positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue),
                 averageRating);
-
-        return benchmark;
     }
 }

@@ -30,19 +30,19 @@ public class TotalMarketValuePositionCalculatorTest {
     @Test
     public void testCalculate() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+        EvaluationContext context = TestUtil.defaultTestEvaluationContext;
 
         TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
         Security dummySecurity = securityProvider.newSecurity("dummy",
                 Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
 
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity));
-        positions.add(new Position(200, dummySecurity));
-        positions.add(new Position(300, dummySecurity));
+        positions.add(new Position(100, dummySecurity.getKey()));
+        positions.add(new Position(200, dummySecurity.getKey()));
+        positions.add(new Position(300, dummySecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-        double totalMarketValue =
-                calculator.calculate(portfolio.getPositionsWithContext(new EvaluationContext()));
+        double totalMarketValue = calculator.calculate(portfolio.getPositionsWithContext(context));
         // the total should merely be the sum of the (amounts * price)
         assertEquals(1200, totalMarketValue, TestUtil.EPSILON, "unexpected total market value");
     }

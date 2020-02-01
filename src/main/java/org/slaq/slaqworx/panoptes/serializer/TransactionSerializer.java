@@ -5,16 +5,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
@@ -52,7 +48,7 @@ public class TransactionSerializer implements ByteArraySerializer<Transaction> {
             IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
             positionKeyBuilder.setId(p.getKey().getId());
             IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-            securityKeyBuilder.setId(p.getSecurity().getKey().getId());
+            securityKeyBuilder.setId(p.getSecurityKey().getId());
 
             PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
             positionBuilder.setKey(positionKeyBuilder);
@@ -70,47 +66,26 @@ public class TransactionSerializer implements ByteArraySerializer<Transaction> {
      *
      * @param transactionMsg
      *            the message to be converted
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Security} references
      * @return a {@code Transaction}
      */
-    public static Transaction convert(TransactionMsg transactionMsg,
-            SecurityProvider securityProvider) {
+    public static Transaction convert(TransactionMsg transactionMsg) {
         IdKeyMsg transactionKeyMsg = transactionMsg.getKey();
         TransactionKey transactionKey = new TransactionKey(transactionKeyMsg.getId());
         IdVersionKeyMsg portfolioKeyMsg = transactionMsg.getPortfolioKey();
         PortfolioKey portfolioKey =
                 new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
         List<Position> allocations = transactionMsg.getPositionList().stream()
-                .map(positionMsg -> PositionSerializer.convert(positionMsg, securityProvider))
+                .map(positionMsg -> PositionSerializer.convert(positionMsg))
                 .collect(Collectors.toList());
 
         return new Transaction(transactionKey, portfolioKey, allocations);
     }
 
-    private final Provider<? extends SecurityProvider> securityProvider;
-
     /**
-     * Creates a new {@code TransactionSerializer} which delegates to the given
-     * {@code PortfolioProvider} and {@code SecurityProvider}.
-     *
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Securities}
+     * Creates a new {@code TransactionSerializer}.
      */
-    public TransactionSerializer(SecurityProvider securityProvider) {
-        this.securityProvider = () -> securityProvider;
-    }
-
-    /**
-     * Creates a new {@code TransactionSerializer} which delegates to the given {@code AssetCache}.
-     *
-     * @param assetCacheProvider
-     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
-     *            circular initialization)
-     */
-    @Inject
-    protected TransactionSerializer(Provider<AssetCache> assetCacheProvider) {
-        securityProvider = assetCacheProvider;
+    public TransactionSerializer() {
+        // nothing to do
     }
 
     @Override
@@ -127,7 +102,7 @@ public class TransactionSerializer implements ByteArraySerializer<Transaction> {
     public Transaction read(byte[] buffer) throws IOException {
         TransactionMsg transactionMsg = TransactionMsg.parseFrom(buffer);
 
-        return convert(transactionMsg, securityProvider.get());
+        return convert(transactionMsg);
     }
 
     @Override

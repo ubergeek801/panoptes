@@ -58,9 +58,8 @@ public class SecurityAttributeGroupClassifier
 
     @Override
     public EvaluationGroup classify(PositionEvaluationContext positionContext) {
-        return new EvaluationGroup(
-                String.valueOf(positionContext.getPosition().getSecurity().getAttributeValue(
-                        securityAttribute, positionContext.getEvaluationContext())),
+        return new EvaluationGroup(String.valueOf(positionContext.getPosition()
+                .getAttributeValue(securityAttribute, positionContext.getEvaluationContext())),
                 securityAttribute.getName());
     }
 

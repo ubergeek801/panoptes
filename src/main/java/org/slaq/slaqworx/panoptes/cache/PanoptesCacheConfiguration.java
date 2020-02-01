@@ -165,9 +165,8 @@ public class PanoptesCacheConfiguration {
                         .setTypeClass(PortfolioSummary.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PositionKeySerializer()).setTypeClass(PositionKey.class));
-        serializationConfig.addSerializerConfig(
-                new SerializerConfig().setImplementation(new PositionSerializer(assetCacheProvider))
-                        .setTypeClass(Position.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setImplementation(new PositionSerializer()).setTypeClass(Position.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new RuleKeySerializer()).setTypeClass(RuleKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
@@ -181,9 +180,8 @@ public class PanoptesCacheConfiguration {
                         .setTypeClass(TradeEvaluationResult.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
-        serializationConfig.addSerializerConfig(
-                new SerializerConfig().setImplementation(new TradeSerializer(assetCacheProvider))
-                        .setTypeClass(Trade.class));
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setImplementation(new TradeSerializer()).setTypeClass(Trade.class));
 
         config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)

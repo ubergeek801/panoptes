@@ -12,8 +12,10 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
@@ -75,6 +77,9 @@ public class TestUtil {
                     positionProvider.newPosition(null, 200, s3));
     public static final Portfolio p3 = portfolioProvider.newPortfolio("TestUtilP3", "TestUtilP3",
             p3Positions, null, Collections.emptyList());
+
+    public static final EvaluationContext defaultTestEvaluationContext =
+            new EvaluationContext(securityProvider);
 
     /**
      * Creates and caches a {@code ConcentrationRule} with the given parameters.
@@ -147,7 +152,24 @@ public class TestUtil {
      */
     public static Position createTestPosition(AssetCache assetCache, double amount,
             Security security) {
-        Position position = new Position(amount, security);
+        return createTestPosition(assetCache, amount, security.getKey());
+    }
+
+    /**
+     * Creates and caches a {@code Position} with the given parameters.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} in which to cache the created {@code Position}
+     * @param amount
+     *            the amount held by the {@code Position}
+     * @param securityKey
+     *            the {@code SecurityKey} identifying the {@code Security} held by the
+     *            {@code Position}
+     * @return the {@code Position} that was created
+     */
+    public static Position createTestPosition(AssetCache assetCache, double amount,
+            SecurityKey securityKey) {
+        Position position = new Position(amount, securityKey);
         assetCache.getPositionCache().put(position.getKey(), position);
 
         return position;

@@ -80,9 +80,9 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
         classDef.append("import " + SecurityAttribute.class.getName() + "\n");
         classDef.append("class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
         classDef.append(" boolean test(PositionEvaluationContext pctx) {\n");
-        classDef.append("  Position p = pctx.position\n");
-        classDef.append("  Security s = p.security\n");
         classDef.append("  EvaluationContext ctx = pctx.evaluationContext\n");
+        classDef.append("  Position p = pctx.position\n");
+        classDef.append("  Security s = p.getSecurity(ctx)\n");
         classDef.append("  return " + translatedExpression + "\n");
         classDef.append(" }\n");
         classDef.append("}");

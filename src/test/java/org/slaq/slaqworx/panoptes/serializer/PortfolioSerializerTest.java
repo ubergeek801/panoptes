@@ -66,8 +66,8 @@ public class PortfolioSerializerTest {
                     "deserialized Position should have same key as original");
             assertEquals(position.getAmount(), deserializedPosition.getAmount(), TestUtil.EPSILON,
                     "deserialized Position should have same amount as original");
-            assertEquals(position.getSecurity(), deserializedPosition.getSecurity(),
-                    "deserialized Position should have same Security as original");
+            assertEquals(position.getSecurityKey(), deserializedPosition.getSecurityKey(),
+                    "deserialized Position should have same SecurityKey as original");
         }
 
         Set<? extends Position> positions = TestUtil.p1Positions;

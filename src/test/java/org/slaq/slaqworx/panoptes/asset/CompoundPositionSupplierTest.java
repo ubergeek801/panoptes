@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * {@code CompoundPositionSupplierTest} tests the functionality of the
@@ -21,6 +22,8 @@ public class CompoundPositionSupplierTest {
      */
     @Test
     public void testConcat() {
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
+
         PortfolioKey portfolioKey = new PortfolioKey("test", 1);
         PositionSupplier s1 = new PositionSet(TestUtil.p1Positions, portfolioKey);
         PositionSupplier s2 = new PositionSet(TestUtil.p2Positions, portfolioKey);
@@ -36,7 +39,7 @@ public class CompoundPositionSupplierTest {
                 "portfolio key should equal that of the portfolios");
 
         // total market value should be 1000 + 500 + 500 + 1000 + 500 + 1000 + 200 = 4700
-        assertEquals(4700, concat.getTotalMarketValue(),
+        assertEquals(4700, concat.getTotalMarketValue(evaluationContext),
                 "total market value should equal sum of position sets");
     }
 }

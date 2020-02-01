@@ -40,7 +40,7 @@ public class TestPositionProvider implements PositionProvider {
      * @return the newly created {@code Position}
      */
     public Position newPosition(String id, double amount, Security security) {
-        Position position = new Position(new PositionKey(id), amount, security);
+        Position position = new Position(new PositionKey(id), amount, security.getKey());
         positionMap.put(position.getKey(), position);
 
         return position;

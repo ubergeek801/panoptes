@@ -7,6 +7,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * A {@code Transaction} is a component of a {@code Trade} which modifies a single {@code Portfolio}
@@ -88,8 +89,8 @@ public class Transaction implements PositionSupplier {
     }
 
     @Override
-    public double getTotalMarketValue() {
-        return positions.getTotalMarketValue();
+    public double getTotalMarketValue(EvaluationContext evaluationContext) {
+        return positions.getTotalMarketValue(evaluationContext);
     }
 
     @Override

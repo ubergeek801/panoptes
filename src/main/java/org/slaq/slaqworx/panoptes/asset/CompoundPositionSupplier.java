@@ -2,6 +2,8 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.stream.Stream;
 
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+
 /**
  * {@code CompoundPositionSupplier} is a {@code PositionSupplier} that represents the
  * "concatenation" of multiple {@code PositionSupplier}s.
@@ -38,10 +40,10 @@ public class CompoundPositionSupplier implements PositionSupplier {
     }
 
     @Override
-    public double getTotalMarketValue() {
+    public double getTotalMarketValue(EvaluationContext evaluationContext) {
         double totalMarketValue = 0;
         for (PositionSupplier supplier : suppliers) {
-            totalMarketValue += supplier.getTotalMarketValue();
+            totalMarketValue += supplier.getTotalMarketValue(evaluationContext);
         }
 
         return totalMarketValue;

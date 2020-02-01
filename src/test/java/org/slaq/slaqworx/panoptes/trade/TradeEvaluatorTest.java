@@ -69,7 +69,7 @@ public class TradeEvaluatorTest {
                         new BigDecimal("100.00")));
 
         HashSet<Position> p1Positions = new HashSet<>();
-        p1Positions.add(new Position(1_000, s1));
+        p1Positions.add(new Position(1_000, s1.getKey()));
 
         // to keep things simple, all Rules test against duration, with some conflicting
         // assertions
@@ -98,7 +98,7 @@ public class TradeEvaluatorTest {
         Portfolio p1 = TestUtil.testPortfolioProvider().newPortfolio("TradeEvaluatorTestP1", "test",
                 p1Positions, null, p1Rules.values());
 
-        Position t1Alloc1 = new Position(1_000, s2);
+        Position t1Alloc1 = new Position(1_000, s2.getKey());
         List<Position> t1Allocations = Arrays.asList(t1Alloc1);
         Transaction t1 = new Transaction(p1.getKey(), t1Allocations);
         Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolioKey(), t1);
@@ -106,7 +106,7 @@ public class TradeEvaluatorTest {
         Trade trade = new Trade(transactions);
         TradeEvaluator evaluator =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-                        TestUtil.testPortfolioProvider());
+                        TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
         TradeEvaluationResult result = evaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
 
         Map<EvaluationGroup, Impact> p1r1Impact =
@@ -170,7 +170,7 @@ public class TradeEvaluatorTest {
 
         TradeEvaluator evaluator =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-                        TestUtil.testPortfolioProvider());
+                        TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
         TradeEvaluationResult result = evaluator.evaluate(buyTrade, EvaluationMode.FULL_EVALUATION);
         assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
 
@@ -231,15 +231,16 @@ public class TradeEvaluatorTest {
         // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
         // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
 
-        EvaluationContext evaluationContext = new EvaluationContext();
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
         assertEquals(3.0,
                 new WeightedAveragePositionCalculator<>(SecurityAttribute.duration)
                         .calculate(portfolio.getPositionsWithContext(evaluationContext)),
                 TestUtil.EPSILON, "unexpected current Portfolio duration");
         double room =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-                        TestUtil.testPortfolioProvider()).evaluateRoom(portfolio.getKey(),
-                                trialSecurity, 3_000_000);
+                        TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider())
+                                .evaluateRoom(portfolio.getKey(), trialSecurity.getKey(),
+                                        3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
 
         // perform the same test with the clustered evaluator
@@ -258,7 +259,7 @@ public class TradeEvaluatorTest {
                 cachedP1Rules.values());
 
         room = new TradeEvaluator(clusterEvaluator, assetCache).evaluateRoom(portfolio.getKey(),
-                trialSecurity, 3_000_000);
+                trialSecurity.getKey(), 3_000_000);
         assertEquals(1_000_000, room, TradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
     }
 }

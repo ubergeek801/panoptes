@@ -12,13 +12,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -86,7 +86,7 @@ public class RuleEvaluatorPerformanceTest {
             portfolioStartTime = System.currentTimeMillis();
             portfolios.forEach(p -> {
                 completionService.submit(() -> Pair.of(p.getKey(),
-                        evaluator.evaluate(p, new EvaluationContext()).get()));
+                        evaluator.evaluate(p, TestUtil.defaultTestEvaluationContext).get()));
             });
             // wait for all of the evaluations to complete
             for (Portfolio portfolio : portfolios) {
@@ -107,10 +107,10 @@ public class RuleEvaluatorPerformanceTest {
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
             Security security1 = dataSource.getSecurityMap().values().iterator().next();
-            Position position1 = new Position(1_000_000, security1);
+            Position position1 = new Position(1_000_000, security1.getKey());
             positions.add(position1);
-            TradeEvaluator tradeEvaluator =
-                    new TradeEvaluator(new LocalPortfolioEvaluator(mapLoader), mapLoader);
+            TradeEvaluator tradeEvaluator = new TradeEvaluator(
+                    new LocalPortfolioEvaluator(mapLoader), mapLoader, dataSource);
             HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
             portfolios.stream().limit(i * 62).forEach(portfolio -> {
                 Transaction transaction = new Transaction(portfolio.getKey(), positions);

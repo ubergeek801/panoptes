@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
@@ -69,9 +68,9 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
 
         // FIXME don't assume that these exist
         PortfolioKey portfolioKey = new PortfolioKey(portfolioId, 1);
-        Security security = assetCache.getSecurityCache().get(new SecurityKey(assetId));
+        SecurityKey securityKey = new SecurityKey(assetId);
 
-        double room = tradeEvaluator.evaluateRoom(portfolioKey, security, targetAmount);
+        double room = tradeEvaluator.evaluateRoom(portfolioKey, securityKey, targetAmount);
         return String.valueOf(room);
     }
 
@@ -98,8 +97,8 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
         int[] numPortfolios = new int[1];
         portfolioEntryIter.forEachRemaining(entry -> {
             numPortfolios[0]++;
-            completionService.submit(() -> Pair.of(entry.getValue(),
-                    portfolioEvaluator.evaluate(entry.getValue(), new EvaluationContext()).get()));
+            completionService.submit(() -> Pair.of(entry.getValue(), portfolioEvaluator
+                    .evaluate(entry.getValue(), new EvaluationContext(assetCache)).get()));
         });
 
         for (int i = 0; i < numPortfolios[0]; i++) {

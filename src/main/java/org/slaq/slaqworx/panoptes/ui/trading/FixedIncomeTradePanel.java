@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
@@ -77,14 +77,14 @@ public class FixedIncomeTradePanel extends FormLayout {
             add(marketValueField);
 
             Button room = ComponentUtil.createButton("Room", event -> {
-                if (portfolio == null || security == null || tradeMarketValue == null) {
+                if (portfolio == null || securityKey == null || tradeMarketValue == null) {
                     return;
                 }
 
                 TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
                 try {
                     double roomMarketValue = tradeEvaluator.evaluateRoom(portfolio.getKey(),
-                            security, tradeMarketValue);
+                            securityKey, tradeMarketValue);
                     marketValueField.setValue(roomMarketValue);
                     amountField.setValue(tradePrice == null ? null : roomMarketValue / tradePrice);
                 } catch (InterruptedException | ExecutionException e) {
@@ -136,7 +136,7 @@ public class FixedIncomeTradePanel extends FormLayout {
 
     private final NumberField tradeMarketValueField;
 
-    private Security security;
+    private SecurityKey securityKey;
     private Double tradeAmount;
     private Double tradePrice;
     private Double tradeMarketValue;
@@ -183,7 +183,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                     new AllocationPanel(allocations));
         });
         Button room = ComponentUtil.createButton("Room", event -> {
-            if (security == null || tradeMarketValue == null) {
+            if (securityKey == null || tradeMarketValue == null) {
                 return;
             }
 
@@ -197,13 +197,14 @@ public class FixedIncomeTradePanel extends FormLayout {
             int numRemaining[] = new int[] { numPortfolios };
             TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
             Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
+            EvaluationContext evaluationContext = new EvaluationContext(assetCache);
             long startTime = System.currentTimeMillis();
             ForkJoinTask<?> future = roomEvaluatorExecutor
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
-                            PortfolioSummary portfolio =
-                                    assetCache.getPortfolioCache().executeOnKey(portfolioKey,
-                                            e -> PortfolioSummary.fromPortfolio(e.getValue()));
+                            PortfolioSummary portfolio = assetCache.getPortfolioCache()
+                                    .executeOnKey(portfolioKey, e -> PortfolioSummary
+                                            .fromPortfolio(e.getValue(), evaluationContext));
                             if (portfolio.isAbstract()) {
                                 // don't evaluate benchmarks
                                 return;
@@ -212,7 +213,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                             double roomMarketValue;
                             try {
                                 roomMarketValue = tradeEvaluator.evaluateRoom(portfolioKey,
-                                        security, tradeMarketValue);
+                                        securityKey, tradeMarketValue);
                             } catch (Exception ex) {
                                 // FIXME handle this
                                 LOG.error("could not evaluate room for Portfolio {}", portfolioKey,
@@ -291,8 +292,8 @@ public class FixedIncomeTradePanel extends FormLayout {
         });
 
         assetIdTextField.addValueChangeListener(event -> {
-            security = assetCache.getSecurity(new SecurityKey(event.getValue()));
-            if (security == null) {
+            securityKey = new SecurityKey(event.getValue());
+            if (securityKey == null) {
                 assetIdTextField.setErrorMessage("not found");
                 assetIdTextField.setInvalid(true);
                 room.setEnabled(false);

@@ -2,9 +2,6 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.math.BigDecimal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -12,16 +9,17 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * A {@code Position} is a holding of some amount of a particular {@code Security} by some
  * {@code Portfolio}. A {@code Position} may be durable (e.g. sourced from a database/cache) or
  * ephemeral (e.g. supplied by a proposed {@code Trade} or even a unit test).
+ * <p>
+ * This {@code Position} model is currently oversimplified in that it ignores the notion of tax
+ * lots, which in a {@code Portfolio} are the individual transaction effects over which the
+ * {@code Portfolio}'s {@code Position} is an aggregate.
  *
  * @author jeremy
  */
 public class Position implements Keyed<PositionKey> {
-    private static final Logger LOG = LoggerFactory.getLogger(Position.class);
-
     private final PositionKey key;
     private final double amount;
-    private final Security security;
-    private final double marketValue;
+    private final SecurityKey securityKey;
 
     /**
      * Creates a new {@code Position} with a generated key and the specified amount and
@@ -29,11 +27,11 @@ public class Position implements Keyed<PositionKey> {
      *
      * @param amount
      *            the amount of the {@code Security} held in this {@code Position}
-     * @param security
-     *            the held {@code Security}
+     * @param securityKey
+     *            a {@code SecurityKey} identifying the held {@code Security}
      */
-    public Position(double amount, Security security) {
-        this(null, amount, security);
+    public Position(double amount, SecurityKey securityKey) {
+        this(null, amount, securityKey);
     }
 
     /**
@@ -44,21 +42,12 @@ public class Position implements Keyed<PositionKey> {
      * @param amount
      *            the amount of the {@code Security} held in this {@code Position}
      * @param securityKey
-     *            the key of the held {@code Security}
+     *            a {@code SecurityKey} identifying the held {@code Security}
      */
-    public Position(PositionKey key, double amount, Security security) {
+    public Position(PositionKey key, double amount, SecurityKey securityKey) {
         this.key = (key == null ? new PositionKey(null) : key);
         this.amount = amount;
-        this.security = security;
-        BigDecimal price =
-                security.getAttributeValue(SecurityAttribute.price, new EvaluationContext());
-        if (price == null) {
-            // FIXME this shouldn't happen
-            LOG.error("could not get price for Security {}", security.getKey());
-            marketValue = 0;
-        } else {
-            marketValue = price.multiply(BigDecimal.valueOf(amount)).doubleValue();
-        }
+        this.securityKey = securityKey;
     }
 
     @Override
@@ -85,6 +74,23 @@ public class Position implements Keyed<PositionKey> {
         return amount;
     }
 
+    /**
+     * Obtains the value of the specified attribute of this {@code Position}'s held
+     * {@code Security}. This is merely a convenience method to avoid an intermediate call to
+     * {@code getSecurity()}.
+     *
+     * @param <T>
+     *            the expected type of the attribute value
+     * @param attribute
+     *            the {@code SecurityAttribute} identifying the attribute
+     * @param context
+     *            the {@code EvaluationContext} in which the attribute value is being retrieved
+     * @return the value of the given attribute, or {@code null} if not assigned
+     */
+    public <T> T getAttributeValue(SecurityAttribute<T> attribute, EvaluationContext context) {
+        return getSecurity(context).getAttributeValue(attribute, context);
+    }
+
     @Override
     public PositionKey getKey() {
         return key;
@@ -98,26 +104,29 @@ public class Position implements Keyed<PositionKey> {
      * @return the market value
      */
     public double getMarketValue(EvaluationContext evaluationContext) {
-        // use the price override if present
-        SecurityAttributes attributeOverrides =
-                evaluationContext.getSecurityOverrides().get(getSecurity().getKey());
-        if (attributeOverrides != null) {
-            BigDecimal price = attributeOverrides.getValue(SecurityAttribute.price);
-            return price.multiply(BigDecimal.valueOf(amount)).doubleValue();
-        }
-
-        return marketValue;
+        BigDecimal price = getAttributeValue(SecurityAttribute.price, evaluationContext);
+        return price.multiply(BigDecimal.valueOf(amount)).doubleValue();
     }
 
     /**
      * Obtains the {@code Security} held by this {@code Position}.
      *
-     * @param securityProvider
-     *            the {@code SecurityProvider} from which to obtain the {@code Security} data
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which an evaluation is taking place
      * @return the {@code Security} held by this {@code Position}
      */
-    public Security getSecurity() {
-        return security;
+    public Security getSecurity(EvaluationContext evaluationContext) {
+        return evaluationContext.getSecurityProvider().getSecurity(securityKey, evaluationContext);
+    }
+
+    /**
+     * Obtains the {@code SecurityKey} identifying the {@code Security} held by this
+     * {@code Position}.
+     *
+     * @return the key of the {@code Security} held by this {@code Position}
+     */
+    public SecurityKey getSecurityKey() {
+        return securityKey;
     }
 
     @Override

@@ -35,12 +35,12 @@ public class PortfolioEvaluationRequestSerializer
 
     /**
      * Creates a new {@code PortfolioSerializer} which delegates to the given
-     * {@code PositionProvider} and {@code RuleProvider}.
+     * {@code PortfolioProvider} and {@code SecurityProvider}.
      *
      * @param portfolioProvider
-     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio}s
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Securities}
+     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
+     * @param portfolioProvider
+     *            the {@code SecurityProvider} to use to resolve {@code Security} references
      */
     public PortfolioEvaluationRequestSerializer(PortfolioProvider portfolioProvider,
             SecurityProvider securityProvider) {
@@ -77,13 +77,13 @@ public class PortfolioEvaluationRequestSerializer
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
         EvaluationContextMsg evaluationContextMsg = requestMsg.getEvaluationContext();
         EvaluationContext evaluationContext =
-                EvaluationContextSerializer.convert(evaluationContextMsg);
+                EvaluationContextSerializer.convert(evaluationContextMsg, securityProvider.get());
 
         Portfolio portfolio = portfolioProvider.get().getPortfolio(key);
         Transaction transaction;
         if (requestMsg.hasTransaction()) {
             TransactionMsg transactionMsg = requestMsg.getTransaction();
-            transaction = TransactionSerializer.convert(transactionMsg, securityProvider.get());
+            transaction = TransactionSerializer.convert(transactionMsg);
         } else {
             transaction = null;
         }

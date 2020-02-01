@@ -71,8 +71,9 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     }
 
     @Override
-    public Map<EvaluationGroup, PositionSupplier>
-            aggregate(Map<EvaluationGroup, PositionSupplier> classifiedPositions) {
+    public Map<EvaluationGroup, PositionSupplier> aggregate(
+            Map<EvaluationGroup, PositionSupplier> classifiedPositions,
+            EvaluationContext evaluationContext) {
         if (classifiedPositions.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -98,7 +99,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
                 supplierGroupMap.put(positions, g);
             });
             Collections.sort(sortedClassifiedPositions,
-                    (s1, s2) -> Double.compare(s2.getTotalMarketValue(), s1.getTotalMarketValue()));
+                    (s1, s2) -> Double.compare(s2.getTotalMarketValue(evaluationContext),
+                            s1.getTotalMarketValue(evaluationContext)));
 
             // collect the first "count" PositionSuppliers into a single supplier, and also into the
             // filtered map
@@ -118,7 +120,7 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
                 new EvaluationGroup("top(" + count + "," + getSecurityAttribute().getName() + ")",
                         getSecurityAttribute().getName()),
                 new PositionSet(aggregatePositions, aPositionSupplier.getPortfolioKey(),
-                        aPositionSupplier.getTotalMarketValue()));
+                        aPositionSupplier.getTotalMarketValue(evaluationContext)));
 
         return filteredClassifiedPositions;
     }

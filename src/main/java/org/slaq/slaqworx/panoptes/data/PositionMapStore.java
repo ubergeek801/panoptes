@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.RowMapper;
@@ -12,7 +11,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
  * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
@@ -21,21 +19,15 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  * @author jeremy
  */
 public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
-    private final Provider<AssetCache> assetCacheProvider;
-
     /**
      * Creates a new {@code PositionMapStore}. Restricted because instances of this class should be
      * created through the {@code HazelcastMapStoreFactory}.
      *
-     * @param assetCacheProvider
-     *            the {@code AsssetCache} from which to obtained cached data, wrapped in a
-     *            {@code Provider} to avoid a circular injection dependency
      * @param dataSource
      *            the {@code DataSource} through which to access the database
      */
-    protected PositionMapStore(Provider<AssetCache> assetCacheProvider, DataSource dataSource) {
+    protected PositionMapStore(DataSource dataSource) {
         super(dataSource);
-        this.assetCacheProvider = assetCacheProvider;
     }
 
     @Override
@@ -51,8 +43,7 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
         double amount = rs.getDouble(2);
         String securityId = rs.getString(3);
 
-        return new Position(new PositionKey(id), amount,
-                assetCacheProvider.get().getSecurity(new SecurityKey(securityId)));
+        return new Position(new PositionKey(id), amount, new SecurityKey(securityId));
     }
 
     @Override
@@ -91,6 +82,6 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     protected void setValues(PreparedStatement ps, Position position) throws SQLException {
         ps.setString(1, position.getKey().getId());
         ps.setDouble(2, position.getAmount());
-        ps.setString(3, position.getSecurity().getKey().getId());
+        ps.setString(3, position.getSecurityKey().getId());
     }
 }

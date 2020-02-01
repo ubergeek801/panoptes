@@ -1,6 +1,8 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
 
@@ -11,7 +13,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
@@ -29,11 +30,11 @@ public class PortfolioEvaluationRequestSerializerTest {
         PortfolioEvaluationRequestSerializer serializer = new PortfolioEvaluationRequestSerializer(
                 TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
 
-        Position p1 = new Position(100d, TestUtil.s1);
-        Position p2 = new Position(200d, TestUtil.s2);
+        Position p1 = new Position(100d, TestUtil.s1.getKey());
+        Position p2 = new Position(200d, TestUtil.s2.getKey());
         Transaction t1 = new Transaction(TestUtil.p1.getKey(), List.of(p1, p2));
         Portfolio portfolio = TestUtil.p1;
-        EvaluationContext evaluationContext = new EvaluationContext(EvaluationMode.FULL_EVALUATION);
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
 
         PortfolioEvaluationRequest request =
                 new PortfolioEvaluationRequest(portfolio, t1, evaluationContext);
@@ -44,8 +45,16 @@ public class PortfolioEvaluationRequestSerializerTest {
         assertEquals(request, deserialized, "deserialized value should equals() original value");
         assertEquals(request.getPortfolioKey(), deserialized.getPortfolioKey(),
                 "deserialized value should have same Portfolio key as original");
-        assertEquals(request.getEvaluationContext(), deserialized.getEvaluationContext(),
-                "deserialized value should have evaluation context equal to original");
+
+        // note that EvaluationContext.equals() uses identity semantics, so an equals() test is
+        // inappropriate
+        assertSame(evaluationContext.getSecurityProvider(),
+                deserialized.getEvaluationContext().getSecurityProvider(),
+                "deserialized EvaluationContext should have SecurityProvider from serializer");
+        assertEquals(evaluationContext.getEvaluationMode(),
+                deserialized.getEvaluationContext().getEvaluationMode(),
+                "deserialized EvaluationContext should have evaluation mode equal to original");
+
         assertEquals(request.getTransaction(), deserialized.getTransaction(),
                 "deserialized value should have transaction equal to original");
 
@@ -59,7 +68,14 @@ public class PortfolioEvaluationRequestSerializerTest {
         assertEquals(request, deserialized, "deserialized value should equals() original value");
         assertEquals(request.getPortfolioKey(), deserialized.getPortfolioKey(),
                 "deserialized value should have same Portfolio key as original");
-        assertEquals(request.getEvaluationContext(), deserialized.getEvaluationContext(),
-                "deserialized value should have evaluation context equal to original");
+        assertSame(evaluationContext.getSecurityProvider(),
+                deserialized.getEvaluationContext().getSecurityProvider(),
+                "deserialized EvaluationContext should have SecurityProvider from serializer");
+        assertEquals(evaluationContext.getEvaluationMode(),
+                deserialized.getEvaluationContext().getEvaluationMode(),
+                "deserialized EvaluationContext should have evaluation mode equal to original");
+
+        assertNull(deserialized.getTransaction(),
+                "deserialized value should have null transaction");
     }
 }

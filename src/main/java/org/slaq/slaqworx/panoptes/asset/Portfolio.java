@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -175,8 +176,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     }
 
     @Override
-    public double getTotalMarketValue() {
-        return positionSet.getTotalMarketValue();
+    public double getTotalMarketValue(EvaluationContext evaluationContext) {
+        return positionSet.getTotalMarketValue(evaluationContext);
     }
 
     @Override

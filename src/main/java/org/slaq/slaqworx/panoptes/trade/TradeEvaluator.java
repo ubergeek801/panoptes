@@ -12,7 +12,9 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -35,6 +37,21 @@ public class TradeEvaluator {
 
     private final PortfolioEvaluator evaluator;
     private final PortfolioProvider portfolioProvider;
+    private final SecurityProvider securityProvider;
+
+    /**
+     * Creates a new {@code TradeEvaluator}.
+     *
+     * @param evaluator
+     *            the {@code PortfolioEvaluator} to use to perform {@code Portfolio}-level
+     *            evaluations
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve {@code Portfolio} and {@code Security}
+     *            references
+     */
+    public TradeEvaluator(PortfolioEvaluator evaluator, AssetCache assetCache) {
+        this(evaluator, assetCache, assetCache);
+    }
 
     /**
      * Creates a new {@code TradeEvaluator}.
@@ -44,10 +61,14 @@ public class TradeEvaluator {
      *            evaluations
      * @param portfolioProvider
      *            the {@code PortfolioProvider} to use to obtain {@code Portfolio} information
+     * @param securityProvider
+     *            the {@code SecurityProvider} to use to obtain {@code Security} information
      */
-    public TradeEvaluator(PortfolioEvaluator evaluator, PortfolioProvider portfolioProvider) {
+    public TradeEvaluator(PortfolioEvaluator evaluator, PortfolioProvider portfolioProvider,
+            SecurityProvider securityProvider) {
         this.evaluator = evaluator;
         this.portfolioProvider = portfolioProvider;
+        this.securityProvider = securityProvider;
     }
 
     /**
@@ -79,7 +100,8 @@ public class TradeEvaluator {
             // the impact is merely the difference between the current evaluation state of the
             // Portfolio, and the state it would have if the Trade were to be posted
 
-            EvaluationContext evaluationContext = new EvaluationContext(evaluationMode);
+            EvaluationContext evaluationContext =
+                    new EvaluationContext(securityProvider, evaluationMode);
             Map<RuleKey, EvaluationResult> ruleResults =
                     evaluator.evaluate(portfolio, transaction, evaluationContext).get();
 
@@ -114,8 +136,9 @@ public class TradeEvaluator {
      *
      * @param portfolioKey
      *            the {@code PortfolioKey} identifying the {@code Portfolio} in which to find room
-     * @param security
-     *            the {@code Security} for which to find room
+     * @param securityKey
+     *            the {@code SecurityKey} identifying the {@code Security} name for which to find
+     *            room
      * @param targetValue
      *            the desired investment amount, as USD market value
      * @return the (approximate) maximum market value of the given {@code Security}, less than or
@@ -126,13 +149,13 @@ public class TradeEvaluator {
      * @throws ExcecutionException
      *             if the calculation could not be processed
      */
-    public double evaluateRoom(PortfolioKey portfolioKey, Security security, double targetValue)
-            throws InterruptedException, ExecutionException {
+    public double evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
+            double targetValue) throws InterruptedException, ExecutionException {
         // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
         double minCompliantValue = MIN_ALLOCATION;
         double trialValue = minCompliantValue;
-        TradeEvaluationResult evaluationResult = testRoom(portfolioKey, security, trialValue);
+        TradeEvaluationResult evaluationResult = testRoom(portfolioKey, securityKey, trialValue);
         if (!evaluationResult.isCompliant()) {
             // even the minimum allocation failed; give up now
             return 0;
@@ -145,7 +168,7 @@ public class TradeEvaluator {
         double minNoncompliantValue = trialValue;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            evaluationResult = testRoom(portfolioKey, security, trialValue);
+            evaluationResult = testRoom(portfolioKey, securityKey, trialValue);
             if (evaluationResult.isCompliant()) {
                 if (minCompliantValue < trialValue) {
                     // we have a new low-water mark for what is compliant
@@ -175,9 +198,10 @@ public class TradeEvaluator {
      * {@code Portfolio}.
      *
      * @param portfolioKey
-     *            the @code PortfolioKey} identifying the {@code Portfolio} in which to find room
-     * @param security
-     *            the {@code Security} for which to find room
+     *            the {@code PortfolioKey} identifying the {@code Portfolio} in which to find room
+     * @param securityKey
+     *            the {@code SecurityKey} identifying the {@code Security} name for which to find
+     *            room
      * @param targetValue
      *            the desired investment amount, as USD market value
      * @return a {@code TradeEvaluationResult} indicating the result of the evaluation
@@ -186,9 +210,9 @@ public class TradeEvaluator {
      * @throws ExcecutionException
      *             if the calculation could not be processed
      */
-    protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, Security security,
+    protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
             double targetValue) throws InterruptedException, ExecutionException {
-        Position trialAllocation = new Position(targetValue, security);
+        Position trialAllocation = new Position(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
         Trade trialTrade = new Trade(Map.of(portfolioKey, trialTransaction));
 

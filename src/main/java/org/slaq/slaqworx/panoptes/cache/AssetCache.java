@@ -21,6 +21,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
@@ -141,7 +142,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     @Override
-    public Security getSecurity(SecurityKey key) {
+    public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext) {
         return getSecurityCache().get(key);
     }
 

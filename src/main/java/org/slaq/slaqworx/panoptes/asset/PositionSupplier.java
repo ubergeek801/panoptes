@@ -45,6 +45,8 @@ public interface PositionSupplier {
      * Given an {@code EvaluationContext}, obtains this {@code PositionSupplier}'s {@code Position}s
      * as a (new) {@code Stream} of {@code PositionEvaluationContext}s.
      *
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which to perform the evaluation
      * @return a {@code Stream} of {@code PositionEvaluationContext}s
      */
     public default Stream<PositionEvaluationContext>
@@ -54,10 +56,12 @@ public interface PositionSupplier {
 
     /**
      * Obtains the sum of the {@code Position} amounts of this {@code PositionSupplier}.
-     *
+     * 
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which to perform the evaluation
      * @return the sum of {@code Position} amounts
      */
-    public double getTotalMarketValue();
+    public double getTotalMarketValue(EvaluationContext evaluationContext);
 
     /**
      * Obtains the number of {@code Position}s in this {@code PositionSupplier}.

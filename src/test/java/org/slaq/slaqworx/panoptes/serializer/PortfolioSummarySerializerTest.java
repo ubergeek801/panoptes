@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
 
 /**
@@ -19,9 +20,11 @@ public class PortfolioSummarySerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
         PortfolioSummarySerializer serializer = new PortfolioSummarySerializer();
 
-        PortfolioSummary portfolioSummary = PortfolioSummary.fromPortfolio(TestUtil.p1);
+        PortfolioSummary portfolioSummary =
+                PortfolioSummary.fromPortfolio(TestUtil.p1, evaluationContext);
         byte[] buffer = serializer.write(portfolioSummary);
         PortfolioSummary deserialized = serializer.read(buffer);
 

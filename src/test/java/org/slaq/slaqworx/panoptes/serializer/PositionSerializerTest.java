@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 
 /**
- * PositionSerializerTest tests the functionality of the PositionSerializer.
+ * {@code PositionSerializerTest} tests the functionality of the {@code PositionSerializer}.
  *
  * @author jeremy
  */
@@ -19,16 +19,16 @@ public class PositionSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        PositionSerializer serializer = new PositionSerializer(TestUtil.testSecurityProvider());
+        PositionSerializer serializer = new PositionSerializer();
 
-        Position position = new Position(new PositionKey("foo"), 123456.78, TestUtil.s1);
+        Position position = new Position(new PositionKey("foo"), 123456.78, TestUtil.s1.getKey());
         byte[] buffer = serializer.write(position);
         Position deserialized = serializer.read(buffer);
 
         assertEquals(position, deserialized, "deserialized value should equals() original value");
         assertEquals(position.getAmount(), deserialized.getAmount(),
                 "deserialized value should have same amount as original");
-        assertEquals(position.getSecurity(), deserialized.getSecurity(),
-                "deserialized value should have same security as original");
+        assertEquals(position.getSecurityKey(), deserialized.getSecurityKey(),
+                "deserialized value should have same SecurityKey as original");
     }
 }

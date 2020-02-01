@@ -5,14 +5,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TradeMsg;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -26,28 +23,11 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 @Singleton
 public class TradeSerializer implements ByteArraySerializer<Trade> {
-    private final Provider<? extends SecurityProvider> securityProvider;
-
     /**
-     * Creates a new {@code TradeSerializer} which delegates to the given {@code AssetCache}.
-     *
-     * @param assetCacheProvider
-     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
-     *            circular initialization)
+     * Creates a new {@code TradeSerializer}.
      */
-    public TradeSerializer(Provider<AssetCache> assetCacheProvider) {
-        securityProvider = assetCacheProvider;
-    }
-
-    /**
-     * Creates a new {@code TradeSerializer} which delegates to the given {@code PortfolioProvider}
-     * and {@code SecurityProvider}.
-     *
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Securities}
-     */
-    public TradeSerializer(SecurityProvider securityProvider) {
-        this.securityProvider = () -> securityProvider;
+    public TradeSerializer() {
+        // nothing to do
     }
 
     @Override
@@ -66,8 +46,7 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
         IdKeyMsg tradeKeyMsg = tradeMsg.getKey();
         TradeKey tradeKey = new TradeKey(tradeKeyMsg.getId());
         Map<PortfolioKey, Transaction> transactions = tradeMsg.getTransactionList().stream()
-                .map(transactionMsg -> TransactionSerializer.convert(transactionMsg,
-                        securityProvider.get()))
+                .map(transactionMsg -> TransactionSerializer.convert(transactionMsg))
                 .collect(Collectors.toMap(t -> t.getPortfolioKey(), t -> t));
 
         return new Trade(tradeKey, transactions);
