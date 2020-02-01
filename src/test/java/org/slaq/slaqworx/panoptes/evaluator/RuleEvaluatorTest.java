@@ -36,7 +36,8 @@ public class RuleEvaluatorTest {
     public void testClassify() {
         // a dumb classifier that merely "classifies" by security ID
         EvaluationGroupClassifier classifier =
-                (p -> new EvaluationGroup(p.getSecurity().getKey().getId(), "id"));
+                (ctx -> new EvaluationGroup(ctx.getPosition().getSecurity().getKey().getId(),
+                        "id"));
         Rule rule = new GenericRule(null, "dummy rule", classifier) {
             @Override
             protected RuleResult eval(PositionSupplier portfolioPositions,
@@ -60,7 +61,8 @@ public class RuleEvaluatorTest {
     public void testEvaluate() {
         // a dumb classifier that merely "classifies" by security ID
         EvaluationGroupClassifier classifier =
-                (p -> new EvaluationGroup(p.getSecurity().getKey().getId(), "id"));
+                (ctx -> new EvaluationGroup(ctx.getPosition().getSecurity().getKey().getId(),
+                        "id"));
         // a dumb filter that matches Positions in s1
         Predicate<PositionEvaluationContext> filter =
                 (c -> c.getPosition().getSecurity().getKey().equals(TestUtil.s1.getKey()));

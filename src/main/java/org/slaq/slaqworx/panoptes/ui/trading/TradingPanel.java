@@ -25,6 +25,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.util.FakeSet;
 
@@ -75,48 +76,56 @@ public class TradingPanel extends VerticalLayout {
                 GridVariant.LUMO_COMPACT);
         securityGrid.setDataProvider(securityProvider);
 
+        final EvaluationContext context = new EvaluationContext();
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip)).setAutoWidth(true)
-                .setHeader("CUSIP");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.description))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, context))
+                .setAutoWidth(true).setHeader("CUSIP");
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.description, context))
                 .setAutoWidth(true).setHeader("Description");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.country))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.country, context))
                 .setAutoWidth(true).setHeader("Country");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.region))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.region, context))
                 .setAutoWidth(true).setHeader("Region");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.sector))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.sector, context))
                 .setAutoWidth(true).setHeader("Sector");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency, context))
                 .setAutoWidth(true).setHeader("Currency");
         securityGrid
-                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.coupon),
-                        "%(,.3f"))
+                .addColumn(new NumberRenderer<>(
+                        s -> s.getAttributeValue(SecurityAttribute.coupon, context), "%(,.3f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Coupon");
         securityGrid
                 .addColumn(new LocalDateRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.maturityDate),
+                        s -> s.getAttributeValue(SecurityAttribute.maturityDate, context),
                         DateTimeFormatter.ISO_LOCAL_DATE))
                 .setAutoWidth(true).setHeader("Maturity Date");
-        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
-                SecurityAttribute.rating1Value)).setAutoWidth(true).setHeader("Rating 1");
-        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating2Symbol,
-                SecurityAttribute.rating2Value)).setAutoWidth(true).setHeader("Rating 2");
-        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
-                SecurityAttribute.rating3Value)).setAutoWidth(true).setHeader("Rating 3");
         securityGrid
-                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.yield),
-                        "%(,.2f"))
+                .addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
+                        SecurityAttribute.rating1Value, context))
+                .setAutoWidth(true).setHeader("Rating 1");
+        securityGrid
+                .addColumn(s -> getRatingText(s, SecurityAttribute.rating2Symbol,
+                        SecurityAttribute.rating2Value, context))
+                .setAutoWidth(true).setHeader("Rating 2");
+        securityGrid
+                .addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
+                        SecurityAttribute.rating3Value, context))
+                .setAutoWidth(true).setHeader("Rating 3");
+        securityGrid
+                .addColumn(new NumberRenderer<>(
+                        s -> s.getAttributeValue(SecurityAttribute.yield, context), "%(,.2f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Yield");
         securityGrid
                 .addColumn(new NumberRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.duration), "%(,.3f"))
+                        s -> s.getAttributeValue(SecurityAttribute.duration, context), "%(,.3f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Duration");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer, context))
                 .setAutoWidth(true).setHeader("Issuer");
         securityGrid
-                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.price),
-                        "$%(,.4f", Locale.US))
+                .addColumn(new NumberRenderer<>(
+                        s -> s.getAttributeValue(SecurityAttribute.price, context), "$%(,.4f",
+                        Locale.US))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Price");
 
         add(securityGrid);
@@ -168,15 +177,18 @@ public class TradingPanel extends VerticalLayout {
      *            the {@code SecurityAttribute} corresponding to the desired rating symbol
      * @param valueAttribute
      *            the {@code SecurityAttribute} corresponding to the desired rating value
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which to obtain the data
      * @return a {@code String} representing the specified rating data, or {@code null} if the value
      *         of the specified symbol attribute is {@code null}
      */
     protected String getRatingText(Security security, SecurityAttribute<String> symbolAttribute,
-            SecurityAttribute<Double> valueAttribute) {
-        String symbol = security.getAttributeValue(symbolAttribute);
+            SecurityAttribute<Double> valueAttribute, EvaluationContext evaluationContext) {
+        String symbol = security.getAttributeValue(symbolAttribute, evaluationContext);
         return (symbol == null ? null
                 : symbol + " ["
-                        + String.format("%(,.4f", security.getAttributeValue(valueAttribute))
+                        + String.format("%(,.4f",
+                                security.getAttributeValue(valueAttribute, evaluationContext))
                         + "]");
     }
 }

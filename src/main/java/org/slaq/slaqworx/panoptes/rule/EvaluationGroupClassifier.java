@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.rule;
 
-import org.slaq.slaqworx.panoptes.asset.Position;
-
 /**
  * {@code EvaluationGroupClassifier} classifies {@code Position}s into {@code EvaluationGroup}s for
  * the purpose of grouping rule evaluation results.
@@ -22,9 +20,10 @@ public interface EvaluationGroupClassifier {
     /**
      * Classifies the given {@code Position} into an {@code EvaluationGroup}.
      *
-     * @param position
-     *            the {@code Position} to be classified
+     * @param positionContext
+     *            a {@code PositionEvaluationContext} specifying the {@code Position} to be
+     *            classified
      * @return the {@code EvaluationGroup} to be applied to the {@code Position}
      */
-    public EvaluationGroup classify(Position position);
+    public EvaluationGroup classify(PositionEvaluationContext positionContext);
 }

@@ -226,8 +226,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         }
 
         return positions.getPositionsWithContext(evaluationContext).filter(positionFilter)
-                .collect(Collectors.groupingBy(
-                        p -> rule.getGroupClassifier().classify(p.getPosition()),
+                .collect(Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
                         new PositionSupplierCollector(positions.getPortfolioKey(),
                                 portfolioMarketValue)));
     }

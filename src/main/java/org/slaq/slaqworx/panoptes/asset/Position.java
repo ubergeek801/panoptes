@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -49,7 +50,8 @@ public class Position implements Keyed<PositionKey> {
         this.key = (key == null ? new PositionKey(null) : key);
         this.amount = amount;
         this.security = security;
-        BigDecimal price = security.getAttributeValue(SecurityAttribute.price);
+        BigDecimal price =
+                security.getAttributeValue(SecurityAttribute.price, new EvaluationContext());
         if (price == null) {
             // FIXME this shouldn't happen
             LOG.error("could not get price for Security {}", security.getKey());
@@ -91,9 +93,19 @@ public class Position implements Keyed<PositionKey> {
     /**
      * Obtains the market value of this {@code Position}.
      *
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which to obtain the market value
      * @return the market value
      */
-    public double getMarketValue() {
+    public double getMarketValue(EvaluationContext evaluationContext) {
+        // use the price override if present
+        SecurityAttributes attributeOverrides =
+                evaluationContext.getSecurityOverrides().get(getSecurity().getKey());
+        if (attributeOverrides != null) {
+            BigDecimal price = attributeOverrides.getValue(SecurityAttribute.price);
+            return price.multiply(BigDecimal.valueOf(amount)).doubleValue();
+        }
+
         return marketValue;
     }
 

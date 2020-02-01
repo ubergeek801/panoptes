@@ -48,14 +48,15 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
             // accumulate the Position's amount and weighted amount
             return (a, c) -> {
                 Position p = c.getPosition();
-                Double attributeValue =
-                        getValue(p.getSecurity().getAttributeValue(getCalculationAttribute()));
+                Double attributeValue = getValue(p.getSecurity()
+                        .getAttributeValue(getCalculationAttribute(), c.getEvaluationContext()));
                 if (attributeValue == null) {
                     // FIXME this is probably not appropriate
                     return;
                 }
-                a.weightedMarketValue += p.getMarketValue() * attributeValue.doubleValue();
-                a.marketValue += p.getMarketValue();
+                a.weightedMarketValue +=
+                        p.getMarketValue(c.getEvaluationContext()) * attributeValue.doubleValue();
+                a.marketValue += p.getMarketValue(c.getEvaluationContext());
             };
         }
 

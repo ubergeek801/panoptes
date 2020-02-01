@@ -2,8 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.Map;
 
-import groovy.lang.MissingPropertyException;
-
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -64,9 +63,19 @@ public class Security implements Keyed<SecurityKey> {
      *
      * @param attributeIndex
      *            the index corresponding to the associated {@code SecurityAttribute}
+     * @param context
+     *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the value of the given attribute, or {@code null} if not assigned
      */
-    public Object getAttributeValue(int attributeIndex) {
+    public Object getAttributeValue(int attributeIndex, EvaluationContext context) {
+        SecurityAttributes overrideAttributes = context.getSecurityOverrides().get(key);
+        if (overrideAttributes != null) {
+            Object overrideValue = overrideAttributes.getValue(attributeIndex);
+            if (overrideValue != null) {
+                return overrideValue;
+            }
+        }
+
         return attributes.getValue(attributeIndex);
     }
 
@@ -77,9 +86,19 @@ public class Security implements Keyed<SecurityKey> {
      *            the expected type of the attribute value
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
+     * @param context
+     *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the value of the given attribute, or {@code null} if not assigned
      */
-    public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
+    public <T> T getAttributeValue(SecurityAttribute<T> attribute, EvaluationContext context) {
+        SecurityAttributes overrideAttributes = context.getSecurityOverrides().get(key);
+        if (overrideAttributes != null) {
+            T overrideValue = overrideAttributes.getValue(attribute);
+            if (overrideValue != null) {
+                return overrideValue;
+            }
+        }
+
         return attributes.getValue(attribute);
     }
 
@@ -91,27 +110,6 @@ public class Security implements Keyed<SecurityKey> {
     @Override
     public int hashCode() {
         return attributes.hashCode();
-    }
-
-    /**
-     * Obtains the value of the {@code SecurityAttribute} with the given name. Provided as a
-     * convenience to Groovy filters (and named accordingly) to allow shorthand
-     * {@code SecurityAttribute} access. Mostly obviated by compile-time optimizations that have
-     * since been made to Groovy filters.
-     *
-     * @param name
-     *            the name of the {@code SecurityAttribute} to resolve
-     * @return the value of the attribute if it exists
-     * @throws MissingPropertyException
-     *             if the specified attribute name is not defined
-     */
-    public Object propertyMissing(String name) {
-        SecurityAttribute<?> attribute = SecurityAttribute.of(name);
-        if (attribute == null) {
-            throw new MissingPropertyException(name);
-        }
-
-        return getAttributeValue(attribute);
     }
 
     @Override

@@ -30,8 +30,8 @@ public class GroovyPositionFilterTest {
                 "Position of 500K should not have passed");
 
         // create a filter which should include Positions in a Security with a moovyRating > 88
-        GroovyPositionFilter filterMoovy88 =
-                GroovyPositionFilter.of("s.getAttributeValue(SecurityAttribute.of('Moovy')) > 88");
+        GroovyPositionFilter filterMoovy88 = GroovyPositionFilter
+                .of("s.getAttributeValue(SecurityAttribute.of('Moovy'), ctx) > 88");
 
         Position p3 = new Position(1_000_000, TestUtil.s1);
         assertTrue(filterMoovy88.test(new PositionEvaluationContext(p3, evaluationContext)),

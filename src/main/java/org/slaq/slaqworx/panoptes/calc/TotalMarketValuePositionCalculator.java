@@ -21,6 +21,7 @@ public class TotalMarketValuePositionCalculator extends PositionCalculator<Void>
 
     @Override
     public double calculate(Stream<PositionEvaluationContext> positions) {
-        return positions.collect(Collectors.summingDouble(c -> c.getPosition().getMarketValue()));
+        return positions.collect(Collectors
+                .summingDouble(c -> c.getPosition().getMarketValue(c.getEvaluationContext())));
     }
 }
