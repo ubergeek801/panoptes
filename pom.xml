@@ -22,7 +22,7 @@
         <protobuf.version>3.11.1</protobuf.version>
         <vaadin.version>14.1.16</vaadin.version>
 
-        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
+        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication 
             -XX:MaxGCPauseMillis=5000
             -XX:+DisableExplicitGC --add-modules java.se
             --add-exports
@@ -347,6 +347,7 @@
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>

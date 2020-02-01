@@ -14,11 +14,11 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioEvaluationRequestMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TransactionMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
@@ -75,8 +75,9 @@ public class PortfolioEvaluationRequestSerializer
         PortfolioEvaluationRequestMsg requestMsg = PortfolioEvaluationRequestMsg.parseFrom(buffer);
         IdVersionKeyMsg keyMsg = requestMsg.getPortfolioKey();
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
+        EvaluationContextMsg evaluationContextMsg = requestMsg.getEvaluationContext();
         EvaluationContext evaluationContext =
-                new EvaluationContext(EvaluationMode.valueOf(requestMsg.getEvaluationMode()));
+                EvaluationContextSerializer.convert(evaluationContextMsg);
 
         Portfolio portfolio = portfolioProvider.get().getPortfolio(key);
         Transaction transaction;
@@ -99,7 +100,9 @@ public class PortfolioEvaluationRequestSerializer
         PortfolioEvaluationRequestMsg.Builder requestBuilder =
                 PortfolioEvaluationRequestMsg.newBuilder();
         requestBuilder.setPortfolioKey(portfolioKeyBuilder);
-        requestBuilder.setEvaluationMode(request.getEvaluationContext().getEvaluationMode().name());
+        EvaluationContextMsg evaluationContext =
+                EvaluationContextSerializer.convert(request.getEvaluationContext());
+        requestBuilder.setEvaluationContext(evaluationContext);
         if (request.getTransaction() != null) {
             requestBuilder.setTransaction(TransactionSerializer.convert(request.getTransaction()));
         }

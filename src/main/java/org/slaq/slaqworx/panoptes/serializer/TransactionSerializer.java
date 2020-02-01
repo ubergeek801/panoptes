@@ -13,9 +13,6 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.PositionKey;
-import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
@@ -84,16 +81,9 @@ public class TransactionSerializer implements ByteArraySerializer<Transaction> {
         IdVersionKeyMsg portfolioKeyMsg = transactionMsg.getPortfolioKey();
         PortfolioKey portfolioKey =
                 new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
-        List<Position> allocations = transactionMsg.getPositionList().stream().map(positionMsg -> {
-            // FIXME share code with PositionSerializer
-            IdKeyMsg positionKeyMsg = positionMsg.getKey();
-            PositionKey positionKey = new PositionKey(positionKeyMsg.getId());
-            double amount = positionMsg.getAmount();
-            IdKeyMsg securityKeyMsg = positionMsg.getSecurityKey();
-            SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
-            Security security = securityProvider.getSecurity(securityKey);
-            return new Position(positionKey, amount, security);
-        }).collect(Collectors.toList());
+        List<Position> allocations = transactionMsg.getPositionList().stream()
+                .map(positionMsg -> PositionSerializer.convert(positionMsg, securityProvider))
+                .collect(Collectors.toList());
 
         return new Transaction(transactionKey, portfolioKey, allocations);
     }

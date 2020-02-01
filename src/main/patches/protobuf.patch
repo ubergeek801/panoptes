@@ -62,3 +62,7 @@
 <       return (Builder) DEFAULT_INSTANCE.createBuilder();
 ---
 >       return DEFAULT_INSTANCE.createBuilder();
+9762c9762
+<       return (Builder) DEFAULT_INSTANCE.createBuilder();
+---
+>       return DEFAULT_INSTANCE.createBuilder();

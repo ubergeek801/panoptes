@@ -1,5 +1,11 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.Collections;
+import java.util.Map;
+
+import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+
 /**
  * {@code EvaluationContext} provides contextual information related to the execution of
  * {@code Portfolio} evaluation.
@@ -22,23 +28,43 @@ public class EvaluationContext {
     }
 
     private final EvaluationMode evaluationMode;
+    private final Map<SecurityKey, SecurityAttributes> securityOverrides;
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
-     * evaluation.
+     * evaluation with no {@code Security} attribute overrides.
      */
     public EvaluationContext() {
-        this(EvaluationMode.FULL_EVALUATION);
+        this(EvaluationMode.FULL_EVALUATION, null);
     }
 
     /**
-     * Creates a new {@code EvaluationContext} with the given attributes.
+     * Creates a new {@code EvaluationContext} with the given evaluation mode and no
+     * {@code Security} attribute overrides.
      *
      * @param evaluationMode
      *            the evaluation mode in which to evaluate
      */
     public EvaluationContext(EvaluationMode evaluationMode) {
+        this(evaluationMode, null);
+    }
+
+    /**
+     * Creates a new {@code EvaluationContext} with the given evaluation mode and no
+     * {@code Security} attribute overrides.
+     *
+     * @param evaluationMode
+     *            the evaluation mode in which to evaluate
+     * @param securityAttributeOverrides
+     *            a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a
+     *            {@code SecurityAttributes} which should override the current values for the
+     *            purposes of this evaluation
+     */
+    public EvaluationContext(EvaluationMode evaluationMode,
+            Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
         this.evaluationMode = evaluationMode;
+        securityOverrides = (securityAttributeOverrides == null ? Collections.emptyMap()
+                : securityAttributeOverrides);
     }
 
     @Override
@@ -56,16 +82,35 @@ public class EvaluationContext {
         if (evaluationMode != other.evaluationMode) {
             return false;
         }
+        if (securityOverrides == null) {
+            if (other.securityOverrides != null) {
+                return false;
+            }
+        } else if (!securityOverrides.equals(other.securityOverrides)) {
+            return false;
+        }
+
         return true;
     }
 
     /**
-     * Obtains the {@code TradeEvaluationMode} in effect for this context.
+     * Obtains the {@code EvaluationMode} in effect for this context.
      *
-     * @return a {@code TradeEvaluationMode}
+     * @return a {@code EvaluationMode}
      */
     public EvaluationMode getEvaluationMode() {
         return evaluationMode;
+    }
+
+    /**
+     * Obtains the {@code Security} overrides in effect for the current evaluation.
+     *
+     * @return a (possibly empty but never {@code null}) {@code Map} relating a {@code SecurityKey}
+     *         to a {@code SecurityAttributes} which should override the current values for the
+     *         purposes of this evaluation
+     */
+    public Map<SecurityKey, SecurityAttributes> getSecurityOverrides() {
+        return securityOverrides;
     }
 
     @Override
@@ -73,6 +118,8 @@ public class EvaluationContext {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((evaluationMode == null) ? 0 : evaluationMode.hashCode());
+        result = prime * result + ((securityOverrides == null) ? 0 : securityOverrides.hashCode());
+
         return result;
     }
 }

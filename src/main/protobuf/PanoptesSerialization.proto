@@ -60,10 +60,15 @@ message TradeMsg {
     repeated TransactionMsg transaction = 2;
 }
 
+message EvaluationContextMsg {
+    string evaluationMode = 1;
+    map<string, SecurityMsg> securityOverrides = 2;
+}
+
 message PortfolioEvaluationRequestMsg {
     IdVersionKeyMsg portfolioKey = 1;
     TransactionMsg transaction = 2;
-    string evaluationMode = 3;
+    EvaluationContextMsg evaluationContext = 3;
 }
 
 message ExceptionMsg {
