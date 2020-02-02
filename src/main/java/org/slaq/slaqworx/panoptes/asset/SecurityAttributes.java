@@ -26,7 +26,7 @@ public class SecurityAttributes {
     // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
     private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
-    String hash = null;
+    private String hash = null;
 
     /**
      * Creates a new {@code SecurityAttributes} container of the given attributes.
@@ -69,6 +69,7 @@ public class SecurityAttributes {
             return false;
         }
         SecurityAttributes other = (SecurityAttributes)obj;
+
         return hash().equals(other.hash());
     }
 
@@ -81,12 +82,12 @@ public class SecurityAttributes {
      * @return the value of the given attribute, or {@code null} if not assigned
      */
     public Object getValue(int attributeIndex) {
-    	if (attributeIndex >= attributeValues.size()) {
-    		// the attribute is not assigned
-    		return null;
-    	}
+        if (attributeIndex >= attributeValues.size()) {
+            // the attribute is not assigned
+            return null;
+        }
 
-    	return attributeValues.get(attributeIndex);
+        return attributeValues.get(attributeIndex);
     }
 
     /**
@@ -118,8 +119,8 @@ public class SecurityAttributes {
 
         // serialize the attribute collection contents
         ByteArrayOutputStream attributeBytes = new ByteArrayOutputStream();
-        for (int i = 0; i < attributeValues.size(); i++) {
-            Object v = (attributeValues.get(i) == null ? "" : attributeValues.get(i));
+        for (Object attributeValue : attributeValues) {
+            Object v = (attributeValue == null ? "" : attributeValue);
 
             try {
                 attributeBytes

@@ -105,7 +105,7 @@ public class TestUtil {
             Double lowerLimit, Double upperLimit, EvaluationGroupClassifier groupClassifier) {
         ConcentrationRule rule = new ConcentrationRule(key, description, positionFilter, lowerLimit,
                 upperLimit, groupClassifier);
-        assetCache.getRuleCache().put(rule.getKey(), rule);
+        assetCache.getRuleCache().set(rule.getKey(), rule);
 
         return rule;
     }
@@ -134,7 +134,7 @@ public class TestUtil {
             Collection<? extends Rule> rules) {
         Portfolio portfolio =
                 new Portfolio(new PortfolioKey(id, 1), name, positions, benchmarkKey, rules);
-        assetCache.getPortfolioCache().put(portfolio.getKey(), portfolio);
+        assetCache.getPortfolioCache().set(portfolio.getKey(), portfolio);
 
         return portfolio;
     }
@@ -170,7 +170,7 @@ public class TestUtil {
     public static Position createTestPosition(AssetCache assetCache, double amount,
             SecurityKey securityKey) {
         Position position = new Position(amount, securityKey);
-        assetCache.getPositionCache().put(position.getKey(), position);
+        assetCache.getPositionCache().set(position.getKey(), position);
 
         return position;
     }
@@ -190,7 +190,7 @@ public class TestUtil {
     public static Security createTestSecurity(AssetCache assetCache, String assetId,
             Map<SecurityAttribute<?>, Object> attributes) {
         Security security = TestUtil.testSecurityProvider().newSecurity(assetId, attributes);
-        assetCache.getSecurityCache().put(security.getKey(), security);
+        assetCache.getSecurityCache().set(security.getKey(), security);
 
         return security;
     }
@@ -242,7 +242,7 @@ public class TestUtil {
             EvaluationGroupClassifier groupClassifier) {
         WeightedAverageRule<Double> rule = new WeightedAverageRule<>(key, description,
                 positionFilter, calculationAttribute, lowerLimit, upperLimit, groupClassifier);
-        assetCache.getRuleCache().put(rule.getKey(), rule);
+        assetCache.getRuleCache().set(rule.getKey(), rule);
 
         return rule;
     }

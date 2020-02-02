@@ -45,6 +45,7 @@ public class Security implements Keyed<SecurityKey> {
             return false;
         }
         Security other = (Security)obj;
+
         return attributes.equals(other.attributes);
     }
 

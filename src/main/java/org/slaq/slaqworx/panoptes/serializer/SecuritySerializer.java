@@ -38,7 +38,7 @@ public class SecuritySerializer implements ByteArraySerializer<Security> {
                 securityBuilder.putAttributes(attribute.getName(),
                         SerializerUtil.defaultJsonMapper().writeValueAsString(value));
             } catch (JsonProcessingException e) {
-                // todo throw a better exception
+                // FIXME throw a better exception
                 throw new RuntimeException("could not serialize value " + value + "of attribute "
                         + attribute.getName(), e);
             }

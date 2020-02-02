@@ -132,29 +132,29 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
             LOG.info("initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(),
                     pf.getName());
             pf.getRules()
-                    .forEach(r -> assetCache.getRuleCache().put(r.getKey(), (ConfigurableRule)r));
+                    .forEach(r -> assetCache.getRuleCache().set(r.getKey(), (ConfigurableRule)r));
         });
 
         portfolios.stream().forEach(pf -> {
             LOG.info("initializing {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
                     pf.getName());
-            pf.getPositions().forEach(p -> assetCache.getPositionCache().put(p.getKey(), p));
+            pf.getPositions().forEach(p -> assetCache.getPositionCache().set(p.getKey(), p));
         });
 
         // initialize the benchmarks first
         LOG.info("initializing 4 benchmark Portfolios");
-        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.EMAD_KEY,
+        assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.EMAD_KEY,
                 pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.EMAD_KEY));
-        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.GLAD_KEY,
+        assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.GLAD_KEY,
                 pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.GLAD_KEY));
-        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.ILAD_KEY,
+        assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.ILAD_KEY,
                 pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.ILAD_KEY));
-        assetCache.getPortfolioCache().put(PimcoBenchmarkDataSource.PGOV_KEY,
+        assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.PGOV_KEY,
                 pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.PGOV_KEY));
 
         portfolios.stream().filter(p -> p.getKey().getId().length() != 4).forEach(p -> {
             LOG.info("initializing Portfolio {}", p.getKey());
-            assetCache.getPortfolioCache().put(p.getKey(), p);
+            assetCache.getPortfolioCache().set(p.getKey(), p);
         });
 
         LOG.info("completed cache initialization");

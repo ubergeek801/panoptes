@@ -62,6 +62,7 @@ public class Position implements Keyed<PositionKey> {
             return false;
         }
         Position other = (Position)obj;
+
         return key.equals(other.getKey());
     }
 
@@ -111,12 +112,12 @@ public class Position implements Keyed<PositionKey> {
     /**
      * Obtains the {@code Security} held by this {@code Position}.
      *
-     * @param evaluationContext
+     * @param context
      *            the {@code EvaluationContext} in which an evaluation is taking place
      * @return the {@code Security} held by this {@code Position}
      */
-    public Security getSecurity(EvaluationContext evaluationContext) {
-        return evaluationContext.getSecurityProvider().getSecurity(securityKey, evaluationContext);
+    public Security getSecurity(EvaluationContext context) {
+        return context.getSecurityProvider().getSecurity(securityKey, context);
     }
 
     /**

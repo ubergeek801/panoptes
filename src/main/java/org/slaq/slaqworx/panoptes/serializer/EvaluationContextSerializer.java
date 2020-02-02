@@ -13,6 +13,7 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
@@ -66,6 +67,18 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
     }
 
     private final Provider<? extends SecurityProvider> securityProvider;
+
+    /**
+     * Creates a new {@code EvaluationContextSerializer} which delegates to the given
+     * {@code AssetCache}.
+     *
+     * @param assetCacheProvider
+     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
+     *            circular initialization)
+     */
+    public EvaluationContextSerializer(Provider<AssetCache> assetCacheProvider) {
+        securityProvider = assetCacheProvider;
+    }
 
     /**
      * Creates a new {@code EvaluationContextSerializer} which delegates to the given

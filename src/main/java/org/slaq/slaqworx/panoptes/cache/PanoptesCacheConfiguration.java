@@ -32,7 +32,9 @@ import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.serializer.EvaluationContextSerializer;
 import org.slaq.slaqworx.panoptes.serializer.EvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioEvaluationRequestSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
@@ -149,6 +151,9 @@ public class PanoptesCacheConfiguration {
         // are non-persistent for now
 
         SerializationConfig serializationConfig = config.getSerializationConfig();
+        serializationConfig.addSerializerConfig(new SerializerConfig()
+                .setImplementation(new EvaluationContextSerializer(assetCacheProvider))
+                .setTypeClass(EvaluationContext.class));
         serializationConfig.addSerializerConfig(
                 new SerializerConfig().setImplementation(new EvaluationResultSerializer())
                         .setTypeClass(EvaluationResult.class));
@@ -234,8 +239,7 @@ public class PanoptesCacheConfiguration {
      */
     @Named("portfolio")
     @Singleton
-    protected MapConfig
-            portfolioMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+    protected MapConfig portfolioMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
                 mapStoreFactory.orElse(null));
     }
@@ -250,7 +254,7 @@ public class PanoptesCacheConfiguration {
      */
     @Named("position")
     @Singleton
-    protected MapConfig positionMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+    protected MapConfig positionMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory.orElse(null));
     }
 
@@ -264,7 +268,7 @@ public class PanoptesCacheConfiguration {
      */
     @Named("rule")
     @Singleton
-    protected MapConfig ruleMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+    protected MapConfig ruleMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory.orElse(null));
     }
 
@@ -278,7 +282,7 @@ public class PanoptesCacheConfiguration {
      */
     @Named("security")
     @Singleton
-    protected MapConfig securityMapStoreConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
+    protected MapConfig securityMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory.orElse(null));
     }
 }
