@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -26,13 +25,9 @@ public interface PortfolioEvaluator {
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
      */
     public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException;
+            EvaluationContext evaluationContext);
 
     /**
      * Evaluates the combined {@code Position}s of the given {@code Portfolio} and
@@ -46,12 +41,7 @@ public interface PortfolioEvaluator {
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
      */
     public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext)
-            throws InterruptedException, ExecutionException;
+            Transaction transaction, EvaluationContext evaluationContext);
 }

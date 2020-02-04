@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
-import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
@@ -184,12 +184,22 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
         LOG.info("completed cache initialization");
     }
 
+    /**
+     * Executes a performance test which performs evaluations on all Portfolios, as well as a number
+     * of multi-allocation Trades.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} from which to obtain {@code Portfolio} data
+     * @throws ExecutionException
+     *             if evaluations could not be executed
+     * @throws InterruptedException
+     *             if an interruption occurs during evaluation
+     */
     protected void runPerformanceTest(AssetCache assetCache)
             throws ExecutionException, InterruptedException {
         // perform evaluation on each Portfolio
-
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
-        ExecutorService evaluationExecutor = Executors.newSingleThreadExecutor();
+        ExecutorService evaluationExecutor = Executors.newWorkStealingPool(4);
         long portfolioStartTime;
         long portfolioEndTime;
         long numPortfolioRuleEvalutions = 0;
@@ -220,10 +230,10 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
         ArrayList<Long> tradeEndTimes = new ArrayList<>();
         ArrayList<Integer> allocationCounts = new ArrayList<>();
         ArrayList<Long> evaluationGroupCounts = new ArrayList<>();
+        SecurityKey security1Key = new SecurityKey("US594918AM64"); // pretty arbitrary
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
-            Security security1 = assetCache.getSecurityCache().values().iterator().next();
-            Position position1 = new Position(1_000_000, security1.getKey());
+            Position position1 = new Position(100_000, security1Key);
             positions.add(position1);
             TradeEvaluator tradeEvaluator = new TradeEvaluator(
                     new LocalPortfolioEvaluator(assetCache), assetCache, assetCache);
@@ -237,7 +247,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
             tradeStartTimes.add(System.currentTimeMillis());
             TradeEvaluationResult result =
                     tradeEvaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
-            long numEvaluationGroups = result.getImpacts().values().parallelStream()
+            long numEvaluationGroups = result.getImpacts().values().stream()
                     .collect(Collectors.summingLong(m -> m.size()));
             tradeEndTimes.add(System.currentTimeMillis());
             allocationCounts.add(trade.getTransactions().size());
@@ -245,7 +255,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
         }
 
         // log the timing results
-        LOG.info("processed {} Portfolios using {} Rule evaluations in {} ms", portfolios.size(),
+        LOG.info("processed {} Portfolios using {} Rule evaluations in {} ms", numPortfolios,
                 numPortfolioRuleEvalutions, portfolioEndTime - portfolioStartTime);
         for (int i = 0; i < tradeStartTimes.size(); i++) {
             LOG.info("processed Trade with {} allocations producing {} evaluation groups in {} ms",

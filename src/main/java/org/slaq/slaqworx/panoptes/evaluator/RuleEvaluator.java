@@ -238,7 +238,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
     /**
      * Evaluates the given {@code Position}s, optionally against the given benchmark
-     * {@code} Positions (if specified).
+     * {@code Positions} (if specified).
      *
      * @param evaluatedPositions
      *            the {@code Position}s to be evaluated

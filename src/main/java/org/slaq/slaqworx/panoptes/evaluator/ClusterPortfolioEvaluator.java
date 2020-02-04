@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.inject.Singleton;
@@ -42,14 +41,13 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
 
     @Override
     public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException {
+            EvaluationContext evaluationContext) {
         return evaluate(portfolio, null, evaluationContext);
     }
 
     @Override
     public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext)
-            throws InterruptedException, ExecutionException {
+            Transaction transaction, EvaluationContext evaluationContext) {
         long numRules = portfolio.getRules().count();
         if (numRules == 0) {
             LOG.warn("not evaluating Portfolio {} with no Rules", portfolio.getKey());

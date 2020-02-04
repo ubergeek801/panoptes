@@ -128,11 +128,11 @@ public class FixedIncomeTradePanel extends FormLayout {
     // TODO this isn't very "responsive"
     private static final int NUM_COLUMNS = 7;
 
-    private final ForkJoinPool roomEvaluatorExecutor =
-            ForkJoinPoolFactory.newForkJoinPool(4, "ui-room-evaluator");
+    private final ForkJoinPool roomEvaluatorExecutor = ForkJoinPoolFactory
+            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "ui-room-evaluator");
 
-    private final PortfolioEvaluator portfolioEvaluator;
     private final AssetCache assetCache;
+    private final PortfolioEvaluator portfolioEvaluator;
 
     private final NumberField tradeMarketValueField;
 
@@ -145,9 +145,9 @@ public class FixedIncomeTradePanel extends FormLayout {
      * Creates a new {@code FixedIncomeTradePanel}.
      */
     public FixedIncomeTradePanel() {
+        assetCache = ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         portfolioEvaluator = ApplicationContextProvider.getApplicationContext()
                 .getBean(ClusterPortfolioEvaluator.class);
-        assetCache = ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
 
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
 

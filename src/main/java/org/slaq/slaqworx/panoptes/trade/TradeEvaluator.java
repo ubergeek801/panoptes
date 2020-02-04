@@ -2,8 +2,8 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
@@ -34,6 +35,9 @@ public class TradeEvaluator {
     protected static final double ROOM_TOLERANCE = 500;
     protected static final double MIN_ALLOCATION = 1000;
     private static final double LOG_2 = Math.log(2);
+
+    private static final ForkJoinPool portfolioEvaluationThreadPool = ForkJoinPoolFactory
+            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "portfolio-evaluator");
 
     private final PortfolioEvaluator evaluator;
     private final PortfolioProvider portfolioProvider;
@@ -81,7 +85,7 @@ public class TradeEvaluator {
      *            the {@code TradeEvaluationMode} under which to evaluate the {@code Trade}
      * @return a {@code TradeEvaluationResult} describing the results of the evaluation
      * @throws ExcecutionException
-     *             if the {@code Trade} could not be processed
+     *             if the calculation could not be processed
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      */
@@ -91,22 +95,27 @@ public class TradeEvaluator {
                 trade.getAllocationCount());
         // evaluate the impact on each Portfolio
         TradeEvaluationResult evaluationResult = new TradeEvaluationResult();
-        for (Entry<PortfolioKey, Transaction> portfolioTransactionEntry : trade.getTransactions()
-                .entrySet()) {
-            Portfolio portfolio =
-                    portfolioProvider.getPortfolio(portfolioTransactionEntry.getKey());
-            Transaction transaction = portfolioTransactionEntry.getValue();
+        portfolioEvaluationThreadPool.submit(() -> trade.getTransactions().entrySet()
+                .parallelStream().forEach(portfolioTransactionEntry -> {
+                    Portfolio portfolio =
+                            portfolioProvider.getPortfolio(portfolioTransactionEntry.getKey());
+                    Transaction transaction = portfolioTransactionEntry.getValue();
 
-            // the impact is merely the difference between the current evaluation state of the
-            // Portfolio, and the state it would have if the Trade were to be posted
+                    // the impact is merely the difference between the current evaluation state of
+                    // the Portfolio, and the state it would have if the Trade were to be posted
 
-            EvaluationContext evaluationContext =
-                    new EvaluationContext(securityProvider, evaluationMode);
-            Map<RuleKey, EvaluationResult> ruleResults =
-                    evaluator.evaluate(portfolio, transaction, evaluationContext).get();
+                    EvaluationContext evaluationContext =
+                            new EvaluationContext(securityProvider, evaluationMode);
+                    try {
+                        Map<RuleKey, EvaluationResult> ruleResults =
+                                evaluator.evaluate(portfolio, transaction, evaluationContext).get();
 
-            evaluationResult.addImpacts(portfolio.getKey(), ruleResults);
-        }
+                        evaluationResult.addImpacts(portfolio.getKey(), ruleResults);
+                    } catch (Exception e) {
+                        // FIXME throw a better exception
+                        throw new RuntimeException("could not evaluate trade", e);
+                    }
+                })).get();
 
         return evaluationResult;
     }

@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -22,7 +20,6 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
-import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code LocalPortfolioEvaluator} is a {@code PortfolioEvaluator} which performs processing on the
@@ -32,9 +29,6 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
  */
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
-
-    private static final ForkJoinPool ruleEvaluationThreadPool = ForkJoinPoolFactory
-            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "rule-evaluator");
 
     private final PortfolioProvider portfolioProvider;
 
@@ -51,14 +45,13 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
 
     @Override
     public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            EvaluationContext evaluationContext) throws InterruptedException, ExecutionException {
+            EvaluationContext evaluationContext) {
         return evaluate(portfolio, null, evaluationContext);
     }
 
     @Override
     public Future<Map<RuleKey, EvaluationResult>> evaluate(Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
+            Transaction transaction, EvaluationContext evaluationContext) {
         return CompletableFuture.completedFuture(
                 evaluate(portfolio.getRules(), portfolio, transaction, evaluationContext));
     }
@@ -76,14 +69,9 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return a {@code Map} associating each evaluated {@code Rule} with its result
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
-     * @throws ExcecutionException
-     *             if the {@code Rule}s could not be processed
      */
     protected Map<RuleKey, EvaluationResult> evaluate(Stream<Rule> rules, Portfolio portfolio,
-            Transaction transaction, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
+            Transaction transaction, EvaluationContext evaluationContext) {
         LOG.info("locally evaluating Portfolio {} (\"{}\")", portfolio.getKey(),
                 portfolio.getName());
         long startTime = System.currentTimeMillis();
@@ -122,21 +110,20 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             shortCircuitPredicate = (result -> true);
         }
 
-        // evaluate the Rules in parallel
-        Map<RuleKey, EvaluationResult> results = ruleEvaluationThreadPool.submit(() -> rules
-                .parallel()
+        // evaluate the Rules
+        Map<RuleKey, EvaluationResult> results = rules
                 .map(r -> new RuleEvaluator(r, portfolio, transaction,
                         portfolio.getBenchmark(portfolioProvider), evaluationContext).call())
                 .takeWhile(shortCircuitPredicate)
-                .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result))).get();
+                .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result));
 
         // collect the results and return
         Map<RuleKey, EvaluationResult> allResults =
                 new HashMap<>(shortCircuitResults.size() + results.size());
         allResults.putAll(shortCircuitResults);
         allResults.putAll(results);
-        LOG.info("evaluated {} Rules{} over {} Positions for Portfolio {} in {} ms",
-                allResults.size(), (shortCircuitResults.isEmpty() ? "" : " (short-circuited)"),
+        LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms",
+                allResults.size(), (shortCircuitResults.isEmpty() ? "full" : "short-circuited"),
                 portfolio.size(), portfolio.getKey(), System.currentTimeMillis() - startTime);
 
         return allResults;

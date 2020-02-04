@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.cache;
 
 import java.util.Optional;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -197,6 +198,11 @@ public class PanoptesCacheConfiguration {
         config.getQueueConfig(AssetCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME).setBackupCount(0);
         config.getMapConfig(AssetCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
                 .setInMemoryFormat(InMemoryFormat.BINARY);
+
+        // set up the Portfolio evaluator executor
+        config.getExecutorConfig(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
+                .setPoolSize(ForkJoinPool.getCommonPoolParallelism())
+                .setName(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR);
 
         // set up cluster join discovery appropriate for the detected environment
         if (isClustered) {

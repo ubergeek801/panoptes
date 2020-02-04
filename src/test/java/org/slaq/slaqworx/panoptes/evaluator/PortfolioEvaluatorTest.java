@@ -191,7 +191,7 @@ public class PortfolioEvaluatorTest {
      * (expect the unexpected!).
      */
     @Test
-    public void testEvaluateException() throws Exception {
+    public void testEvaluateException() {
         EvaluationContext context = TestUtil.defaultTestEvaluationContext;
 
         DummyRule passRule = new DummyRule("testPass", true);
