@@ -5,6 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
@@ -15,16 +23,28 @@ import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.ApplicationStartupEvent;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
+import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * Panoptes is a prototype system for investment portfolio compliance assurance. {@code Panoptes} is
@@ -100,6 +120,10 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
             servletServer.start();
 
             LOG.info("Panoptes Web application ready");
+
+            if (System.getProperty("perftest") != null) {
+                runPerformanceTest(assetCache);
+            }
         } catch (Exception e) {
             // FIXME throw a better exception
             throw new RuntimeException("could not initialize Panoptes", e);
@@ -158,5 +182,75 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
         });
 
         LOG.info("completed cache initialization");
+    }
+
+    protected void runPerformanceTest(AssetCache assetCache)
+            throws ExecutionException, InterruptedException {
+        // perform evaluation on each Portfolio
+
+        LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
+        ExecutorService evaluationExecutor = Executors.newSingleThreadExecutor();
+        long portfolioStartTime;
+        long portfolioEndTime;
+        long numPortfolioRuleEvalutions = 0;
+        Collection<Portfolio> portfolios = assetCache.getPortfolioCache().values();
+        int numPortfolios = portfolios.size();
+        try {
+            ExecutorCompletionService<Pair<PortfolioKey, Map<RuleKey, EvaluationResult>>> completionService =
+                    new ExecutorCompletionService<>(evaluationExecutor);
+
+            portfolioStartTime = System.currentTimeMillis();
+            portfolios.forEach(p -> {
+                completionService.submit(() -> Pair.of(p.getKey(),
+                        evaluator.evaluate(p, new EvaluationContext(assetCache)).get()));
+            });
+            // wait for all of the evaluations to complete
+            for (int i = 0; i < numPortfolios; i++) {
+                Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result =
+                        completionService.take().get();
+                numPortfolioRuleEvalutions += result.getRight().size();
+            }
+            portfolioEndTime = System.currentTimeMillis();
+        } finally {
+            evaluationExecutor.shutdown();
+        }
+
+        // perform evaluation on synthetic Trades with 62, 124, 248 and 496 allocations
+        ArrayList<Long> tradeStartTimes = new ArrayList<>();
+        ArrayList<Long> tradeEndTimes = new ArrayList<>();
+        ArrayList<Integer> allocationCounts = new ArrayList<>();
+        ArrayList<Long> evaluationGroupCounts = new ArrayList<>();
+        for (int i = 1; i <= 8; i *= 2) {
+            ArrayList<Position> positions = new ArrayList<>();
+            Security security1 = assetCache.getSecurityCache().values().iterator().next();
+            Position position1 = new Position(1_000_000, security1.getKey());
+            positions.add(position1);
+            TradeEvaluator tradeEvaluator = new TradeEvaluator(
+                    new LocalPortfolioEvaluator(assetCache), assetCache, assetCache);
+            HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
+            portfolios.stream().limit(i * 62).forEach(portfolio -> {
+                Transaction transaction = new Transaction(portfolio.getKey(), positions);
+                transactions.put(portfolio.getKey(), transaction);
+            });
+            Trade trade = new Trade(transactions);
+
+            tradeStartTimes.add(System.currentTimeMillis());
+            TradeEvaluationResult result =
+                    tradeEvaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
+            long numEvaluationGroups = result.getImpacts().values().parallelStream()
+                    .collect(Collectors.summingLong(m -> m.size()));
+            tradeEndTimes.add(System.currentTimeMillis());
+            allocationCounts.add(trade.getTransactions().size());
+            evaluationGroupCounts.add(numEvaluationGroups);
+        }
+
+        // log the timing results
+        LOG.info("processed {} Portfolios using {} Rule evaluations in {} ms", portfolios.size(),
+                numPortfolioRuleEvalutions, portfolioEndTime - portfolioStartTime);
+        for (int i = 0; i < tradeStartTimes.size(); i++) {
+            LOG.info("processed Trade with {} allocations producing {} evaluation groups in {} ms",
+                    allocationCounts.get(i), evaluationGroupCounts.get(i),
+                    tradeEndTimes.get(i) - tradeStartTimes.get(i));
+        }
     }
 }
