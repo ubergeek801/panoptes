@@ -19,6 +19,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ManagedContext;
 
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -64,8 +65,6 @@ import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 @Factory
 public class PanoptesCacheConfiguration {
     protected static final String REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR = "cluster-executor";
-
-    private static HazelcastInstance hazelcastInstance;
 
     /**
      * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
@@ -118,6 +117,8 @@ public class PanoptesCacheConfiguration {
      * @param assetCacheProvider
      *            a {@code Provider} providing an {@code AssetCache} (used to avoid circular
      *            injection dependencies)
+     * @param applicationContext
+     *            the current {@code ApplicationContext}
      * @return a Hazelcast {@code Config}
      */
     @Singleton
@@ -219,14 +220,10 @@ public class PanoptesCacheConfiguration {
      *            the Hazelcast {@Config} with which to configure the instance
      * @return a {@HazelcastInstance}
      */
+    @Bean(preDestroy = "shutdown")
     @Singleton
     protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
-        // FIXME this shouldn't be necessary with @Singleton but unit tests get duplicates otherwise
-        if (hazelcastInstance == null) {
-            hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfiguration);
-        }
-
-        return hazelcastInstance;
+        return Hazelcast.newHazelcastInstance(hazelcastConfiguration);
     }
 
     /**

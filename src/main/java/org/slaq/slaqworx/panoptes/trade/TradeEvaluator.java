@@ -80,10 +80,10 @@ public class TradeEvaluator {
      * @param evaluationMode
      *            the {@code TradeEvaluationMode} under which to evaluate the {@code Trade}
      * @return a {@code TradeEvaluationResult} describing the results of the evaluation
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the {@code Trade} could not be processed
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
      */
     public TradeEvaluationResult evaluate(Trade trade, EvaluationMode evaluationMode)
             throws ExecutionException, InterruptedException {
@@ -144,13 +144,13 @@ public class TradeEvaluator {
      * @return the (approximate) maximum market value of the given {@code Security}, less than or
      *         equal to {@code targetValue}, that can be accepted by the {@code Portfolio} without
      *         violating compliance
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the calculation could not be processed
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
      */
     public double evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue) throws InterruptedException, ExecutionException {
+            double targetValue) throws ExecutionException, InterruptedException {
         // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
         double minCompliantValue = MIN_ALLOCATION;
@@ -205,13 +205,13 @@ public class TradeEvaluator {
      * @param targetValue
      *            the desired investment amount, as USD market value
      * @return a {@code TradeEvaluationResult} indicating the result of the evaluation
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
      * @throws ExcecutionException
      *             if the calculation could not be processed
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
      */
     protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue) throws InterruptedException, ExecutionException {
+            double targetValue) throws ExecutionException, InterruptedException {
         Position trialAllocation = new Position(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
         Trade trialTrade = new Trade(Map.of(portfolioKey, trialTransaction));
