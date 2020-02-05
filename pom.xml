@@ -18,7 +18,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
         <jetty.version>9.4.26.v20200117</jetty.version>
-        <micronaut.version>1.2.10</micronaut.version>
+        <micronaut.version>1.3.0</micronaut.version>
         <protobuf.version>3.11.1</protobuf.version>
         <vaadin.version>14.1.16</vaadin.version>
 
@@ -308,8 +308,6 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <!-- override the Micronaut version for JDK 13 compatibility -->
-            <version>2.5.8</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
