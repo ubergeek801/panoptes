@@ -6,6 +6,10 @@
 <       return (Builder) DEFAULT_INSTANCE.createBuilder();
 ---
 >       return DEFAULT_INSTANCE.createBuilder();
+842c842
+<       return (Builder) DEFAULT_INSTANCE.createBuilder();
+---
+>       return DEFAULT_INSTANCE.createBuilder();
 1235c1235
 <       return (Builder) DEFAULT_INSTANCE.createBuilder();
 ---

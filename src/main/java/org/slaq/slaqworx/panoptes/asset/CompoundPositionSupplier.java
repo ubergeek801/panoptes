@@ -30,8 +30,8 @@ public class CompoundPositionSupplier implements PositionSupplier {
     }
 
     @Override
-    public Stream<Position> getPositions() {
-        Stream<Position> concatStream = suppliers[0].getPositions();
+    public Stream<? extends Position> getPositions() {
+        Stream<? extends Position> concatStream = suppliers[0].getPositions();
         for (int i = 1; i < suppliers.length; i++) {
             concatStream = Stream.concat(concatStream, suppliers[i].getPositions());
         }

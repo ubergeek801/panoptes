@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -231,6 +232,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
         ArrayList<Integer> allocationCounts = new ArrayList<>();
         ArrayList<Long> evaluationGroupCounts = new ArrayList<>();
         SecurityKey security1Key = new SecurityKey("US594918AM64"); // pretty arbitrary
+        LocalDate tradeDate = LocalDate.now();
         for (int i = 1; i <= 8; i *= 2) {
             ArrayList<Position> positions = new ArrayList<>();
             Position position1 = new Position(100_000, security1Key);
@@ -242,7 +244,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
                 Transaction transaction = new Transaction(portfolio.getKey(), positions);
                 transactions.put(portfolio.getKey(), transaction);
             });
-            Trade trade = new Trade(transactions);
+            Trade trade = new Trade(tradeDate, tradeDate, transactions);
 
             tradeStartTimes.add(System.currentTimeMillis());
             TradeEvaluationResult result =

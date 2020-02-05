@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -103,7 +104,8 @@ public class TradeEvaluatorTest {
         Transaction t1 = new Transaction(p1.getKey(), t1Allocations);
         Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolioKey(), t1);
 
-        Trade trade = new Trade(transactions);
+        LocalDate tradeDate = LocalDate.now();
+        Trade trade = new Trade(tradeDate, tradeDate, transactions);
         TradeEvaluator evaluator =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
                         TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
@@ -166,7 +168,9 @@ public class TradeEvaluatorTest {
         Position buyAlloc1 = TestUtil.createTestPosition(assetCache, 100, sec1);
         buyAllocations.add(buyAlloc1);
         Transaction buyTransaction = new Transaction(portfolio.getKey(), buyAllocations);
-        Trade buyTrade = new Trade(Map.of(portfolio.getKey(), buyTransaction));
+        LocalDate tradeDate = LocalDate.now();
+        Trade buyTrade =
+                new Trade(tradeDate, tradeDate, Map.of(portfolio.getKey(), buyTransaction));
 
         TradeEvaluator evaluator =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
@@ -180,7 +184,8 @@ public class TradeEvaluatorTest {
         Position sellAlloc1 = TestUtil.createTestPosition(assetCache, -100, sec1);
         sellAllocations.add(sellAlloc1);
         Transaction sellTransaction = new Transaction(null, sellAllocations);
-        Trade sellTrade = new Trade(Map.of(portfolio.getKey(), sellTransaction));
+        Trade sellTrade =
+                new Trade(tradeDate, tradeDate, Map.of(portfolio.getKey(), sellTransaction));
 
         result = evaluator.evaluate(sellTrade, EvaluationMode.FULL_EVALUATION);
         assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");

@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.serializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import javax.inject.Singleton;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.DateMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TradeMsg;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -45,11 +47,16 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
         TradeMsg tradeMsg = TradeMsg.parseFrom(buffer);
         IdKeyMsg tradeKeyMsg = tradeMsg.getKey();
         TradeKey tradeKey = new TradeKey(tradeKeyMsg.getId());
+        DateMsg tradeDateMsg = tradeMsg.getTradeDate();
+        LocalDate tradeDate = LocalDate.of(tradeDateMsg.getYear(), tradeDateMsg.getMonth(),
+                tradeDateMsg.getDay());
+        DateMsg settlementDateMsg = tradeMsg.getSettlementDate();
+        LocalDate settlementDate = LocalDate.of(settlementDateMsg.getYear(),
+                settlementDateMsg.getMonth(), settlementDateMsg.getDay());
         Map<PortfolioKey, Transaction> transactions = tradeMsg.getTransactionList().stream()
                 .map(transactionMsg -> TransactionSerializer.convert(transactionMsg))
                 .collect(Collectors.toMap(t -> t.getPortfolioKey(), t -> t));
-
-        return new Trade(tradeKey, transactions);
+        return new Trade(tradeKey, tradeDate, settlementDate, transactions);
     }
 
     @Override
@@ -57,8 +64,22 @@ public class TradeSerializer implements ByteArraySerializer<Trade> {
         IdKeyMsg.Builder tradeKeyBuilder = IdKeyMsg.newBuilder();
         tradeKeyBuilder.setId(trade.getKey().getId());
 
+        LocalDate tradeDate = trade.getTradeDate();
+        DateMsg.Builder tradeDateBuilder = DateMsg.newBuilder();
+        tradeDateBuilder.setYear(tradeDate.getYear());
+        tradeDateBuilder.setMonth(tradeDate.getMonthValue());
+        tradeDateBuilder.setDay(tradeDate.getDayOfMonth());
+
+        LocalDate settlementDate = trade.getSettlementDate();
+        DateMsg.Builder settlementDateBuilder = DateMsg.newBuilder();
+        settlementDateBuilder.setYear(settlementDate.getYear());
+        settlementDateBuilder.setMonth(settlementDate.getMonthValue());
+        settlementDateBuilder.setDay(settlementDate.getDayOfMonth());
+
         TradeMsg.Builder tradeBuilder = TradeMsg.newBuilder();
         tradeBuilder.setKey(tradeKeyBuilder);
+        tradeBuilder.setTradeDate(tradeDateBuilder);
+        tradeBuilder.setSettlementDate(settlementDateBuilder);
         trade.getTransactions().values().forEach(t -> {
             tradeBuilder.addTransaction(TransactionSerializer.convert(t));
         });

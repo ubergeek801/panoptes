@@ -131,7 +131,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
         // now that the Portfolios have been inserted, store the Position and Rule relationships
 
         for (Portfolio portfolio : map.values()) {
-            Iterator<Position> positionIter = portfolio.getPositions().iterator();
+            Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
             getJdbcTemplate().batchUpdate(
                     "insert into portfolio_position (portfolio_id, portfolio_version, position_id) "
                             + "values (?, ?, ?)",

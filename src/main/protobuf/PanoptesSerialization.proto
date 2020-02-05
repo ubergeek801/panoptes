@@ -13,6 +13,12 @@ message IdKeyMsg {
     string id = 1;
 }
 
+message DateMsg {
+    int32 year = 1;
+    int32 month = 2;
+    int32 day = 3;
+}
+
 message PortfolioMsg {
     IdVersionKeyMsg key = 1;
     string name = 2;
@@ -57,7 +63,9 @@ message TransactionMsg {
 
 message TradeMsg {
     IdKeyMsg key = 1;
-    repeated TransactionMsg transaction = 2;
+    DateMsg tradeDate = 2;
+    DateMsg settlementDate = 3;
+    repeated TransactionMsg transaction = 4;
 }
 
 message EvaluationContextMsg {

@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -223,7 +224,8 @@ public class TradeEvaluator {
             double targetValue) throws ExecutionException, InterruptedException {
         Position trialAllocation = new Position(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
-        Trade trialTrade = new Trade(Map.of(portfolioKey, trialTransaction));
+        LocalDate tradeDate = LocalDate.now();
+        Trade trialTrade = new Trade(tradeDate, tradeDate, Map.of(portfolioKey, trialTransaction));
 
         return evaluate(trialTrade, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
     }

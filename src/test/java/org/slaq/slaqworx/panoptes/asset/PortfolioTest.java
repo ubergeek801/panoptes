@@ -40,16 +40,16 @@ public class PortfolioTest {
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), "test", positions);
 
-        try (Stream<Position> stream1 = portfolio.getPositions();
-                Stream<Position> stream2 = portfolio.getPositions()) {
+        try (Stream<? extends Position> stream1 = portfolio.getPositions();
+                Stream<? extends Position> stream2 = portfolio.getPositions()) {
             assertFalse(stream1 == stream2, "position streams should be distinct");
             assertFalse(stream1.equals(stream2), "position streams should be distinct");
             assertEquals(4, stream1.count(), "unexpected count for stream 1");
             assertEquals(4, stream2.count(), "unexpected count for stream 2");
 
             // ensure that both streams can be iterated independently/simultaneously
-            Iterator<Position> iter1 = portfolio.getPositions().iterator();
-            Iterator<Position> iter2 = portfolio.getPositions().iterator();
+            Iterator<? extends Position> iter1 = portfolio.getPositions().iterator();
+            Iterator<? extends Position> iter2 = portfolio.getPositions().iterator();
             int itemCount = 0;
             while (iter1.hasNext()) {
                 iter1.next();

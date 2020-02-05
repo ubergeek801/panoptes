@@ -109,13 +109,11 @@ public class PositionSet implements HierarchicalPositionSupplier {
         Stream<Position> positionStream = positions.stream();
 
         if (positionHierarchyOptions.contains(PositionHierarchyOption.LOOKTHROUGH)) {
-            // FIXME implement lookthrough hierarchy
-            positionStream = positionStream;
+            positionStream = positionStream.flatMap(p -> p.getLookthroughPositions());
         }
 
         if (positionHierarchyOptions.contains(PositionHierarchyOption.TAXLOT)) {
-            // FIXME implement taxlot hierarchy
-            positionStream = positionStream;
+            positionStream = positionStream.flatMap(p -> p.getTaxlots());
         }
 
         return positionStream;

@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
@@ -98,6 +99,17 @@ public class Position implements Keyed<PositionKey> {
     }
 
     /**
+     * Obtains the lookthrough {@code Position}s of this {@code Position} as a {@code Stream}.
+     *
+     * @return a {@code Stream} of this {@code Position}'s lookthrough {@code Position}s, or the
+     *         {@code Position} itself if not applicable
+     */
+    public Stream<Position> getLookthroughPositions() {
+        // FIXME implement getLookthroughPositions()
+        return Stream.of(this);
+    }
+
+    /**
      * Obtains the market value of this {@code Position}.
      *
      * @param evaluationContext
@@ -128,6 +140,17 @@ public class Position implements Keyed<PositionKey> {
      */
     public SecurityKey getSecurityKey() {
         return securityKey;
+    }
+
+    /**
+     * Obtains the tax lots of this {@code Position} as a {@code Stream}.
+     *
+     * @return a {@code Stream} of this {@code Position}'s constituent tax lots, or the
+     *         {@code Position} itself if not applicable
+     */
+    public Stream<? extends Position> getTaxlots() {
+        // FIXME implement getTaxlots()
+        return Stream.of(this);
     }
 
     @Override

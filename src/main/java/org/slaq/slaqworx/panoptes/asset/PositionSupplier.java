@@ -39,7 +39,7 @@ public interface PositionSupplier {
      *
      * @return a {@code Stream} of {@code Position}s
      */
-    public Stream<Position> getPositions();
+    public Stream<? extends Position> getPositions();
 
     /**
      * Given an {@code EvaluationContext}, obtains this {@code PositionSupplier}'s {@code Position}s
@@ -56,7 +56,7 @@ public interface PositionSupplier {
 
     /**
      * Obtains the sum of the {@code Position} amounts of this {@code PositionSupplier}.
-     * 
+     *
      * @param evaluationContext
      *            the {@code EvaluationContext} in which to perform the evaluation
      * @return the sum of {@code Position} amounts

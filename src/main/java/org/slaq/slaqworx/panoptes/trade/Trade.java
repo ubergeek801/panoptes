@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,18 +19,25 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  */
 public class Trade {
     private final TradeKey key;
+    private final LocalDate tradeDate;
+    private final LocalDate settlementDate;
     private final Map<PortfolioKey, Transaction> transactions;
 
     /**
      * Creates a new {@code Trade} with a generated ID and consisting of the given
      * {@code Transaction}s.
      *
+     * @param tradeDate
+     *            the date on which the {@code Trade} is effective
+     * @param settlementDate
+     *            the date on which the {@code Trade} settles
      * @param transactions
      *            the {@code Transaction}s comprising this {@code Trade}, mapped by
      *            {@code PortfolioKey}
      */
-    public Trade(Map<PortfolioKey, Transaction> transactions) {
-        this(null, transactions);
+    public Trade(LocalDate tradeDate, LocalDate settlementDate,
+            Map<PortfolioKey, Transaction> transactions) {
+        this(null, tradeDate, settlementDate, transactions);
     }
 
     /**
@@ -38,12 +46,19 @@ public class Trade {
      *
      * @param key
      *            the unique key to assign to this {@code Trade}, or null to generate one
+     * @param tradeDate
+     *            the date on which the {@code Trade} is effective
+     * @param settlementDate
+     *            the date on which the {@code Trade} settles
      * @param transactions
      *            the {@code Transaction}s comprising this {@code Trade}, mapped by
      *            {@code PortfolioKey}
      */
-    public Trade(TradeKey key, Map<PortfolioKey, Transaction> transactions) {
+    public Trade(TradeKey key, LocalDate tradeDate, LocalDate settlementDate,
+            Map<PortfolioKey, Transaction> transactions) {
         this.key = (key == null ? new TradeKey(null) : key);
+        this.tradeDate = tradeDate;
+        this.settlementDate = settlementDate;
         this.transactions = transactions;
     }
 
@@ -95,6 +110,24 @@ public class Trade {
      */
     public TradeKey getKey() {
         return key;
+    }
+
+    /**
+     * Obtains the date on which this {@code Trade} settles.
+     *
+     * @return the settlement date
+     */
+    public LocalDate getSettlementDate() {
+        return settlementDate;
+    }
+
+    /**
+     * Obtains the date on which this {@code Trade} is effective.
+     *
+     * @return the trade date
+     */
+    public LocalDate getTradeDate() {
+        return tradeDate;
     }
 
     /**

@@ -162,7 +162,7 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     }
 
     @Override
-    public Stream<Position> getPositions() {
+    public Stream<? extends Position> getPositions() {
         return positionSet.getPositions();
     }
 

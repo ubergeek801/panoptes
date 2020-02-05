@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -35,7 +36,10 @@ public class TradeSerializerTest {
         Position p4 = new Position(400d, TestUtil.s3.getKey());
         Transaction t2 = new Transaction(TestUtil.p2.getKey(), List.of(p3, p4));
 
-        Trade trade = new Trade(Map.of(t1.getPortfolioKey(), t1, t2.getPortfolioKey(), t2));
+        LocalDate tradeDate = LocalDate.of(2020, 2, 1);
+        LocalDate settlementDate = LocalDate.of(2020, 2, 4);
+        Trade trade = new Trade(tradeDate, settlementDate,
+                Map.of(t1.getPortfolioKey(), t1, t2.getPortfolioKey(), t2));
 
         byte[] buffer = serializer.write(trade);
         Trade deserialized = serializer.read(buffer);
@@ -43,6 +47,10 @@ public class TradeSerializerTest {
         assertEquals(trade, deserialized, "deserialized value should equals() original value");
         assertEquals(trade.getKey(), deserialized.getKey(),
                 "deserialized value should have same key as original");
+        assertEquals(trade.getTradeDate(), deserialized.getTradeDate(),
+                "deserialized value should have same trade date as original");
+        assertEquals(trade.getSettlementDate(), deserialized.getSettlementDate(),
+                "deserialized value should have same settlement date as original");
         assertEquals(trade.getTransactions().size(), deserialized.getTransactions().size(),
                 "deserialized value should have same number of transactions as original");
 
@@ -73,8 +81,9 @@ public class TradeSerializerTest {
                     deserializedTransaction.getPositions().count(),
                     "deserialized Transaction should have same number of allocations as original");
 
-            Iterator<Position> tradeAllocationIter = transaction.getPositions().iterator();
-            Iterator<Position> deserializedAllocationIter =
+            Iterator<? extends Position> tradeAllocationIter =
+                    transaction.getPositions().iterator();
+            Iterator<? extends Position> deserializedAllocationIter =
                     deserializedTransaction.getPositions().iterator();
             while (tradeAllocationIter.hasNext()) {
                 Position allocation = tradeAllocationIter.next();
