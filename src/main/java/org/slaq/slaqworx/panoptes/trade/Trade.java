@@ -1,14 +1,11 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Position;
 
 /**
  * A {@code Trade} is an aggregate of {@code Transaction}s that modify one or more
@@ -60,6 +57,11 @@ public class Trade {
         this.tradeDate = tradeDate;
         this.settlementDate = settlementDate;
         this.transactions = transactions;
+
+        // Trade and TaxLot creation are a chicken-and-egg situation, so Trade is responsible for
+        // updating its TaxLots at create time
+        transactions.values().stream().flatMap(t -> t.getPositions())
+                .forEach(a -> a.setTradeKey(this.key));
     }
 
     @Override
@@ -92,12 +94,11 @@ public class Trade {
      * @return a {@code Stream} of {@code Position}s representing the allocations for the specified
      *         {@code Portfolio}
      */
-    public Stream<Position> getAllocations(PortfolioKey portfolioKey) {
+    public Stream<TaxLot> getAllocations(PortfolioKey portfolioKey) {
         Transaction transaction = transactions.get(portfolioKey);
 
         if (transaction == null) {
-            List<Position> emptyList = Collections.emptyList();
-            return emptyList.stream();
+            return Stream.empty();
         }
 
         return transaction.getPositions();

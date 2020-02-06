@@ -24,7 +24,22 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
     private final PortfolioKey benchmarkKey;
     private Portfolio benchmark;
     private final HashSet<Rule> rules;
-    private final PositionSet positionSet;
+    private final PositionSet<Position> positionSet;
+
+    /**
+     * Creates a new {@code Portfolio} with the given key, name and {@code Position}s, with no
+     * associated benchmark or {@code Rule}s.
+     *
+     * @param id
+     *            the unique {@code Portfolio} key
+     * @param name
+     *            the {@code Portfolio} name/description
+     * @param positions
+     *            the {@code Positions} comprising the {@code Portfolio}
+     */
+    public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
+        this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
+    }
 
     /**
      * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
@@ -43,8 +58,8 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
      */
-    public Portfolio(PortfolioKey id, String name, Set<? extends Position> positions,
-            Portfolio benchmark, Collection<? extends Rule> rules) {
+    public Portfolio(PortfolioKey id, String name, Set<Position> positions, Portfolio benchmark,
+            Collection<? extends Rule> rules) {
         this(id, name, positions, (benchmark == null ? null : benchmark.getKey()), rules);
     }
 
@@ -65,28 +80,13 @@ public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
      */
-    public Portfolio(PortfolioKey key, String name, Set<? extends Position> positions,
+    public Portfolio(PortfolioKey key, String name, Set<Position> positions,
             PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
         this.key = key;
         this.name = name;
         this.benchmarkKey = benchmarkKey;
         this.rules = (rules == null ? new HashSet<>() : new HashSet<>(rules));
-        positionSet = new PositionSet(positions, key);
-    }
-
-    /**
-     * Creates a new {@code Portfolio} with the given key, name and {@code Position}s, with no
-     * associated benchmark or {@code Rule}s.
-     *
-     * @param id
-     *            the unique {@code Portfolio} key
-     * @param name
-     *            the {@code Portfolio} name/description
-     * @param positions
-     *            the {@code Positions} comprising the {@code Portfolio}
-     */
-    public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
-        this(id, name, positions, (PortfolioKey)null, Collections.emptySet());
+        positionSet = new PositionSet<>(positions, key);
     }
 
     @Override

@@ -70,7 +70,7 @@ public class PortfolioSerializerTest {
                     "deserialized Position should have same SecurityKey as original");
         }
 
-        Set<? extends Position> positions = TestUtil.p1Positions;
+        Set<Position> positions = TestUtil.p1Positions;
         Rule testRule = TestUtil.testRuleProvider().newConcentrationRule(null, "test rule",
                 GroovyPositionFilter.of("s.region == 'Emerging Markets'"), null, 0.1, null);
         Collection<Rule> rules = Set.of(testRule);

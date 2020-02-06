@@ -89,7 +89,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         @Override
         public Function<Collection<Position>, PositionSupplier> finisher() {
             // create a new PositionSet of the accumulated Positions
-            return c -> new PositionSet(c, portfolioKey, portfolioMarketValue);
+            return c -> new PositionSet<>(c, portfolioKey, portfolioMarketValue);
         }
 
         @Override

@@ -119,7 +119,7 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
         filteredClassifiedPositions.put(
                 new EvaluationGroup("top(" + count + "," + getSecurityAttribute().getName() + ")",
                         getSecurityAttribute().getName()),
-                new PositionSet(aggregatePositions, aPositionSupplier.getPortfolioKey(),
+                new PositionSet<>(aggregatePositions, aPositionSupplier.getPortfolioKey(),
                         aPositionSupplier.getTotalMarketValue(evaluationContext)));
 
         return filteredClassifiedPositions;

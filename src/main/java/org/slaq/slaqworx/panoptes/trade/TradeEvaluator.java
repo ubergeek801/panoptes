@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -222,7 +221,7 @@ public class TradeEvaluator {
      */
     protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
             double targetValue) throws ExecutionException, InterruptedException {
-        Position trialAllocation = new Position(targetValue, securityKey);
+        TaxLot trialAllocation = new TaxLot(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
         LocalDate tradeDate = LocalDate.now();
         Trade trialTrade = new Trade(tradeDate, tradeDate, Map.of(portfolioKey, trialTransaction));

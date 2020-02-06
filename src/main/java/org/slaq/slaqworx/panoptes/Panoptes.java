@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
@@ -42,6 +41,7 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
@@ -234,14 +234,14 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
         SecurityKey security1Key = new SecurityKey("US594918AM64"); // pretty arbitrary
         LocalDate tradeDate = LocalDate.now();
         for (int i = 1; i <= 8; i *= 2) {
-            ArrayList<Position> positions = new ArrayList<>();
-            Position position1 = new Position(100_000, security1Key);
-            positions.add(position1);
+            ArrayList<TaxLot> taxLots = new ArrayList<>();
+            TaxLot allocation1 = new TaxLot(100_000, security1Key);
+            taxLots.add(allocation1);
             TradeEvaluator tradeEvaluator = new TradeEvaluator(
                     new LocalPortfolioEvaluator(assetCache), assetCache, assetCache);
             HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
             portfolios.stream().limit(i * 62).forEach(portfolio -> {
-                Transaction transaction = new Transaction(portfolio.getKey(), positions);
+                Transaction transaction = new Transaction(portfolio.getKey(), taxLots);
                 transactions.put(portfolio.getKey(), transaction);
             });
             Trade trade = new Trade(tradeDate, tradeDate, transactions);

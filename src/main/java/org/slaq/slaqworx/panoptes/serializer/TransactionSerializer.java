@@ -10,11 +10,11 @@ import javax.inject.Singleton;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TransactionMsg;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.trade.TransactionKey;
 
@@ -44,15 +44,15 @@ public class TransactionSerializer implements ByteArraySerializer<Transaction> {
         transactionBuilder.setKey(transactionKeyBuilder);
         transactionBuilder.setPortfolioKey(portfolioKeyBuilder);
 
-        transaction.getPositions().forEach(p -> {
+        transaction.getPositions().forEach(t -> {
             IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
-            positionKeyBuilder.setId(p.getKey().getId());
+            positionKeyBuilder.setId(t.getKey().getId());
             IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-            securityKeyBuilder.setId(p.getSecurityKey().getId());
+            securityKeyBuilder.setId(t.getSecurityKey().getId());
 
             PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
             positionBuilder.setKey(positionKeyBuilder);
-            positionBuilder.setAmount(p.getAmount());
+            positionBuilder.setAmount(t.getAmount());
             positionBuilder.setSecurityKey(securityKeyBuilder);
 
             transactionBuilder.addPosition(positionBuilder);
@@ -74,8 +74,8 @@ public class TransactionSerializer implements ByteArraySerializer<Transaction> {
         IdVersionKeyMsg portfolioKeyMsg = transactionMsg.getPortfolioKey();
         PortfolioKey portfolioKey =
                 new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
-        List<Position> allocations = transactionMsg.getPositionList().stream()
-                .map(positionMsg -> PositionSerializer.convert(positionMsg))
+        List<TaxLot> allocations = transactionMsg.getPositionList().stream()
+                .map(positionMsg -> PositionSerializer.convertTaxLot(positionMsg))
                 .collect(Collectors.toList());
 
         return new Transaction(transactionKey, portfolioKey, allocations);

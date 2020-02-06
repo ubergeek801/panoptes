@@ -12,6 +12,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
  * {@code PositionSerializer} (de)serializes the state of a {@code Position} using Protobuf.
@@ -34,6 +35,22 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
         SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
 
         return new Position(key, positionMsg.getAmount(), securityKey);
+    }
+
+    /**
+     * Converts a {@code PositionMsg} into a new {@code TaxLot}.
+     *
+     * @param positionMsg
+     *            the message to be converted
+     * @return a {@code TaxLot}
+     */
+    public static TaxLot convertTaxLot(PositionMsg positionMsg) {
+        IdKeyMsg keyMsg = positionMsg.getKey();
+        PositionKey key = new PositionKey(keyMsg.getId());
+        IdKeyMsg securityKeyMsg = positionMsg.getSecurityKey();
+        SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
+
+        return new TaxLot(key, positionMsg.getAmount(), securityKey);
     }
 
     /**

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
@@ -29,11 +30,11 @@ public class TradeSerializerTest {
     public void testSerialization() throws Exception {
         TradeSerializer serializer = new TradeSerializer();
 
-        Position p1 = new Position(100d, TestUtil.s1.getKey());
-        Position p2 = new Position(200d, TestUtil.s2.getKey());
+        TaxLot p1 = new TaxLot(100d, TestUtil.s1.getKey());
+        TaxLot p2 = new TaxLot(200d, TestUtil.s2.getKey());
         Transaction t1 = new Transaction(TestUtil.p1.getKey(), List.of(p1, p2));
-        Position p3 = new Position(300d, TestUtil.s2.getKey());
-        Position p4 = new Position(400d, TestUtil.s3.getKey());
+        TaxLot p3 = new TaxLot(300d, TestUtil.s2.getKey());
+        TaxLot p4 = new TaxLot(400d, TestUtil.s3.getKey());
         Transaction t2 = new Transaction(TestUtil.p2.getKey(), List.of(p3, p4));
 
         LocalDate tradeDate = LocalDate.of(2020, 2, 1);

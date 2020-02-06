@@ -104,7 +104,7 @@ public class Position implements Keyed<PositionKey> {
      * @return a {@code Stream} of this {@code Position}'s lookthrough {@code Position}s, or the
      *         {@code Position} itself if not applicable
      */
-    public Stream<Position> getLookthroughPositions() {
+    public Stream<? extends Position> getLookthroughPositions() {
         // FIXME implement getLookthroughPositions()
         return Stream.of(this);
     }

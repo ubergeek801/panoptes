@@ -22,6 +22,7 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
  * {@code TestUtil} provides common utilities to support Panoptes testing.
@@ -130,8 +131,7 @@ public class TestUtil {
      *            {@code Portfolio}
      */
     public static Portfolio createTestPortfolio(AssetCache assetCache, String id, String name,
-            Set<? extends Position> positions, PortfolioKey benchmarkKey,
-            Collection<? extends Rule> rules) {
+            Set<Position> positions, PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
         Portfolio portfolio =
                 new Portfolio(new PortfolioKey(id, 1), name, positions, benchmarkKey, rules);
         assetCache.getPortfolioCache().set(portfolio.getKey(), portfolio);
@@ -213,6 +213,33 @@ public class TestUtil {
             BigDecimal price) {
         return createTestSecurity(assetCache, assetId,
                 Map.of(SecurityAttribute.issuer, issuer, SecurityAttribute.price, price));
+    }
+
+    /**
+     * Creates a new {@code TaxLot} with the given parameters.
+     *
+     * @param amount
+     *            the amount held by the {@code TaxLot}
+     * @param security
+     *            the {@code Security} held by the {@code TaxLot}
+     * @return the {@code TaxLot} that was created
+     */
+    public static TaxLot createTestTaxLot(double amount, Security security) {
+        return createTestTaxLot(amount, security.getKey());
+    }
+
+    /**
+     * Creates a new {@code TaxLot} with the given parameters.
+     *
+     * @param amount
+     *            the amount held by the {@code TaxLot}
+     * @param securityKey
+     *            the {@code SecurityKey} identifying the {@code Security} held by the
+     *            {@code TaxLot}
+     * @return the {@code TaxLot} that was created
+     */
+    public static TaxLot createTestTaxLot(double amount, SecurityKey securityKey) {
+        return new TaxLot(amount, securityKey);
     }
 
     /**

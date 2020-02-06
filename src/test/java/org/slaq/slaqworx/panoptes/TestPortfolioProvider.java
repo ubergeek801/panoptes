@@ -47,7 +47,7 @@ public class TestPortfolioProvider implements PortfolioProvider {
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
      */
-    public Portfolio newPortfolio(String id, String name, Set<? extends Position> positions,
+    public Portfolio newPortfolio(String id, String name, Set<Position> positions,
             Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
         Portfolio portfolio =
                 new Portfolio(new PortfolioKey(id, 1), name, positions, benchmark, rules);

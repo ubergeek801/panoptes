@@ -25,9 +25,9 @@ public class CompoundPositionSupplierTest {
         EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
 
         PortfolioKey portfolioKey = new PortfolioKey("test", 1);
-        PositionSupplier s1 = new PositionSet(TestUtil.p1Positions, portfolioKey);
-        PositionSupplier s2 = new PositionSet(TestUtil.p2Positions, portfolioKey);
-        PositionSupplier s3 = new PositionSet(TestUtil.p3Positions, portfolioKey);
+        PositionSupplier s1 = new PositionSet<>(TestUtil.p1Positions, portfolioKey);
+        PositionSupplier s2 = new PositionSet<>(TestUtil.p2Positions, portfolioKey);
+        PositionSupplier s3 = new PositionSet<>(TestUtil.p3Positions, portfolioKey);
         PositionSupplier concat = PositionSupplier.concat(s1, s2, s3);
 
         // there should be a total of 7 positions (2 + 2 + 3)

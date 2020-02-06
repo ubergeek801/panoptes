@@ -27,11 +27,13 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  * {@code Position}s are present.
  *
  * @author jeremy
+ * @param <P>
+ *            the concrete {@code Position} type provided by this {@code PositionSet}
  */
-public class PositionSet implements HierarchicalPositionSupplier {
+public class PositionSet<P extends Position> implements HierarchicalPositionSupplier {
     // even though we assume Set semantics, keeping positions in contiguous memory improves
     // calculation performance by 20%
-    private final ArrayList<Position> positions;
+    private final ArrayList<P> positions;
     private final PortfolioKey portfolioKey;
     private Double totalMarketValue;
 
@@ -42,7 +44,7 @@ public class PositionSet implements HierarchicalPositionSupplier {
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}
      */
-    public PositionSet(Collection<? extends Position> positions) {
+    public PositionSet(Collection<P> positions) {
         this(positions, null);
     }
 
@@ -56,7 +58,7 @@ public class PositionSet implements HierarchicalPositionSupplier {
      *            the (possibly {@code null}) {@code PortfolioKey} associated with this
      *            {@code PositionSet}
      */
-    public PositionSet(Collection<? extends Position> positions, PortfolioKey portfolioKey) {
+    public PositionSet(Collection<P> positions, PortfolioKey portfolioKey) {
         this(positions, portfolioKey, null);
     }
 
@@ -72,7 +74,7 @@ public class PositionSet implements HierarchicalPositionSupplier {
      * @param portfolioMarketValue
      *            the (possibly {@code null} portfolio market value to use
      */
-    public PositionSet(Collection<? extends Position> positions, PortfolioKey portfolioKey,
+    public PositionSet(Collection<P> positions, PortfolioKey portfolioKey,
             Double portfolioMarketValue) {
         this.positions = new ArrayList<>(positions);
         this.portfolioKey = portfolioKey;
@@ -89,7 +91,7 @@ public class PositionSet implements HierarchicalPositionSupplier {
      *            the (possibly {@code null}) {@code PortfolioKey} associated with this {@code
      *            PositionSet}
      */
-    public PositionSet(Stream<? extends Position> positions, PortfolioKey portfolioKey) {
+    public PositionSet(Stream<P> positions, PortfolioKey portfolioKey) {
         this(positions.collect(Collectors.toList()), portfolioKey);
     }
 
@@ -99,14 +101,14 @@ public class PositionSet implements HierarchicalPositionSupplier {
     }
 
     @Override
-    public Stream<Position> getPositions() {
-        return getPositions(EnumSet.noneOf(PositionHierarchyOption.class));
+    public Stream<P> getPositions() {
+        return positions.stream();
     }
 
     @Override
-    public Stream<Position>
+    public Stream<? extends Position>
             getPositions(EnumSet<PositionHierarchyOption> positionHierarchyOptions) {
-        Stream<Position> positionStream = positions.stream();
+        Stream<? extends Position> positionStream = positions.stream();
 
         if (positionHierarchyOptions.contains(PositionHierarchyOption.LOOKTHROUGH)) {
             positionStream = positionStream.flatMap(p -> p.getLookthroughPositions());

@@ -99,8 +99,8 @@ public class TradeEvaluatorTest {
         Portfolio p1 = TestUtil.testPortfolioProvider().newPortfolio("TradeEvaluatorTestP1", "test",
                 p1Positions, null, p1Rules.values());
 
-        Position t1Alloc1 = new Position(1_000, s2.getKey());
-        List<Position> t1Allocations = Arrays.asList(t1Alloc1);
+        TaxLot t1Alloc1 = new TaxLot(1_000, s2.getKey());
+        List<TaxLot> t1Allocations = Arrays.asList(t1Alloc1);
         Transaction t1 = new Transaction(p1.getKey(), t1Allocations);
         Map<PortfolioKey, Transaction> transactions = Map.of(t1.getPortfolioKey(), t1);
 
@@ -164,8 +164,8 @@ public class TradeEvaluatorTest {
                 "TradeEvaluatorTestPortfolio", "test", portfolioPositions, null, rules);
 
         // create a Transaction attempting to buy sec1
-        HashSet<Position> buyAllocations = new HashSet<>();
-        Position buyAlloc1 = TestUtil.createTestPosition(assetCache, 100, sec1);
+        HashSet<TaxLot> buyAllocations = new HashSet<>();
+        TaxLot buyAlloc1 = TestUtil.createTestTaxLot(100, sec1);
         buyAllocations.add(buyAlloc1);
         Transaction buyTransaction = new Transaction(portfolio.getKey(), buyAllocations);
         LocalDate tradeDate = LocalDate.now();
@@ -180,8 +180,8 @@ public class TradeEvaluatorTest {
 
         // create a Transaction attempting to sell sec1 (never mind that the Portfolio doesn't hold
         // it)
-        HashSet<Position> sellAllocations = new HashSet<>();
-        Position sellAlloc1 = TestUtil.createTestPosition(assetCache, -100, sec1);
+        HashSet<TaxLot> sellAllocations = new HashSet<>();
+        TaxLot sellAlloc1 = TestUtil.createTestTaxLot(-100, sec1);
         sellAllocations.add(sellAlloc1);
         Transaction sellTransaction = new Transaction(null, sellAllocations);
         Trade sellTrade =

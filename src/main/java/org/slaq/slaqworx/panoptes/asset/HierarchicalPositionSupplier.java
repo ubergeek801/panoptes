@@ -24,5 +24,6 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
      *            the (possibly empty) hierarchy options to be applied
      * @return a {@code Stream} of {@code Position}s
      */
-    public Stream<Position> getPositions(EnumSet<PositionHierarchyOption> positionHierarchyOptions);
+    public Stream<? extends Position>
+            getPositions(EnumSet<PositionHierarchyOption> positionHierarchyOptions);
 }

@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -19,7 +18,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 public class Transaction implements PositionSupplier {
     private final TransactionKey key;
     private final PortfolioKey portfolioKey;
-    private final PositionSet positions;
+    private final PositionSet<TaxLot> positions;
 
     /**
      * Creates a new {@code Transaction}, with a generated ID, acting on the given {@code Portfolio}
@@ -31,7 +30,7 @@ public class Transaction implements PositionSupplier {
      * @param allocations
      *            the allocations of the {@code Transaction}
      */
-    public Transaction(PortfolioKey portfolioKey, Collection<Position> allocations) {
+    public Transaction(PortfolioKey portfolioKey, Collection<TaxLot> allocations) {
         this(null, portfolioKey, allocations);
     }
 
@@ -48,10 +47,10 @@ public class Transaction implements PositionSupplier {
      *            the allocations of the {@code Transaction}
      */
     public Transaction(TransactionKey key, PortfolioKey portfolioKey,
-            Collection<Position> allocations) {
+            Collection<TaxLot> allocations) {
         this.key = (key == null ? new TransactionKey(null) : key);
         this.portfolioKey = portfolioKey;
-        positions = new PositionSet(allocations, portfolioKey);
+        positions = new PositionSet<>(allocations, portfolioKey);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class Transaction implements PositionSupplier {
     }
 
     @Override
-    public Stream<Position> getPositions() {
+    public Stream<TaxLot> getPositions() {
         return positions.getPositions();
     }
 

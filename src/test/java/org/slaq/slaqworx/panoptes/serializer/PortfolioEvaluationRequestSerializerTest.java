@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
@@ -30,8 +30,8 @@ public class PortfolioEvaluationRequestSerializerTest {
         PortfolioEvaluationRequestSerializer serializer = new PortfolioEvaluationRequestSerializer(
                 TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
 
-        Position p1 = new Position(100d, TestUtil.s1.getKey());
-        Position p2 = new Position(200d, TestUtil.s2.getKey());
+        TaxLot p1 = new TaxLot(100d, TestUtil.s1.getKey());
+        TaxLot p2 = new TaxLot(200d, TestUtil.s2.getKey());
         Transaction t1 = new Transaction(TestUtil.p1.getKey(), List.of(p1, p2));
         Portfolio portfolio = TestUtil.p1;
         EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
