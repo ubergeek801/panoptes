@@ -114,25 +114,25 @@ public class RuleEvaluatorTest {
 
         Rule rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.035,
                 null, null);
-        EvaluationContext context = new EvaluationContext(TestUtil.testSecurityProvider());
+        EvaluationContext context = TestUtil.defaultTestEvaluationContext();
         EvaluationResult result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.p3, context).call();
         assertFalse(result.isPassed(), "rule with 103.5% lower limit should have failed");
 
         rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.03, null,
                 null);
-        context = new EvaluationContext(TestUtil.testSecurityProvider());
+        context = TestUtil.defaultTestEvaluationContext();
         result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.p3, context).call();
         assertTrue(result.isPassed(), "rule with 103% lower limit should have passed");
 
         // p1's concentration in non-s2 is 1000 / 1500 = 0.666...; p3's concentration is 700 / 1700
         // = 0.411764706; p1 is thus 1.619047619 of the benchmark and should thus fail this rule
         rule = new ConcentrationRule(null, "test rule", filter, 1.62, null, null);
-        context = new EvaluationContext(TestUtil.testSecurityProvider());
+        context = TestUtil.defaultTestEvaluationContext();
         result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.p3, context).call();
         assertFalse(result.isPassed(), "rule with 162% lower limit should have failed");
         // ...and should pass this rule
         rule = new ConcentrationRule(null, "test rule", filter, 1.619, null, null);
-        context = new EvaluationContext(TestUtil.testSecurityProvider());
+        context = TestUtil.defaultTestEvaluationContext();
         result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.p3, context).call();
         assertTrue(result.isPassed(), "rule with 161.9% lower limit should have passed");
     }

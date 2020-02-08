@@ -197,7 +197,7 @@ public class FixedIncomeTradePanel extends FormLayout {
             int numRemaining[] = new int[] { numPortfolios };
             TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
             Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
-            EvaluationContext evaluationContext = new EvaluationContext(assetCache);
+            EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache);
             long startTime = System.currentTimeMillis();
             ForkJoinTask<?> future = roomEvaluatorExecutor
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {

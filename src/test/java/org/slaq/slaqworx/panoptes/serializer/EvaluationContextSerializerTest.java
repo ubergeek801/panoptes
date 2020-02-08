@@ -25,14 +25,15 @@ public class EvaluationContextSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        EvaluationContextSerializer serializer =
-                new EvaluationContextSerializer(TestUtil.testSecurityProvider());
+        EvaluationContextSerializer serializer = new EvaluationContextSerializer(
+                TestUtil.testSecurityProvider(), TestUtil.testPortfolioProvider());
 
         Map<SecurityKey, SecurityAttributes> securityAttributeOverrides =
                 Map.of(TestUtil.s1.getKey(), TestUtil.s1.getAttributes(), TestUtil.s2.getKey(),
                         TestUtil.s2.getAttributes());
         EvaluationContext context = new EvaluationContext(TestUtil.testSecurityProvider(),
-                EvaluationMode.SHORT_CIRCUIT_EVALUATION, securityAttributeOverrides);
+                TestUtil.testPortfolioProvider(), EvaluationMode.SHORT_CIRCUIT_EVALUATION,
+                securityAttributeOverrides);
 
         byte[] buffer = serializer.write(context);
         EvaluationContext deserialized = serializer.read(buffer);

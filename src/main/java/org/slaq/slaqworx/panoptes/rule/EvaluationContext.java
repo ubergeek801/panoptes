@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
@@ -33,6 +34,7 @@ public class EvaluationContext {
     }
 
     private final SecurityProvider securityProvider;
+    private final PortfolioProvider portfolioProvider;
     private final EvaluationMode evaluationMode;
     private final Map<SecurityKey, SecurityAttributes> securityOverrides;
     private final Map<RuleKey, Map<EvaluationGroup, Double>> benchmarkValues =
@@ -45,43 +47,49 @@ public class EvaluationContext {
      *
      * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} references
+     * @param portfolioProvider
+     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
      */
-    public EvaluationContext(SecurityProvider securityProvider) {
-        this(securityProvider, EvaluationMode.FULL_EVALUATION);
+    public EvaluationContext(SecurityProvider securityProvider,
+            PortfolioProvider portfolioProvider) {
+        this(securityProvider, portfolioProvider, EvaluationMode.FULL_EVALUATION);
     }
 
     /**
      * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the given
-     * {@code SecurityProvider} to resolve {@code Security} references, and which supplies no
-     * {@code Security} attribute overrides.
+     * providers to resolve references, and which supplies no {@code Security} attribute overrides.
      *
      * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} references
      * @param evaluationMode
      *            the evaluation mode in which to evaluate
      */
-    public EvaluationContext(SecurityProvider securityProvider, EvaluationMode evaluationMode) {
-        this(securityProvider, evaluationMode, null);
+    public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
+            EvaluationMode evaluationMode) {
+        this(securityProvider, portfolioProvider, evaluationMode, null);
     }
 
     /**
      * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the given
-     * {@code SecurityProvider} to resolve {@code Security} references, and which specifies
-     * attributes which should override current {@code Security} attribute values for the purposes
-     * of the current evaluation.
+     * providers to resolve references, and which specifies attributes which should override current
+     * {@code Security} attribute values for the purposes of the current evaluation.
      *
      * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} references
+     * @param portfolioProvider
+     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
      * @param evaluationMode
      *            the evaluation mode in which to evaluate
      * @param securityAttributeOverrides
      *            a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a
      *            {@code SecurityAttributes} which should override the current values
      */
-    public EvaluationContext(SecurityProvider securityProvider, EvaluationMode evaluationMode,
+    public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
+            EvaluationMode evaluationMode,
             Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
-        this.evaluationMode = evaluationMode;
         this.securityProvider = securityProvider;
+        this.portfolioProvider = portfolioProvider;
+        this.evaluationMode = evaluationMode;
         securityOverrides = (securityAttributeOverrides == null ? Collections.emptyMap()
                 : securityAttributeOverrides);
     }
@@ -139,6 +147,15 @@ public class EvaluationContext {
      */
     public EvaluationMode getEvaluationMode() {
         return evaluationMode;
+    }
+
+    /**
+     * Obtains the {@code PortfolioProvider} in effect for the current evaluation.
+     *
+     * @return a {@code PortfolioProvider}
+     */
+    public PortfolioProvider getPortfolioProvider() {
+        return portfolioProvider;
     }
 
     /**

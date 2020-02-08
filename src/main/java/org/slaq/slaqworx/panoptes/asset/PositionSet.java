@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,22 +102,6 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
     @Override
     public Stream<P> getPositions() {
         return positions.stream();
-    }
-
-    @Override
-    public Stream<? extends Position>
-            getPositions(EnumSet<PositionHierarchyOption> positionHierarchyOptions) {
-        Stream<? extends Position> positionStream = positions.stream();
-
-        if (positionHierarchyOptions.contains(PositionHierarchyOption.LOOKTHROUGH)) {
-            positionStream = positionStream.flatMap(p -> p.getLookthroughPositions());
-        }
-
-        if (positionHierarchyOptions.contains(PositionHierarchyOption.TAXLOT)) {
-            positionStream = positionStream.flatMap(p -> p.getTaxLots());
-        }
-
-        return positionStream;
     }
 
     @Override

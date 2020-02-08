@@ -1,7 +1,10 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.stream.Stream;
 
+import org.slaq.slaqworx.panoptes.asset.HierarchicalPositionSupplier.PositionHierarchyOption;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -42,22 +45,43 @@ public interface Position extends Keyed<PositionKey> {
      *            the expected type of the attribute value
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
-     * @param context
+     * @param evaluationContext
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the value of the given attribute, or {@code null} if not assigned
      */
     public default <T> T getAttributeValue(SecurityAttribute<T> attribute,
-            EvaluationContext context) {
-        return getSecurity(context).getAttributeValue(attribute, context);
+            EvaluationContext evaluationContext) {
+        return getSecurity(evaluationContext).getAttributeValue(attribute, evaluationContext);
     }
 
     /**
      * Obtains the lookthrough {@code Position}s of this {@code Position} as a {@code Stream}.
      *
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which the {@code Position}s are being obtained
      * @return a {@code Stream} of this {@code Position}'s lookthrough {@code Position}s, or the
      *         {@code Position} itself if not applicable
      */
-    public Stream<? extends Position> getLookthroughPositions();
+    public default Stream<? extends Position>
+            getLookthroughPositions(EvaluationContext evaluationContext) {
+        PortfolioKey lookthroughPortfolioKey =
+                getAttributeValue(SecurityAttribute.portfolio, evaluationContext);
+        if (lookthroughPortfolioKey == null) {
+            // lookthrough not applicable
+            return Stream.of(this);
+        }
+
+        Portfolio lookthroughPortfolio =
+                evaluationContext.getPortfolioProvider().getPortfolio(lookthroughPortfolioKey);
+        // For a Security representing a fund, the amount attribute represents the number of fund
+        // shares outstanding, so the effective lookthrough Positions should have their amounts
+        // scaled by (this Position's amount in fund) / (total amount of fund). Each Position of the
+        // held Portfolio is mapped to a ScaledPosition using this multiplier.
+        double portfolioAmount = getAttributeValue(SecurityAttribute.amount, evaluationContext);
+        return lookthroughPortfolio
+                .getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH), evaluationContext)
+                .map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
+    }
 
     /**
      * Obtains the market value of this {@code Position}.
@@ -66,17 +90,21 @@ public interface Position extends Keyed<PositionKey> {
      *            the {@code EvaluationContext} in which to obtain the market value
      * @return the market value
      */
-    public double getMarketValue(EvaluationContext evaluationContext);
+    public default double getMarketValue(EvaluationContext evaluationContext) {
+        BigDecimal price = getAttributeValue(SecurityAttribute.price, evaluationContext);
+        return price.multiply(BigDecimal.valueOf(getAmount())).doubleValue();
+    }
 
     /**
      * Obtains the {@code Security} held by this {@code Position}.
      *
-     * @param context
+     * @param evaluationContext
      *            the {@code EvaluationContext} in which an evaluation is taking place
      * @return the {@code Security} held by this {@code Position}
      */
-    public default Security getSecurity(EvaluationContext context) {
-        return context.getSecurityProvider().getSecurity(getSecurityKey(), context);
+    public default Security getSecurity(EvaluationContext evaluationContext) {
+        return evaluationContext.getSecurityProvider().getSecurity(getSecurityKey(),
+                evaluationContext);
     }
 
     /**
@@ -93,5 +121,7 @@ public interface Position extends Keyed<PositionKey> {
      * @return a {@code Stream} of this {@code Position}'s constituent tax lots, or the
      *         {@code Position} itself if not applicable
      */
-    public Stream<? extends Position> getTaxLots();
+    public default Stream<? extends Position> getTaxLots() {
+        return Stream.of(this);
+    }
 }

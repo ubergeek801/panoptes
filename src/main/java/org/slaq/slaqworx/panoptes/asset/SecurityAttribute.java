@@ -45,18 +45,20 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
             of("price", 12, BigDecimal.class, ValueProvider.forBigDecimal());
     public static final SecurityAttribute<PortfolioKey> portfolio =
             of("portfolio", 13, PortfolioKey.class, null);
+    public static final SecurityAttribute<Double> amount =
+            of("amount", 14, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating1Symbol =
-            of("rating1Symbol", 14, String.class, null);
+            of("rating1Symbol", 15, String.class, null);
     public static final SecurityAttribute<Double> rating1Value =
-            of("rating1Value", 15, Double.class, ValueProvider.forDouble());
+            of("rating1Value", 16, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating2Symbol =
-            of("rating2Symbol", 16, String.class, null);
+            of("rating2Symbol", 17, String.class, null);
     public static final SecurityAttribute<Double> rating2Value =
-            of("rating2Value", 17, Double.class, ValueProvider.forDouble());
+            of("rating2Value", 18, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating3Symbol =
-            of("rating3Symbol", 18, String.class, null);
+            of("rating3Symbol", 19, String.class, null);
     public static final SecurityAttribute<Double> rating3Value =
-            of("rating3Value", 19, Double.class, ValueProvider.forDouble());
+            of("rating3Value", 20, Double.class, ValueProvider.forDouble());
 
     /**
      * Obtains the {@code SecurityAttribute} corresponding to the given index, if it exists. For

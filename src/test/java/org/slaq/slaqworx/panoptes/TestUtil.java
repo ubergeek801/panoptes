@@ -272,8 +272,13 @@ public class TestUtil {
         return rule;
     }
 
+    /**
+     * Obtains an {@code EvaluationContext} suitable for most unit test purposes.
+     *
+     * @return an {@code EvaluationContext}
+     */
     public static EvaluationContext defaultTestEvaluationContext() {
-        return new EvaluationContext(securityProvider);
+        return new EvaluationContext(securityProvider, portfolioProvider);
     }
 
     /**

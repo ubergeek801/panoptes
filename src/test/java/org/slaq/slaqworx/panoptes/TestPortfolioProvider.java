@@ -34,14 +34,38 @@ public class TestPortfolioProvider implements PortfolioProvider {
     /**
      * Creates a new {@code Portfolio} and makes it available through this provider.
      *
-     * @param id
-     *            the ID of the Portfolio to create, or null to generate an ID
+     * @param key
+     *            the key of the Portfolio to create, or {@code null} to generate a key
      * @param name
      *            the {@code Portfolio} name/description
      * @param positions
      *            the {@code Positions} comprising the {@code Portfolio}
      * @param benchmark
-     *            the (possibly null) {@code Portfoli}o that acts a benchmark for the
+     *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
+     *            {@code Portfolio}
+     * @param rules
+     *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
+     *            {@code Portfolio}
+     */
+    public Portfolio newPortfolio(PortfolioKey key, String name, Set<Position> positions,
+            Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
+        Portfolio portfolio = new Portfolio(key, name, positions, benchmark, rules);
+        portfolioMap.put(key, portfolio);
+
+        return portfolio;
+    }
+
+    /**
+     * Creates a new {@code Portfolio} and makes it available through this provider.
+     *
+     * @param id
+     *            the ID of the Portfolio to create, or {@code null} to generate an ID
+     * @param name
+     *            the {@code Portfolio} name/description
+     * @param positions
+     *            the {@code Positions} comprising the {@code Portfolio}
+     * @param benchmark
+     *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
@@ -49,10 +73,6 @@ public class TestPortfolioProvider implements PortfolioProvider {
      */
     public Portfolio newPortfolio(String id, String name, Set<Position> positions,
             Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
-        Portfolio portfolio =
-                new Portfolio(new PortfolioKey(id, 1), name, positions, benchmark, rules);
-        portfolioMap.put(portfolio.getKey(), portfolio);
-
-        return portfolio;
+        return newPortfolio(new PortfolioKey(id, 1), name, positions, benchmark, rules);
     }
 }

@@ -98,7 +98,8 @@ public class ComplianceController implements FlowableOnSubscribe<String> {
         portfolioEntryIter.forEachRemaining(entry -> {
             numPortfolios[0]++;
             completionService.submit(() -> Pair.of(entry.getValue(), portfolioEvaluator
-                    .evaluate(entry.getValue(), new EvaluationContext(assetCache)).get()));
+                    .evaluate(entry.getValue(), new EvaluationContext(assetCache, assetCache))
+                    .get()));
         });
 
         for (int i = 0; i < numPortfolios[0]; i++) {

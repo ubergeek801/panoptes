@@ -212,8 +212,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
 
             portfolioStartTime = System.currentTimeMillis();
             portfolios.forEach(p -> {
-                completionService.submit(() -> Pair.of(p.getKey(),
-                        evaluator.evaluate(p, new EvaluationContext(assetCache)).get()));
+                completionService.submit(() -> Pair.of(p.getKey(), evaluator
+                        .evaluate(p, new EvaluationContext(assetCache, assetCache)).get()));
             });
             // wait for all of the evaluations to complete
             for (int i = 0; i < numPortfolios; i++) {
@@ -248,7 +248,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
 
             tradeStartTimes.add(System.currentTimeMillis());
             TradeEvaluationResult result = tradeEvaluator.evaluate(trade,
-                    new EvaluationContext(assetCache, EvaluationMode.FULL_EVALUATION));
+                    new EvaluationContext(assetCache, assetCache, EvaluationMode.FULL_EVALUATION));
             long numEvaluationGroups = result.getImpacts().values().stream()
                     .collect(Collectors.summingLong(m -> m.size()));
             tradeEndTimes.add(System.currentTimeMillis());

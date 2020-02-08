@@ -287,8 +287,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         WeightedAveragePositionCalculator<Double> averageRatingCalc =
                 new WeightedAveragePositionCalculator<>(SecurityAttribute.rating1Value);
         String averageRating = pimcoRatingScale
-                .getRatingNotch(averageRatingCalc
-                        .calculate(benchmark.getPositionsWithContext(new EvaluationContext(this))))
+                .getRatingNotch(averageRatingCalc.calculate(
+                        benchmark.getPositionsWithContext(new EvaluationContext(this, this))))
                 .getSymbol();
         LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
                 positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue),

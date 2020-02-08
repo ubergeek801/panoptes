@@ -81,7 +81,7 @@ public class CompliancePanel extends VerticalLayout {
 
             try {
                 resultPanel.setResult(portfolioEvaluator
-                        .evaluate(portfolio, new EvaluationContext(assetCache)).get());
+                        .evaluate(portfolio, new EvaluationContext(assetCache, assetCache)).get());
             } catch (InterruptedException | ExecutionException e) {
                 // FIXME deal with this
                 return;

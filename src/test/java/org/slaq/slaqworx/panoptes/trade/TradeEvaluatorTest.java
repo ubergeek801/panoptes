@@ -231,7 +231,7 @@ public class TradeEvaluatorTest {
         Security trialSecurity = TestUtil.testSecurityProvider()
                 .newSecurity("TradeEvaluatorTestSec4", security2Attributes);
 
-        Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio(null, "test 1",
+        Portfolio portfolio = TestUtil.testPortfolioProvider().newPortfolio("test 1", "test 1",
                 p1Positions, (Portfolio)null, p1Rules.values());
 
         // The Portfolio has a weighted average rule requiring maximum duration = 3.5. Its current

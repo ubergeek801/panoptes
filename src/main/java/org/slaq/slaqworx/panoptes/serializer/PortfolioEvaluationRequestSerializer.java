@@ -76,8 +76,8 @@ public class PortfolioEvaluationRequestSerializer
         IdVersionKeyMsg keyMsg = requestMsg.getPortfolioKey();
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
         EvaluationContextMsg evaluationContextMsg = requestMsg.getEvaluationContext();
-        EvaluationContext evaluationContext =
-                EvaluationContextSerializer.convert(evaluationContextMsg, securityProvider.get());
+        EvaluationContext evaluationContext = EvaluationContextSerializer
+                .convert(evaluationContextMsg, securityProvider.get(), portfolioProvider.get());
 
         Portfolio portfolio = portfolioProvider.get().getPortfolio(key);
         Transaction transaction;

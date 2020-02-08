@@ -18,7 +18,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public class Portfolio implements Keyed<PortfolioKey>, PositionSupplier {
+public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSupplier {
     private final PortfolioKey key;
     private final String name;
     private final PortfolioKey benchmarkKey;

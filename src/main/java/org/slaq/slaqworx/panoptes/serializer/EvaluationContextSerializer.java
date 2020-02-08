@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
@@ -52,21 +53,25 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
      * @param securityProvider
      *            the {@code SecurityProvider} to be used by the {@code EvaluationContext} to
      *            resolve {@code Security} references
+     * @param securityProvider
+     *            the {@code PortfolioProvider} to be used by the {@code EvaluationContext} to
+     *            resolve {@code Portfolio} references
      * @return a {@code EvaluationContext}
      */
     public static EvaluationContext convert(EvaluationContextMsg evaluationContextMsg,
-            SecurityProvider securityProvider) {
+            SecurityProvider securityProvider, PortfolioProvider portfolioProvider) {
         Map<SecurityKey, SecurityAttributes> securityAttributeOverrides = evaluationContextMsg
                 .getSecurityOverridesMap().entrySet().stream()
                 .collect(Collectors.toMap(e -> new SecurityKey(e.getKey()),
                         e -> new SecurityAttributes(SecuritySerializer.convert(e.getValue()))));
 
-        return new EvaluationContext(securityProvider,
+        return new EvaluationContext(securityProvider, portfolioProvider,
                 EvaluationMode.valueOf(evaluationContextMsg.getEvaluationMode()),
                 securityAttributeOverrides);
     }
 
     private final Provider<? extends SecurityProvider> securityProvider;
+    private final Provider<? extends PortfolioProvider> portfolioProvider;
 
     /**
      * Creates a new {@code EvaluationContextSerializer} which delegates to the given
@@ -78,6 +83,7 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
      */
     public EvaluationContextSerializer(Provider<AssetCache> assetCacheProvider) {
         securityProvider = assetCacheProvider;
+        portfolioProvider = assetCacheProvider;
     }
 
     /**
@@ -86,9 +92,13 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
      *
      * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} data
+     * @param portfolioProvider
+     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} data
      */
-    public EvaluationContextSerializer(SecurityProvider securityProvider) {
+    public EvaluationContextSerializer(SecurityProvider securityProvider,
+            PortfolioProvider portfolioProvider) {
         this.securityProvider = () -> securityProvider;
+        this.portfolioProvider = () -> portfolioProvider;
     }
 
     @Override
@@ -105,7 +115,7 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
     public EvaluationContext read(byte[] buffer) throws IOException {
         EvaluationContextMsg evaluationContextMsg = EvaluationContextMsg.parseFrom(buffer);
 
-        return convert(evaluationContextMsg, securityProvider.get());
+        return convert(evaluationContextMsg, securityProvider.get(), portfolioProvider.get());
     }
 
     @Override

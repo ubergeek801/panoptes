@@ -1,14 +1,9 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.math.BigDecimal;
-import java.util.stream.Stream;
-
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-
 /**
- * {@code AbstractPosition} is a partial implementation of {@code Position} provided to facilitate
- * full {@code Position} implementations.
- *
+ * {@code AbstractPosition} is a partial implementation of {@code Position} which provides
+ * {@code equals()} and {@code hashCode()} semantics based on the {@code Position}'s key.
+ * 
  * @author jeremy
  */
 public abstract class AbstractPosition implements Position {
@@ -50,23 +45,6 @@ public abstract class AbstractPosition implements Position {
     @Override
     public PositionKey getKey() {
         return key;
-    }
-
-    @Override
-    public Stream<? extends Position> getLookthroughPositions() {
-        // FIXME implement getLookthroughPositions()
-        return Stream.of(this);
-    }
-
-    @Override
-    public double getMarketValue(EvaluationContext evaluationContext) {
-        BigDecimal price = getAttributeValue(SecurityAttribute.price, evaluationContext);
-        return price.multiply(BigDecimal.valueOf(getAmount())).doubleValue();
-    }
-
-    @Override
-    public Stream<? extends Position> getTaxLots() {
-        return Stream.of(this);
     }
 
     @Override

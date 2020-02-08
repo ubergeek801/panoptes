@@ -159,8 +159,8 @@ public class TradeEvaluator {
             double targetValue) throws ExecutionException, InterruptedException {
         // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
-        EvaluationContext evaluationContext =
-                new EvaluationContext(securityProvider, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+        EvaluationContext evaluationContext = new EvaluationContext(securityProvider,
+                portfolioProvider, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
         double minCompliantValue = MIN_ALLOCATION;
         double trialValue = minCompliantValue;
