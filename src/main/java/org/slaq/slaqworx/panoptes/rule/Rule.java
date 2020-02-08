@@ -37,12 +37,15 @@ public interface Rule extends Keyed<RuleKey> {
      *            Rule}
      * @param benchmarkPositions
      *            the (possibly {@code null}) benchmark {@code Position}s to evaluate relative to
+     * @param evaluationGroup
+     *            the {@code EvaluationGroup} being evaluated, or {@code null} for the default group
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
     public RuleResult evaluate(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
+            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+            EvaluationContext evaluationContext);
 
     /**
      * Obtains the description of this {@code Rule}.

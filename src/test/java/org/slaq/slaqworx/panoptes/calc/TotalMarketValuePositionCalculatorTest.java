@@ -15,7 +15,6 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
  * {@code TotalMarketValuePositionCalculatorTest} tests the functionality of the
@@ -30,7 +29,6 @@ public class TotalMarketValuePositionCalculatorTest {
     @Test
     public void testCalculate() {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
-        EvaluationContext context = TestUtil.defaultTestEvaluationContext;
 
         TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
         Security dummySecurity = securityProvider.newSecurity("dummy",
@@ -42,7 +40,8 @@ public class TotalMarketValuePositionCalculatorTest {
         positions.add(new Position(300, dummySecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-        double totalMarketValue = calculator.calculate(portfolio.getPositionsWithContext(context));
+        double totalMarketValue = calculator.calculate(
+                portfolio.getPositionsWithContext(TestUtil.defaultTestEvaluationContext()));
         // the total should merely be the sum of the (amounts * price)
         assertEquals(1200, totalMarketValue, TestUtil.EPSILON, "unexpected total market value");
     }

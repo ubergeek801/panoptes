@@ -7,7 +7,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
 /**
- * A {@code ValueRule} stipulates limits on values that can be calculated on a {@code Portfolio}'s
+ * A {@code LimitRule} stipulates limits on values that can be calculated on a {@code Portfolio}'s
  * composition, either in absolute terms or relative to a benchmark.
  *
  * @author jeremy
@@ -18,7 +18,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
     private final Double upperLimit;
 
     /**
-     * Creates a new {@code ValueRule} with the given parameters.
+     * Creates a new {@code LimitRule} with the given parameters.
      *
      * @param key
      *            the unique key of this {@code Rule}, or {@code null} to generate one
@@ -81,12 +81,18 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
 
     @Override
     protected final RuleResult eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
+            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+            EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions, evaluationContext);
         double scaledValue;
         Double benchmarkValue;
         if (benchmarkPositions != null) {
-            benchmarkValue = getValue(benchmarkPositions, evaluationContext);
+            // use the cached benchmark value if available; otherwise compute and cache it
+            benchmarkValue = evaluationContext.getBenchmarkValue(getKey(), evaluationGroup);
+            if (benchmarkValue == null) {
+                benchmarkValue = getValue(benchmarkPositions, evaluationContext);
+                evaluationContext.cacheBenchmarkValue(getKey(), evaluationGroup, benchmarkValue);
+            }
             // rescale the value to the benchmark; this may result in NaN, which means that the
             // Position's portfolio concentration is infinitely greater than the benchmark
             scaledValue = value / benchmarkValue;

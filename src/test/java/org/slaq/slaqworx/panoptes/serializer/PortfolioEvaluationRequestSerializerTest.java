@@ -34,7 +34,7 @@ public class PortfolioEvaluationRequestSerializerTest {
         TaxLot p2 = new TaxLot(200d, TestUtil.s2.getKey());
         Transaction t1 = new Transaction(TestUtil.p1.getKey(), List.of(p1, p2));
         Portfolio portfolio = TestUtil.p1;
-        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext();
 
         PortfolioEvaluationRequest request =
                 new PortfolioEvaluationRequest(portfolio, t1, evaluationContext);

@@ -81,15 +81,15 @@ public class TradeEvaluator {
      *
      * @param trade
      *            the {@code Trade} to be evaluated
-     * @param evaluationMode
-     *            the {@code TradeEvaluationMode} under which to evaluate the {@code Trade}
+     * @param evaluationContext
+     *            the {@code EvaluationContext} under which to perform the evaluation
      * @return a {@code TradeEvaluationResult} describing the results of the evaluation
      * @throws ExcecutionException
      *             if the calculation could not be processed
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing
      */
-    public TradeEvaluationResult evaluate(Trade trade, EvaluationMode evaluationMode)
+    public TradeEvaluationResult evaluate(Trade trade, EvaluationContext evaluationContext)
             throws ExecutionException, InterruptedException {
         LOG.info("evaluating trade {} with {} allocations", trade.getKey(),
                 trade.getAllocationCount());
@@ -103,9 +103,6 @@ public class TradeEvaluator {
 
                     // the impact is merely the difference between the current evaluation state of
                     // the Portfolio, and the state it would have if the Trade were to be posted
-
-                    EvaluationContext evaluationContext =
-                            new EvaluationContext(securityProvider, evaluationMode);
                     try {
                         Map<RuleKey, EvaluationResult> ruleResults =
                                 evaluator.evaluate(portfolio, transaction, evaluationContext).get();
@@ -162,9 +159,13 @@ public class TradeEvaluator {
             double targetValue) throws ExecutionException, InterruptedException {
         // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
+        EvaluationContext evaluationContext =
+                new EvaluationContext(securityProvider, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+
         double minCompliantValue = MIN_ALLOCATION;
         double trialValue = minCompliantValue;
-        TradeEvaluationResult evaluationResult = testRoom(portfolioKey, securityKey, trialValue);
+        TradeEvaluationResult evaluationResult =
+                testRoom(portfolioKey, securityKey, trialValue, evaluationContext);
         if (!evaluationResult.isCompliant()) {
             // even the minimum allocation failed; give up now
             return 0;
@@ -177,7 +178,7 @@ public class TradeEvaluator {
         double minNoncompliantValue = trialValue;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            evaluationResult = testRoom(portfolioKey, securityKey, trialValue);
+            evaluationResult = testRoom(portfolioKey, securityKey, trialValue, evaluationContext);
             if (evaluationResult.isCompliant()) {
                 if (minCompliantValue < trialValue) {
                     // we have a new low-water mark for what is compliant
@@ -213,6 +214,8 @@ public class TradeEvaluator {
      *            room
      * @param targetValue
      *            the desired investment amount, as USD market value
+     * @param evaluationContext
+     *            the {@code EvaluationContext} under which to perform the evaluation
      * @return a {@code TradeEvaluationResult} indicating the result of the evaluation
      * @throws ExcecutionException
      *             if the calculation could not be processed
@@ -220,12 +223,13 @@ public class TradeEvaluator {
      *             if the {@code Thread} was interrupted during processing
      */
     protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue) throws ExecutionException, InterruptedException {
+            double targetValue, EvaluationContext evaluationContext)
+            throws ExecutionException, InterruptedException {
         TaxLot trialAllocation = new TaxLot(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
         LocalDate tradeDate = LocalDate.now();
         Trade trialTrade = new Trade(tradeDate, tradeDate, Map.of(portfolioKey, trialTransaction));
 
-        return evaluate(trialTrade, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+        return evaluate(trialTrade, evaluationContext);
     }
 }

@@ -81,9 +81,12 @@ public abstract class GenericRule implements Rule {
 
     @Override
     public RuleResult evaluate(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
+            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+            EvaluationContext evaluationContext) {
         try {
-            return eval(portfolioPositions, benchmarkPositions, evaluationContext);
+            return eval(portfolioPositions, benchmarkPositions,
+                    evaluationGroup == null ? EvaluationGroup.defaultGroup() : evaluationGroup,
+                    evaluationContext);
         } catch (Exception e) {
             return new RuleResult(e);
         }
@@ -128,10 +131,13 @@ public abstract class GenericRule implements Rule {
      *            the {@code Portfolio} {@code Position}s on which to evaluate the {@code Rule}
      * @param benchmarkPositions
      *            the (possibly {@code null}) benchmark {@code Position}s to evaluate relative to
+     * @param evaluationGroup
+     *            the {@code EvaluationGroup} on which the {@code Rule} is being evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
     protected abstract RuleResult eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext);
+            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+            EvaluationContext evaluationContext);
 }

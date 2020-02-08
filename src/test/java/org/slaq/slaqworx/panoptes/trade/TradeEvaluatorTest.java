@@ -34,7 +34,6 @@ import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.LocalPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
@@ -109,7 +108,8 @@ public class TradeEvaluatorTest {
         TradeEvaluator evaluator =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
                         TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
-        TradeEvaluationResult result = evaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
+        TradeEvaluationResult result =
+                evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext());
 
         Map<EvaluationGroup, Impact> p1r1Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
@@ -138,7 +138,7 @@ public class TradeEvaluatorTest {
         // in a short-circuit evaluation we won't know which rule would have failed, or what other
         // results might be included, but the overall result should be non-compliance
 
-        result = evaluator.evaluate(trade, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+        result = evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext());
         assertFalse(result.isCompliant(),
                 "short-circuit evaluation should have yielded non-compliance");
     }
@@ -175,7 +175,8 @@ public class TradeEvaluatorTest {
         TradeEvaluator evaluator =
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
                         TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
-        TradeEvaluationResult result = evaluator.evaluate(buyTrade, EvaluationMode.FULL_EVALUATION);
+        TradeEvaluationResult result =
+                evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext());
         assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
 
         // create a Transaction attempting to sell sec1 (never mind that the Portfolio doesn't hold
@@ -187,7 +188,7 @@ public class TradeEvaluatorTest {
         Trade sellTrade =
                 new Trade(tradeDate, tradeDate, Map.of(portfolio.getKey(), sellTransaction));
 
-        result = evaluator.evaluate(sellTrade, EvaluationMode.FULL_EVALUATION);
+        result = evaluator.evaluate(sellTrade, TestUtil.defaultTestEvaluationContext());
         assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");
 
         // create a Portfolio with an initial Position in sec1
@@ -197,11 +198,11 @@ public class TradeEvaluatorTest {
                 "test", portfolioPositions, null, rules);
 
         // try to buy again
-        result = evaluator.evaluate(buyTrade, EvaluationMode.FULL_EVALUATION);
+        result = evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext());
         assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
 
         // try to sell again
-        result = evaluator.evaluate(sellTrade, EvaluationMode.FULL_EVALUATION);
+        result = evaluator.evaluate(sellTrade, TestUtil.defaultTestEvaluationContext());
         assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");
     }
 
@@ -236,7 +237,7 @@ public class TradeEvaluatorTest {
         // weighted average should be 3.0, with weight 1_000_000. The proposed security has duration
         // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
 
-        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext();
         assertEquals(3.0,
                 new WeightedAveragePositionCalculator<>(SecurityAttribute.duration)
                         .calculate(portfolio.getPositionsWithContext(evaluationContext)),

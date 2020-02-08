@@ -1,7 +1,9 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -9,7 +11,9 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 
 /**
  * {@code EvaluationContext} provides contextual information related to the execution of
- * {@code Portfolio} evaluation.
+ * {@code Portfolio} evaluation. Normally, a new {@code EvaluationContext} should be used for each
+ * {@code RuleEvaluator} instance, but scenarios which would benefit from benchmark value caching
+ * across multiple invocations of the same {@code Rule} may reuse an {@code EvaluationContext}.
  *
  * @author jeremy
  */
@@ -31,6 +35,8 @@ public class EvaluationContext {
     private final SecurityProvider securityProvider;
     private final EvaluationMode evaluationMode;
     private final Map<SecurityKey, SecurityAttributes> securityOverrides;
+    private final Map<RuleKey, Map<EvaluationGroup, Double>> benchmarkValues =
+            new ConcurrentHashMap<>(100);
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
@@ -80,9 +86,50 @@ public class EvaluationContext {
                 : securityAttributeOverrides);
     }
 
+    /**
+     * Caches the benchmark value for the specified {@code Rule} and {@code EvaluationGroup}.
+     *
+     * @param ruleKey
+     *            the {@code RuleKey} identifying the currently evaluating {@code Rule}
+     * @param group
+     *            the currently evaluating {@code EvaluationGroup}
+     * @param value
+     *            the benchmark value corresponding to the {@code Rule} and {@code EvaluationGroup}
+     */
+    public void cacheBenchmarkValue(RuleKey ruleKey, EvaluationGroup group, Double value) {
+        Map<EvaluationGroup, Double> groupValues =
+                benchmarkValues.computeIfAbsent(ruleKey, k -> new HashMap<>(20));
+
+        groupValues.put(group, value);
+    }
+
+    /**
+     * Clears the current context state. Note that it is preferable to use a new
+     * {@code EvaluationContext} whenever possible.
+     */
+    public void clear() {
+        benchmarkValues.clear();
+    }
+
     @Override
     public boolean equals(Object obj) {
         return (this == obj);
+    }
+
+    /**
+     * Obtains the currently cached benchmark value corresponding to the specified {@code Rule} and
+     * {@code EvaluationGroup}.
+     *
+     * @param ruleKey
+     *            the {@code RuleKey} identifying the currently evaluating {@code Rule}
+     * @param group
+     *            the currently evaluating {@code EvaluationGroup}
+     * @return the cached benchmark value if present, or {@code null} otherwise
+     */
+    public Double getBenchmarkValue(RuleKey ruleKey, EvaluationGroup group) {
+        Map<EvaluationGroup, Double> groupValues =
+                benchmarkValues.computeIfAbsent(ruleKey, k -> new HashMap<>(20));
+        return groupValues.get(group);
     }
 
     /**

@@ -20,7 +20,7 @@ public class PortfolioSummarySerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext;
+        EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext();
         PortfolioSummarySerializer serializer = new PortfolioSummarySerializer();
 
         PortfolioSummary portfolioSummary =

@@ -111,7 +111,7 @@ public class ConcentrationRule extends LimitRule {
 
     @Override
     protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
-        // ConcentrationRule works like a ValueRule in which the calculated value is scaled by the
+        // ConcentrationRule works like a LimitRule in which the calculated value is scaled by the
         // total amount of the Portfolio. (Eventually this could support scaling by other aggregate
         // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
         // be a Portfolio itself, or the evaluation context must provide the total market value.

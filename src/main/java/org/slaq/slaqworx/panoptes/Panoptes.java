@@ -247,8 +247,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
             Trade trade = new Trade(tradeDate, tradeDate, transactions);
 
             tradeStartTimes.add(System.currentTimeMillis());
-            TradeEvaluationResult result =
-                    tradeEvaluator.evaluate(trade, EvaluationMode.FULL_EVALUATION);
+            TradeEvaluationResult result = tradeEvaluator.evaluate(trade,
+                    new EvaluationContext(assetCache, EvaluationMode.FULL_EVALUATION));
             long numEvaluationGroups = result.getImpacts().values().stream()
                     .collect(Collectors.summingLong(m -> m.size()));
             tradeEndTimes.add(System.currentTimeMillis());

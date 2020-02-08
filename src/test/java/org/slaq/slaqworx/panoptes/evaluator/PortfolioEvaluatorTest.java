@@ -60,7 +60,8 @@ public class PortfolioEvaluatorTest {
 
         @Override
         public RuleResult eval(PositionSupplier portfolioPositions,
-                PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
+                PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+                EvaluationContext evaluationContext) {
             return new RuleResult(isPass);
         }
     }
@@ -76,7 +77,8 @@ public class PortfolioEvaluatorTest {
 
         @Override
         protected RuleResult eval(PositionSupplier portfolioPositions,
-                PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
+                PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+                EvaluationContext evaluationContext) {
             throw new RuntimeException("exception test");
         }
     }
@@ -95,7 +97,8 @@ public class PortfolioEvaluatorTest {
 
         @Override
         public RuleResult eval(PositionSupplier portfolioPositions,
-                PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
+                PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+                EvaluationContext evaluationContext) {
             return new RuleResult(benchmarkKey.equals(benchmarkPositions.getPortfolioKey()));
         }
     }
@@ -111,8 +114,6 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
-        EvaluationContext context = TestUtil.defaultTestEvaluationContext;
-
         Security iss1Sec1 = TestUtil.createTestSecurity(assetCache, "iss1Sec1", "ISSFOO",
                 new BigDecimal("1.00"));
         Security iss1Sec2 = TestUtil.createTestSecurity(assetCache, "iss1Sec2", "ISSFOO",
@@ -177,11 +178,12 @@ public class PortfolioEvaluatorTest {
 
         LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator(assetCache);
         Map<RuleKey, EvaluationResult> allResults =
-                localEvaluator.evaluate(portfolio, context).get();
+                localEvaluator.evaluate(portfolio, TestUtil.defaultTestEvaluationContext()).get();
         validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
                 top10issuerRule);
 
-        allResults = clusterEvaluator.evaluate(portfolio, context).get();
+        allResults =
+                clusterEvaluator.evaluate(portfolio, TestUtil.defaultTestEvaluationContext()).get();
         validateAggregationResults(allResults, rules, top2issuerRule, top3issuerRule,
                 top10issuerRule);
     }
@@ -192,8 +194,6 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateException() {
-        EvaluationContext context = TestUtil.defaultTestEvaluationContext;
-
         DummyRule passRule = new DummyRule("testPass", true);
         DummyRule failRule = new DummyRule("testFail", false);
         ExceptionThrowingRule exceptionRule = new ExceptionThrowingRule("exceptionThrowingRule");
@@ -209,7 +209,7 @@ public class PortfolioEvaluatorTest {
         Map<RuleKey, EvaluationResult> results =
                 new LocalPortfolioEvaluator(assetCache).evaluate(rules.values().stream(),
                         new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions),
-                        null, context);
+                        null, TestUtil.defaultTestEvaluationContext());
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
         assertTrue(
@@ -229,7 +229,6 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateGroups() throws Exception {
-        EvaluationContext context = TestUtil.defaultTestEvaluationContext;
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes =
@@ -288,7 +287,8 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions,
                 (PortfolioKey)null, rules.values());
 
-        Map<RuleKey, EvaluationResult> results = evaluator.evaluate(portfolio, context).get();
+        Map<RuleKey, EvaluationResult> results =
+                evaluator.evaluate(portfolio, TestUtil.defaultTestEvaluationContext()).get();
 
         // all rules should have entries
         assertEquals(rules.size(), results.size(),
@@ -334,8 +334,6 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateOverrides() throws Exception {
-        EvaluationContext context = TestUtil.defaultTestEvaluationContext;
-
         Position dummyPosition = new Position(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
@@ -368,7 +366,8 @@ public class PortfolioEvaluatorTest {
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(benchmarkProvider);
 
         // test the form of evaluate() that should use the portfolio defaults
-        Map<RuleKey, EvaluationResult> results = evaluator.evaluate(portfolio, context).get();
+        Map<RuleKey, EvaluationResult> results =
+                evaluator.evaluate(portfolio, TestUtil.defaultTestEvaluationContext()).get();
 
         // 3 distinct rules should result in 3 evaluations
         assertEquals(3, results.size(), "unexpected number of results");
@@ -387,7 +386,8 @@ public class PortfolioEvaluatorTest {
         overrideRules.add(usePortfolioBenchmarkRule);
 
         // test the form of evaluate() that should override the Portfolio rules
-        results = evaluator.evaluate(overrideRules.stream(), portfolio, null, context);
+        results = evaluator.evaluate(overrideRules.stream(), portfolio, null,
+                TestUtil.defaultTestEvaluationContext());
 
         assertEquals(1, results.size(), "unexpected number of results");
         assertTrue(

@@ -79,9 +79,6 @@ public class TestUtil {
     public static final Portfolio p3 = portfolioProvider.newPortfolio("TestUtilP3", "TestUtilP3",
             p3Positions, null, Collections.emptyList());
 
-    public static final EvaluationContext defaultTestEvaluationContext =
-            new EvaluationContext(securityProvider);
-
     /**
      * Creates and caches a {@code ConcentrationRule} with the given parameters.
      *
@@ -272,6 +269,10 @@ public class TestUtil {
         assetCache.getRuleCache().set(rule.getKey(), rule);
 
         return rule;
+    }
+
+    public static EvaluationContext defaultTestEvaluationContext() {
+        return new EvaluationContext(securityProvider);
     }
 
     /**

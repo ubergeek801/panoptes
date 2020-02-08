@@ -149,6 +149,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         this.proposedPositions = proposedPositions;
         this.benchmarkPositions = benchmarkPositions;
         this.evaluationContext = evaluationContext;
+        // a new EvaluationContext should be provided to each new RuleEvaluator, but just in case...
+        evaluationContext.clear();
     }
 
     @Override
@@ -251,15 +253,14 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
             Map<EvaluationGroup, PositionSupplier> classifiedBenchmarkPositions) {
         return evaluatedPositions.entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> {
-                    EvaluationGroup group = e.getKey();
+                    EvaluationGroup evaluationGroup = e.getKey();
                     PositionSupplier portfolioPositions = e.getValue();
                     PositionSupplier benchmarkPositions =
                             (classifiedBenchmarkPositions == null ? null
-                                    : classifiedBenchmarkPositions.get(group));
+                                    : classifiedBenchmarkPositions.get(evaluationGroup));
 
-                    // TODO revisit whether reusing benchmark calculations is worthwhile
                     RuleResult singleResult = rule.evaluate(portfolioPositions, benchmarkPositions,
-                            evaluationContext);
+                            evaluationGroup, evaluationContext);
 
                     return singleResult;
                 }));
