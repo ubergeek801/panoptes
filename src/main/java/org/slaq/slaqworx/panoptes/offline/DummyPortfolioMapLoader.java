@@ -26,6 +26,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
@@ -231,7 +232,7 @@ public class DummyPortfolioMapLoader
                             / 100d;
             // use a given Security at most once
             Security security = securitiesCopy.remove(random.nextInt(securitiesCopy.size()));
-            positions.add(new Position(amount, security.getKey()));
+            positions.add(new SimplePosition(amount, security.getKey()));
         }
 
         return positions;

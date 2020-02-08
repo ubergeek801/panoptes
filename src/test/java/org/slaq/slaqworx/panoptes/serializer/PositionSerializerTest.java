@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
  * {@code PositionSerializerTest} tests the functionality of the {@code PositionSerializer}.
@@ -21,7 +22,8 @@ public class PositionSerializerTest {
     public void testSerialization() throws Exception {
         PositionSerializer serializer = new PositionSerializer();
 
-        Position position = new Position(new PositionKey("foo"), 123456.78, TestUtil.s1.getKey());
+        Position position =
+                new SimplePosition(new PositionKey("foo"), 123456.78, TestUtil.s1.getKey());
         byte[] buffer = serializer.write(position);
         Position deserialized = serializer.read(buffer);
 

@@ -115,7 +115,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
         }
 
         if (positionHierarchyOptions.contains(PositionHierarchyOption.TAXLOT)) {
-            positionStream = positionStream.flatMap(p -> p.getTaxlots());
+            positionStream = positionStream.flatMap(p -> p.getTaxLots());
         }
 
         return positionStream;

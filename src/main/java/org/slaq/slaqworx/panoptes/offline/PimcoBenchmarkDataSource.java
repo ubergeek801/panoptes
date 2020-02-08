@@ -28,6 +28,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
@@ -271,7 +272,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 Security security = securityMap.computeIfAbsent(new SecurityKey(isin),
                         i -> new Security(attributes));
 
-                positions.add(new Position(
+                positions.add(new SimplePosition(
                         marketValueUsd.divide(price, RoundingMode.HALF_UP).doubleValue(),
                         security.getKey()));
                 portfolioMarketValue += marketValueUsd.doubleValue();

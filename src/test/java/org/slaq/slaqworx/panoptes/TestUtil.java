@@ -13,6 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -166,7 +167,7 @@ public class TestUtil {
      */
     public static Position createTestPosition(AssetCache assetCache, double amount,
             SecurityKey securityKey) {
-        Position position = new Position(amount, securityKey);
+        Position position = new SimplePosition(amount, securityKey);
         assetCache.getPositionCache().set(position.getKey(), position);
 
         return position;

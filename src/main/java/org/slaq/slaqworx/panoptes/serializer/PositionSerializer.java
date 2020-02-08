@@ -10,6 +10,7 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
@@ -34,7 +35,7 @@ public class PositionSerializer implements ByteArraySerializer<Position> {
         IdKeyMsg securityKeyMsg = positionMsg.getSecurityKey();
         SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
 
-        return new Position(key, positionMsg.getAmount(), securityKey);
+        return new SimplePosition(key, positionMsg.getAmount(), securityKey);
     }
 
     /**

@@ -13,13 +13,13 @@ import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
- * {@code PositionTest} tests the functionality of {@code Position}.
+ * {@code SimplePositionTest} tests the functionality of {@code SimplePosition}.
  *
  * @author jeremy
  */
-public class PositionTest {
+public class SimplePositionTest {
     /**
-     * Tests that {@code Position}s are hashed in a reasonable way.
+     * Tests that {@code SimplePosition}s are hashed in a reasonable way.
      */
     @Test
     public void testHash() {
@@ -27,14 +27,14 @@ public class PositionTest {
 
         Security dummySecurity = securityProvider.newSecurity("dummy",
                 Map.of(SecurityAttribute.price, new BigDecimal("1.00")));
-        Position p1 = new Position(new PositionKey("p1"), 100, dummySecurity.getKey());
-        Position p2 = new Position(new PositionKey("p2"), 100, dummySecurity.getKey());
-        Position p3 = new Position(new PositionKey("p3"), 100, dummySecurity.getKey());
-        Position p4 = new Position(new PositionKey("p4"), 100, dummySecurity.getKey());
-        Position p1a = new Position(new PositionKey("p1"), 100, dummySecurity.getKey());
-        Position p2a = new Position(new PositionKey("p2"), 100, dummySecurity.getKey());
-        Position p3a = new Position(new PositionKey("p3"), 100, dummySecurity.getKey());
-        Position p4a = new Position(new PositionKey("p4"), 100, dummySecurity.getKey());
+        Position p1 = new SimplePosition(new PositionKey("p1"), 100, dummySecurity.getKey());
+        Position p2 = new SimplePosition(new PositionKey("p2"), 100, dummySecurity.getKey());
+        Position p3 = new SimplePosition(new PositionKey("p3"), 100, dummySecurity.getKey());
+        Position p4 = new SimplePosition(new PositionKey("p4"), 100, dummySecurity.getKey());
+        Position p1a = new SimplePosition(new PositionKey("p1"), 100, dummySecurity.getKey());
+        Position p2a = new SimplePosition(new PositionKey("p2"), 100, dummySecurity.getKey());
+        Position p3a = new SimplePosition(new PositionKey("p3"), 100, dummySecurity.getKey());
+        Position p4a = new SimplePosition(new PositionKey("p4"), 100, dummySecurity.getKey());
 
         HashSet<Position> positions = new HashSet<>();
         // adding the four distinct Positions any number of times should still result in four

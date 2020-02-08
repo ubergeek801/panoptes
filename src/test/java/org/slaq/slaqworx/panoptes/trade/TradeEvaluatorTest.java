@@ -28,6 +28,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
@@ -69,7 +70,7 @@ public class TradeEvaluatorTest {
                         new BigDecimal("100.00")));
 
         HashSet<Position> p1Positions = new HashSet<>();
-        p1Positions.add(new Position(1_000, s1.getKey()));
+        p1Positions.add(new SimplePosition(1_000, s1.getKey()));
 
         // to keep things simple, all Rules test against duration, with some conflicting
         // assertions

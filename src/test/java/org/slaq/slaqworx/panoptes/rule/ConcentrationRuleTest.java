@@ -18,6 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
  * {@code ConcentrationRuleTest} tests the functionality of the {@code ConcentrationRule}.
@@ -46,8 +47,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 50% concentration in Emerging Markets
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, emergingMarketSecurity.getKey()));
-        positions.add(new Position(100, usSecurity.getKey()));
+        positions.add(new SimplePosition(100, emergingMarketSecurity.getKey()));
+        positions.add(new SimplePosition(100, usSecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertFalse(rule.evaluate(portfolio, null, null, TestUtil.defaultTestEvaluationContext())
@@ -55,8 +56,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 10% concentration
         positions = new HashSet<>();
-        positions.add(new Position(100, emergingMarketSecurity.getKey()));
-        positions.add(new Position(900, usSecurity.getKey()));
+        positions.add(new SimplePosition(100, emergingMarketSecurity.getKey()));
+        positions.add(new SimplePosition(900, usSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue(rule.evaluate(portfolio, null, null, TestUtil.defaultTestEvaluationContext())
@@ -64,8 +65,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 5% concentration
         positions = new HashSet<>();
-        positions.add(new Position(50, emergingMarketSecurity.getKey()));
-        positions.add(new Position(950, usSecurity.getKey()));
+        positions.add(new SimplePosition(50, emergingMarketSecurity.getKey()));
+        positions.add(new SimplePosition(950, usSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue(rule.evaluate(portfolio, null, null, TestUtil.defaultTestEvaluationContext())
@@ -78,8 +79,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 50% concentration in Emerging Markets
         positions = new HashSet<>();
-        positions.add(new Position(100, emergingMarketSecurity.getKey()));
-        positions.add(new Position(100, usSecurity.getKey()));
+        positions.add(new SimplePosition(100, emergingMarketSecurity.getKey()));
+        positions.add(new SimplePosition(100, usSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         RuleResult result =
@@ -94,8 +95,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 50% concentration in Emerging Markets
         positions = new HashSet<>();
-        positions.add(new Position(100, emergingMarketSecurity.getKey()));
-        positions.add(new Position(100, usSecurity.getKey()));
+        positions.add(new SimplePosition(100, emergingMarketSecurity.getKey()));
+        positions.add(new SimplePosition(100, usSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         result = rule.evaluate(portfolio, null, null, TestUtil.defaultTestEvaluationContext());
@@ -124,15 +125,15 @@ public class ConcentrationRuleTest {
 
         // create a benchmark with 50% concentration in BRL
         HashSet<Position> benchmarkPositions = new HashSet<>();
-        benchmarkPositions.add(new Position(100, brlSecurity.getKey()));
-        benchmarkPositions.add(new Position(100, nzdSecurity.getKey()));
+        benchmarkPositions.add(new SimplePosition(100, brlSecurity.getKey()));
+        benchmarkPositions.add(new SimplePosition(100, nzdSecurity.getKey()));
         final Portfolio benchmark1 =
                 new Portfolio(new PortfolioKey("testBenchmark", 1), "test", benchmarkPositions);
 
         // create a Portfolio with 56% concentration in BRL
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(56, brlSecurity.getKey()));
-        positions.add(new Position(44, nzdSecurity.getKey()));
+        positions.add(new SimplePosition(56, brlSecurity.getKey()));
+        positions.add(new SimplePosition(44, nzdSecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertFalse(
@@ -142,8 +143,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 44% concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(44, brlSecurity.getKey()));
-        positions.add(new Position(56, nzdSecurity.getKey()));
+        positions.add(new SimplePosition(44, brlSecurity.getKey()));
+        positions.add(new SimplePosition(56, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertFalse(
@@ -153,8 +154,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 52.5% (50% * 105%) concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(52.5, brlSecurity.getKey()));
-        positions.add(new Position(47.5, nzdSecurity.getKey()));
+        positions.add(new SimplePosition(52.5, brlSecurity.getKey()));
+        positions.add(new SimplePosition(47.5, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue(
@@ -164,8 +165,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 47.5% (50% * 95%) concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(47.5, brlSecurity.getKey()));
-        positions.add(new Position(52.5, nzdSecurity.getKey()));
+        positions.add(new SimplePosition(47.5, brlSecurity.getKey()));
+        positions.add(new SimplePosition(52.5, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         assertTrue(
@@ -175,7 +176,7 @@ public class ConcentrationRuleTest {
 
         // create a benchmark with 0% concentration in BRL
         benchmarkPositions = new HashSet<>();
-        benchmarkPositions.add(new Position(100, nzdSecurity.getKey()));
+        benchmarkPositions.add(new SimplePosition(100, nzdSecurity.getKey()));
         final Portfolio benchmark2 =
                 new Portfolio(new PortfolioKey("testBenchmark", 1), "test", benchmarkPositions);
 
@@ -194,7 +195,7 @@ public class ConcentrationRuleTest {
 
         // create a portfolio with 0% concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(100, nzdSecurity.getKey()));
+        positions.add(new SimplePosition(100, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         // zero concentration is at least zero, so should pass
@@ -205,8 +206,8 @@ public class ConcentrationRuleTest {
 
         // create a Portfolio with 1% concentration in BRL
         positions = new HashSet<>();
-        positions.add(new Position(1, brlSecurity.getKey()));
-        positions.add(new Position(99, nzdSecurity.getKey()));
+        positions.add(new SimplePosition(1, brlSecurity.getKey()));
+        positions.add(new SimplePosition(99, nzdSecurity.getKey()));
         portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         // any concentration is at least zero, so should pass

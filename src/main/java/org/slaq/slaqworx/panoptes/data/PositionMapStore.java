@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
  * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
@@ -43,7 +44,7 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
         double amount = rs.getDouble(2);
         String securityId = rs.getString(3);
 
-        return new Position(new PositionKey(id), amount, new SecurityKey(securityId));
+        return new SimplePosition(new PositionKey(id), amount, new SecurityKey(securityId));
     }
 
     @Override

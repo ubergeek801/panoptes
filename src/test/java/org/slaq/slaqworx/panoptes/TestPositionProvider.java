@@ -6,6 +6,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
  * {@code TestPositionProvider} is a {@code PositionProvider} suitable for testing purposes.
@@ -40,7 +41,7 @@ public class TestPositionProvider implements PositionProvider {
      * @return the newly created {@code Position}
      */
     public Position newPosition(String id, double amount, Security security) {
-        Position position = new Position(new PositionKey(id), amount, security.getKey());
+        Position position = new SimplePosition(new PositionKey(id), amount, security.getKey());
         positionMap.put(position.getKey(), position);
 
         return position;

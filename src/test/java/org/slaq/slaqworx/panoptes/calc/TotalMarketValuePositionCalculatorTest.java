@@ -15,6 +15,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
  * {@code TotalMarketValuePositionCalculatorTest} tests the functionality of the
@@ -35,9 +36,9 @@ public class TotalMarketValuePositionCalculatorTest {
                 Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
 
         HashSet<Position> positions = new HashSet<>();
-        positions.add(new Position(100, dummySecurity.getKey()));
-        positions.add(new Position(200, dummySecurity.getKey()));
-        positions.add(new Position(300, dummySecurity.getKey()));
+        positions.add(new SimplePosition(100, dummySecurity.getKey()));
+        positions.add(new SimplePosition(200, dummySecurity.getKey()));
+        positions.add(new SimplePosition(300, dummySecurity.getKey()));
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
         double totalMarketValue = calculator.calculate(

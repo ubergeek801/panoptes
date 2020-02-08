@@ -25,6 +25,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
@@ -203,7 +204,7 @@ public class PortfolioEvaluatorTest {
         rules.put(failRule.getKey(), failRule);
         rules.put(exceptionRule.getKey(), exceptionRule);
 
-        Position dummyPosition = new Position(1, TestUtil.s1.getKey());
+        Position dummyPosition = new SimplePosition(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
         Map<RuleKey, EvaluationResult> results =
@@ -251,22 +252,22 @@ public class PortfolioEvaluatorTest {
 
         HashSet<Position> positions = new HashSet<>();
         // value = 100, weighted rating = 9_000, weighted duration = 300
-        Position usdPosition1 = new Position(100, usdSecurity.getKey());
+        Position usdPosition1 = new SimplePosition(100, usdSecurity.getKey());
         positions.add(usdPosition1);
         // value = 200, weighted rating = 18_000, weighted duration = 600
-        Position usdPosition2 = new Position(200, usdSecurity.getKey());
+        Position usdPosition2 = new SimplePosition(200, usdSecurity.getKey());
         positions.add(usdPosition2);
         // value = 300, weighted rating = 24_000, weighted duration = 1_200
-        Position nzdPosition1 = new Position(300, nzdSecurity.getKey());
+        Position nzdPosition1 = new SimplePosition(300, nzdSecurity.getKey());
         positions.add(nzdPosition1);
         // value = 400, weighted rating = 32_000, weighted duration = 1_600
-        Position nzdPosition2 = new Position(400, nzdSecurity.getKey());
+        Position nzdPosition2 = new SimplePosition(400, nzdSecurity.getKey());
         positions.add(nzdPosition2);
         // value = 500, weighted rating = 37_500, weighted duration = 2_500
-        Position cadPosition1 = new Position(500, cadSecurity.getKey());
+        Position cadPosition1 = new SimplePosition(500, cadSecurity.getKey());
         positions.add(cadPosition1);
         // value = 600, weighted rating = 45_000, weighted duration = 3_000
-        Position cadPosition2 = new Position(600, cadSecurity.getKey());
+        Position cadPosition2 = new SimplePosition(600, cadSecurity.getKey());
         positions.add(cadPosition2);
 
         HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
@@ -334,10 +335,10 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateOverrides() throws Exception {
-        Position dummyPosition = new Position(1, TestUtil.s1.getKey());
+        Position dummyPosition = new SimplePosition(1, TestUtil.s1.getKey());
         Set<Position> dummyPositions = Set.of(dummyPosition);
 
-        Position overridePosition = new Position(1, TestUtil.s2.getKey());
+        Position overridePosition = new SimplePosition(1, TestUtil.s2.getKey());
         Set<Position> overridePositions = Set.of(overridePosition);
 
         Portfolio portfolioBenchmark = new Portfolio(new PortfolioKey("testPortfolioBenchmark", 1),
