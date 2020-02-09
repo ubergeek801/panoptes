@@ -11,7 +11,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 
 /**
- * A service that initializes the known {@code SecurityAttribute}s from a JDBC data source.
+ * {@code JdbcSecurityAttributeLoader} is a service that initializes the known
+ * {@code SecurityAttribute}s from a JDBC data source.
  */
 @Singleton
 public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {

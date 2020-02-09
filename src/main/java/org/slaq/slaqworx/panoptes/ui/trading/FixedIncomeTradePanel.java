@@ -35,8 +35,8 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code FixedIncomeTradePanel} is a component of the experimental user interface, used to enter
- * parameters of a simple fixed income security trade and calculate room in portfolios for that
- * security name.
+ * parameters of a simple fixed income security trade and calculate room in {@code Portfolio}s for
+ * that {@code Security} name.
  *
  * @author jeremy
  */

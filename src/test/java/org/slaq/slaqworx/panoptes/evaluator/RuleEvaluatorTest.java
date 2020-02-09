@@ -30,7 +30,7 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
  */
 public class RuleEvaluatorTest {
     /**
-     * Tests that Position classification behaves as expected.
+     * Tests that {@code Position} classification behaves as expected.
      */
     @Test
     public void testClassify() {
@@ -55,7 +55,7 @@ public class RuleEvaluatorTest {
     }
 
     /**
-     * Tests that Position evaluation behaves as expected.
+     * Tests that {@code Position} evaluation behaves as expected.
      */
     @Test
     public void testEvaluate() {
@@ -99,7 +99,8 @@ public class RuleEvaluatorTest {
     }
 
     /**
-     * Tests that Position evaluation behaves as expected with a benchmark-relative Rule.
+     * Tests that {@code Position} evaluation behaves as expected with a benchmark-relative
+     * {@code Rule}.
      */
     @Test
     public void testEvaluate_benchmarkRelative() {

@@ -12,13 +12,13 @@ import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * SerializerUtilTest tests the functionality of SerializerUtil.
+ * {@code erializerUtilTest} tests the functionality of {@code SerializerUtil}.
  *
  * @author jeremy
  */
 public class SerializerUtilTest {
     /**
-     * Tests that jsonToAttributes() behaves as expected.
+     * Tests that {@code jsonToAttributes()} behaves as expected.
      */
     @Test
     public void testJsonToAttributes() throws Exception {

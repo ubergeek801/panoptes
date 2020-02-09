@@ -6,8 +6,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code PortfolioSummary} is a projection of {@code Portfolio} used primarily by the Portfolio
- * table display.
+ * {@code PortfolioSummary} is a projection of {@code Portfolio} used primarily by the
+ * {@code Portfolio} table display.
  *
  * @author jeremy
  */

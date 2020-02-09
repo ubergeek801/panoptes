@@ -115,9 +115,9 @@ public class TradeEvaluationResult {
      * {@code EvaluationGroup}.
      *
      * @param portfolioKey
-     *            the key identifying the {@code Portfolio} on which the impact occurred
+     *            a key identifying the {@code Portfolio} on which the impact occurred
      * @param ruleKey
-     *            the key identifying the {@code Rule} for which the impact occurred
+     *            a key identifying the {@code Rule} for which the impact occurred
      * @param evaluationGroup
      *            the {@code EvalautionGroup} on which the impact occurred
      * @param impact
@@ -213,7 +213,8 @@ public class TradeEvaluationResult {
      * Indicates whether the evaluated {@code Trade} is compliant, which means that no {@code Rule}
      * evaluations resulted in a {@code NEGATIVE} or {@code UNKNOWN} {@code Impact}.
      *
-     * @return true if the evaluation results indicate {@code Trade} compliance, false otherwise
+     * @return {@code true} if the evaluation results indicate {@code Trade} compliance,
+     *         {@code false} otherwise
      */
     public boolean isCompliant() {
         return aggregateImpact != Impact.NEGATIVE && aggregateImpact != Impact.UNKNOWN;

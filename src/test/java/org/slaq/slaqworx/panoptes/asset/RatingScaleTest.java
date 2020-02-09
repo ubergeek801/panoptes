@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
- * RatingScaleTest tests the functionality of the RatingScale.
+ * {@code RatingScaleTest} tests the functionality of the {@code RatingScale}.
  *
  * @author jeremy
  */
 public class RatingScaleTest {
     /**
-     * Tests that getRatingNotch() behaves as expected.
+     * Tests that {@code getRatingNotch()} behaves as expected.
      */
     @Test
     public void testGetRatingNotch() {

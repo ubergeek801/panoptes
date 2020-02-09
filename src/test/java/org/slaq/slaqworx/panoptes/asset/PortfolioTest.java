@@ -296,7 +296,7 @@ public class PortfolioTest {
     }
 
     /**
-     * Tests that {@code Portfolios} are hashed in a reasonable way.
+     * Tests that {@code Portfolio}s are hashed in a reasonable way.
      */
     @Test
     public void testHash() {

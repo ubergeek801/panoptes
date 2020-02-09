@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
 /**
- * {@code PortfolioRuleResultAdapter} adapts portfolio-level results to a tabular representation.
- * Its children are typically {@code GroupResultAdapter}s.
+ * {@code PortfolioRuleResultAdapter} adapts {@code Portfolio}-level results to a tabular
+ * representation. Its children are typically {@code GroupResultAdapter}s.
  *
  * @author jeremy
  */

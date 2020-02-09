@@ -71,7 +71,7 @@ public class Transaction implements PositionSupplier {
     /**
      * Obtains this {@code Transaction}'s unique key.
      *
-     * @return the ID
+     * @return the key
      */
     public TransactionKey getKey() {
         return key;

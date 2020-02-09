@@ -31,7 +31,7 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code ComplianceController} is a simple "Web service" that evaluates all {@code Portfolio}s and
- * outputs quasi-formatted results.
+ * outputs quasi-formatted results. It is still considered experimental.
  *
  * @author jeremy
  */

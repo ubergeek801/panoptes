@@ -10,11 +10,14 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
- * GroovyPositionFilterTest tests the functionality of the GroovyPositionFilter.
+ * {@code GroovyPositionFilterTest} tests the functionality of the {@code GroovyPositionFilter}.
  *
  * @author jeremy
  */
 public class GroovyPositionFilterTest {
+    /**
+     * Tests that filtering behaves as expected.
+     */
     @Test
     public void testFilter() {
         // create a filter which should include Positions with an amount > 1MM

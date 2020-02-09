@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * RuleKeySerializerTest tests the functionality of the RuleKeySerializer.
+ * {@code RuleKeySerializerTest} tests the functionality of the {@code RuleKeySerializer}.
  *
  * @author jeremy
  */

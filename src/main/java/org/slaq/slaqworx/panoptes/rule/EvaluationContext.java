@@ -24,11 +24,11 @@ public class EvaluationContext {
      */
     public enum EvaluationMode {
         /**
-         * all Rules are evaluated regardless of outcome
+         * all {@code Rule}s are evaluated regardless of outcome
          */
         FULL_EVALUATION,
         /**
-         * Rule evaluation may be short-circuited if an evaluation fails
+         * {@code Rule} evaluation may be short-circuited if an evaluation fails
          */
         SHORT_CIRCUIT_EVALUATION
     }

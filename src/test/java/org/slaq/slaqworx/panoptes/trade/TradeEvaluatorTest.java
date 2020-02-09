@@ -149,7 +149,7 @@ public class TradeEvaluatorTest {
      * evaluate {@code Transaction} eligibility.
      */
     @Test
-    public void testEvaluateEligibility() throws Exception {
+    public void testEvaluate_eligibility() throws Exception {
         Security sec1 =
                 TestUtil.createTestSecurity(assetCache, "sec1", "nobody", new BigDecimal("100"));
 

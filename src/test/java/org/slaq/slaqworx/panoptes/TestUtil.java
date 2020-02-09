@@ -122,7 +122,7 @@ public class TestUtil {
      * @param positions
      *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmarkKey
-     *            the (possibly null) {@code Portfolio} that acts a benchmark for the
+     *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
@@ -179,7 +179,7 @@ public class TestUtil {
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Security}
      * @param assetId
-     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            the asset ID to assign to the {@code Security}; may be {@code null} iff attributes
      *            contains ISIN
      * @param attributes
      *            the additional attributes to associate with the {@code Security}
@@ -199,7 +199,7 @@ public class TestUtil {
      * @param assetCache
      *            the {@code AssetCache} in which to cache the created {@code Security}
      * @param assetId
-     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            the asset ID to assign to the {@code Security}; may be {@code null} iff attributes
      *            contains ISIN
      * @param issuer
      *            the {@code Security} issuer

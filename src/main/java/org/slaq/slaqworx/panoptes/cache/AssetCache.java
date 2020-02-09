@@ -73,13 +73,6 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
                 .getExecutorService(PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR);
     }
 
-    /**
-     * Obtains the {@code Portfolio} with the given key.
-     *
-     * @param key
-     *            the key for which to obtain the {@code Portfolio}
-     * @return the {@code Portfolio} corresponding to the given key, or null if it does not exist
-     */
     @Override
     public Portfolio getPortfolio(PortfolioKey key) {
         return getPortfolioCache().get(key);

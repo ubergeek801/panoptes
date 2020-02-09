@@ -11,7 +11,7 @@ public interface JsonConfigurable {
     static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Provides a default ObjectMapper suitable for (de)serializing JSON.
+     * Provides a default {@code ObjectMapper} suitable for (de)serializing JSON.
      *
      * @return an ObjectMapper
      */

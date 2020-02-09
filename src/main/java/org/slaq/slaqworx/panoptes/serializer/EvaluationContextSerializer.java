@@ -87,8 +87,7 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
     }
 
     /**
-     * Creates a new {@code EvaluationContextSerializer} which delegates to the given
-     * {@code SecurityProvider}.
+     * Creates a new {@code EvaluationContextSerializer} which delegates to the given providers.
      *
      * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} data

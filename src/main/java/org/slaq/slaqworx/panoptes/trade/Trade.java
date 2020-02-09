@@ -21,7 +21,7 @@ public class Trade {
     private final Map<PortfolioKey, Transaction> transactions;
 
     /**
-     * Creates a new {@code Trade} with a generated ID and consisting of the given
+     * Creates a new {@code Trade} with a generated key and consisting of the given
      * {@code Transaction}s.
      *
      * @param tradeDate
@@ -38,11 +38,11 @@ public class Trade {
     }
 
     /**
-     * Creates a new {@code Trade} with the given ID and consisting of the given
+     * Creates a new {@code Trade} with the given key and consisting of the given
      * {@code Transaction}s.
      *
      * @param key
-     *            the unique key to assign to this {@code Trade}, or null to generate one
+     *            the unique key to assign to this {@code Trade}, or {@code null} to generate one
      * @param tradeDate
      *            the date on which the {@code Trade} is effective
      * @param settlementDate

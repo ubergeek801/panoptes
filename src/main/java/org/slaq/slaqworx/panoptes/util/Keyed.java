@@ -10,7 +10,7 @@ package org.slaq.slaqworx.panoptes.util;
 @FunctionalInterface
 public interface Keyed<T> {
     /**
-     * Obtains the ID/key for this Keyed entity.
+     * Obtains the ID/key for this {@code Keyed} entity.
      *
      * @return this entity's key
      */

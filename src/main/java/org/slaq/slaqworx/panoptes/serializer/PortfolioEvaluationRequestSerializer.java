@@ -34,8 +34,7 @@ public class PortfolioEvaluationRequestSerializer
     private final Provider<? extends SecurityProvider> securityProvider;
 
     /**
-     * Creates a new {@code PortfolioSerializer} which delegates to the given
-     * {@code PortfolioProvider} and {@code SecurityProvider}.
+     * Creates a new {@code PortfolioSerializer} which delegates to the given providers.
      *
      * @param portfolioProvider
      *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references

@@ -34,7 +34,7 @@ public class TestSecurityProvider implements SecurityProvider {
      * Creates a new {@code Security} and makes it available through this provider.
      *
      * @param assetId
-     *            the asset ID to assign to the {@code Security}; may be null iff attributes
+     *            the asset ID to assign to the {@code Security}; may be {@code null} iff attributes
      *            contains ISIN
      * @param attributes
      *            the additional attributes to associate with the {@code Security}

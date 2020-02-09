@@ -8,7 +8,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 
 /**
- * {@code RuleResultTest} tests the functionality of {@code RuleResult}.
+ * {@code RuleResultTest} tests the functionality of the {@code RuleResult}.
  *
  * @author jeremy
  */

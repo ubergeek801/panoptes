@@ -309,7 +309,8 @@ public class RuleResult {
      *            the first exception to be compared
      * @param exception2
      *            the second exception to be compared
-     * @return {@code true} if the exceptions are considered to be equivalent, false otherwise
+     * @return {@code true} if the exceptions are considered to be equivalent, {@code false}
+     *         otherwise
      */
     protected boolean exceptionEquals(Throwable exception1, Throwable exception2) {
         if (exception1 == null) {

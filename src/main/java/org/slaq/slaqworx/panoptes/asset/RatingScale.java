@@ -82,8 +82,8 @@ public class RatingScale {
      *
      * @param symbol
      *            the symbol for which to find the {@code RatingNotch}
-     * @return the {@code RatingNotch} corresponding to the given symbol, or null if it does not
-     *         exist
+     * @return the {@code RatingNotch} corresponding to the given symbol, or {@code null} if it does
+     *         not exist
      */
     public RatingNotch getRatingNotch(String symbol) {
         return symbolRatingMap.get(symbol);

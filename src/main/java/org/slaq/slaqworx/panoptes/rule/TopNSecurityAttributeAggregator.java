@@ -32,12 +32,12 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     }
 
     /**
-     * Creates a new {@code TopNSecurityAttributeAggregator} which aggregates {@code Positions} on
+     * Creates a new {@code TopNSecurityAttributeAggregator} which aggregates {@code Position}s on
      * the {@code SecurityAttribute} specified in the JSON configuration.
      *
      * @param jsonConfiguration
      *            a JSON configuration specifying the {@code SecurityAttribute} on which to
-     *            aggregate {@code Positions}
+     *            aggregate {@code Position}s
      */
     public static TopNSecurityAttributeAggregator fromJson(String jsonConfiguration) {
         Configuration configuration;

@@ -23,7 +23,8 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
  * {@code LocalPortfolioEvaluator} is a {@code PortfolioEvaluator} which performs processing on the
- * local node. This is where parallelization of {@code Rule} processing occurs.
+ * local node. {@code Rule}s are evaluated sequentially (although in no particular order); any
+ * desired proessing concurrency is expected to be provided at a higher layer of abstraction.
  *
  * @author jeremy
  */
@@ -33,8 +34,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private final PortfolioProvider portfolioProvider;
 
     /**
-     * Creates a new {@code LocalPortfolioEvaluator} that uses a {@code ForkJoinPool} for local
-     * {@code Portfolio} evaluation.
+     * Creates a new {@code LocalPortfolioEvaluator}.
      *
      * @param portfolioProvider
      *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references

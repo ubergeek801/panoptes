@@ -35,11 +35,11 @@ public class TestPortfolioProvider implements PortfolioProvider {
      * Creates a new {@code Portfolio} and makes it available through this provider.
      *
      * @param key
-     *            the key of the Portfolio to create, or {@code null} to generate a key
+     *            the key of the {@code Portfolio} to create, or {@code null} to generate a key
      * @param name
      *            the {@code Portfolio} name/description
      * @param positions
-     *            the {@code Positions} comprising the {@code Portfolio}
+     *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmark
      *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}
@@ -59,11 +59,11 @@ public class TestPortfolioProvider implements PortfolioProvider {
      * Creates a new {@code Portfolio} and makes it available through this provider.
      *
      * @param id
-     *            the ID of the Portfolio to create, or {@code null} to generate an ID
+     *            the ID of the {@code Portfolio} to create, or {@code null} to generate an ID
      * @param name
      *            the {@code Portfolio} name/description
      * @param positions
-     *            the {@code Positions} comprising the {@code Portfolio}
+     *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmark
      *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}

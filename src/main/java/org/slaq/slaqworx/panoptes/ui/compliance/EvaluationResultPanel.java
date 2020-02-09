@@ -93,6 +93,12 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
         setDataProvider(dataProvider);
     }
 
+    /**
+     * Sets the result to be displayed by this panel.
+     *
+     * @param evaluationResult
+     *            a {@code Map} of {@code RuleKey}-related {@code EvaluationResult}s to be displayed
+     */
     public void setResult(Map<RuleKey, EvaluationResult> evaluationResult) {
         Comparator<? super EvaluationResultRow> comparator =
                 (r1, r2) -> r1.getRuleDescription().compareTo(r2.getRuleDescription());

@@ -13,8 +13,8 @@ public interface PortfolioProvider {
      *
      * @param key
      *            the key identifying the {@code Portfolio} to be obtained
-     * @return the {@code Portfolio} corresponding to the given key, or null if it could not be
-     *         located
+     * @return the {@code Portfolio} corresponding to the given key, or {@code null} if it could not
+     *         be located
      */
     public Portfolio getPortfolio(PortfolioKey key);
 }

@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.rule;
 import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
 
 /**
- * {@code RuleKey} is a key used to reference {@code Rules}.
+ * {@code RuleKey} is a key used to reference {@code Rule}s.
  *
  * @author jeremy
  */

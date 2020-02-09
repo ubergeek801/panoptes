@@ -34,8 +34,7 @@ public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
     private final Provider<? extends RuleProvider> ruleProvider;
 
     /**
-     * Creates a new {@code PortfolioSerializer} which delegates to the given
-     * {@code PositionProvider} and {@code RuleProvider}.
+     * Creates a new {@code PortfolioSerializer} which delegates to the given providers.
      *
      * @param positionProvider
      *            the {@code PositionProvider} to use to resolve {@code Position}s

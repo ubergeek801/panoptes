@@ -86,14 +86,29 @@ public class PortfolioEvaluationRequest
         return true;
     }
 
+    /**
+     * Obtains the {@code EvaluationContext} in effect for this evaluation request.
+     *
+     * @return a {@code EvaluationContext}
+     */
     public EvaluationContext getEvaluationContext() {
         return evaluationContext;
     }
 
+    /**
+     * Obtains the {@code PortfolioKey} identifying the {@code Portfolio} to be evaluated.
+     *
+     * @return the evaluated {@code Portfolio}'s key
+     */
     public PortfolioKey getPortfolioKey() {
         return portfolioKey;
     }
 
+    /**
+     * Obtains the {@code Transaction} to be evaluated with the requested {@code Portfolio}.
+     *
+     * @return the {@code Transaction} to be evaluated, or {@code null} if not applicable
+     */
     public Transaction getTransaction() {
         return transaction;
     }

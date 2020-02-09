@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 
 /**
- * PortfolioKeySerializerTest tests the functionality of the PortfolioKeySerializer.
+ * {@code PortfolioKeySerializerTest} tests the functionality of the {@code PortfolioKeySerializer}.
  *
  * @author jeremy
  */
