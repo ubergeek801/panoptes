@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
@@ -48,8 +49,9 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
             // accumulate the Position's amount and weighted amount
             return (a, c) -> {
                 Position p = c.getPosition();
-                Double attributeValue = getValue(
-                        p.getAttributeValue(getCalculationAttribute(), c.getEvaluationContext()));
+                EvaluationContext context = c.getEvaluationContext();
+                Double attributeValue =
+                        getValue(p.getAttributeValue(getCalculationAttribute(), context), context);
                 if (attributeValue == null) {
                     // FIXME this is probably not appropriate
                     return;

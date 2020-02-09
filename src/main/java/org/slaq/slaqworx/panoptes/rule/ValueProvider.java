@@ -3,24 +3,25 @@ package org.slaq.slaqworx.panoptes.rule;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
- * {@code ValueProvider} is a {@code Function} that converts a value of a specified type to a
- * {@code Double}, to facilitate calculations on various types of {@code SecurityAttribute}s.
+ * {@code ValueProvider} is a {@code BiFunction} that converts a value of a specified type (within a
+ * given {@code EvaluationContext}) to a {@code Double}, to facilitate calculations on various types
+ * of {@code SecurityAttribute}s.
  *
  * @author jeremy
  * @param <T>
  *            the type that can be converted by the {@code ValueProvider}
  */
-public interface ValueProvider<T> extends Function<T, Double> {
+public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Double> {
     /**
      * Produces a {@code ValueProvider} that converts from {@code BigDecimal}.
      *
      * @return a {@code ValueProvider} for converting {@code BigDecimal} values
      */
     public static ValueProvider<BigDecimal> forBigDecimal() {
-        return v -> (v == null ? null : v.doubleValue());
+        return (v, c) -> (v == null ? null : v.doubleValue());
     }
 
     /**
@@ -51,13 +52,14 @@ public interface ValueProvider<T> extends Function<T, Double> {
 
     /**
      * Produces a {@code ValueProvider} that converts a {@code LocalDate} into the number of days
-     * between the current date and that date.
+     * between the effective current date (as supplied by the {@code EvaluationContext}) and that
+     * date.
      *
      * @return a {@code ValueProvider} for converting {@code LocalDate} values
      */
     public static ValueProvider<LocalDate> forDaysUntilDate() {
-        // TODO come up with a reasonable way to get the effective current date
-        return v -> (v == null ? null : (double)LocalDate.now().until(v, ChronoUnit.DAYS));
+        // TODO get the effective current date from the EvaluationContext
+        return (v, c) -> (v == null ? null : (double)LocalDate.now().until(v, ChronoUnit.DAYS));
     }
 
     /**
@@ -66,6 +68,6 @@ public interface ValueProvider<T> extends Function<T, Double> {
      * @return a {@code ValueProvider} for handling {@code Double} values
      */
     public static ValueProvider<Double> forDouble() {
-        return v -> v;
+        return (v, c) -> v;
     }
 }

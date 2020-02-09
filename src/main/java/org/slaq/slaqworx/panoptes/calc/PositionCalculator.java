@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.calc;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
@@ -52,10 +53,12 @@ public abstract class PositionCalculator<T> {
      *
      * @param attributeValue
      *            the attribute value for which to obtain a corresponding {@code Double} value
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which the evaluation is occurring
      * @return the interpreted value of the given attribute value
      */
-    protected Double getValue(T attributeValue) {
+    protected Double getValue(T attributeValue, EvaluationContext evaluationContext) {
         return (calculationAttribute == null ? null
-                : calculationAttribute.getValueProvider().apply(attributeValue));
+                : calculationAttribute.getValueProvider().apply(attributeValue, evaluationContext));
     }
 }
