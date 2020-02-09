@@ -95,7 +95,9 @@ public class EvaluationResultSerializer implements ByteArraySerializer<Evaluatio
         } else if (ruleResult.getThreshold() != null && ruleResult.getValue() != null) {
             resultMsgBuilder.setThreshold(StringValue.of(ruleResult.getThreshold().name()));
             resultMsgBuilder.setValue(DoubleValue.of(ruleResult.getValue()));
-            resultMsgBuilder.setBenchmarkValue(DoubleValue.of(ruleResult.getBenchmarkValue()));
+            if (ruleResult.getBenchmarkValue() != null) {
+                resultMsgBuilder.setBenchmarkValue(DoubleValue.of(ruleResult.getBenchmarkValue()));
+            }
             resultMsgBuilder.setIsPassed(ruleResult.isPassed());
         } else {
             resultMsgBuilder.setIsPassed(ruleResult.isPassed());
@@ -126,8 +128,10 @@ public class EvaluationResultSerializer implements ByteArraySerializer<Evaluatio
         }
 
         // must be a "value" result
+        Double benchmarkValue =
+                (resultMsg.hasBenchmarkValue() ? resultMsg.getBenchmarkValue().getValue() : null);
         return new RuleResult(Threshold.valueOf(resultMsg.getThreshold().getValue()),
-                resultMsg.getValue().getValue(), resultMsg.getBenchmarkValue().getValue());
+                resultMsg.getValue().getValue(), benchmarkValue);
     }
 
     /**

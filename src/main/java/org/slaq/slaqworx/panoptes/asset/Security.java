@@ -92,15 +92,10 @@ public class Security implements Keyed<SecurityKey> {
      * @return the value of the given attribute, or {@code null} if not assigned
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute, EvaluationContext context) {
-        SecurityAttributes overrideAttributes = context.getSecurityOverrides().get(key);
-        if (overrideAttributes != null) {
-            T overrideValue = overrideAttributes.getValue(attribute);
-            if (overrideValue != null) {
-                return overrideValue;
-            }
-        }
+        @SuppressWarnings("unchecked")
+        T value = (T)getAttributeValue(attribute.getIndex(), context);
 
-        return attributes.getValue(attribute);
+        return value;
     }
 
     @Override

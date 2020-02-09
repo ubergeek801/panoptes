@@ -1,5 +1,8 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * {@code RuleResult} encapsulates the results of a {@code Rule} evaluation, typically grouped by
  * {@code EvaluationGroup} and aggregated into an {@code EvaluationResult}. Currently this class
@@ -45,8 +48,11 @@ public class RuleResult {
     private static final double EPSILON = 0.000_001;
 
     private final boolean isPassed;
+
     private final Threshold threshold;
+
     private final Double value;
+
     private final Double benchmarkValue;
     private final Throwable exception;
 
@@ -192,6 +198,45 @@ public class RuleResult {
         }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RuleResult other = (RuleResult)obj;
+        if (benchmarkValue == null) {
+            if (other.benchmarkValue != null) {
+                return false;
+            }
+        } else if (!benchmarkValue.equals(other.benchmarkValue)) {
+            return false;
+        }
+        if (!exceptionEquals(exception, other.exception)) {
+            return false;
+        }
+        if (isPassed != other.isPassed) {
+            return false;
+        }
+        if (threshold != other.threshold) {
+            return false;
+        }
+        if (value == null) {
+            if (other.value != null) {
+                return false;
+            }
+        } else if (!value.equals(other.value)) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Obtains the value associated with this result, as calculated for the benchmark, if any.
      *
@@ -230,6 +275,17 @@ public class RuleResult {
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((benchmarkValue == null) ? 0 : benchmarkValue.hashCode());
+        result = prime * result + (isPassed ? 1231 : 1237);
+        result = prime * result + ((threshold == null) ? 0 : threshold.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
     /**
      * Indicates whether the {@code Rule} evaluation passed.
      *
@@ -237,5 +293,42 @@ public class RuleResult {
      */
     public boolean isPassed() {
         return isPassed;
+    }
+
+    @Override
+    public String toString() {
+        return "RuleResult [isPassed=" + isPassed + ", threshold=" + threshold + ", value=" + value
+                + ", benchmarkValue=" + benchmarkValue + ", exception=" + exception + "]";
+    }
+
+    /**
+     * Determines whether the given exceptions are considered equivalent for our purposes, since
+     * {@code Exception} does not implement {@code equals()}.
+     *
+     * @param exception1
+     *            the first exception to be compared
+     * @param exception2
+     *            the second exception to be compared
+     * @return {@code true} if the exceptions are considered to be equivalent, false otherwise
+     */
+    protected boolean exceptionEquals(Throwable exception1, Throwable exception2) {
+        if (exception1 == null) {
+            // nulls are considered equal; null is considered unequal to non-null
+            return (exception2 == null);
+        }
+
+        if (!Objects.equals(exception1.getClass().getName(), exception2.getClass().getName())) {
+            return false;
+        }
+
+        if (!Objects.equals(exception1.getMessage(), exception2.getMessage())) {
+            return false;
+        }
+
+        if (!Arrays.equals(exception1.getStackTrace(), exception2.getStackTrace())) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -28,15 +28,17 @@ public class CompoundPositionSupplierTest {
         PositionSupplier concat = PositionSupplier.concat(s1, s2, s3);
 
         // there should be a total of 7 positions (2 + 2 + 3)
+        assertEquals(7, concat.size(),
+                "number of Positions should equal sum of Position set sizes");
         List<Position> positions = concat.getPositions().collect(Collectors.toList());
         assertEquals(7, positions.size(),
-                "number of positions should equal sum of position set sizes");
+                "number of Positions should equal sum of Position set sizes");
 
         assertEquals(portfolioKey, concat.getPortfolioKey(),
-                "portfolio key should equal that of the portfolios");
+                "Portfolio key should equal that of the Portfolios");
 
         // total market value should be 1000 + 500 + 500 + 1000 + 500 + 1000 + 200 = 4700
         assertEquals(4700, concat.getTotalMarketValue(TestUtil.defaultTestEvaluationContext()),
-                "total market value should equal sum of position sets");
+                "total market value should equal sum of Position sets");
     }
 }

@@ -9,17 +9,28 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import io.micronaut.test.annotation.MicronautTest;
+
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 
 /**
  * {@code SecurityTest} tests the functionality of {@code Security}.
  *
  * @author jeremy
  */
+@MicronautTest
 public class SecurityTest {
+    @Inject
+    private AssetCache assetCache;
+
     /**
      * Tests that {@code getAttributes()} behaves as expected.
      */
@@ -43,6 +54,32 @@ public class SecurityTest {
                 "coupon value should have matched");
         assertEquals(LocalDate.of(2019, 8, 5), attributes.getValue(SecurityAttribute.maturityDate),
                 "maturity date value should have matched");
+    }
+
+    /**
+     * Tests that {@code getAttributeValue()} behaves as expected.
+     */
+    @Test
+    public void testGetAttributeValue() {
+        Map<SecurityAttribute<?>, ? super Object> attributes =
+                Map.of(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
+        Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
+        assertEquals("foo", security.getAttributeValue(SecurityAttribute.isin,
+                TestUtil.defaultTestEvaluationContext()), "unexpected value for isin");
+        assertEquals(4d, security.getAttributeValue(SecurityAttribute.duration,
+                TestUtil.defaultTestEvaluationContext()), "unexpected value for duration");
+
+        // test some overridden attribute values
+        Map<SecurityKey, SecurityAttributes> overrides =
+                Map.of(security.getKey(), new SecurityAttributes(
+                        Map.of(SecurityAttribute.duration, 3d, SecurityAttribute.country, "US")));
+        EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache,
+                EvaluationMode.FULL_EVALUATION, overrides);
+        assertEquals(3d, security.getAttributeValue(SecurityAttribute.duration, evaluationContext),
+                "expected overridden value for duration");
+        // country didn't exist in the original Security but that shouldn't matter
+        assertEquals("US", security.getAttributeValue(SecurityAttribute.country, evaluationContext),
+                "expected overridden value for country");
     }
 
     /**

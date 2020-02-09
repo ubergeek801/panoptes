@@ -163,6 +163,32 @@ public class TradeEvaluationResult {
         });
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        TradeEvaluationResult other = (TradeEvaluationResult)obj;
+        if (aggregateImpact != other.aggregateImpact) {
+            return false;
+        }
+        if (ruleImpactMap == null) {
+            if (other.ruleImpactMap != null) {
+                return false;
+            }
+        } else if (!ruleImpactMap.equals(other.ruleImpactMap)) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Obtains the {@code Impact}s recorded in this result.
      *
@@ -172,6 +198,15 @@ public class TradeEvaluationResult {
      */
     public Map<PortfolioRuleKey, Map<EvaluationGroup, Impact>> getImpacts() {
         return ruleImpactMap;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((aggregateImpact == null) ? 0 : aggregateImpact.hashCode());
+        result = prime * result + ((ruleImpactMap == null) ? 0 : ruleImpactMap.hashCode());
+        return result;
     }
 
     /**
