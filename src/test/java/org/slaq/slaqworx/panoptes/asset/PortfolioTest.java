@@ -12,8 +12,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.inject.Inject;
+
+import io.micronaut.test.annotation.MicronautTest;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,14 +26,20 @@ import org.slaq.slaqworx.panoptes.TestPortfolioProvider;
 import org.slaq.slaqworx.panoptes.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.HierarchicalPositionSupplier.PositionHierarchyOption;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
  * {@code PortfolioTest} tests the functionality of the {@code Portfolio}.
  *
  * @author jeremy
  */
+@MicronautTest
 public class PortfolioTest {
+    @Inject
+    private AssetCache assetCache;
+
     private TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
     private TestPortfolioProvider portfolioProvider = TestUtil.testPortfolioProvider();
 
@@ -206,7 +217,63 @@ public class PortfolioTest {
      */
     @Test
     public void testGetPositions_taxLot() {
-        // FIXME implement testGetPositions_taxLot()
+        Security sec1 = TestUtil.createTestSecurity(assetCache, "sec1",
+                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+        Security sec2 = TestUtil.createTestSecurity(assetCache, "sec2",
+                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+        Security sec3 = TestUtil.createTestSecurity(assetCache, "sec3",
+                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+
+        TaxLot p1TaxLot1 = new TaxLot(100, sec1.getKey());
+        TaxLot p1TaxLot2 = new TaxLot(-50, sec1.getKey());
+        TaxLot p1TaxLot3 = new TaxLot(50, sec1.getKey());
+        List<TaxLot> p1TaxLots = List.of(p1TaxLot1, p1TaxLot2, p1TaxLot3);
+        PortfolioPosition p1 = new PortfolioPosition(p1TaxLots);
+
+        TaxLot p2TaxLot1 = new TaxLot(200, sec2.getKey());
+        TaxLot p2TaxLot2 = new TaxLot(-100, sec2.getKey());
+        TaxLot p2TaxLot3 = new TaxLot(100, sec2.getKey());
+        List<TaxLot> p2TaxLots = List.of(p2TaxLot1, p2TaxLot2, p2TaxLot3);
+        PortfolioPosition p2 = new PortfolioPosition(p2TaxLots);
+
+        TaxLot p3TaxLot1 = new TaxLot(300, sec3.getKey());
+        TaxLot p3TaxLot2 = new TaxLot(-150, sec3.getKey());
+        TaxLot p3TaxLot3 = new TaxLot(150, sec3.getKey());
+        List<TaxLot> p3TaxLots = List.of(p3TaxLot1, p3TaxLot2, p3TaxLot3);
+        PortfolioPosition p3 = new PortfolioPosition(p3TaxLots);
+
+        Set<Position> positions = Set.of(p1, p2, p3);
+        Portfolio portfolio = TestUtil.createTestPortfolio(assetCache, null, "TaxLotTestPortfolio",
+                positions, null, Collections.emptySet());
+
+        Map<PositionKey, ? extends Position> taxLots = portfolio
+                .getPositions(EnumSet.of(PositionHierarchyOption.TAXLOT),
+                        TestUtil.defaultTestEvaluationContext())
+                .collect(Collectors.toMap(t -> t.getKey(), t -> t));
+
+        assertEquals(p1TaxLots.size() + p2TaxLots.size() + p3TaxLots.size(), taxLots.size(),
+                "size of Portfolio TaxLots should equal sum of Position TaxLots size");
+        for (Position p : taxLots.values()) {
+            assertTrue(p instanceof TaxLot, "each tax lot should be instanceof TaxLot");
+        }
+        assertTrue(taxLots.containsKey(p1TaxLot1.getKey()),
+                "Portfolio TaxLots should contain p1TaxLot1");
+        assertTrue(taxLots.containsKey(p1TaxLot2.getKey()),
+                "Portfolio TaxLots should contain p1TaxLot2");
+        assertTrue(taxLots.containsKey(p1TaxLot3.getKey()),
+                "Portfolio TaxLots should contain p1TaxLot3");
+        assertTrue(taxLots.containsKey(p2TaxLot1.getKey()),
+                "Portfolio TaxLots should contain p2TaxLot1");
+        assertTrue(taxLots.containsKey(p2TaxLot2.getKey()),
+                "Portfolio TaxLots should contain p2TaxLot2");
+        assertTrue(taxLots.containsKey(p2TaxLot3.getKey()),
+                "Portfolio TaxLots should contain p2TaxLot3");
+        assertTrue(taxLots.containsKey(p3TaxLot1.getKey()),
+                "Portfolio TaxLots should contain p3TaxLot1");
+        assertTrue(taxLots.containsKey(p3TaxLot2.getKey()),
+                "Portfolio TaxLots should contain p3TaxLot2");
+        assertTrue(taxLots.containsKey(p3TaxLot3.getKey()),
+                "Portfolio TaxLots should contain p3TaxLot3");
     }
 
     /**
