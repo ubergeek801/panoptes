@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.ui.trading;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -11,9 +13,11 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
@@ -50,8 +54,8 @@ public class FixedIncomeTradePanel extends FormLayout {
 
         private final TextField portfolioIdField;
         private final TextField portfolioNameField;
-        private final NumberField amountField;
-        private final NumberField marketValueField;
+        private final BigDecimalField amountField;
+        private final BigDecimalField marketValueField;
 
         private Portfolio portfolio;
 
@@ -64,6 +68,7 @@ public class FixedIncomeTradePanel extends FormLayout {
         AllocationPanel(HasComponents parent) {
             portfolioIdField = ComponentUtil.createTextField("Portfolio ID");
             portfolioIdField.setValueChangeMode(ValueChangeMode.EAGER);
+            portfolioIdField.setWidth("7em");
             add(portfolioIdField);
 
             portfolioNameField = ComponentUtil.createTextField(null);
@@ -71,9 +76,13 @@ public class FixedIncomeTradePanel extends FormLayout {
             addAndExpand(portfolioNameField);
 
             amountField = ComponentUtil.createNumberField("Amount");
+            amountField.setWidth("10em");
             add(amountField);
 
             marketValueField = ComponentUtil.createNumberField("Market Value");
+            marketValueField.setWidth("11em");
+            marketValueField.setReadOnly(true);
+            marketValueField.setPrefixComponent(new Icon(VaadinIcon.DOLLAR));
             add(marketValueField);
 
             Button room = ComponentUtil.createButton("Room", event -> {
@@ -83,10 +92,13 @@ public class FixedIncomeTradePanel extends FormLayout {
 
                 TradeEvaluator tradeEvaluator = new TradeEvaluator(portfolioEvaluator, assetCache);
                 try {
-                    double roomMarketValue = tradeEvaluator.evaluateRoom(portfolio.getKey(),
-                            securityKey, tradeMarketValue);
-                    marketValueField.setValue(roomMarketValue);
-                    amountField.setValue(tradePrice == null ? null : roomMarketValue / tradePrice);
+                    BigDecimal roomMarketValue =
+                            BigDecimal.valueOf(tradeEvaluator.evaluateRoom(portfolio.getKey(),
+                                    securityKey, tradeMarketValue.doubleValue()));
+                    marketValueField.setValue(roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
+                    amountField.setValue(tradePrice == null ? null
+                            : roomMarketValue.divide(tradePrice).setScale(4,
+                                    RoundingMode.HALF_EVEN));
                 } catch (InterruptedException | ExecutionException e) {
                     // FIXME handle this
                 }
@@ -134,12 +146,12 @@ public class FixedIncomeTradePanel extends FormLayout {
     private final AssetCache assetCache;
     private final PortfolioEvaluator portfolioEvaluator;
 
-    private final NumberField tradeMarketValueField;
+    private final BigDecimalField tradeMarketValueField;
 
     private SecurityKey securityKey;
-    private Double tradeAmount;
-    private Double tradePrice;
-    private Double tradeMarketValue;
+    private BigDecimal tradeAmount;
+    private BigDecimal tradePrice;
+    private BigDecimal tradeMarketValue;
 
     /**
      * Creates a new {@code FixedIncomeTradePanel}.
@@ -157,17 +169,19 @@ public class FixedIncomeTradePanel extends FormLayout {
         assetIdTextField.setValueChangeMode(ValueChangeMode.EAGER);
         add(assetIdTextField);
 
-        NumberField amountField = ComponentUtil.createNumberField("Amount");
+        BigDecimalField amountField = ComponentUtil.createNumberField("Amount");
         add(amountField);
 
-        NumberField priceField = ComponentUtil.createNumberField("Price");
+        BigDecimalField priceField = ComponentUtil.createNumberField("Price");
+        priceField.setPrefixComponent(new Icon(VaadinIcon.DOLLAR));
         add(priceField);
 
         tradeMarketValueField = ComponentUtil.createNumberField("Market Value");
         tradeMarketValueField.setReadOnly(true);
+        tradeMarketValueField.setPrefixComponent(new Icon(VaadinIcon.DOLLAR));
         add(tradeMarketValueField);
 
-        add(ComponentUtil.createDatePicker("Trade Date", LocalDate.now()));
+        add(ComponentUtil.createDatePicker("Trade Date", null, LocalDate.now()));
 
         add(ComponentUtil.createDatePicker("Settlement Date"));
 
@@ -210,10 +224,11 @@ public class FixedIncomeTradePanel extends FormLayout {
                                 return;
                             }
 
-                            double roomMarketValue;
+                            BigDecimal roomMarketValue;
                             try {
-                                roomMarketValue = tradeEvaluator.evaluateRoom(portfolioKey,
-                                        securityKey, tradeMarketValue);
+                                roomMarketValue =
+                                        BigDecimal.valueOf(tradeEvaluator.evaluateRoom(portfolioKey,
+                                                securityKey, tradeMarketValue.doubleValue()));
                             } catch (Exception ex) {
                                 // FIXME handle this
                                 LOG.error("could not evaluate room for Portfolio {}", portfolioKey,
@@ -221,7 +236,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                                 return;
                             }
                             ui.access(() -> {
-                                if (roomMarketValue != 0) {
+                                if (roomMarketValue.compareTo(BigDecimal.ZERO) != 0) {
                                     AllocationPanel allocationPanel =
                                             new AllocationPanel(allocations);
                                     // add at the next position
@@ -231,8 +246,10 @@ public class FixedIncomeTradePanel extends FormLayout {
                                     allocationPanel.portfolioNameField
                                             .setValue(portfolio.getName());
                                     allocationPanel.amountField.setValue(tradePrice == null ? null
-                                            : roomMarketValue / tradePrice);
-                                    allocationPanel.marketValueField.setValue(roomMarketValue);
+                                            : roomMarketValue.divide(tradePrice).setScale(4,
+                                                    RoundingMode.HALF_EVEN));
+                                    allocationPanel.marketValueField.setValue(
+                                            roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
                                 }
                             });
                         } finally {
@@ -301,12 +318,13 @@ public class FixedIncomeTradePanel extends FormLayout {
             }
 
             assetIdTextField.setInvalid(false);
-            Double price = priceField.getValue();
+            BigDecimal price = priceField.getValue();
             if (price == null) {
                 priceField.setValue(null);
             } else {
                 priceField.setValue(price);
-                tradeMarketValueField.setValue(price * amountField.getValue());
+                tradeMarketValueField.setValue(
+                        price.multiply(amountField.getValue()).setScale(4, RoundingMode.HALF_EVEN));
             }
             room.setEnabled(true);
         });
@@ -320,7 +338,7 @@ public class FixedIncomeTradePanel extends FormLayout {
         if (tradeAmount == null || tradePrice == null) {
             tradeMarketValue = null;
         } else {
-            tradeMarketValue = tradeAmount * tradePrice;
+            tradeMarketValue = tradeAmount.multiply(tradePrice);
         }
 
         tradeMarketValueField.setValue(tradeMarketValue);

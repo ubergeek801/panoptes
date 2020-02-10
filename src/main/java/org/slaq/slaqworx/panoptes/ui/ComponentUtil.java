@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.ui;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -9,7 +10,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 
@@ -53,20 +54,6 @@ public class ComponentUtil {
     }
 
     /**
-     * Creates a new {@code TextField}.
-     *
-     * @param placeholderText
-     *            the placeholder text to appear in the text field
-     * @return a {@code TextField}
-     */
-    public static TextField createDateField(String placeholderText) {
-        TextField dateField = createTextField(placeholderText);
-        // nothing else special about a date field right now
-
-        return dateField;
-    }
-
-    /**
      * Creates a new {@code DatePicker} with no date initially populated.
      *
      * @param labelText
@@ -78,16 +65,34 @@ public class ComponentUtil {
     }
 
     /**
+     * Creates a new {@code DatePicker} with no date initially populated.
+     *
+     * @param labelText
+     *            the text to be used to label the component
+     * @param placeholderText
+     *            the placeholder text to appear in the date field
+     * @return a {@code DatePicker}
+     */
+    public static DatePicker createDatePicker(String labelText, String placeholderText) {
+        return createDatePicker(labelText, placeholderText, null);
+    }
+
+    /**
      * Creates a new {@code DatePicker} with an initially populated date.
      *
      * @param labelText
      *            the text to be used to label the component
+     * @param placeholderText
+     *            the placeholder text to appear in the date field
      * @param initialDate
      *            the date to initially appear in the date picker
      * @return a {@code DatePicker}
      */
-    public static DatePicker createDatePicker(String labelText, LocalDate initialDate) {
+    public static DatePicker createDatePicker(String labelText, String placeholderText,
+            LocalDate initialDate) {
         DatePicker datePicker = new DatePicker(labelText, initialDate);
+        datePicker.setPlaceholder(placeholderText);
+        datePicker.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         return datePicker;
     }
@@ -114,8 +119,8 @@ public class ComponentUtil {
      * @return a {@code MinMaxField}
      */
     public static MinMaxField<String> createMinMaxDateField(String labelText) {
-        TextField minDate = createDateField("Min");
-        TextField maxDate = createDateField("Max");
+        DatePicker minDate = createDatePicker(null, "Min");
+        DatePicker maxDate = createDatePicker(null, "Max");
 
         return new MinMaxField<>(labelText, minDate, maxDate);
     }
@@ -127,25 +132,26 @@ public class ComponentUtil {
      *            the name of the attribute for which the values apply
      * @return a {@code MinMaxField}
      */
-    public static MinMaxField<Double> createMinMaxNumberField(String labelText) {
-        NumberField minField = createNumberField("Min");
-        NumberField maxField = createNumberField("Max");
+    public static MinMaxField<BigDecimal> createMinMaxNumberField(String labelText) {
+        BigDecimalField minField = createNumberField("Min");
+        BigDecimalField maxField = createNumberField("Max");
 
         return new MinMaxField<>(labelText, minField, maxField);
     }
 
     /**
-     * Creates a new {@code NumberField}.
+     * Creates a new {@code BigDecimalField}.
      *
      * @param placeholderText
      *            the placeholder text to appear in the number field
-     * @return a {@code NumberField}
+     * @return a {@code BigDecimalField}
      */
-    public static NumberField createNumberField(String placeholderText) {
-        NumberField numberField = new NumberField();
+    public static BigDecimalField createNumberField(String placeholderText) {
+        BigDecimalField numberField = new BigDecimalField();
         numberField.setPlaceholder(placeholderText);
         numberField.setClearButtonVisible(true);
-        numberField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        numberField.addThemeVariants(TextFieldVariant.LUMO_SMALL,
+                TextFieldVariant.LUMO_ALIGN_RIGHT);
 
         return numberField;
     }
@@ -162,6 +168,7 @@ public class ComponentUtil {
     public static Select<String> createSelect(String labelText, String... options) {
         Select<String> select = new Select<>(options);
         select.setLabel(labelText);
+        select.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         return select;
     }
