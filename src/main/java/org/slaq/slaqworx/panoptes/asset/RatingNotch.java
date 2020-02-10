@@ -9,6 +9,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
     private final String symbol;
     private final double lower;
     private double middle;
+    private int ordinal;
 
     /**
      * Creates a new {@code RatingNotch} with the given symbol and lower bound.
@@ -48,6 +49,15 @@ public class RatingNotch implements Comparable<RatingNotch> {
     }
 
     /**
+     * Obtains the ordinal value of this notch in its assigned {@code RatingScale}.
+     *
+     * @return the ordinal/index of this notch within its {@code RatingScale}
+     */
+    public int getOrdinal() {
+        return ordinal;
+    }
+
+    /**
      * Obtains the symbol associated with this notch.
      *
      * @return the symbol
@@ -65,5 +75,15 @@ public class RatingNotch implements Comparable<RatingNotch> {
      */
     protected void setMiddle(double middle) {
         this.middle = middle;
+    }
+
+    /**
+     * Sets the ordinal value of this notch in its assigned {@code RatingScale}.
+     *
+     * @param ordinal
+     *            the ordinal/index of this notch within its {@code RatingScale}
+     */
+    protected void setOrdinal(int ordinal) {
+        this.ordinal = ordinal;
     }
 }

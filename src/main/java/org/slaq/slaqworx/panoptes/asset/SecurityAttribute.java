@@ -48,15 +48,15 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>> {
     public static final SecurityAttribute<Double> amount =
             of("amount", 14, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating1Symbol =
-            of("rating1Symbol", 15, String.class, null);
+            of("rating1Symbol", 15, String.class, ValueProvider.forRatingSymbol());
     public static final SecurityAttribute<Double> rating1Value =
             of("rating1Value", 16, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating2Symbol =
-            of("rating2Symbol", 17, String.class, null);
+            of("rating2Symbol", 17, String.class, ValueProvider.forRatingSymbol());
     public static final SecurityAttribute<Double> rating2Value =
             of("rating2Value", 18, Double.class, ValueProvider.forDouble());
     public static final SecurityAttribute<String> rating3Symbol =
-            of("rating3Symbol", 19, String.class, null);
+            of("rating3Symbol", 19, String.class, ValueProvider.forRatingSymbol());
     public static final SecurityAttribute<Double> rating3Value =
             of("rating3Value", 20, Double.class, ValueProvider.forDouble());
 

@@ -35,8 +35,10 @@ public class RatingScale {
 
         symbolRatingMap = new HashMap<>(notches.size());
 
+        // set the ordinal and middle values for each notch while also building symbolRatingMap
         for (int i = 0; i < notchValues.length; i++) {
             RatingNotch rating = notches.get(i);
+            rating.setOrdinal(i);
             notchValues[i] = rating.getLower();
             symbolRatingMap.put(rating.getSymbol(), rating);
             double upper;

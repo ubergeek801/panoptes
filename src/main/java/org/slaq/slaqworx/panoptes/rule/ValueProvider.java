@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.function.BiFunction;
 
+import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
+
 /**
  * {@code ValueProvider} is a {@code BiFunction} that converts a value of a specified type (within a
  * given {@code EvaluationContext}) to a {@code Double}, to facilitate calculations on various types
@@ -44,7 +46,12 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
             return (ValueProvider<T>)forBigDecimal();
         }
         if (LocalDate.class.isAssignableFrom(clazz)) {
+            // currently this is the only thing we know how to do with dates
             return (ValueProvider<T>)forDaysUntilDate();
+        }
+        if (String.class.isAssignableFrom(clazz)) {
+            // currently this is the only thing we know how to do with strings
+            return (ValueProvider<T>)forRatingSymbol();
         }
 
         throw new IllegalArgumentException("unsupported ValueProvider class: " + clazz);
@@ -69,5 +76,16 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
      */
     public static ValueProvider<Double> forDouble() {
         return (v, c) -> v;
+    }
+
+    /**
+     * Produces a {@code ValueProvider} that converts a rating symbol to the ordinal of its
+     * corresponding {@code RatingNotch}.
+     *
+     * @return a {@code ValueProvider} for handling rating symbol values
+     */
+    public static ValueProvider<String> forRatingSymbol() {
+        return (v, c) -> (double)PimcoBenchmarkDataSource.getRatingScale().getRatingNotch(v)
+                .getOrdinal();
     }
 }

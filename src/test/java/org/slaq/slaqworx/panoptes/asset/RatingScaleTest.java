@@ -50,5 +50,14 @@ public class RatingScaleTest {
                 "unexpected middle value for notch B");
 
         assertNull(scale.getRatingNotch("Q"), "should not have found notch for bogus symbol");
+
+        // finally test ordinal values
+
+        assertEquals(0, scale.getRatingNotch("F").getOrdinal(), "unexpected ordinal for rating F");
+        assertEquals(1, scale.getRatingNotch("E").getOrdinal(), "unexpected ordinal for rating E");
+        assertEquals(2, scale.getRatingNotch("D").getOrdinal(), "unexpected ordinal for rating D");
+        assertEquals(3, scale.getRatingNotch("C").getOrdinal(), "unexpected ordinal for rating C");
+        assertEquals(4, scale.getRatingNotch("B").getOrdinal(), "unexpected ordinal for rating B");
+        assertEquals(5, scale.getRatingNotch("A").getOrdinal(), "unexpected ordinal for rating A");
     }
 }

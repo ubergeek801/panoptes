@@ -106,6 +106,15 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         return instance;
     }
 
+    /**
+     * Obtains the PIMCO rating scale which is, so far, the only {@code RatingScale}.
+     *
+     * @return the PIMCO {@code RatingScale}
+     */
+    public static RatingScale getRatingScale() {
+        return pimcoRatingScale;
+    }
+
     private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
     private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
