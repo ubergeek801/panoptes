@@ -23,7 +23,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
@@ -47,28 +46,15 @@ public class TradingPanel extends VerticalLayout {
                 DetailsVariant.SMALL);
         add(tradePanelDetail);
 
-        SecurityFilterPanel securityFilter = new SecurityFilterPanel();
+        AssetCache assetCache =
+                ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
+        SecurityDataProvider securityProvider = new SecurityDataProvider(assetCache);
+
+        SecurityFilterPanel securityFilter = new SecurityFilterPanel(securityProvider);
         Details securityFilterDetail = new Details("Security Filter", securityFilter);
         securityFilterDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
                 DetailsVariant.SMALL);
         add(securityFilterDetail);
-
-        AssetCache assetCache =
-                ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        IMap<SecurityKey, Security> securityCache = assetCache.getSecurityCache();
-
-        // TODO make securities sortable
-        List<SecurityKey> securityKeys = new ArrayList<>(securityCache.keySet());
-        Collections.sort(securityKeys, (s1, s2) -> s1.compareTo(s2));
-
-        CallbackDataProvider<Security, Void> securityProvider =
-                DataProvider.fromCallbacks(
-                        query -> securityCache
-                                .getAll(new FakeSet<>(securityKeys.subList(query.getOffset(),
-                                        Math.min(query.getOffset() + query.getLimit(),
-                                                securityKeys.size()))))
-                                .values().stream(),
-                        query -> securityKeys.size());
 
         Grid<Security> securityGrid = new Grid<>();
         securityGrid.setColumnReorderingAllowed(true);
@@ -76,7 +62,7 @@ public class TradingPanel extends VerticalLayout {
                 GridVariant.LUMO_COMPACT);
         securityGrid.setDataProvider(securityProvider);
 
-        final EvaluationContext context = new EvaluationContext(assetCache, assetCache);
+        EvaluationContext context = new EvaluationContext(assetCache, assetCache);
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
         securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, context))

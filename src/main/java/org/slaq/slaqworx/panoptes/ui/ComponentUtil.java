@@ -3,16 +3,11 @@ package org.slaq.slaqworx.panoptes.ui;
 import java.time.LocalDate;
 
 import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -112,70 +107,31 @@ public class ComponentUtil {
     }
 
     /**
-     * Creates a new {@code HorizontalLayout}.
+     * Creates a new {@code MinMaxField} for setting dates.
      *
      * @param labelText
      *            the label to be applied to the layout
-     * @return a {@code HorizontalLayout}
+     * @return a {@code MinMaxField}
      */
-    public static HorizontalLayout createMinMaxDateField(String labelText) {
-        Label label = createLabel(labelText);
+    public static MinMaxField<String> createMinMaxDateField(String labelText) {
         TextField minDate = createDateField("Min");
         TextField maxDate = createDateField("Max");
 
-        return createMinMaxLayout(label, minDate, maxDate);
+        return new MinMaxField<>(labelText, minDate, maxDate);
     }
 
     /**
-     * Creates a layout, consisting of the given components, to display and/or input minimum and
-     * maximum values for some attribute.
-     *
-     * @param label
-     *            a {@code Label} containing the name of the attribute for which the values apply
-     * @param min
-     *            a {@code Component} containing the minimum value
-     * @param max
-     *            a {@code Component} containing the maximum value
-     * @return a {@code HorizontalLayout} arranging the provided components
-     */
-    public static HorizontalLayout createMinMaxLayout(Label label, Component min, Component max) {
-        // unfortunately some components want to overflow their boundaries, so some hackery is
-        // necessary to try to keep them in line
-        HorizontalLayout innerLayout = new HorizontalLayout();
-        innerLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        innerLayout.setJustifyContentMode(JustifyContentMode.END);
-        innerLayout.setMaxWidth("80%");
-        if (min instanceof HasSize) {
-            ((HasSize)min).setMaxWidth("50%");
-        }
-        if (max instanceof HasSize) {
-            ((HasSize)max).setMaxWidth("50%");
-        }
-        innerLayout.addAndExpand(min, max);
-
-        HorizontalLayout outerLayout = new HorizontalLayout();
-        outerLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        outerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
-        outerLayout.add(label);
-        outerLayout.addAndExpand(innerLayout);
-
-        return outerLayout;
-    }
-
-    /**
-     * Creates a layout, to display and/or input minimum and maximum values for some attribute.
+     * Creates a new {@code MinMaxField} for setting numeric values.
      *
      * @param labelText
      *            the name of the attribute for which the values apply
-     * @return a {@code HorizontalLayout} containing a {@code Label} and a pair of {@code
-     *         NumberField}s for the minimum and maximum values
+     * @return a {@code MinMaxField}
      */
-    public static HorizontalLayout createMinMaxNumberField(String labelText) {
-        Label label = createLabel(labelText);
+    public static MinMaxField<Double> createMinMaxNumberField(String labelText) {
         NumberField minField = createNumberField("Min");
         NumberField maxField = createNumberField("Max");
 
-        return createMinMaxLayout(label, minField, maxField);
+        return new MinMaxField<>(labelText, minField, maxField);
     }
 
     /**
@@ -188,9 +144,6 @@ public class ComponentUtil {
     public static NumberField createNumberField(String placeholderText) {
         NumberField numberField = new NumberField();
         numberField.setPlaceholder(placeholderText);
-        // TODO hack to allow decimal values; clean up when Vaadin fixes their bug
-        // https://github.com/vaadin/vaadin-text-field-flow/issues/173
-        numberField.setStep(0.0001);
         numberField.setClearButtonVisible(true);
         numberField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
 

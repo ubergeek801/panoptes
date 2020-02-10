@@ -1,10 +1,13 @@
 package org.slaq.slaqworx.panoptes.ui.trading;
 
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
+import org.slaq.slaqworx.panoptes.ui.MinMaxField;
 
 /**
  * {@code SecurityFilterPanel} is a component of the experimental user interface, providing the
@@ -19,11 +22,15 @@ public class SecurityFilterPanel extends FormLayout {
 
     /**
      * Creates a new {@code SecurityFilterPanel}.
+     *
+     * @param securityProvider
+     *            the {@code SecurityDataProvider} to use to query {@code Security} data
      */
-    public SecurityFilterPanel() {
+    public SecurityFilterPanel(SecurityDataProvider securityProvider) {
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
 
-        add(ComponentUtil.createTextField("Asset ID"));
+        TextField assetIdTextField = ComponentUtil.createTextField("Asset ID");
+        add(assetIdTextField);
         add(ComponentUtil.createTextField("CUSIP"));
         add(ComponentUtil.createTextField("Description"), 2);
         add(ComponentUtil.createTextField("Country"));
@@ -40,13 +47,23 @@ public class SecurityFilterPanel extends FormLayout {
 
         Button filter = ComponentUtil.createButton("Filter", event -> {
             // FIXME implement listener
+            securityProvider.setFilter(e -> true);
         });
         Button reset = ComponentUtil.createButton("Reset", event -> {
-            // FIXME implement listener
+            // clear the value of every child element that has a value
+            getElement().getChildren().forEach(e -> e.getComponent().ifPresent(c -> {
+                if (c instanceof HasValue) {
+                    ((HasValue<?, ?>)c).clear();
+                } else if (c instanceof MinMaxField) {
+                    ((MinMaxField<?>)c).clear();
+                }
+            }));
         });
+
         HorizontalLayout actions = new HorizontalLayout();
         actions.add(filter, reset);
         filter.getStyle().set("margin-right", "0.3em");
+
         add(actions, NUM_COLUMNS);
     }
 }

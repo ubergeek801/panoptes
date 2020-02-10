@@ -108,6 +108,7 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
         } else if (!key.equals(other.key)) {
             return false;
         }
+
         return true;
     }
 
