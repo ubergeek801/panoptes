@@ -62,8 +62,8 @@ public class MinMaxField<V> extends HorizontalLayout {
      * Clears the current input field values.
      */
     public void clear() {
-        clear(min);
-        clear(max);
+        min.clear();
+        max.clear();
     }
 
     /**
@@ -82,17 +82,5 @@ public class MinMaxField<V> extends HorizontalLayout {
      */
     public V getMinValue() {
         return min.getValue();
-    }
-
-    /**
-     * Clears the current input field value on the specified component.
-     *
-     * @param component
-     *            the component on which to clear the value
-     */
-    protected void clear(HasValue<?, V> component) {
-        // FIXME for some reason this doesn't work on NumberFields if they have an invalid value
-        // (https://github.com/vaadin/vaadin-text-field/issues/414 may be related)
-        component.clear();
     }
 }

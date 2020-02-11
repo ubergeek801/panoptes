@@ -118,7 +118,7 @@ public class ComponentUtil {
      *            the label to be applied to the layout
      * @return a {@code MinMaxField}
      */
-    public static MinMaxField<String> createMinMaxDateField(String labelText) {
+    public static MinMaxField<LocalDate> createMinMaxDateField(String labelText) {
         DatePicker minDate = createDatePicker(null, "Min");
         DatePicker maxDate = createDatePicker(null, "Max");
 

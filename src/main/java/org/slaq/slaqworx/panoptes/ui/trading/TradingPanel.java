@@ -49,6 +49,7 @@ public class TradingPanel extends VerticalLayout {
         AssetCache assetCache =
                 ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         SecurityDataProvider securityProvider = new SecurityDataProvider(assetCache);
+        EvaluationContext context = new EvaluationContext(assetCache, assetCache);
 
         SecurityFilterPanel securityFilter = new SecurityFilterPanel(securityProvider);
         Details securityFilterDetail = new Details("Security Filter", securityFilter);
@@ -62,7 +63,6 @@ public class TradingPanel extends VerticalLayout {
                 GridVariant.LUMO_COMPACT);
         securityGrid.setDataProvider(securityProvider);
 
-        EvaluationContext context = new EvaluationContext(assetCache, assetCache);
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
         securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, context))
