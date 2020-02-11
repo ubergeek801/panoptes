@@ -49,9 +49,8 @@ public class TradingPanel extends VerticalLayout {
         AssetCache assetCache =
                 ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         SecurityDataProvider securityProvider = new SecurityDataProvider(assetCache);
-        EvaluationContext context = new EvaluationContext(assetCache, assetCache);
 
-        SecurityFilterPanel securityFilter = new SecurityFilterPanel(securityProvider);
+        SecurityFilterPanel securityFilter = new SecurityFilterPanel(securityProvider, assetCache);
         Details securityFilterDetail = new Details("Security Filter", securityFilter);
         securityFilterDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
                 DetailsVariant.SMALL);
@@ -65,53 +64,46 @@ public class TradingPanel extends VerticalLayout {
 
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, context))
-                .setAutoWidth(true).setHeader("CUSIP");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.description, context))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip)).setAutoWidth(true)
+                .setHeader("CUSIP");
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.description))
                 .setAutoWidth(true).setHeader("Description");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.country, context))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.country))
                 .setAutoWidth(true).setHeader("Country");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.region, context))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.region))
                 .setAutoWidth(true).setHeader("Region");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.sector, context))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.sector))
                 .setAutoWidth(true).setHeader("Sector");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency, context))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency))
                 .setAutoWidth(true).setHeader("Currency");
         securityGrid
-                .addColumn(new NumberRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.coupon, context), "%(,.3f"))
+                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.coupon),
+                        "%(,.3f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Coupon");
         securityGrid
                 .addColumn(new LocalDateRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.maturityDate, context),
+                        s -> s.getAttributeValue(SecurityAttribute.maturityDate),
                         DateTimeFormatter.ISO_LOCAL_DATE))
                 .setAutoWidth(true).setHeader("Maturity Date");
+        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
+                SecurityAttribute.rating1Value)).setAutoWidth(true).setHeader("Rating 1");
+        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating2Symbol,
+                SecurityAttribute.rating2Value)).setAutoWidth(true).setHeader("Rating 2");
+        securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
+                SecurityAttribute.rating3Value)).setAutoWidth(true).setHeader("Rating 3");
         securityGrid
-                .addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
-                        SecurityAttribute.rating1Value, context))
-                .setAutoWidth(true).setHeader("Rating 1");
-        securityGrid
-                .addColumn(s -> getRatingText(s, SecurityAttribute.rating2Symbol,
-                        SecurityAttribute.rating2Value, context))
-                .setAutoWidth(true).setHeader("Rating 2");
-        securityGrid
-                .addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
-                        SecurityAttribute.rating3Value, context))
-                .setAutoWidth(true).setHeader("Rating 3");
-        securityGrid
-                .addColumn(new NumberRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.yield, context), "%(,.2f"))
+                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.yield),
+                        "%(,.2f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Yield");
         securityGrid
                 .addColumn(new NumberRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.duration, context), "%(,.3f"))
+                        s -> s.getAttributeValue(SecurityAttribute.duration), "%(,.3f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Duration");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer, context))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer))
                 .setAutoWidth(true).setHeader("Issuer");
         securityGrid
-                .addColumn(new NumberRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.price, context), "$%(,.4f",
-                        Locale.US))
+                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.price),
+                        "$%(,.4f", Locale.US))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Price");
 
         add(securityGrid);
@@ -122,6 +114,7 @@ public class TradingPanel extends VerticalLayout {
         List<PortfolioKey> portfolioKeys = new ArrayList<>(portfolioCache.keySet());
         Collections.sort(portfolioKeys, (k1, k2) -> k1.compareTo(k2));
 
+        EvaluationContext context = new EvaluationContext(assetCache, assetCache);
         CallbackDataProvider<PortfolioSummary, Void> portfolioProvider =
                 DataProvider
                         .fromCallbacks(
@@ -164,18 +157,15 @@ public class TradingPanel extends VerticalLayout {
      *            the {@code SecurityAttribute} corresponding to the desired rating symbol
      * @param valueAttribute
      *            the {@code SecurityAttribute} corresponding to the desired rating value
-     * @param evaluationContext
-     *            the {@code EvaluationContext} in which to obtain the data
      * @return a {@code String} representing the specified rating data, or {@code null} if the value
      *         of the specified symbol attribute is {@code null}
      */
     protected String getRatingText(Security security, SecurityAttribute<String> symbolAttribute,
-            SecurityAttribute<Double> valueAttribute, EvaluationContext evaluationContext) {
-        String symbol = security.getAttributeValue(symbolAttribute, evaluationContext);
+            SecurityAttribute<Double> valueAttribute) {
+        String symbol = security.getAttributeValue(symbolAttribute);
         return (symbol == null ? null
                 : symbol + " ["
-                        + String.format("%(,.4f",
-                                security.getAttributeValue(valueAttribute, evaluationContext))
+                        + String.format("%(,.4f", security.getAttributeValue(valueAttribute))
                         + "]");
     }
 }

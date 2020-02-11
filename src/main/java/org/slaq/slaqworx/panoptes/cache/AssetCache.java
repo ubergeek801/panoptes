@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.cache;
 
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.UUID;
 
 import javax.inject.Singleton;
@@ -17,6 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
@@ -28,6 +30,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.TradeProvider;
+import org.slaq.slaqworx.panoptes.util.DistinctSecurityAttributeValuesAggregator;
 
 /**
  * {@code AssetCache} provides operations for accessing {@code Portfolio} and related data (e.g.
@@ -71,6 +74,26 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     public IExecutorService getClusterExecutor() {
         return hazelcastInstance
                 .getExecutorService(PanoptesCacheConfiguration.REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR);
+    }
+
+    /**
+     * Obtains the set of distinct countries used by current {@code Securities}.
+     *
+     * @return a set of country names
+     */
+    public SortedSet<String> getCountries() {
+        return getSecurityCache().aggregate(
+                new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
+    }
+
+    /**
+     * Obtains the set of distinct currencies used by current {@code Securities}.
+     *
+     * @return a set of currency symbols
+     */
+    public SortedSet<String> getCurrencies() {
+        return getSecurityCache().aggregate(
+                new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
     }
 
     @Override
@@ -120,6 +143,16 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
         return hazelcastInstance.getMap(POSITION_CACHE_NAME);
     }
 
+    /**
+     * Obtains the set of distinct regions used by current {@code Securities}.
+     *
+     * @return a set of region names
+     */
+    public SortedSet<String> getRegions() {
+        return getSecurityCache().aggregate(
+                new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
+    }
+
     @Override
     public ConfigurableRule getRule(RuleKey key) {
         return getRuleCache().get(key);
@@ -132,6 +165,16 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      */
     public IMap<RuleKey, ConfigurableRule> getRuleCache() {
         return hazelcastInstance.getMap(RULE_CACHE_NAME);
+    }
+
+    /**
+     * Obtains the set of distinct sectors used by current {@code Securities}.
+     *
+     * @return a set of sector names
+     */
+    public SortedSet<String> getSectors() {
+        return getSecurityCache().aggregate(
+                new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
     }
 
     @Override

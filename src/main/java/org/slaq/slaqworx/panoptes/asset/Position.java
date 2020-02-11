@@ -51,7 +51,8 @@ public interface Position extends Keyed<PositionKey> {
      */
     public default <T> T getAttributeValue(SecurityAttribute<T> attribute,
             EvaluationContext evaluationContext) {
-        return getSecurity(evaluationContext).getAttributeValue(attribute, evaluationContext);
+        return getSecurity(evaluationContext).getEffectiveAttributeValue(attribute,
+                evaluationContext);
     }
 
     /**

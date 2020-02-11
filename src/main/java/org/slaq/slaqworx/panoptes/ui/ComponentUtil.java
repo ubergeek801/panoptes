@@ -2,6 +2,8 @@ package org.slaq.slaqworx.panoptes.ui;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collection;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -159,18 +161,39 @@ public class ComponentUtil {
     /**
      * Creates a new {@code Select}.
      *
-     * @param labelText
-     *            the text to be used as the select label
-     * @param options
-     *            the options to be populated in the select
+     * @param placeholderText
+     *            the placeholder text to appear in the select field
+     * @param isEmptySelectionAllowed
+     *            {@code true} if the selection is allowed to be empty, {@code false} otherwise
+     * @param items
+     *            the items to be populated in the select
      * @return a {@code Select}
      */
-    public static Select<String> createSelect(String labelText, String... options) {
-        Select<String> select = new Select<>(options);
-        select.setLabel(labelText);
+    public static Select<String> createSelect(String placeholderText,
+            boolean isEmptySelectionAllowed, Collection<String> items) {
+        Select<String> select = new Select<>();
+        select.setPlaceholder(placeholderText);
+        select.setItems(items);
+        select.setEmptySelectionAllowed(isEmptySelectionAllowed);
         select.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         return select;
+    }
+
+    /**
+     * Creates a new {@code Select}.
+     *
+     * @param placeholderText
+     *            the placeholder text to appear in the select field
+     * @param isEmptySelectionAllowed
+     *            {@code true} if the selection is allowed to be empty, {@code false} otherwise
+     * @param items
+     *            the items to be populated in the select
+     * @return a {@code Select}
+     */
+    public static Select<String> createSelect(String placeholderText,
+            boolean isEmptySelectionAllowed, String... items) {
+        return createSelect(placeholderText, isEmptySelectionAllowed, Arrays.asList(items));
     }
 
     /**

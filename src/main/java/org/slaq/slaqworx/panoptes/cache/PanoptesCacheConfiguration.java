@@ -149,9 +149,6 @@ public class PanoptesCacheConfiguration {
         };
         config.setManagedContext(applicationContextInjector);
 
-        // set up the entity caches (Portfolio, Position, etc.); note that Trades and Transactions
-        // are non-persistent for now
-
         SerializationConfig serializationConfig = config.getSerializationConfig();
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new EvaluationContextSerializer(assetCacheProvider))
@@ -189,6 +186,9 @@ public class PanoptesCacheConfiguration {
                 .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
         serializationConfig.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new TradeSerializer()).setTypeClass(Trade.class));
+
+        // set up the entity caches (Portfolio, Position, etc.); note that Trades and Transactions
+        // are non-persistent for now
 
         config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)

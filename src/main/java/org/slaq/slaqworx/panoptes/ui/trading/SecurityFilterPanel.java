@@ -4,21 +4,25 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.function.Predicate;
 
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 import org.slaq.slaqworx.panoptes.ui.MinMaxField;
 
 /**
  * {@code SecurityFilterPanel} is a component of the experimental user interface, providing the
- * means to filter the master security list by a variety of attributes.
+ * means to filter the master {@code Security} list by a variety of attributes.
  *
  * @author jeremy
  */
@@ -27,13 +31,15 @@ public class SecurityFilterPanel extends FormLayout {
 
     private static final int NUM_COLUMNS = 7; // TODO this isn't very "responsive"
 
+    private final SecurityDataProvider securityProvider;
+
     private final TextField assetIdTextField;
     private final TextField cusipTextField;
     private final TextField descriptionTextField;
-    private final TextField countryTextField;
-    private final TextField regionTextField;
-    private final TextField sectorTextField;
-    private final TextField currencyTextField;
+    private final Select<String> countryTextField;
+    private final Select<String> regionTextField;
+    private final Select<String> sectorTextField;
+    private final Select<String> currencyTextField;
     private final MinMaxField<BigDecimal> couponMinMaxField;
     private final MinMaxField<LocalDate> maturityDateMinMaxField;
     private final MinMaxField<BigDecimal> ratingMinMaxField;
@@ -47,8 +53,12 @@ public class SecurityFilterPanel extends FormLayout {
      *
      * @param securityProvider
      *            the {@code SecurityDataProvider} to use to query {@code Security} data
+     * @param assetCache
+     *            the {@code AssetCache} to use to obtain other data
      */
-    public SecurityFilterPanel(SecurityDataProvider securityProvider) {
+    public SecurityFilterPanel(SecurityDataProvider securityProvider, AssetCache assetCache) {
+        this.securityProvider = securityProvider;
+
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
 
         assetIdTextField = ComponentUtil.createTextField("Asset ID");
@@ -57,13 +67,14 @@ public class SecurityFilterPanel extends FormLayout {
         add(cusipTextField);
         descriptionTextField = ComponentUtil.createTextField("Description");
         add(descriptionTextField, 2);
-        countryTextField = ComponentUtil.createTextField("Country");
+        countryTextField = ComponentUtil.createSelect("Country", true, assetCache.getCountries());
         add(countryTextField);
-        regionTextField = ComponentUtil.createTextField("Region");
+        regionTextField = ComponentUtil.createSelect("Region", true, assetCache.getRegions());
         add(regionTextField);
-        sectorTextField = ComponentUtil.createTextField("Sector");
+        sectorTextField = ComponentUtil.createSelect("Sector", true, assetCache.getSectors());
         add(sectorTextField);
-        currencyTextField = ComponentUtil.createTextField("Currency");
+        currencyTextField =
+                ComponentUtil.createSelect("Currency", true, assetCache.getCurrencies());
         add(currencyTextField);
         couponMinMaxField = ComponentUtil.createMinMaxNumberField("Coupon");
         add(couponMinMaxField, 2);
@@ -81,21 +92,16 @@ public class SecurityFilterPanel extends FormLayout {
         add(priceMinMaxField, 2);
 
         Button filterButton = ComponentUtil.createButton("Filter", event -> {
-            Predicate<SecurityAttributes> filter = createFilter();
-
-            Predicate<Security> securityFilter =
-                    (filter == null ? (s -> true) : (s -> filter.test(s.getAttributes())));
-            securityProvider.setFilter(securityFilter);
+            filter();
         });
         Button resetButton = ComponentUtil.createButton("Reset", event -> {
             // clear the value of every child element that has a value
             getElement().getChildren().forEach(e -> e.getComponent().ifPresent(c -> {
                 if (c instanceof HasValue) {
                     ((HasValue<?, ?>)c).clear();
-                } else if (c instanceof MinMaxField) {
-                    ((MinMaxField<?>)c).clear();
                 }
             }));
+            securityProvider.setFilter(s -> true);
         });
 
         HorizontalLayout actions = new HorizontalLayout();
@@ -103,6 +109,16 @@ public class SecurityFilterPanel extends FormLayout {
         filterButton.getStyle().set("margin-right", "0.3em");
 
         add(actions, NUM_COLUMNS);
+    }
+
+    @Override
+    public void add(Component... components) {
+        super.add(components);
+        for (Component component : components) {
+            if (component instanceof AbstractField) {
+                ((AbstractField<?, ?>)component).addValueChangeListener(e -> filter());
+            }
+        }
     }
 
     protected Predicate<SecurityAttributes> append(Predicate<SecurityAttributes> p1,
@@ -120,7 +136,7 @@ public class SecurityFilterPanel extends FormLayout {
 
     protected Predicate<SecurityAttributes> append(Predicate<SecurityAttributes> predicate,
             SecurityAttribute<String> attribute, String filterValue) {
-        if (filterValue == null) {
+        if (filterValue == null || filterValue.isBlank()) {
             // nothing new to add
             return predicate;
         }
@@ -149,9 +165,9 @@ public class SecurityFilterPanel extends FormLayout {
             T attributeValue = a.getValue(attribute);
             if (attributeValue != null) {
                 boolean isMinValueMet =
-                        (minValue == null || attributeValue.compareTo(minValue) != -1);
+                        (minValue == null || attributeValue.compareTo(minValue) >= 0);
                 boolean isMaxValueMet =
-                        (maxValue == null || attributeValue.compareTo(maxValue) != 1);
+                        (maxValue == null || attributeValue.compareTo(maxValue) <= 0);
 
                 return isMinValueMet && isMaxValueMet;
             }
@@ -162,7 +178,7 @@ public class SecurityFilterPanel extends FormLayout {
         return append(predicate, attributeFilter);
     }
 
-    protected Predicate<SecurityAttributes> createFilter() {
+    protected void filter() {
         Predicate<SecurityAttributes> filter =
                 append(null, SecurityAttribute.isin, assetIdTextField.getValue());
         filter = append(filter, SecurityAttribute.cusip, cusipTextField.getValue());
@@ -186,8 +202,11 @@ public class SecurityFilterPanel extends FormLayout {
         filter = append(filter, SecurityAttribute.issuer, issuerTextField.getValue());
         filter = append(filter, SecurityAttribute.price, priceMinMaxField.getMinValue(),
                 priceMinMaxField.getMaxValue());
+        Predicate<SecurityAttributes> finalFilter = filter;
 
-        return filter;
+        Predicate<Security> securityFilter =
+                (filter == null ? (s -> true) : (s -> finalFilter.test(s.getAttributes())));
+        securityProvider.setFilter(securityFilter);
     }
 
     protected Double toDouble(BigDecimal bigDecimal) {

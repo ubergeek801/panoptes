@@ -66,7 +66,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
             String matchedSubstring = securityExpressionMatcher.group(1);
             SecurityAttribute<?> matchedAttribute = SecurityAttribute.of(matchedSubstring);
             String replacement = "s." + (matchedAttribute == null ? matchedSubstring
-                    : "getAttributeValue(" + matchedAttribute.getIndex() + ", ctx)");
+                    : "getEffectiveAttributeValue(" + matchedAttribute.getIndex() + ", ctx)");
             securityExpressionMatcher.appendReplacement(translatedExpression, replacement);
         }
         securityExpressionMatcher.appendTail(translatedExpression);

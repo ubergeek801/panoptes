@@ -37,7 +37,7 @@ public class GroovyPositionFilterTest {
 
         // create a filter which should include Positions in a Security with a moovyRating > 88
         GroovyPositionFilter filterMoovy88 = GroovyPositionFilter
-                .of("s.getAttributeValue(SecurityAttribute.of('Moovy'), ctx) > 88");
+                .of("s.getEffectiveAttributeValue(SecurityAttribute.of('Moovy'), ctx) > 88");
 
         Position p3 = new SimplePosition(1_000_000, TestUtil.s1.getKey());
         assertTrue(

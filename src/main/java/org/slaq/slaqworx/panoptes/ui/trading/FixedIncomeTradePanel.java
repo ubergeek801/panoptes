@@ -97,7 +97,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                                     securityKey, tradeMarketValue.doubleValue()));
                     marketValueField.setValue(roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
                     amountField.setValue(tradePrice == null ? null
-                            : roomMarketValue.divide(tradePrice).setScale(4,
+                            : roomMarketValue.divide(tradePrice, RoundingMode.HALF_EVEN).setScale(4,
                                     RoundingMode.HALF_EVEN));
                 } catch (InterruptedException | ExecutionException e) {
                     // FIXME handle this
@@ -163,7 +163,7 @@ public class FixedIncomeTradePanel extends FormLayout {
 
         setResponsiveSteps(new ResponsiveStep("1em", NUM_COLUMNS));
 
-        add(ComponentUtil.createSelect("Transaction", "Buy", "Sell"));
+        add(ComponentUtil.createSelect("Transaction", false, "Buy", "Sell"));
 
         TextField assetIdTextField = ComponentUtil.createTextField("Asset ID");
         assetIdTextField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -246,8 +246,9 @@ public class FixedIncomeTradePanel extends FormLayout {
                                     allocationPanel.portfolioNameField
                                             .setValue(portfolio.getName());
                                     allocationPanel.amountField.setValue(tradePrice == null ? null
-                                            : roomMarketValue.divide(tradePrice).setScale(4,
-                                                    RoundingMode.HALF_EVEN));
+                                            : roomMarketValue
+                                                    .divide(tradePrice, RoundingMode.HALF_EVEN)
+                                                    .setScale(4, RoundingMode.HALF_EVEN));
                                     allocationPanel.marketValueField.setValue(
                                             roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
                                 }

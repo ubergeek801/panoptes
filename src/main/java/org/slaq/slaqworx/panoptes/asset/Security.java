@@ -10,6 +10,13 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * {@code Security} is implicitly "versioned" by hashing its attributes: the resulting hash is used
  * as an alternate key. Thus when a {@code Security} changes (due to a change in some analytic field
  * such as yield or rating), the new version will use a different hash as the alternate key.
+ * <p>
+ * In order to support hypothetical scenarios, the value of any {@code SecurityAttribute} may be
+ * overridden in an {@code EvaluationContext}. The attribute value with overrides considered is
+ * known as the <i>effective</i> attribute value, and is obtained through the
+ * {@code getEffectiveAttributeValue()} methods. For situations which don't require the effective
+ * value (for example, to display a table of current {@code Security} data), the
+ * {@code getAttribute()} methods may be used.
  *
  * @author jeremy
  */
@@ -59,8 +66,36 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
-     * Obtains the value of the specified attribute index. This form of {@code getAttributeValue()}
-     * is intended for the rare cases when the index is already known.
+     * Obtains the base value of the specified attribute index. This form of
+     * {@code getAttributeValue()} is intended for the rare cases when the index is already known.
+     *
+     * @param attributeIndex
+     *            the index corresponding to the associated {@code SecurityAttribute}
+     * @return the effective value of the given attribute, or {@code null} if not assigned
+     */
+    public Object getAttributeValue(int attributeIndex) {
+        return attributes.getValue(attributeIndex);
+    }
+
+    /**
+     * Obtains the base value of the specified attribute.
+     *
+     * @param <T>
+     *            the expected type of the attribute value
+     * @param attribute
+     *            the {@code SecurityAttribute} identifying the attribute
+     * @return the value of the given attribute, or {@code null} if not assigned
+     */
+    public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
+        @SuppressWarnings("unchecked")
+        T value = (T)getAttributeValue(attribute.getIndex());
+
+        return value;
+    }
+
+    /**
+     * Obtains the effective value of the specified attribute index. This form of
+     * {@code getAttributeValue()} is intended for the rare cases when the index is already known.
      *
      * @param attributeIndex
      *            the index corresponding to the associated {@code SecurityAttribute}
@@ -68,7 +103,7 @@ public class Security implements Keyed<SecurityKey> {
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the value of the given attribute, or {@code null} if not assigned
      */
-    public Object getAttributeValue(int attributeIndex, EvaluationContext context) {
+    public Object getEffectiveAttributeValue(int attributeIndex, EvaluationContext context) {
         SecurityAttributes overrideAttributes = context.getSecurityOverrides().get(key);
         if (overrideAttributes != null) {
             Object overrideValue = overrideAttributes.getValue(attributeIndex);
@@ -81,7 +116,7 @@ public class Security implements Keyed<SecurityKey> {
     }
 
     /**
-     * Obtains the value of the specified attribute.
+     * Obtains the effective value of the specified attribute.
      *
      * @param <T>
      *            the expected type of the attribute value
@@ -89,11 +124,12 @@ public class Security implements Keyed<SecurityKey> {
      *            the {@code SecurityAttribute} identifying the attribute
      * @param context
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
-     * @return the value of the given attribute, or {@code null} if not assigned
+     * @return the effective value of the given attribute, or {@code null} if not assigned
      */
-    public <T> T getAttributeValue(SecurityAttribute<T> attribute, EvaluationContext context) {
+    public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
+            EvaluationContext context) {
         @SuppressWarnings("unchecked")
-        T value = (T)getAttributeValue(attribute.getIndex(), context);
+        T value = (T)getEffectiveAttributeValue(attribute.getIndex(), context);
 
         return value;
     }

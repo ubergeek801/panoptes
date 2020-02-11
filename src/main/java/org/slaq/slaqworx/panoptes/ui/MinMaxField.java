@@ -3,7 +3,12 @@ package org.slaq.slaqworx.panoptes.ui;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * {@code MinMaxField} encapsulates a label and pair of input fields to specify a minimum and
@@ -13,7 +18,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
  * @param <V>
  *            the value type of the contained fields
  */
-public class MinMaxField<V> extends HorizontalLayout {
+public class MinMaxField<V> extends CustomField<Pair<V, V>> {
     private static final long serialVersionUID = 1L;
 
     private final HasValue<?, V> min;
@@ -31,6 +36,8 @@ public class MinMaxField<V> extends HorizontalLayout {
      *            a {@code Component} containing the maximum value
      */
     public MinMaxField(String labelText, Component min, Component max) {
+        HorizontalLayout outerLayout = new HorizontalLayout();
+
         @SuppressWarnings("unchecked")
         HasValue<?, V> minHasValue = (HasValue<?, V>)min;
         this.min = minHasValue;
@@ -52,15 +59,18 @@ public class MinMaxField<V> extends HorizontalLayout {
         }
         innerLayout.addAndExpand(min, max);
 
-        setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        setJustifyContentMode(JustifyContentMode.BETWEEN);
-        add(ComponentUtil.createLabel(labelText));
-        addAndExpand(innerLayout);
+        outerLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        outerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        outerLayout.add(ComponentUtil.createLabel(labelText));
+        outerLayout.addAndExpand(innerLayout);
+
+        add(outerLayout);
     }
 
     /**
      * Clears the current input field values.
      */
+    @Override
     public void clear() {
         min.clear();
         max.clear();
@@ -82,5 +92,21 @@ public class MinMaxField<V> extends HorizontalLayout {
      */
     public V getMinValue() {
         return min.getValue();
+    }
+
+    @Override
+    protected Pair<V, V> generateModelValue() {
+        return Pair.of(getMinValue(), getMaxValue());
+    }
+
+    @Override
+    protected void setPresentationValue(Pair<V, V> newValue) {
+        if (newValue == null) {
+            min.setValue(null);
+            max.setValue(null);
+        } else {
+            min.setValue(newValue.getLeft());
+            max.setValue(newValue.getRight());
+        }
     }
 }

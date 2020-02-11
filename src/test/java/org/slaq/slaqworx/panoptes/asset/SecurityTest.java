@@ -64,10 +64,20 @@ public class SecurityTest {
         Map<SecurityAttribute<?>, ? super Object> attributes =
                 Map.of(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
         Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
-        assertEquals("foo", security.getAttributeValue(SecurityAttribute.isin,
-                TestUtil.defaultTestEvaluationContext()), "unexpected value for isin");
-        assertEquals(4d, security.getAttributeValue(SecurityAttribute.duration,
-                TestUtil.defaultTestEvaluationContext()), "unexpected value for duration");
+        assertEquals("foo", security.getAttributeValue(SecurityAttribute.isin),
+                "unexpected value for isin");
+        assertEquals(4d, security.getAttributeValue(SecurityAttribute.duration),
+                "unexpected value for duration");
+    }
+
+    /**
+     * Tests that {@code getEffectiveAttributeValue()} behaves as expected.
+     */
+    @Test
+    public void testGetEffectiveAttributeValue() {
+        Map<SecurityAttribute<?>, ? super Object> attributes =
+                Map.of(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
+        Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
 
         // test some overridden attribute values
         Map<SecurityKey, SecurityAttributes> overrides =
@@ -75,10 +85,12 @@ public class SecurityTest {
                         Map.of(SecurityAttribute.duration, 3d, SecurityAttribute.country, "US")));
         EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache,
                 EvaluationMode.FULL_EVALUATION, overrides);
-        assertEquals(3d, security.getAttributeValue(SecurityAttribute.duration, evaluationContext),
+        assertEquals(3d,
+                security.getEffectiveAttributeValue(SecurityAttribute.duration, evaluationContext),
                 "expected overridden value for duration");
         // country didn't exist in the original Security but that shouldn't matter
-        assertEquals("US", security.getAttributeValue(SecurityAttribute.country, evaluationContext),
+        assertEquals("US",
+                security.getEffectiveAttributeValue(SecurityAttribute.country, evaluationContext),
                 "expected overridden value for country");
     }
 
