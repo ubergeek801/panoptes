@@ -246,9 +246,8 @@ public class FixedIncomeTradePanel extends FormLayout {
                                     allocationPanel.portfolioNameField
                                             .setValue(portfolio.getName());
                                     allocationPanel.amountField.setValue(tradePrice == null ? null
-                                            : roomMarketValue
-                                                    .divide(tradePrice, RoundingMode.HALF_EVEN)
-                                                    .setScale(4, RoundingMode.HALF_EVEN));
+                                            : roomMarketValue.setScale(4, RoundingMode.HALF_EVEN)
+                                                    .divide(tradePrice, RoundingMode.HALF_EVEN));
                                     allocationPanel.marketValueField.setValue(
                                             roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
                                 }
