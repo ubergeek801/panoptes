@@ -61,6 +61,8 @@ public class DummyPortfolioMapLoader
 
     private final PimcoBenchmarkDataSource dataSource;
 
+    private final GroovyPositionFilter anheuserBuschFilter =
+            GroovyPositionFilter.of("s.issuer == 'Anheuser-Busch'");
     private final GroovyPositionFilter belowAA3Filter =
             GroovyPositionFilter.of("s.rating1Value < 88");
     private final GroovyPositionFilter belowInvestmentGradeFilter =
@@ -492,7 +494,8 @@ public class DummyPortfolioMapLoader
         // with low probability, Anheuser-Busch issues will be disallowed
         rand = random.nextDouble();
         if (rand < 0.2) {
-            rules.add(new MarketValueRule(null, "No Anheuser-Busch Issues", null, null, 0d));
+            rules.add(new MarketValueRule(null, "No Anheuser-Busch Issues", anheuserBuschFilter,
+                    null, 0d));
         }
 
         ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));
