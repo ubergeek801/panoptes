@@ -85,7 +85,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
      * @return a {@code ValueProvider} for handling rating symbol values
      */
     public static ValueProvider<String> forRatingSymbol() {
-        return (v, c) -> (double)PimcoBenchmarkDataSource.getRatingScale().getRatingNotch(v)
-                .getOrdinal();
+        return (v, c) -> (v == null ? null
+                : (double)PimcoBenchmarkDataSource.getRatingScale().getRatingNotch(v).getOrdinal());
     }
 }

@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.util;
 
+import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,7 +15,7 @@ import java.util.Set;
  * @param <E>
  *            the type of element contained by this set
  */
-public class FakeSet<E> implements Set<E> {
+public class FakeSet<E> extends AbstractCollection<E> implements Set<E> {
     private final Collection<E> collection;
 
     /**
@@ -28,67 +29,12 @@ public class FakeSet<E> implements Set<E> {
     }
 
     @Override
-    public boolean add(E e) {
-        return collection.add(e);
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends E> c) {
-        return collection.addAll(c);
-    }
-
-    @Override
-    public void clear() {
-        collection.clear();
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return collection.contains(o);
-    }
-
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        return collection.containsAll(c);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return collection.isEmpty();
-    }
-
-    @Override
     public Iterator<E> iterator() {
         return collection.iterator();
     }
 
     @Override
-    public boolean remove(Object o) {
-        return collection.remove(o);
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return collection.removeAll(c);
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return collection.retainAll(c);
-    }
-
-    @Override
     public int size() {
         return collection.size();
-    }
-
-    @Override
-    public Object[] toArray() {
-        return collection.toArray();
-    }
-
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return collection.toArray(a);
     }
 }

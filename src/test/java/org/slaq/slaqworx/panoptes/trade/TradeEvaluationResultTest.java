@@ -66,4 +66,13 @@ public class TradeEvaluationResultTest {
         tradeResult.addImpacts(portfolioKey, ruleResults);
         assertFalse(tradeResult.isCompliant(), "pass->fail should be compliant");
     }
+
+    /**
+     * Tests that an empty result behaves as expected.
+     */
+    @Test
+    public void testEmptyResult() {
+        TradeEvaluationResult emptyResult = new TradeEvaluationResult();
+        assertTrue(emptyResult.isCompliant(), "empty result should be compliant");
+    }
 }
