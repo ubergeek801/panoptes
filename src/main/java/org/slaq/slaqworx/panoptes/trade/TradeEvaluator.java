@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
 import org.slf4j.Logger;
@@ -38,6 +39,17 @@ public class TradeEvaluator {
 
     private static final ForkJoinPool portfolioEvaluationThreadPool = ForkJoinPoolFactory
             .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "portfolio-evaluator");
+
+    /**
+     * Obtains the {@code ExecutorService} used to perform {@code Trade} evaluations. Callers may
+     * use this to submit processing requests in parallel, which will generally result in better
+     * performance than using a separate {@code ExecutorService}.
+     *
+     * @return an {@code ExecutorService} used to evaluate {@code Trade}s
+     */
+    public static ExecutorService getPortfolioExecutor() {
+        return portfolioEvaluationThreadPool;
+    }
 
     private final PortfolioEvaluator evaluator;
     private final PortfolioProvider portfolioProvider;

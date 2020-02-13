@@ -5,8 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.Future;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
@@ -35,7 +34,6 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
-import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code FixedIncomeTradePanel} is a component of the experimental user interface, used to enter
@@ -140,9 +138,6 @@ public class FixedIncomeTradePanel extends FormLayout {
     // TODO this isn't very "responsive"
     private static final int NUM_COLUMNS = 7;
 
-    private final ForkJoinPool roomEvaluatorExecutor = ForkJoinPoolFactory
-            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "ui-room-evaluator");
-
     private final AssetCache assetCache;
     private final PortfolioEvaluator portfolioEvaluator;
 
@@ -213,7 +208,7 @@ public class FixedIncomeTradePanel extends FormLayout {
             Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
             EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache);
             long startTime = System.currentTimeMillis();
-            ForkJoinTask<?> future = roomEvaluatorExecutor
+            Future<?> future = TradeEvaluator.getPortfolioExecutor()
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
                             PortfolioSummary portfolio = assetCache.getPortfolioCache()
