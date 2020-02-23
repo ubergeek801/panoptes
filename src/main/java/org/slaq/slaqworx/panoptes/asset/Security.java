@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.Map;
 
+import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -71,10 +72,34 @@ public class Security implements Keyed<SecurityKey> {
      *
      * @param attributeIndex
      *            the index corresponding to the associated {@code SecurityAttribute}
-     * @return the effective value of the given attribute, or {@code null} if not assigned
+     * @return the base value of the given attribute
+     * @throws NoDataException
+     *             if the requested attribute has no assigned value
      */
     public Object getAttributeValue(int attributeIndex) {
-        return attributes.getValue(attributeIndex);
+        return getAttributeValue(attributeIndex, true);
+    }
+
+    /**
+     * Obtains the base value of the specified attribute index. This form of
+     * {@code getAttributeValue()} is intended for the rare cases when the index is already known.
+     *
+     * @param attributeIndex
+     *            the index corresponding to the associated {@code SecurityAttribute}
+     * @param isRequired
+     *            {@code true} if a return value is required, {@code false otherwise}
+     * @return the base value of the given attribute, or {@code null} if not assigned and
+     *         {@code isRequired} is {@code false}
+     * @throws NoDataException
+     *             if the attribute value is not assigned and {@code isRequired} is {@code true}
+     */
+    public Object getAttributeValue(int attributeIndex, boolean isRequired) {
+        Object value = attributes.getValue(attributeIndex);
+        if (value == null && isRequired) {
+            throw new NoDataException(SecurityAttribute.of(attributeIndex).getName());
+        }
+
+        return value;
     }
 
     /**
@@ -84,11 +109,31 @@ public class Security implements Keyed<SecurityKey> {
      *            the expected type of the attribute value
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
-     * @return the value of the given attribute, or {@code null} if not assigned
+     * @return the value of the given attribute
+     * @throws NoDataException
+     *             if the requested attribute has no assigned value
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
+        return getAttributeValue(attribute, true);
+    }
+
+    /**
+     * Obtains the base value of the specified attribute.
+     *
+     * @param <T>
+     *            the expected type of the attribute value
+     * @param attribute
+     *            the {@code SecurityAttribute} identifying the attribute
+     * @param isRequired
+     *            {@code true} if a return value is required, {@code false otherwise}
+     * @return the value of the given attribute, or {@code null} if not assigned and
+     *         {@code isRequired} is {@code false}
+     * @throws NoDataException
+     *             if the attribute value is not assigned and {@code isRequired} is {@code true}
+     */
+    public <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired) {
         @SuppressWarnings("unchecked")
-        T value = (T)getAttributeValue(attribute.getIndex());
+        T value = (T)getAttributeValue(attribute.getIndex(), isRequired);
 
         return value;
     }
@@ -99,12 +144,18 @@ public class Security implements Keyed<SecurityKey> {
      *
      * @param attributeIndex
      *            the index corresponding to the associated {@code SecurityAttribute}
-     * @param context
+     * @param isRequired
+     *            {@code true} if a return value is required, {@code false otherwise}
+     * @param evaluationContext
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
-     * @return the value of the given attribute, or {@code null} if not assigned
+     * @return the effective value of the given attribute, or {@code null} if not assigned and
+     *         {@code isRequired} is {@code false}
+     * @throws NoDataException
+     *             if the attribute value is not assigned and {@code isRequired} is {@code true}
      */
-    public Object getEffectiveAttributeValue(int attributeIndex, EvaluationContext context) {
-        SecurityAttributes overrideAttributes = context.getSecurityOverrides().get(key);
+    public Object getEffectiveAttributeValue(int attributeIndex, boolean isRequired,
+            EvaluationContext evaluationContext) {
+        SecurityAttributes overrideAttributes = evaluationContext.getSecurityOverrides().get(key);
         if (overrideAttributes != null) {
             Object overrideValue = overrideAttributes.getValue(attributeIndex);
             if (overrideValue != null) {
@@ -112,7 +163,24 @@ public class Security implements Keyed<SecurityKey> {
             }
         }
 
-        return attributes.getValue(attributeIndex);
+        return getAttributeValue(attributeIndex, isRequired);
+    }
+
+    /**
+     * Obtains the effective value of the specified attribute index. This form of
+     * {@code getAttributeValue()} is intended for the rare cases when the index is already known.
+     *
+     * @param attributeIndex
+     *            the index corresponding to the associated {@code SecurityAttribute}
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which the attribute value is being retrieved
+     * @return the effective value of the given attribute
+     * @throws NoDataException
+     *             if the attribute value is not assigned
+     */
+    public Object getEffectiveAttributeValue(int attributeIndex,
+            EvaluationContext evaluationContext) {
+        return getEffectiveAttributeValue(attributeIndex, true, evaluationContext);
     }
 
     /**
@@ -122,16 +190,40 @@ public class Security implements Keyed<SecurityKey> {
      *            the expected type of the attribute value
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
+     * @param isRequired
+     *            {@code true} if a return value is required, {@code false otherwise}
      * @param context
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
-     * @return the effective value of the given attribute, or {@code null} if not assigned
+     * @return the effective value of the given attribute, or {@code null} if not assigned and
+     *         {@code isRequired} is {@code false}
+     * @throws NoDataException
+     *             if the attribute value is not assigned and {@code isRequired} is {@code true}
      */
-    public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
-            EvaluationContext context) {
+    public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
+            EvaluationContext evaluationContext) {
         @SuppressWarnings("unchecked")
-        T value = (T)getEffectiveAttributeValue(attribute.getIndex(), context);
+        T value =
+                (T)getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
 
         return value;
+    }
+
+    /**
+     * Obtains the effective value of the specified attribute.
+     *
+     * @param <T>
+     *            the expected type of the attribute value
+     * @param attribute
+     *            the {@code SecurityAttribute} identifying the attribute
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which the attribute value is being retrieved
+     * @return the effective value of the given attribute
+     * @throws NoDataException
+     *             if the attribute value is not assigned
+     */
+    public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
+            EvaluationContext evaluationContext) {
+        return getEffectiveAttributeValue(attribute, true, evaluationContext);
     }
 
     @Override

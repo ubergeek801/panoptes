@@ -115,7 +115,7 @@ public class EvaluationResult {
      *
      * @return the number of results in this {@code EvaluationResult}
      */
-    public Integer size() {
+    public int size() {
         return results.size();
     }
 }

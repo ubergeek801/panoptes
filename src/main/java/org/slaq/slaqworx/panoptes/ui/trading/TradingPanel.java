@@ -64,25 +64,25 @@ public class TradingPanel extends VerticalLayout {
 
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip)).setAutoWidth(true)
-                .setHeader("CUSIP");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.description))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, false))
+                .setAutoWidth(true).setHeader("CUSIP");
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.description, false))
                 .setAutoWidth(true).setHeader("Description");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.country))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.country, false))
                 .setAutoWidth(true).setHeader("Country");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.region))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.region, false))
                 .setAutoWidth(true).setHeader("Region");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.sector))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.sector, false))
                 .setAutoWidth(true).setHeader("Sector");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency, false))
                 .setAutoWidth(true).setHeader("Currency");
         securityGrid
-                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.coupon),
-                        "%(,.3f"))
+                .addColumn(new NumberRenderer<>(
+                        s -> s.getAttributeValue(SecurityAttribute.coupon, false), "%(,.3f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Coupon");
         securityGrid
                 .addColumn(new LocalDateRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.maturityDate),
+                        s -> s.getAttributeValue(SecurityAttribute.maturityDate, false),
                         DateTimeFormatter.ISO_LOCAL_DATE))
                 .setAutoWidth(true).setHeader("Maturity Date");
         securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
@@ -92,18 +92,19 @@ public class TradingPanel extends VerticalLayout {
         securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
                 SecurityAttribute.rating3Value)).setAutoWidth(true).setHeader("Rating 3");
         securityGrid
-                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.yield),
-                        "%(,.2f"))
+                .addColumn(new NumberRenderer<>(
+                        s -> s.getAttributeValue(SecurityAttribute.yield, false), "%(,.2f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Yield");
         securityGrid
                 .addColumn(new NumberRenderer<>(
-                        s -> s.getAttributeValue(SecurityAttribute.duration), "%(,.3f"))
+                        s -> s.getAttributeValue(SecurityAttribute.duration, false), "%(,.3f"))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Duration");
-        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer))
+        securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer, false))
                 .setAutoWidth(true).setHeader("Issuer");
         securityGrid
-                .addColumn(new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.price),
-                        "$%(,.4f", Locale.US))
+                .addColumn(new NumberRenderer<>(
+                        s -> s.getAttributeValue(SecurityAttribute.price, false), "$%(,.4f",
+                        Locale.US))
                 .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Price");
 
         add(securityGrid);
@@ -162,7 +163,7 @@ public class TradingPanel extends VerticalLayout {
      */
     protected String getRatingText(Security security, SecurityAttribute<String> symbolAttribute,
             SecurityAttribute<Double> valueAttribute) {
-        String symbol = security.getAttributeValue(symbolAttribute);
+        String symbol = security.getAttributeValue(symbolAttribute, false);
         return (symbol == null ? null
                 : symbol + " ["
                         + String.format("%(,.4f", security.getAttributeValue(valueAttribute))

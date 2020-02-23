@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.function.Supplier;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -57,10 +59,13 @@ public class SecurityAttributeGroupClassifier
     }
 
     @Override
-    public EvaluationGroup classify(PositionEvaluationContext positionContext) {
-        return new EvaluationGroup(String.valueOf(positionContext.getPosition()
-                .getAttributeValue(securityAttribute, positionContext.getEvaluationContext())),
-                securityAttribute.getName());
+    public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier) {
+        PositionEvaluationContext positionContext = positionContextSupplier.get();
+
+        Object attributeValue = positionContext.getPosition().getAttributeValue(securityAttribute,
+                false, positionContext.getEvaluationContext());
+        // TODO maybe implement special handling for null attribute values
+        return new EvaluationGroup(String.valueOf(attributeValue), securityAttribute.getName());
     }
 
     @Override

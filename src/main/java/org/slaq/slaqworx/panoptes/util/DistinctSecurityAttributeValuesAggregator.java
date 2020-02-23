@@ -41,7 +41,7 @@ public class DistinctSecurityAttributeValuesAggregator<T>
     @Override
     public void accumulate(Entry<SecurityKey, Security> input) {
         @SuppressWarnings("unchecked")
-        T value = (T)input.getValue().getAttributeValue(SecurityAttribute.of(attributeName));
+        T value = (T)input.getValue().getAttributeValue(SecurityAttribute.of(attributeName), false);
         if (value != null) {
             distinctValues.add(value);
         }

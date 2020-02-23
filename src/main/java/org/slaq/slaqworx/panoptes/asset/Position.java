@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
+import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.asset.HierarchicalPositionSupplier.PositionHierarchyOption;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.Keyed;
@@ -45,14 +46,39 @@ public interface Position extends Keyed<PositionKey> {
      *            the expected type of the attribute value
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
+     * @param isRequired
+     *            {@code true} if a return value is required, {@code false otherwise}
      * @param evaluationContext
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
-     * @return the value of the given attribute, or {@code null} if not assigned
+     * @return the value of the given attribute, or {@code null} if not assigned and
+     *         {@code isRequired} is {@code false}
+     * @throws NoDataException
+     *             if the attribute value is not assigned and {@code isRequired} is {@code true}
+     */
+    public default <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
+            EvaluationContext evaluationContext) {
+        return getSecurity(evaluationContext).getEffectiveAttributeValue(attribute, isRequired,
+                evaluationContext);
+    }
+
+    /**
+     * Obtains the value of the specified attribute of this {@code Position}'s held
+     * {@code Security}. This is merely a convenience method to avoid an intermediate call to
+     * {@code getSecurity()}.
+     *
+     * @param <T>
+     *            the expected type of the attribute value
+     * @param attribute
+     *            the {@code SecurityAttribute} identifying the attribute
+     * @param evaluationContext
+     *            the {@code EvaluationContext} in which the attribute value is being retrieved
+     * @return the value of the given attribute
+     * @throws NoDataException
+     *             if the requested attribute has no assigned value
      */
     public default <T> T getAttributeValue(SecurityAttribute<T> attribute,
             EvaluationContext evaluationContext) {
-        return getSecurity(evaluationContext).getEffectiveAttributeValue(attribute,
-                evaluationContext);
+        return getAttributeValue(attribute, true, evaluationContext);
     }
 
     /**
@@ -65,8 +91,8 @@ public interface Position extends Keyed<PositionKey> {
      */
     public default Stream<? extends Position>
             getLookthroughPositions(EvaluationContext evaluationContext) {
-        PortfolioKey lookthroughPortfolioKey =
-                getAttributeValue(SecurityAttribute.portfolio, evaluationContext);
+        PortfolioKey lookthroughPortfolioKey = getSecurity(evaluationContext)
+                .getEffectiveAttributeValue(SecurityAttribute.portfolio, false, evaluationContext);
         if (lookthroughPortfolioKey == null) {
             // lookthrough not applicable
             return Stream.of(this);

@@ -1,9 +1,11 @@
 package org.slaq.slaqworx.panoptes.calc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
+import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.TestUtil;
 
 /**
@@ -41,22 +43,24 @@ public class WeightedAveragePositionCalculatorTest {
 
         calculator = new WeightedAveragePositionCalculator<>(TestUtil.fetchRating);
 
-        // 1000 of s1 = 1000 * s1.fetchRating = 1000 * 88 = 88_000
-        // 500 of s2 = 500 * s2.fetchRating = 500 * (no rating) = (not applicable)
-        // weighted average = 88_000 / 1000 = 88
+        // s2 has no fetchRating -> NoDataException
 
-        assertEquals(88d,
-                calculator.calculate(TestUtil.p1
-                        .getPositionsWithContext(TestUtil.defaultTestEvaluationContext())),
-                TestUtil.EPSILON, "unexpected weighted average for p1");
+        try {
+            calculator.calculate(
+                    TestUtil.p1.getPositionsWithContext(TestUtil.defaultTestEvaluationContext()));
+            fail("calculation on Position with unavailable data should cause NoDataException");
+        } catch (NoDataException e) {
+            // expected
+        }
 
-        // 500 of s1 = 500 * s1.fetchRating = 500 * 88 = 44_000
-        // 1000 of s2 = 1000 * s2.fetchRating = 1000 * (no rating) = (not applicable)
-        // weighted average = 44_000 / 500 = 88
+        // same expectation as above
 
-        assertEquals(88d,
-                calculator.calculate(TestUtil.p2
-                        .getPositionsWithContext(TestUtil.defaultTestEvaluationContext())),
-                TestUtil.EPSILON, "unexpected weighted average for p2");
+        try {
+            calculator.calculate(
+                    TestUtil.p2.getPositionsWithContext(TestUtil.defaultTestEvaluationContext()));
+            fail("calculation on Position with unavailable data should cause NoDataException");
+        } catch (NoDataException e) {
+            // expected
+        }
     }
 }

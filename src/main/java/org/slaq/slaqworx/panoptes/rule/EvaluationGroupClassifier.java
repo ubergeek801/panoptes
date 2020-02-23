@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import java.util.function.Supplier;
+
 /**
  * {@code EvaluationGroupClassifier} classifies {@code Position}s into {@code EvaluationGroup}s for
  * the purpose of grouping rule evaluation results.
@@ -18,12 +20,24 @@ public interface EvaluationGroupClassifier {
     }
 
     /**
-     * Classifies the given {@code Position} into an {@code EvaluationGroup}.
+     * Classifies the specified {@code Position} into an {@code EvaluationGroup}.
      *
      * @param positionContext
      *            a {@code PositionEvaluationContext} specifying the {@code Position} to be
      *            classified
      * @return the {@code EvaluationGroup} to be applied to the {@code Position}
      */
-    public EvaluationGroup classify(PositionEvaluationContext positionContext);
+    public default EvaluationGroup classify(PositionEvaluationContext positionContext) {
+        return classify(() -> positionContext);
+    }
+
+    /**
+     * Classifies the specified {@code Position} into an {@code EvaluationGroup}.
+     *
+     * @param positionContextSupplier
+     *            a {@code Supplier} providing a {@code PositionEvaluationContext} specifying the
+     *            {@code Position} to be classified
+     * @return the {@code EvaluationGroup} to be applied to the {@code Position}
+     */
+    public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier);
 }

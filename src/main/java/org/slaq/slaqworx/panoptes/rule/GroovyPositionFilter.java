@@ -111,6 +111,12 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
 
     @Override
     public boolean test(PositionEvaluationContext evaluationContext) {
-        return groovyFilter.test(evaluationContext);
+        try {
+            return groovyFilter.test(evaluationContext);
+        } catch (Exception e) {
+            // TODO make this logic available to all filters
+            evaluationContext.setException(e);
+            return true;
+        }
     }
 }

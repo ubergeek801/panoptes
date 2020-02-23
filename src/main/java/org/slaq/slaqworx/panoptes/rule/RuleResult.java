@@ -318,6 +318,10 @@ public class RuleResult {
             return (exception2 == null);
         }
 
+        if (exception1 == exception2) {
+            return true;
+        }
+
         if (!Objects.equals(exception1.getClass().getName(), exception2.getClass().getName())) {
             return false;
         }

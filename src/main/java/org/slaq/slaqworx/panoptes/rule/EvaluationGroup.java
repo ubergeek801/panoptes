@@ -49,6 +49,7 @@ public class EvaluationGroup {
             return false;
         }
         EvaluationGroup other = (EvaluationGroup)obj;
+
         return id.equals(other.id);
     }
 

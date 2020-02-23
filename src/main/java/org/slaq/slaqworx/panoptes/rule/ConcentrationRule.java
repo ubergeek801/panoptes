@@ -118,8 +118,25 @@ public class ConcentrationRule extends LimitRule {
 
         TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
 
-        double subtotalAmount = calculator.calculate(
-                positions.getPositionsWithContext(evaluationContext).filter(getPositionFilter()));
+        // The standard Position filter behavior is to catch a (runtime) exception and capture it in
+        // the PositionEvaluationContext. In this case we consider that fatal, as we can't reliably
+        // calculate the concentration, so we introduce a second filter to rethrow the exception if
+        // found, otherwise carry on.
+        Predicate<PositionEvaluationContext> exceptionThrowingFilter = (p -> {
+            Throwable e = p.getException();
+            if (e == null) {
+                return true;
+            }
+
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException)e;
+            }
+            // TODO wrap in a better exception
+            throw new RuntimeException(e);
+        });
+        double subtotalAmount =
+                calculator.calculate(positions.getPositionsWithContext(evaluationContext)
+                        .filter(getPositionFilter()).filter(exceptionThrowingFilter));
 
         return subtotalAmount / positions.getTotalMarketValue(evaluationContext);
     }
