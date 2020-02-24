@@ -18,6 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  *
  * @author jeremy
  * @param <T>
+ *            the value type of the {@code Security} attribute being aggregated
  */
 public class DistinctSecurityAttributeValuesAggregator<T>
         implements Aggregator<Map.Entry<SecurityKey, Security>, SortedSet<T>> {
