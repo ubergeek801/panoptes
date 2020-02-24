@@ -106,7 +106,7 @@ public class PanoptesCacheConfiguration {
      * Provides a Hazelcast configuration suitable for the detected runtime environment.
      *
      * @param securityAttributeLoader
-     *            the {@SecurityAttributeLoader} used to initialize {@code SecurityAttribute}s
+     *            the {@code SecurityAttributeLoader} used to initialize {@code SecurityAttribute}s
      * @param portfolioMapConfig
      *            the {@code MapConfig} to use for {@code Portfolio} data
      * @param positionMapConfig
@@ -194,11 +194,6 @@ public class PanoptesCacheConfiguration {
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
                 .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
-        // set up the Portfolio evaluation request queue and result map/topic
-        config.getQueueConfig(AssetCache.PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME).setBackupCount(0);
-        config.getMapConfig(AssetCache.PORTFOLIO_EVALUATION_RESULT_MAP_NAME).setBackupCount(0)
-                .setInMemoryFormat(InMemoryFormat.BINARY);
-
         // set up the Portfolio evaluator executor
         config.getExecutorConfig(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
                 .setPoolSize(ForkJoinPool.getCommonPoolParallelism())
@@ -224,7 +219,7 @@ public class PanoptesCacheConfiguration {
      *
      * @param hazelcastConfiguration
      *            the Hazelcast {@Config} with which to configure the instance
-     * @return a {@HazelcastInstance}
+     * @return a {@code HazelcastInstance}
      */
     @Bean(preDestroy = "shutdown")
     @Singleton

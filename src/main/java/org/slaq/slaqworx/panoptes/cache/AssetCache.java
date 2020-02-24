@@ -1,12 +1,9 @@
 package org.slaq.slaqworx.panoptes.cache;
 
-import java.util.Map;
 import java.util.SortedSet;
-import java.util.UUID;
 
 import javax.inject.Singleton;
 
-import com.hazelcast.collection.IQueue;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.map.IMap;
@@ -21,10 +18,8 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
-import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -41,11 +36,6 @@ import org.slaq.slaqworx.panoptes.util.DistinctSecurityAttributeValuesAggregator
 @Singleton
 public class AssetCache implements PortfolioProvider, PositionProvider, RuleProvider,
         SecurityProvider, TradeProvider {
-    protected static final String PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME =
-            "portfolioEvaluationRequestQueue";
-    protected static final String PORTFOLIO_EVALUATION_RESULT_MAP_NAME =
-            "portfolioEvaluationResultMap";
-
     public static final String PORTFOLIO_CACHE_NAME = "portfolio";
     public static final String POSITION_CACHE_NAME = "position";
     public static final String SECURITY_CACHE_NAME = "security";
@@ -108,25 +98,6 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      */
     public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
         return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
-    }
-
-    /**
-     * Obtains the queue which provides {@code Portfolio} evaluation requests.
-     *
-     * @return the evaluation request queue
-     */
-    public IQueue<String> getPortfolioEvaluationRequestQueue() {
-        return hazelcastInstance.getQueue(PORTFOLIO_EVALUATION_REQUEST_QUEUE_NAME);
-    }
-
-    /**
-     * Obtains the map which provides {@code Portfolio} evaluation results.
-     *
-     * @return a {@code IMap} correlating an evaluation request message ID to its results
-     */
-    public IMap<UUID, Map<RuleKey, Map<EvaluationGroup, EvaluationResult>>>
-            getPortfolioEvaluationResultMap() {
-        return hazelcastInstance.getMap(PORTFOLIO_EVALUATION_RESULT_MAP_NAME);
     }
 
     @Override
