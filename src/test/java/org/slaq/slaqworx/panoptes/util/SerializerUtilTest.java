@@ -12,7 +12,7 @@ import org.slaq.slaqworx.panoptes.TestUtil;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * {@code erializerUtilTest} tests the functionality of {@code SerializerUtil}.
+ * {@code SerializerUtilTest} tests the functionality of {@code SerializerUtil}.
  *
  * @author jeremy
  */

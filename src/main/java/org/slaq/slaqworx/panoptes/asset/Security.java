@@ -87,7 +87,7 @@ public class Security implements Keyed<SecurityKey> {
      * @param attributeIndex
      *            the index corresponding to the associated {@code SecurityAttribute}
      * @param isRequired
-     *            {@code true} if a return value is required, {@code false otherwise}
+     *            {@code true} if a return value is required, {@code false} otherwise
      * @return the base value of the given attribute, or {@code null} if not assigned and
      *         {@code isRequired} is {@code false}
      * @throws NoDataException
@@ -125,7 +125,7 @@ public class Security implements Keyed<SecurityKey> {
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
      * @param isRequired
-     *            {@code true} if a return value is required, {@code false otherwise}
+     *            {@code true} if a return value is required, {@code false} otherwise
      * @return the value of the given attribute, or {@code null} if not assigned and
      *         {@code isRequired} is {@code false}
      * @throws NoDataException
@@ -145,7 +145,7 @@ public class Security implements Keyed<SecurityKey> {
      * @param attributeIndex
      *            the index corresponding to the associated {@code SecurityAttribute}
      * @param isRequired
-     *            {@code true} if a return value is required, {@code false otherwise}
+     *            {@code true} if a return value is required, {@code false} otherwise
      * @param evaluationContext
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the effective value of the given attribute, or {@code null} if not assigned and
@@ -191,7 +191,7 @@ public class Security implements Keyed<SecurityKey> {
      * @param attribute
      *            the {@code SecurityAttribute} identifying the attribute
      * @param isRequired
-     *            {@code true} if a return value is required, {@code false otherwise}
+     *            {@code true} if a return value is required, {@code false} otherwise
      * @param context
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the effective value of the given attribute, or {@code null} if not assigned and

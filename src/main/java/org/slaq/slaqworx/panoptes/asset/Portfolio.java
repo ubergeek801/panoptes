@@ -52,7 +52,7 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
      * @param positions
      *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmark
-     *            the (possibly null) {@code Portfolio} that acts a benchmark for the
+     *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
@@ -74,7 +74,7 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
      * @param positions
      *            the {@code Position}s comprising the {@code Portfolio}
      * @param benchmarkKey
-     *            the (possibly null) {@code Portfolio} that acts a benchmark for the
+     *            the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the
      *            {@code Portfolio}
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the

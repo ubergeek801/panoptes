@@ -87,8 +87,8 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}
      * @param portfolioKey
-     *            the (possibly {@code null}) {@code PortfolioKey} associated with this {@code
-     *            PositionSet}
+     *            the (possibly {@code null}) {@code PortfolioKey} associated with this
+     *            {@code PositionSet}
      */
     public PositionSet(Stream<P> positions, PortfolioKey portfolioKey) {
         this(positions.collect(Collectors.toList()), portfolioKey);

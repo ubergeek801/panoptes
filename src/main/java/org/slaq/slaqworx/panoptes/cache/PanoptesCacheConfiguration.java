@@ -83,7 +83,7 @@ public class PanoptesCacheConfiguration {
      *            the name of the map/cache being created
      * @param mapStoreFactory
      *            the {@code HazelcastMapStoreFactory} to use to create the {@code MapStore}, or
-     *            null to use no {@code MapStore}
+     *            {@code null} to use no {@code MapStore}
      * @return a {@code MapConfig} configured for the given map
      */
     protected MapConfig createMapConfiguration(String cacheName,

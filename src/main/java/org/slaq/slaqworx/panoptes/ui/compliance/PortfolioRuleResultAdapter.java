@@ -21,7 +21,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
  */
 public class PortfolioRuleResultAdapter implements EvaluationResultRow {
     /**
-     * A {@Comparator} that compares {@code EvaluationGroup}s lexically by ID.
+     * A {@code Comparator} that compares {@code EvaluationGroup}s lexically by ID.
      */
     private static final Comparator<? super Entry<EvaluationGroup, RuleResult>> groupComparator =
             ((e1, o2) -> e1.getKey().getId().compareTo(o2.getKey().getId()));

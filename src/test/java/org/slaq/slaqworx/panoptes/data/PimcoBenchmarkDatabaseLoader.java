@@ -30,7 +30,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
  * {@code PimcoBenchmarkDatabaseLoader} populates the Panoptes database (using Hazelcast
- * {@code MapStores}) with data based on the PIMCO benchmarks.
+ * {@code MapStore}s) with data based on the PIMCO benchmarks.
  *
  * @author jeremy
  */
