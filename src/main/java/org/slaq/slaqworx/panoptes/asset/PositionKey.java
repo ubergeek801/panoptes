@@ -1,11 +1,13 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
+
 /**
  * {@code PositionKey} is a key used to reference {@code Position}s.
  *
  * @author jeremy
  */
-public class PositionKey {
+public class PositionKey implements ProtobufSerializable {
     private final String id;
 
     /**

@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.asset.HierarchicalPositionSupplier.PositionHierarchyOption;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -29,7 +30,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public interface Position extends Keyed<PositionKey> {
+public interface Position extends Keyed<PositionKey>, ProtobufSerializable {
     /**
      * Obtains the amount held by this {@code Position}.
      *

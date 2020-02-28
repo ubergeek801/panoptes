@@ -95,7 +95,7 @@ public class SecurityTest {
     }
 
     /**
-     * Tests that {@code Securities} are hashed in a reasonable way.
+     * Tests that {@code Security} objects are hashed in a reasonable way.
      */
     @Test
     public void testHash() {

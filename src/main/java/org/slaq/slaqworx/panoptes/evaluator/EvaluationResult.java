@@ -6,13 +6,14 @@ import java.util.Map;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * {@code EvaluationResult} aggregates {@code RuleResult}s for a single {@code Rule} evaluation.
  *
  * @author jeremy
  */
-public class EvaluationResult {
+public class EvaluationResult implements ProtobufSerializable {
     private final RuleKey ruleKey;
     private final Map<EvaluationGroup, RuleResult> results;
     private final Map<EvaluationGroup, RuleResult> proposedResults;

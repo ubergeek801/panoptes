@@ -3,8 +3,6 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 
@@ -13,7 +11,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
  *
  * @author jeremy
  */
-public class SecurityKeySerializer implements ByteArraySerializer<SecurityKey> {
+public class SecurityKeySerializer implements ProtobufSerializer<SecurityKey> {
     @Override
     public void destroy() {
         // nothing to do

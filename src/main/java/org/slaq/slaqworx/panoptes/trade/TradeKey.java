@@ -1,13 +1,14 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * {@code TradeKey} is a key used to reference {@code Trade}s.
  *
  * @author jeremy
  */
-public class TradeKey {
+public class TradeKey implements ProtobufSerializable {
     private final String id;
 
     /**
@@ -32,6 +33,7 @@ public class TradeKey {
             return false;
         }
         TradeKey other = (TradeKey)obj;
+
         return id.equals(other.id);
     }
 

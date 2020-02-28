@@ -10,18 +10,18 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
  * A {@code ConcentrationRule} stipulates limits on {@code Portfolio} concentration in
- * {@code Securities} matched by a given {@code Position} filter, either in absolute terms or
+ * {@code Security} holdings matched by a given {@code Position} filter, either in absolute terms or
  * relative to a benchmark. Examples of absolute rules include:
  * <ul>
- * <li>{@code Portfolio} holdings in {@code Securities} from the Emerging Markets region may not
+ * <li>{@code Portfolio} holdings in a {@code Security} from the Emerging Markets region may not
  * exceed 10%
- * <li>{@code Portfolio} holdings in US-domiciled {@code Securities} must be at least 50%
+ * <li>{@code Portfolio} holdings in a US-domiciled {@code Security} must be at least 50%
  * </ul>
  * Examples of benchmark-relative rules include:
  * <ul>
- * <li>{@code Portfolio} holdings in BRL-denominated {@code Securities} must be between 95% and 105%
+ * <li>{@code Portfolio} holdings in a BRL-denominated {@code Security} must be between 95% and 105%
  * of the benchmark
- * <li>{@code Portfolio} holdings in {@code Securities} with duration < 5.0 must be less than 80% of
+ * <li>{@code Portfolio} holdings in a {@code Security} with duration < 5.0 must be less than 80% of
  * the benchmark
  * </ul>
  *

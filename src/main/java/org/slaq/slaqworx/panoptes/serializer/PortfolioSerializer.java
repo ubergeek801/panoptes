@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -29,7 +27,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
  * @author jeremy
  */
 @Singleton
-public class PortfolioSerializer implements ByteArraySerializer<Portfolio> {
+public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
     private final Provider<? extends PositionProvider> positionProvider;
     private final Provider<? extends RuleProvider> ruleProvider;
 

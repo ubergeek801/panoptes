@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.google.protobuf.DoubleValue;
 import com.google.protobuf.StringValue;
-import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -28,7 +27,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
  *
  * @author jeremy
  */
-public class EvaluationResultSerializer implements ByteArraySerializer<EvaluationResult> {
+public class EvaluationResultSerializer implements ProtobufSerializer<EvaluationResult> {
     @Override
     public void destroy() {
         // nothing to do

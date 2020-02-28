@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
@@ -24,7 +22,7 @@ import org.slaq.slaqworx.panoptes.trade.TransactionKey;
  * @author jeremy
  */
 @Singleton
-public class TransactionSerializer implements ByteArraySerializer<Transaction> {
+public class TransactionSerializer implements ProtobufSerializer<Transaction> {
     /**
      * Converts a {@code Transaction} into a new {@code TransactionMsg}.
      *

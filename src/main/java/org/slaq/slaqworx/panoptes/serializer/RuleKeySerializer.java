@@ -3,8 +3,6 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
@@ -13,7 +11,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
-public class RuleKeySerializer implements ByteArraySerializer<RuleKey> {
+public class RuleKeySerializer implements ProtobufSerializer<RuleKey> {
     @Override
     public void destroy() {
         // nothing to do

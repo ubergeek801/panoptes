@@ -1,13 +1,14 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * {@code RuleKey} is a key used to reference {@code Rule}s.
  *
  * @author jeremy
  */
-public class RuleKey {
+public class RuleKey implements ProtobufSerializable {
     private final String id;
 
     /**
@@ -32,6 +33,7 @@ public class RuleKey {
             return false;
         }
         RuleKey other = (RuleKey)obj;
+
         return id.equals(other.id);
     }
 

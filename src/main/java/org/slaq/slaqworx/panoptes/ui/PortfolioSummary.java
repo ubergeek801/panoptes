@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.ui;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -11,7 +12,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public class PortfolioSummary implements Keyed<PortfolioKey> {
+public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializable {
     /**
      * Creates a new {@code PortfolioSummary} from the given {@code Portfolio}.
      *

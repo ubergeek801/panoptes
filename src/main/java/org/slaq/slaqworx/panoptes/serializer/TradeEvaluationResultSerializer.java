@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.google.protobuf.StringValue;
-import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
@@ -25,7 +24,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
  *
  * @author jeremy
  */
-public class TradeEvaluationResultSerializer implements ByteArraySerializer<TradeEvaluationResult> {
+public class TradeEvaluationResultSerializer implements ProtobufSerializer<TradeEvaluationResult> {
     @Override
     public void destroy() {
         // nothing to do

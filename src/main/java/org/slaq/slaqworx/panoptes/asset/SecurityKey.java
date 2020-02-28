@@ -1,11 +1,13 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
+
 /**
- * {@code SecurityKey} is a key used to reference {@code Securities}.
+ * {@code SecurityKey} is a key used to reference {@code Security} entities.
  *
  * @author jeremy
  */
-public class SecurityKey implements Comparable<SecurityKey> {
+public class SecurityKey implements Comparable<SecurityKey>, ProtobufSerializable {
     private final String id;
 
     /**
@@ -35,6 +37,7 @@ public class SecurityKey implements Comparable<SecurityKey> {
             return false;
         }
         SecurityKey other = (SecurityKey)obj;
+
         return id.equals(other.id);
     }
 

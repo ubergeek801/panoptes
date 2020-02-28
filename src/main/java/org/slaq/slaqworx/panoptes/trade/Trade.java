@@ -6,15 +6,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * A {@code Trade} is an aggregate of {@code Transaction}s that modify one or more
  * {@code Portfolio}s by altering (increasing or decreasing) the net position of one or more
- * {@code Securities}.
+ * {@code Security} holdings.
  *
  * @author jeremy
  */
-public class Trade {
+public class Trade implements ProtobufSerializable {
     private final TradeKey key;
     private final LocalDate tradeDate;
     private final LocalDate settlementDate;
@@ -76,6 +77,7 @@ public class Trade {
             return false;
         }
         Trade other = (Trade)obj;
+
         return key.equals(other.getKey());
     }
 

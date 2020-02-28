@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.DateMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
@@ -24,7 +22,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  * @author jeremy
  */
 @Singleton
-public class TradeSerializer implements ByteArraySerializer<Trade> {
+public class TradeSerializer implements ProtobufSerializer<Trade> {
     /**
      * Creates a new {@code TradeSerializer}.
      */

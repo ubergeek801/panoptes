@@ -180,7 +180,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     /**
      * Loads data from the given PIMCO constituents file (converted to tab-separated values) and
      * creates a new {@code Portfolio} with the data, populating the {@code benchmarkMap} with the
-     * created {@code Portfolio} and the {@code securityMap} with the created {@code Securities}.
+     * created {@code Portfolio} and the {@code securityMap} with the created {@code Security}
+     * entities.
      *
      * @param benchmarkKey
      *            the benchmark key

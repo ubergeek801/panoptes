@@ -1,11 +1,13 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
+
 /**
  * {@code PortfolioKey} is a key used to reference {@code Portfolio}s.
  *
  * @author jeremy
  */
-public class PortfolioKey extends IdVersionKey {
+public class PortfolioKey extends IdVersionKey implements ProtobufSerializable {
     /**
      * Creates a new {@code PortfolioKey} with the given ID and version.
      *

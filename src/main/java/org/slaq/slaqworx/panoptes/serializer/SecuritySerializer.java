@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -20,7 +19,7 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
  *
  * @author jeremy
  */
-public class SecuritySerializer implements ByteArraySerializer<Security> {
+public class SecuritySerializer implements ProtobufSerializer<Security> {
     /**
      * Converts a {@code SecurityAttributes} instance into a new {@code SecurityMsg}.
      *

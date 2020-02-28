@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.apache.commons.lang3.StringUtils;
 
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
@@ -21,15 +19,15 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * <p>
  * Note that in order for deserialization to work, the {@code Rule} class must define the static
  * method:
- *
- * <pre>
+ * 
+ * <pre> 
  * public static SampleRule fromJson(String jsonConfiguration, RuleKey key, String description,
  *         String groovyFilter, EvaluationGroupClassifier groupClassifier)
  * </pre>
  *
  * @author jeremy
  */
-public class RuleSerializer implements ByteArraySerializer<ConfigurableRule> {
+public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
     /**
      * Constructs a {@code ConfigurableRule} from the given parameters.
      *

@@ -214,10 +214,10 @@ public class DummyPortfolioMapLoader
     }
 
     /**
-     * Generates a random set of {@code Position}s from the given {@code Securities}.
+     * Generates a random set of {@code Position}s from the given {@code Security} list.
      *
      * @param securities
-     *            a {@code List} from which to source {@code Securities}
+     *            a {@code List} from which to source {@code Security} entities
      * @param random
      *            the random number generator to use
      * @return a new {@code Set} of random {@code Positions}

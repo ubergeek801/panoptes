@@ -10,6 +10,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
@@ -20,8 +21,8 @@ import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
  *
  * @author jeremy
  */
-public class PortfolioEvaluationRequest
-        implements Callable<Map<RuleKey, EvaluationResult>>, ApplicationContextAware {
+public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, EvaluationResult>>,
+        ApplicationContextAware, ProtobufSerializable {
     private final PortfolioKey portfolioKey;
     private final Transaction transaction;
     private final EvaluationContext evaluationContext;

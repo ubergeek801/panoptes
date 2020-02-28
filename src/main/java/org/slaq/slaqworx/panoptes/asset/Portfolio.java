@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -18,7 +19,8 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSupplier {
+public class Portfolio
+        implements Keyed<PortfolioKey>, HierarchicalPositionSupplier, ProtobufSerializable {
     private final PortfolioKey key;
     private final String name;
     private final PortfolioKey benchmarkKey;

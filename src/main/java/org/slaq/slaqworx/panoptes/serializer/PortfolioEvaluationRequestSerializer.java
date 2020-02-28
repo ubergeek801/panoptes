@@ -6,8 +6,6 @@ import java.io.IOException;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -29,7 +27,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 @Singleton
 public class PortfolioEvaluationRequestSerializer
-        implements ByteArraySerializer<PortfolioEvaluationRequest> {
+        implements ProtobufSerializer<PortfolioEvaluationRequest> {
     private final Provider<? extends PortfolioProvider> portfolioProvider;
     private final Provider<? extends SecurityProvider> securityProvider;
 

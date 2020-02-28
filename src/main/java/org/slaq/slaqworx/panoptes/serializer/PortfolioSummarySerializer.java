@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioSummaryMsg;
@@ -19,7 +17,7 @@ import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
  * @author jeremy
  */
 @Singleton
-public class PortfolioSummarySerializer implements ByteArraySerializer<PortfolioSummary> {
+public class PortfolioSummarySerializer implements ProtobufSerializer<PortfolioSummary> {
     /**
      * Creates a new {@code PortfolioSerializer}.
      */

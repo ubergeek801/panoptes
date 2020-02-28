@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -21,7 +19,7 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
  * @author jeremy
  */
 @Singleton
-public class PositionSerializer implements ByteArraySerializer<Position> {
+public class PositionSerializer implements ProtobufSerializer<Position> {
     /**
      * Converts a {@code PositionMsg} into a new {@code Position}.
      *

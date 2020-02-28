@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
@@ -21,7 +22,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public class Security implements Keyed<SecurityKey> {
+public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
     private final SecurityKey key;
     private final SecurityAttributes attributes;
 

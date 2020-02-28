@@ -7,15 +7,16 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * A {@code Transaction} is a component of a {@code Trade} which modifies a single {@code Portfolio}
- * by altering (increasing or decreasing) the net position of one or more of its {@code Securities}.
- * The {@code Positions} of a {@code Trade} are also known as allocations.
+ * by altering (increasing or decreasing) the net position of one or more of its {@code Security}
+ * holdings. The {@code Positions} of a {@code Trade} are also known as allocations.
  *
  * @author jeremy
  */
-public class Transaction implements PositionSupplier {
+public class Transaction implements PositionSupplier, ProtobufSerializable {
     private final TransactionKey key;
     private final PortfolioKey portfolioKey;
     private final PositionSet<TaxLot> positions;
@@ -65,6 +66,7 @@ public class Transaction implements PositionSupplier {
             return false;
         }
         Transaction other = (Transaction)obj;
+
         return key.equals(other.getKey());
     }
 

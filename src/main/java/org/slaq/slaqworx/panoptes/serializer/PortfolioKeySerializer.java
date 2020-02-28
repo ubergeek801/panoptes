@@ -3,8 +3,6 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 
@@ -13,7 +11,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
  *
  * @author jeremy
  */
-public class PortfolioKeySerializer implements ByteArraySerializer<PortfolioKey> {
+public class PortfolioKeySerializer implements ProtobufSerializer<PortfolioKey> {
     @Override
     public void destroy() {
         // nothing to do

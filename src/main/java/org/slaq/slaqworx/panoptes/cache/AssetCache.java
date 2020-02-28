@@ -29,7 +29,7 @@ import org.slaq.slaqworx.panoptes.util.DistinctSecurityAttributeValuesAggregator
 
 /**
  * {@code AssetCache} provides operations for accessing {@code Portfolio} and related data (e.g.
- * {@code Position}s, {@code Securities}) from the distributed cache.
+ * {@code Position}s, {@code Security} entities) from the distributed cache.
  *
  * @author jeremy
  */
@@ -67,7 +67,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the set of distinct countries used by current {@code Securities}.
+     * Obtains the set of distinct countries used by current {@code Security} entities.
      *
      * @return a set of country names
      */
@@ -77,7 +77,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the set of distinct currencies used by current {@code Securities}.
+     * Obtains the set of distinct currencies used by current {@code Security} entities.
      *
      * @return a set of currency symbols
      */
@@ -115,7 +115,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the set of distinct regions used by current {@code Securities}.
+     * Obtains the set of distinct regions used by current {@code Security} entities.
      *
      * @return a set of region names
      */
@@ -139,7 +139,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the set of distinct sectors used by current {@code Securities}.
+     * Obtains the set of distinct sectors used by current {@code Security} entities.
      *
      * @return a set of sector names
      */

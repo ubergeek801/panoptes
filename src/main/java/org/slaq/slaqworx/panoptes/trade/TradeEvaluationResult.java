@@ -10,6 +10,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * {@code TradeEvaluationResult} encapsulates the results of a {@code Trade} evaluation. For a given
@@ -18,7 +19,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
  *
  * @author jeremy
  */
-public class TradeEvaluationResult {
+public class TradeEvaluationResult implements ProtobufSerializable {
     /**
      * {@code PortfolioRuleKey} is used as a key to specify or retrieve evaluation results by
      * {@code Portfolio} and {@code Rule}.

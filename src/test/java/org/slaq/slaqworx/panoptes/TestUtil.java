@@ -312,8 +312,8 @@ public class TestUtil {
     }
 
     /**
-     * Obtains a {@code SecurityProvider} suitable for unit testing using {@code Securities} created
-     * by {@code TestUtil}.
+     * Obtains a {@code SecurityProvider} suitable for unit testing using {@code Security} objects
+     * created by {@code TestUtil}.
      *
      * @return a {@code TestSecurityProvider}
      */

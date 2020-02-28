@@ -3,8 +3,6 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
@@ -13,7 +11,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  *
  * @author jeremy
  */
-public class TradeKeySerializer implements ByteArraySerializer<TradeKey> {
+public class TradeKeySerializer implements ProtobufSerializer<TradeKey> {
     @Override
     public void destroy() {
         // nothing to do
