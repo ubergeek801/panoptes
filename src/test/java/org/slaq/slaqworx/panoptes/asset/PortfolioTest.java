@@ -291,8 +291,14 @@ public class PortfolioTest {
 
         Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
         // the total amount is merely the sum of the amounts (100 + 200 + 300 + 400) * 2.00 = 2000
-        assertEquals(2000, portfolio.getTotalMarketValue(TestUtil.defaultTestEvaluationContext()),
+        assertEquals(2000, portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
                 TestUtil.EPSILON, "unexpected total amount");
+
+        // changing the price should change the market value
+        dummySecurity = securityProvider.newSecurity("dummy",
+                Map.of(SecurityAttribute.price, new BigDecimal("4.00")));
+        assertEquals(4000, portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
+                TestUtil.EPSILON, "unexpected total amount after price change");
     }
 
     /**

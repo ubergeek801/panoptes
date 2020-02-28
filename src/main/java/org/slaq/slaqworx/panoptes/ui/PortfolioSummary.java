@@ -24,7 +24,7 @@ public class PortfolioSummary implements Keyed<PortfolioKey> {
     public static PortfolioSummary fromPortfolio(Portfolio portfolio,
             EvaluationContext evaluationContext) {
         return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
-                portfolio.getBenchmarkKey(), portfolio.getTotalMarketValue(evaluationContext),
+                portfolio.getBenchmarkKey(), evaluationContext.getMarketValue(portfolio),
                 portfolio.isAbstract());
     }
 

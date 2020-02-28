@@ -27,7 +27,7 @@ public class ScaledPosition extends AbstractPosition {
      *            share
      * @param scale
      *            the fraction of the source {@code Position} represented by this
-     *            {@code ScaledPosition}.
+     *            {@code ScaledPosition}
      */
     public ScaledPosition(Position sourcePosition, double scale) {
         this.sourcePosition = sourcePosition;

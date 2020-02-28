@@ -78,6 +78,11 @@ public class Transaction implements PositionSupplier {
     }
 
     @Override
+    public double getMarketValue(EvaluationContext evaluationContext) {
+        return evaluationContext.getMarketValue(positions);
+    }
+
+    @Override
     public PortfolioKey getPortfolioKey() {
         return portfolioKey;
     }
@@ -85,11 +90,6 @@ public class Transaction implements PositionSupplier {
     @Override
     public Stream<TaxLot> getPositions() {
         return positions.getPositions();
-    }
-
-    @Override
-    public double getTotalMarketValue(EvaluationContext evaluationContext) {
-        return positions.getTotalMarketValue(evaluationContext);
     }
 
     @Override

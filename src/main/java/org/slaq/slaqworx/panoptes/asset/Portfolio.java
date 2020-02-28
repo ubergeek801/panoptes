@@ -147,6 +147,11 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
         return key;
     }
 
+    @Override
+    public double getMarketValue(EvaluationContext evaluationContext) {
+        return evaluationContext.getMarketValue(positionSet);
+    }
+
     /**
      * Obtains the name/description of this {@code Portfolio}.
      *
@@ -174,11 +179,6 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
      */
     public Stream<Rule> getRules() {
         return rules.stream();
-    }
-
-    @Override
-    public double getTotalMarketValue(EvaluationContext evaluationContext) {
-        return positionSet.getTotalMarketValue(evaluationContext);
     }
 
     @Override

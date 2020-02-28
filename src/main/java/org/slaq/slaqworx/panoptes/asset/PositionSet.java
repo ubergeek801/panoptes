@@ -95,6 +95,18 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
     }
 
     @Override
+    public double getMarketValue(EvaluationContext evaluationContext) {
+        // if a market value override is supplied, use it
+        if (totalMarketValue != null) {
+            return totalMarketValue;
+        }
+
+        // otherwise calculate the market value
+        return new TotalMarketValuePositionCalculator()
+                .calculate(getPositionsWithContext(evaluationContext));
+    }
+
+    @Override
     public PortfolioKey getPortfolioKey() {
         return portfolioKey;
     }
@@ -102,16 +114,6 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
     @Override
     public Stream<P> getPositions() {
         return positions.stream();
-    }
-
-    @Override
-    public double getTotalMarketValue(EvaluationContext evaluationContext) {
-        if (totalMarketValue == null) {
-            totalMarketValue = new TotalMarketValuePositionCalculator()
-                    .calculate(getPositionsWithContext(evaluationContext));
-        }
-
-        return totalMarketValue;
     }
 
     @Override

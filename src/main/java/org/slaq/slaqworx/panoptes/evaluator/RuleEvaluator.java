@@ -162,7 +162,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
         Map<EvaluationGroup, PositionSupplier> classifiedPortfolioPositions = classify(
-                portfolioPositions, portfolioPositions.getTotalMarketValue(evaluationContext));
+                portfolioPositions, evaluationContext.getMarketValue(portfolioPositions));
 
         // do the same for the proposed Positions, if specified
         Map<EvaluationGroup, PositionSupplier> classifiedProposedPositions;
@@ -172,7 +172,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
             PositionSupplier concatPositions =
                     PositionSupplier.concat(portfolioPositions, proposedPositions);
             classifiedProposedPositions = classify(concatPositions,
-                    concatPositions.getTotalMarketValue(evaluationContext));
+                    evaluationContext.getMarketValue(concatPositions));
         }
 
         // do the same for the benchmark, if specified
@@ -181,7 +181,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
             classifiedBenchmarkPositions = null;
         } else {
             classifiedBenchmarkPositions = classify(benchmarkPositions,
-                    benchmarkPositions.getTotalMarketValue(evaluationContext));
+                    evaluationContext.getMarketValue(benchmarkPositions));
         }
 
         // Execute the Rule's GroupAggregators (if any) to create additional EvaluationGroups. For

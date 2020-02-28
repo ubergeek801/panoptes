@@ -56,9 +56,9 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
                     // FIXME this is probably not appropriate
                     return;
                 }
-                a.weightedMarketValue +=
-                        p.getMarketValue(c.getEvaluationContext()) * attributeValue.doubleValue();
-                a.marketValue += p.getMarketValue(c.getEvaluationContext());
+                double positionMarketValue = p.getMarketValue(c.getEvaluationContext());
+                a.weightedMarketValue += positionMarketValue * attributeValue.doubleValue();
+                a.marketValue += positionMarketValue;
             };
         }
 

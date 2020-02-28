@@ -110,13 +110,6 @@ public interface Position extends Keyed<PositionKey> {
                 .map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
     }
 
-    /**
-     * Obtains the market value of this {@code Position}.
-     *
-     * @param evaluationContext
-     *            the {@code EvaluationContext} in which to obtain the market value
-     * @return the market value
-     */
     public default double getMarketValue(EvaluationContext evaluationContext) {
         BigDecimal price = getAttributeValue(SecurityAttribute.price, evaluationContext);
         return price.multiply(BigDecimal.valueOf(getAmount())).doubleValue();

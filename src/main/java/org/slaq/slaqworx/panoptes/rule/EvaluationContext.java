@@ -2,9 +2,11 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slaq.slaqworx.panoptes.asset.MarketValued;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -39,6 +41,8 @@ public class EvaluationContext {
     private final Map<SecurityKey, SecurityAttributes> securityOverrides;
     private final Map<RuleKey, Map<EvaluationGroup, Double>> benchmarkValues =
             new ConcurrentHashMap<>(100);
+    private final Map<MarketValued, Double> marketValues =
+            Collections.synchronizedMap(new IdentityHashMap<>(10));
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
@@ -117,6 +121,7 @@ public class EvaluationContext {
      */
     public void clear() {
         benchmarkValues.clear();
+        marketValues.clear();
     }
 
     @Override
@@ -147,6 +152,19 @@ public class EvaluationContext {
      */
     public EvaluationMode getEvaluationMode() {
         return evaluationMode;
+    }
+
+    /**
+     * Obtains the market value of the given holding (generally a {@code Portfolio} or a subset of
+     * its {@code Position}s). Once calculated, the value is cached for the lifetime of this
+     * {@code EvaluationContext}.
+     *
+     * @param holding
+     *            the holding for which to obtain the market value
+     * @return the market value of the given holding
+     */
+    public double getMarketValue(MarketValued holding) {
+        return marketValues.computeIfAbsent(holding, k -> holding.getMarketValue(this));
     }
 
     /**

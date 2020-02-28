@@ -138,6 +138,6 @@ public class ConcentrationRule extends LimitRule {
                 calculator.calculate(positions.getPositionsWithContext(evaluationContext)
                         .filter(getPositionFilter()).filter(exceptionThrowingFilter));
 
-        return subtotalAmount / positions.getTotalMarketValue(evaluationContext);
+        return subtotalAmount / evaluationContext.getMarketValue(positions);
     }
 }

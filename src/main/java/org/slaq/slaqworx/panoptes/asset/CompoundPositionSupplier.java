@@ -24,6 +24,16 @@ public class CompoundPositionSupplier implements PositionSupplier {
     }
 
     @Override
+    public double getMarketValue(EvaluationContext evaluationContext) {
+        double totalMarketValue = 0;
+        for (PositionSupplier supplier : suppliers) {
+            totalMarketValue += evaluationContext.getMarketValue(supplier);
+        }
+
+        return totalMarketValue;
+    }
+
+    @Override
     public PortfolioKey getPortfolioKey() {
         // all suppliers are presumed to belong to the same Portfolio, so just return the first
         return suppliers[0].getPortfolioKey();
@@ -37,16 +47,6 @@ public class CompoundPositionSupplier implements PositionSupplier {
         }
 
         return concatStream;
-    }
-
-    @Override
-    public double getTotalMarketValue(EvaluationContext evaluationContext) {
-        double totalMarketValue = 0;
-        for (PositionSupplier supplier : suppliers) {
-            totalMarketValue += supplier.getTotalMarketValue(evaluationContext);
-        }
-
-        return totalMarketValue;
     }
 
     @Override

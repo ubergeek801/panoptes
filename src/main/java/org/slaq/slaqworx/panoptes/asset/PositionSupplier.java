@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  *
  * @author jeremy
  */
-public interface PositionSupplier {
+public interface PositionSupplier extends MarketValued {
     /**
      * "Concatenates" the given {@code PositionSupplier}s into a single logical
      * {@code PositionSupplier}.
@@ -53,15 +53,6 @@ public interface PositionSupplier {
             getPositionsWithContext(EvaluationContext evaluationContext) {
         return getPositions().map(p -> new PositionEvaluationContext(p, evaluationContext));
     }
-
-    /**
-     * Obtains the sum of the {@code Position} amounts of this {@code PositionSupplier}.
-     *
-     * @param evaluationContext
-     *            the {@code EvaluationContext} in which to perform the evaluation
-     * @return the sum of {@code Position} amounts
-     */
-    public double getTotalMarketValue(EvaluationContext evaluationContext);
 
     /**
      * Obtains the number of {@code Position}s in this {@code PositionSupplier}.
