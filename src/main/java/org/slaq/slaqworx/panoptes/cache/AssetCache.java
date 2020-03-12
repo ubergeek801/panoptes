@@ -1,6 +1,8 @@
 package org.slaq.slaqworx.panoptes.cache;
 
 import java.util.SortedSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.inject.Singleton;
 
@@ -26,6 +28,7 @@ import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.TradeProvider;
 import org.slaq.slaqworx.panoptes.util.DistinctSecurityAttributeValuesAggregator;
+import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code AssetCache} provides operations for accessing {@code Portfolio} and related data (e.g.
@@ -42,7 +45,26 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     public static final String RULE_CACHE_NAME = "rule";
     public static final String TRADE_CACHE_NAME = "trade";
 
+    private static final ForkJoinPool portfolioEvaluationThreadPool = ForkJoinPoolFactory
+            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "portfolio-evaluator");
+
+    /**
+     * Obtains the {@code ExecutorService} used to perform {@code Portfolio} and {@code Trade}
+     * evaluations. Callers may use this to submit processing requests in parallel, which will
+     * generally result in better performance than using a separate {@code ExecutorService}.
+     *
+     * @return an {@code ExecutorService} used to evaluate {@code Trade}s
+     */
+    public static ExecutorService getPortfolioExecutor() {
+        return portfolioEvaluationThreadPool;
+    }
+
     private final HazelcastInstance hazelcastInstance;
+    private final IMap<PortfolioKey, Portfolio> portfolioCache;
+    private final IMap<PositionKey, Position> positionCache;
+    private final IMap<RuleKey, ConfigurableRule> ruleCache;
+    private final IMap<SecurityKey, Security> securityCache;
+    private final IMap<TradeKey, Trade> tradeCache;
 
     /**
      * Creates a new {@code AssetCache}. Restricted because instances of this class should be
@@ -53,6 +75,11 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      */
     protected AssetCache(HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
+        portfolioCache = hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
+        positionCache = hazelcastInstance.getMap(POSITION_CACHE_NAME);
+        ruleCache = hazelcastInstance.getMap(RULE_CACHE_NAME);
+        securityCache = hazelcastInstance.getMap(SECURITY_CACHE_NAME);
+        tradeCache = hazelcastInstance.getMap(TRADE_CACHE_NAME);
     }
 
     /**
@@ -97,7 +124,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      * @return the Hazelcast {@code Portfolio} cache
      */
     public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
-        return hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
+        return portfolioCache;
     }
 
     @Override
@@ -111,7 +138,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      * @return the Hazelcast {@code Position} cache
      */
     public IMap<PositionKey, Position> getPositionCache() {
-        return hazelcastInstance.getMap(POSITION_CACHE_NAME);
+        return positionCache;
     }
 
     /**
@@ -135,7 +162,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      * @return the Hazelcast {@code Rule} cache
      */
     public IMap<RuleKey, ConfigurableRule> getRuleCache() {
-        return hazelcastInstance.getMap(RULE_CACHE_NAME);
+        return ruleCache;
     }
 
     /**
@@ -159,7 +186,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      * @return the Hazelcast {@code Security} cache
      */
     public IMap<SecurityKey, Security> getSecurityCache() {
-        return hazelcastInstance.getMap(SECURITY_CACHE_NAME);
+        return securityCache;
     }
 
     @Override
@@ -173,6 +200,6 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      * @return the Hazelcast {@code Trade} cache
      */
     public IMap<TradeKey, Trade> getTradeCache() {
-        return hazelcastInstance.getMap(TRADE_CACHE_NAME);
+        return tradeCache;
     }
 }

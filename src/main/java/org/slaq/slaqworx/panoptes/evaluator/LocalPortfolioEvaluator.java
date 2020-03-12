@@ -1,11 +1,9 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
@@ -24,11 +23,92 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 /**
  * {@code LocalPortfolioEvaluator} is a {@code PortfolioEvaluator} which performs processing on the
  * local node. {@code Rule}s are evaluated sequentially (although in no particular order); any
- * desired proessing concurrency is expected to be provided at a higher layer of abstraction.
+ * desired processing concurrency is expected to be provided at a higher layer of abstraction.
  *
  * @author jeremy
  */
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
+    /**
+     * {@code ShortCircuitingResultMapper} is a {@code Function} intended to {@code flatMap()} a
+     * {@code Stream} of {@code EvaluationResult}s, short-circuiting the {@code Stream} (by mapping
+     * subsequent elements to empty streams) after a failed result is encountered.
+     * <p>
+     * Note that a {@code Function} used by {@code flatMap()} is expected to be stateless; we bend
+     * that definition somewhat by maintaining state (specifically, whether a failed result has
+     * already been seen). However, this is consistent with the semantics of short-circuit
+     * evaluation, which allow any number of results to be returned when an evaluation is
+     * short-circuited, as long as at least one of them indicates a failure.
+     *
+     * @author jeremy
+     */
+    private static class ShortCircuitingResultMapper
+            implements Function<EvaluationResult, Stream<EvaluationResult>> {
+        private final PortfolioKey portfolioKey;
+        private final Transaction transaction;
+        private final boolean isShortCircuiting;
+
+        private EvaluationResult failedResult;
+
+        /**
+         * Creates a new {@code ShortCircuitingResultMapper}.
+         *
+         * @param portfolioKey
+         *            a {@code PortfolioKey} identifying the {@code Portfolio} being evaluated
+         * @param transaction
+         *            a (possibly {@code null} {@code Transaction} being evaluated with the
+         *            {@code Portfolio}
+         * @param isShortCircuiting
+         *            {@code true} if short-circuiting is to be activated, {@code false} to allow
+         *            all evaluations to pass through
+         */
+        public ShortCircuitingResultMapper(PortfolioKey portfolioKey, Transaction transaction,
+                boolean isShortCircuiting) {
+            this.portfolioKey = portfolioKey;
+            this.transaction = transaction;
+            this.isShortCircuiting = isShortCircuiting;
+        }
+
+        @Override
+        public Stream<EvaluationResult> apply(EvaluationResult result) {
+            if (!isShortCircuiting) {
+                // always pass the result through
+                return Stream.of(result);
+            }
+
+            if (failedResult != null) {
+                // no need to visit any more results
+                return Stream.empty();
+            }
+
+            boolean isPassed;
+            if (transaction == null) {
+                // stop when a Rule fails
+                isPassed = result.isPassed();
+            } else {
+                // stop when a non-compliant impact is encountered
+                TradeEvaluationResult tradeResult = new TradeEvaluationResult();
+                tradeResult.addImpacts(portfolioKey, Map.of(result.getRuleKey(), result));
+                isPassed = tradeResult.isCompliant();
+            }
+
+            if (!isPassed) {
+                failedResult = result;
+            }
+
+            return Stream.of(result);
+        }
+
+        /**
+         * Indicates whether a short-circuit was triggered.
+         *
+         * @return {@code true} if at least one evaluation failed and triggered a short-circuit,
+         *         {@code false} otherwise
+         */
+        public boolean isShortCircuited() {
+            return (failedResult != null);
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
 
     private final PortfolioProvider portfolioProvider;
@@ -76,56 +156,21 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 portfolio.getName());
         long startTime = System.currentTimeMillis();
 
-        // evaluation may be short-circuited, but at least one short-circuiting result needs to be
-        // included in the evaluation results for impact to be determined properly
-        Map<RuleKey, EvaluationResult> shortCircuitResults =
-                Collections.synchronizedMap(new HashMap<>());
-        Predicate<EvaluationResult> shortCircuitPredicate;
-        if (evaluationContext.getEvaluationMode() == EvaluationMode.SHORT_CIRCUIT_EVALUATION) {
-            if (transaction == null) {
-                // stop when a Rule fails
-                shortCircuitPredicate = (result -> {
-                    boolean isPassed = result.isPassed();
-                    if (!isPassed) {
-                        shortCircuitResults.put(result.getRuleKey(), result);
-                    }
-
-                    return isPassed;
-                });
-            } else {
-                // stop when a non-compliant impact is encountered
-                shortCircuitPredicate = (result -> {
-                    TradeEvaluationResult tradeResult = new TradeEvaluationResult();
-                    tradeResult.addImpacts(portfolio.getKey(), Map.of(result.getRuleKey(), result));
-                    boolean isPassed = tradeResult.isCompliant();
-                    if (!isPassed) {
-                        shortCircuitResults.put(result.getRuleKey(), result);
-                    }
-
-                    return isPassed;
-                });
-            }
-        } else {
-            // take all results
-            shortCircuitPredicate = (result -> true);
-        }
+        ShortCircuitingResultMapper shortCircuiter = new ShortCircuitingResultMapper(
+                portfolio.getKey(), transaction,
+                evaluationContext.getEvaluationMode() == EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
         // evaluate the Rules
         Map<RuleKey, EvaluationResult> results = rules
                 .map(r -> new RuleEvaluator(r, portfolio, transaction,
                         portfolio.getBenchmark(portfolioProvider), evaluationContext).call())
-                .takeWhile(shortCircuitPredicate)
+                .flatMap(shortCircuiter)
                 .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result));
 
-        // collect the results and return
-        Map<RuleKey, EvaluationResult> allResults =
-                new HashMap<>(shortCircuitResults.size() + results.size());
-        allResults.putAll(shortCircuitResults);
-        allResults.putAll(results);
         LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms",
-                allResults.size(), (shortCircuitResults.isEmpty() ? "full" : "short-circuited"),
+                results.size(), (shortCircuiter.isShortCircuited() ? "short-circuited" : "full"),
                 portfolio.size(), portfolio.getKey(), System.currentTimeMillis() - startTime);
 
-        return allResults;
+        return results;
     }
 }

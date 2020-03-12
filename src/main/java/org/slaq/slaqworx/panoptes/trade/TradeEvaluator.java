@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,6 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
  * {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
@@ -36,20 +35,6 @@ public class TradeEvaluator {
     protected static final double ROOM_TOLERANCE = 500;
     protected static final double MIN_ALLOCATION = 1000;
     private static final double LOG_2 = Math.log(2);
-
-    private static final ForkJoinPool portfolioEvaluationThreadPool = ForkJoinPoolFactory
-            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "portfolio-evaluator");
-
-    /**
-     * Obtains the {@code ExecutorService} used to perform {@code Trade} evaluations. Callers may
-     * use this to submit processing requests in parallel, which will generally result in better
-     * performance than using a separate {@code ExecutorService}.
-     *
-     * @return an {@code ExecutorService} used to evaluate {@code Trade}s
-     */
-    public static ExecutorService getPortfolioExecutor() {
-        return portfolioEvaluationThreadPool;
-    }
 
     private final PortfolioEvaluator evaluator;
     private final PortfolioProvider portfolioProvider;
@@ -95,38 +80,31 @@ public class TradeEvaluator {
      *            the {@code Trade} to be evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to perform the evaluation
-     * @return a {@code TradeEvaluationResult} describing the results of the evaluation
-     * @throws ExcecutionException
-     *             if the calculation could not be processed
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
+     * @return a {@code Future} {@code TradeEvaluationResult} describing the results of the
+     *         evaluation
      */
-    public TradeEvaluationResult evaluate(Trade trade, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
+    public Future<TradeEvaluationResult> evaluate(Trade trade,
+            EvaluationContext evaluationContext) {
         LOG.info("evaluating trade {} with {} allocations", trade.getKey(),
                 trade.getAllocationCount());
         // evaluate the impact on each Portfolio
-        TradeEvaluationResult evaluationResult = new TradeEvaluationResult();
-        portfolioEvaluationThreadPool.submit(() -> trade.getTransactions().entrySet()
-                .parallelStream().forEach(portfolioTransactionEntry -> {
+        return AssetCache.getPortfolioExecutor().submit(() -> trade.getTransactions().entrySet()
+                .parallelStream().map(portfolioTransactionEntry -> {
                     Portfolio portfolio =
                             portfolioProvider.getPortfolio(portfolioTransactionEntry.getKey());
                     Transaction transaction = portfolioTransactionEntry.getValue();
 
-                    // the impact is merely the difference between the current evaluation state of
-                    // the Portfolio, and the state it would have if the Trade were to be posted
                     try {
-                        Map<RuleKey, EvaluationResult> ruleResults =
-                                evaluator.evaluate(portfolio, transaction, evaluationContext).get();
+                        Map<RuleKey, EvaluationResult> ruleResults = evaluator
+                                .evaluate(portfolio, transaction, evaluationContext.copy()).get();
 
-                        evaluationResult.addImpacts(portfolio.getKey(), ruleResults);
+                        return Pair.of(portfolio.getKey(), ruleResults);
                     } catch (Exception e) {
                         // FIXME throw a better exception
                         throw new RuntimeException("could not evaluate trade", e);
                     }
-                })).get();
-
-        return evaluationResult;
+                }).collect(TradeEvaluationResult::new, TradeEvaluationResult::addImpacts,
+                        TradeEvaluationResult::merge));
     }
 
     /**
@@ -177,7 +155,7 @@ public class TradeEvaluator {
         double minCompliantValue = MIN_ALLOCATION;
         double trialValue = minCompliantValue;
         TradeEvaluationResult evaluationResult =
-                testRoom(portfolioKey, securityKey, trialValue, evaluationContext);
+                testRoom(portfolioKey, securityKey, trialValue, evaluationContext).get();
         if (!evaluationResult.isCompliant()) {
             // even the minimum allocation failed; give up now
             return 0;
@@ -190,7 +168,8 @@ public class TradeEvaluator {
         double minNoncompliantValue = trialValue;
         int maxRoomIterations = (int)Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
         for (int i = 0; i < maxRoomIterations; i++) {
-            evaluationResult = testRoom(portfolioKey, securityKey, trialValue, evaluationContext);
+            evaluationResult =
+                    testRoom(portfolioKey, securityKey, trialValue, evaluationContext).get();
             if (evaluationResult.isCompliant()) {
                 if (minCompliantValue < trialValue) {
                     // we have a new low-water mark for what is compliant
@@ -228,15 +207,11 @@ public class TradeEvaluator {
      *            the desired investment amount, as USD market value
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to perform the evaluation
-     * @return a {@code TradeEvaluationResult} indicating the result of the evaluation
-     * @throws ExcecutionException
-     *             if the calculation could not be processed
-     * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
+     * @return a {@code Future} {@code TradeEvaluationResult} indicating the result of the
+     *         evaluation
      */
-    protected TradeEvaluationResult testRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue, EvaluationContext evaluationContext)
-            throws ExecutionException, InterruptedException {
+    protected Future<TradeEvaluationResult> testRoom(PortfolioKey portfolioKey,
+            SecurityKey securityKey, double targetValue, EvaluationContext evaluationContext) {
         TaxLot trialAllocation = new TaxLot(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
         LocalDate tradeDate = LocalDate.now();

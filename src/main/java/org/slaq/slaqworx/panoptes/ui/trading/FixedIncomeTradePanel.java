@@ -208,7 +208,7 @@ public class FixedIncomeTradePanel extends FormLayout {
             Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
             EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache);
             long startTime = System.currentTimeMillis();
-            Future<?> future = TradeEvaluator.getPortfolioExecutor()
+            Future<?> future = AssetCache.getPortfolioExecutor()
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
                             PortfolioSummary portfolio = assetCache.getPortfolioCache()

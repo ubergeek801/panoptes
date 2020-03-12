@@ -2,7 +2,8 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
@@ -101,8 +102,8 @@ public class TradeEvaluationResult implements ProtobufSerializable {
 
     private Impact aggregateImpact = Impact.POSITIVE;
 
-    private final ConcurrentHashMap<PortfolioRuleKey, Map<EvaluationGroup, Impact>> ruleImpactMap =
-            new ConcurrentHashMap<>();
+    private final HashMap<PortfolioRuleKey, Map<EvaluationGroup, Impact>> ruleImpactMap =
+            new HashMap<>(100);
 
     /**
      * Creates a new, empty {@code TradeEvaluationResult}.
@@ -142,6 +143,19 @@ public class TradeEvaluationResult implements ProtobufSerializable {
         } else if (impact == Impact.NEGATIVE) {
             aggregateImpact = Impact.NEGATIVE;
         }
+    }
+
+    /**
+     * Updates this {@code TradeEvaluationResult} with impacts based on the given {@code Portfolio}
+     * evaluation results. Provided primarily for convenience as an accumulator for
+     * {@code Stream.collect()}.
+     *
+     * @param portfolioResults
+     *            a {@code Pair} consisting of a key identifying the {@code Portfolio} under
+     *            evaluation, and a {@code Map} correlating a {@code Rule}'s key with its results
+     */
+    public void addImpacts(Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> portfolioResults) {
+        addImpacts(portfolioResults.getLeft(), portfolioResults.getRight());
     }
 
     /**
@@ -207,6 +221,7 @@ public class TradeEvaluationResult implements ProtobufSerializable {
         int result = 1;
         result = prime * result + ((aggregateImpact == null) ? 0 : aggregateImpact.hashCode());
         result = prime * result + ((ruleImpactMap == null) ? 0 : ruleImpactMap.hashCode());
+
         return result;
     }
 
@@ -219,5 +234,23 @@ public class TradeEvaluationResult implements ProtobufSerializable {
      */
     public boolean isCompliant() {
         return aggregateImpact != Impact.NEGATIVE && aggregateImpact != Impact.UNKNOWN;
+    }
+
+    /**
+     * Merges the given results into this one. Provided primarily for convenience as a combiner for
+     * {@code Stream.collect()}.
+     *
+     * @param otherResult
+     *            the {@code TradeEvaluationResult} to be merged into this one
+     * @return the merged {@code TradeEvaluationResult}
+     */
+    public TradeEvaluationResult merge(TradeEvaluationResult otherResult) {
+        otherResult.getImpacts().entrySet()
+                .forEach(tradeEntry -> tradeEntry.getValue().entrySet()
+                        .forEach(portfolioEntry -> addImpact(tradeEntry.getKey().getPortfolioKey(),
+                                tradeEntry.getKey().getRuleKey(), portfolioEntry.getKey(),
+                                portfolioEntry.getValue())));
+
+        return this;
     }
 }

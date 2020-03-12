@@ -110,7 +110,7 @@ public class TradeEvaluatorTest {
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
                         TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
         TradeEvaluationResult result =
-                evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext());
+                evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext()).get();
 
         Map<EvaluationGroup, Impact> p1r1Impact =
                 result.getImpacts().get(new PortfolioRuleKey(p1.getKey(), p1Rule1.getKey()));
@@ -139,7 +139,7 @@ public class TradeEvaluatorTest {
         // in a short-circuit evaluation we won't know which rule would have failed, or what other
         // results might be included, but the overall result should be non-compliance
 
-        result = evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext());
+        result = evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext()).get();
         assertFalse(result.isCompliant(),
                 "short-circuit evaluation should have yielded non-compliance");
     }
@@ -177,7 +177,7 @@ public class TradeEvaluatorTest {
                 new TradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
                         TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
         TradeEvaluationResult result =
-                evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext());
+                evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext()).get();
         assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
 
         // create a Transaction attempting to sell sec1 (never mind that the Portfolio doesn't hold
@@ -189,7 +189,7 @@ public class TradeEvaluatorTest {
         Trade sellTrade =
                 new Trade(tradeDate, tradeDate, Map.of(portfolio.getKey(), sellTransaction));
 
-        result = evaluator.evaluate(sellTrade, TestUtil.defaultTestEvaluationContext());
+        result = evaluator.evaluate(sellTrade, TestUtil.defaultTestEvaluationContext()).get();
         assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");
 
         // create a Portfolio with an initial Position in sec1
@@ -199,11 +199,11 @@ public class TradeEvaluatorTest {
                 "test", portfolioPositions, null, rules);
 
         // try to buy again
-        result = evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext());
+        result = evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext()).get();
         assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
 
         // try to sell again
-        result = evaluator.evaluate(sellTrade, TestUtil.defaultTestEvaluationContext());
+        result = evaluator.evaluate(sellTrade, TestUtil.defaultTestEvaluationContext()).get();
         assertTrue(result.isCompliant(), "attempt to sell restricted Security should have passed");
     }
 

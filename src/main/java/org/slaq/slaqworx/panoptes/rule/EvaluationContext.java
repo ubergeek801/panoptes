@@ -124,6 +124,16 @@ public class EvaluationContext {
         marketValues.clear();
     }
 
+    /**
+     * Provides a copy of this {@code EvaluationContext}.
+     *
+     * @return a new {@code EvaluationContext} copying this one
+     */
+    public EvaluationContext copy() {
+        return new EvaluationContext(securityProvider, portfolioProvider, evaluationMode,
+                securityOverrides);
+    }
+
     @Override
     public boolean equals(Object obj) {
         return (this == obj);

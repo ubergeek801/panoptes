@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
@@ -200,7 +201,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
             throws ExecutionException, InterruptedException {
         // perform evaluation on each Portfolio
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
-        ExecutorService evaluationExecutor = Executors.newWorkStealingPool(4);
+        ExecutorService evaluationExecutor =
+                Executors.newWorkStealingPool(ForkJoinPool.getCommonPoolParallelism());
         long portfolioStartTime;
         long portfolioEndTime;
         long numPortfolioRuleEvalutions = 0;
@@ -248,7 +250,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
 
             tradeStartTimes.add(System.currentTimeMillis());
             TradeEvaluationResult result = tradeEvaluator.evaluate(trade,
-                    new EvaluationContext(assetCache, assetCache, EvaluationMode.FULL_EVALUATION));
+                    new EvaluationContext(assetCache, assetCache, EvaluationMode.FULL_EVALUATION))
+                    .get();
             long numEvaluationGroups = result.getImpacts().values().stream()
                     .collect(Collectors.summingLong(m -> m.size()));
             tradeEndTimes.add(System.currentTimeMillis());
