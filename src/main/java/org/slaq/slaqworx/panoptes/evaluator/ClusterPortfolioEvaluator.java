@@ -54,9 +54,8 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
 
-        Future<Map<RuleKey, EvaluationResult>> futureResult = assetCache.getClusterExecutor()
+        // merely submit a request to the cluster executor
+        return assetCache.getClusterExecutor()
                 .submit(new PortfolioEvaluationRequest(portfolio, transaction, evaluationContext));
-
-        return futureResult;
     }
 }

@@ -3,7 +3,8 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,20 +30,19 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     /**
-     * {@code ShortCircuitingResultMapper} is a {@code Function} intended to {@code flatMap()} a
-     * {@code Stream} of {@code EvaluationResult}s, short-circuiting the {@code Stream} (by mapping
-     * subsequent elements to empty streams) after a failed result is encountered.
+     * {@code ShortCircuiter} is a {@code Predicate} and {@code Consumer} intended for use with on a
+     * {@code Stream} of {@code Rule}s. The {@code Stream} is "short-circuited" by
+     * {@code takeWhile()} after a failed result is encountered by {@code peek()}.
      * <p>
-     * Note that a {@code Function} used by {@code flatMap()} is expected to be stateless; we bend
-     * that definition somewhat by maintaining state (specifically, whether a failed result has
+     * Note that a {@code Predicate} used by {@code takeWhile()} is expected to be stateless; we
+     * bend that definition somewhat by maintaining state (specifically, whether a failed result has
      * already been seen). However, this is consistent with the semantics of short-circuit
      * evaluation, which allow any number of results to be returned when an evaluation is
      * short-circuited, as long as at least one of them indicates a failure.
      *
      * @author jeremy
      */
-    private static class ShortCircuitingResultMapper
-            implements Function<EvaluationResult, Stream<EvaluationResult>> {
+    private static class ShortCircuiter implements Consumer<EvaluationResult>, Predicate<Rule> {
         private final PortfolioKey portfolioKey;
         private final Transaction transaction;
         private final boolean isShortCircuiting;
@@ -61,7 +61,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
          *            {@code true} if short-circuiting is to be activated, {@code false} to allow
          *            all evaluations to pass through
          */
-        public ShortCircuitingResultMapper(PortfolioKey portfolioKey, Transaction transaction,
+        public ShortCircuiter(PortfolioKey portfolioKey, Transaction transaction,
                 boolean isShortCircuiting) {
             this.portfolioKey = portfolioKey;
             this.transaction = transaction;
@@ -69,15 +69,15 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
         }
 
         @Override
-        public Stream<EvaluationResult> apply(EvaluationResult result) {
+        public void accept(EvaluationResult result) {
             if (!isShortCircuiting) {
-                // always pass the result through
-                return Stream.of(result);
+                // nothing to do
+                return;
             }
 
             if (failedResult != null) {
-                // no need to visit any more results
-                return Stream.empty();
+                // no need to inspect any more results
+                return;
             }
 
             boolean isPassed;
@@ -94,8 +94,6 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
             if (!isPassed) {
                 failedResult = result;
             }
-
-            return Stream.of(result);
         }
 
         /**
@@ -106,6 +104,12 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
          */
         public boolean isShortCircuited() {
             return (failedResult != null);
+        }
+
+        @Override
+        public boolean test(Rule t) {
+            // if a failed result has been encountered already, remaining Rules can be filtered
+            return (failedResult == null);
         }
     }
 
@@ -156,15 +160,14 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 portfolio.getName());
         long startTime = System.currentTimeMillis();
 
-        ShortCircuitingResultMapper shortCircuiter = new ShortCircuitingResultMapper(
-                portfolio.getKey(), transaction,
+        ShortCircuiter shortCircuiter = new ShortCircuiter(portfolio.getKey(), transaction,
                 evaluationContext.getEvaluationMode() == EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
         // evaluate the Rules
-        Map<RuleKey, EvaluationResult> results = rules
+        Map<RuleKey, EvaluationResult> results = rules.takeWhile(shortCircuiter)
                 .map(r -> new RuleEvaluator(r, portfolio, transaction,
                         portfolio.getBenchmark(portfolioProvider), evaluationContext).call())
-                .flatMap(shortCircuiter)
+                .peek(shortCircuiter)
                 .collect(Collectors.toMap(result -> result.getRuleKey(), result -> result));
 
         LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms",
