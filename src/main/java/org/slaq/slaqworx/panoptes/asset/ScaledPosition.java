@@ -2,11 +2,11 @@ package org.slaq.slaqworx.panoptes.asset;
 
 /**
  * A {@code ScaledPosition} is a pseudo-{@code Position} typically arising from an indirect holding
- * of a {@code Security}. For example, if {@code Portfolio} A holds some amount of
- * {@code Portfolio B}, and {@code Portfolio} B holds some amount of {@code Security} S, then
- * {@code Portfolio A} indirectly holds some amount of S, where that amount is given by (B's amount
- * in S) * (A's shares of B) / (total shares of B). The quotient portion of this equation is taken
- * to be the {@code scale}.
+ * of a {@code Security}. For example, if {@code Portfolio} A holds some amount of {@code Portfolio}
+ * B, and {@code Portfolio} B holds some amount of {@code Security} S, then {@code Portfolio} A
+ * indirectly holds some amount of S, where that amount is given by (B's amount in S) * (A's shares
+ * of B) / (total shares of B). The quotient portion of this equation is taken to be the
+ * {@code scale}.
  * <p>
  * Indirect holdings may be transitive, meaning that the above example could be extended with
  * {@code Portfolio} C, D, etc. The relationships between held {@code Portfolio}s form a directed
