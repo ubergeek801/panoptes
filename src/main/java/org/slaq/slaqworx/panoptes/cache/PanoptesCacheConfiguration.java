@@ -8,6 +8,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
@@ -195,9 +196,9 @@ public class PanoptesCacheConfiguration {
                 .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
         // set up the Portfolio evaluator executor
-        config.getExecutorConfig(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR)
-                .setPoolSize(ForkJoinPool.getCommonPoolParallelism())
-                .setName(REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR);
+        ExecutorConfig portfolioExecutorConfig = new ExecutorConfig(
+                REMOTE_PORTFOLIO_EVALUATOR_EXECUTOR, ForkJoinPool.getCommonPoolParallelism());
+        config.addExecutorConfig(portfolioExecutorConfig);
 
         // set up cluster join discovery appropriate for the detected environment
         if (isClustered) {

@@ -22,7 +22,7 @@
         <protobuf.version>3.11.4</protobuf.version>
         <vaadin.version>14.1.19</vaadin.version>
 
-        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication 
+        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
             -XX:MaxGCPauseMillis=5000
             -XX:+DisableExplicitGC --add-modules java.se
             --add-exports
@@ -32,7 +32,8 @@
             --add-opens java.base/java.nio=ALL-UNNAMED
             --add-opens
             java.base/sun.nio.ch=ALL-UNNAMED
-            --add-opens java.management/sun.management=ALL-UNNAMED
+            --add-opens
+            java.management/sun.management=ALL-UNNAMED
             --add-opens
             jdk.management/com.sun.management.internal=ALL-UNNAMED
             -Xms2560m -Xmx2560m</globalJvmArgs>
@@ -297,6 +298,10 @@
             <artifactId>micronaut-http-server-netty</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.micronaut.configuration</groupId>
+            <artifactId>micronaut-jdbc-hikari</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut.kubernetes</groupId>
             <artifactId>micronaut-kubernetes-discovery-client</artifactId>
         </dependency>
@@ -330,16 +335,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.configuration</groupId>
-            <artifactId>micronaut-jdbc-hikari</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
