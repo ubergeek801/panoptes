@@ -57,47 +57,48 @@ public class SerializerUtil {
      * @throws RuntimeException
      *             if the value could not be coerced
      */
-    public static Object coerce(SecurityAttribute<?> attribute, Object value) {
+    @SuppressWarnings("unchecked")
+    public static <T> T coerce(SecurityAttribute<T> attribute, Object value) {
         if (value == null) {
             return null;
         }
 
         Class<?> attributeType = attribute.getType();
         if (attributeType.isAssignableFrom(value.getClass())) {
-            return value;
+            return (T)value;
         }
 
         if (attributeType == String.class) {
-            return String.valueOf(value);
+            return (T)String.valueOf(value);
         }
 
         try {
             if (attributeType == BigDecimal.class) {
                 if (value instanceof String) {
-                    return new BigDecimal((String)value);
+                    return (T)new BigDecimal((String)value);
                 }
                 if (value instanceof Double) {
-                    return BigDecimal.valueOf((Double)value);
+                    return (T)BigDecimal.valueOf((Double)value);
                 }
                 if (value instanceof Float) {
-                    return BigDecimal.valueOf((Float)value);
+                    return (T)BigDecimal.valueOf((Float)value);
                 }
                 if (value instanceof Integer) {
-                    return new BigDecimal((Integer)value);
+                    return (T)new BigDecimal((Integer)value);
                 }
                 if (value instanceof Long) {
-                    return new BigDecimal((Long)value);
+                    return (T)new BigDecimal((Long)value);
                 }
             } else if (Temporal.class.isAssignableFrom(attributeType)) {
                 // probably one of the java.time classes; give it a try
                 if (value instanceof String) {
-                    return SerializerUtil.defaultJsonMapper().readValue("\"" + value + "\"",
+                    return (T)SerializerUtil.defaultJsonMapper().readValue("\"" + value + "\"",
                             attributeType);
                 }
             }
 
             // do whatever the JSON mapper would do
-            return SerializerUtil.defaultJsonMapper().readValue(String.valueOf(value),
+            return (T)SerializerUtil.defaultJsonMapper().readValue(String.valueOf(value),
                     attributeType);
         } catch (Exception e) {
             // TODO throw a better exception

@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -48,5 +49,17 @@ public class WeightedAverageRuleTest {
                 null);
         assertTrue(rule.evaluate(TestUtil.p1, null, null, TestUtil.defaultTestEvaluationContext())
                 .isPassed(), "rule with 4.0 upper limit should have passed");
+    }
+
+    /**
+     * Tests that {@code getParameterDescription()} behaves as expected.
+     */
+    @Test
+    public void testGetParameterDescription() {
+        WeightedAverageRule<?> rule = new WeightedAverageRule<>(null, "test", null,
+                TestUtil.moovyRating, 1.02, null, null);
+
+        // we don't care too much about the description as long as it isn't null
+        assertNotNull(rule.getParameterDescription(), "should have obtained parameter description");
     }
 }

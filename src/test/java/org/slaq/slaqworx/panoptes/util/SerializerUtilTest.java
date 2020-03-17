@@ -1,9 +1,15 @@
 package org.slaq.slaqworx.panoptes.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
+
+import io.micronaut.core.serialize.JdkSerializer;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +22,77 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  * @author jeremy
  */
 public class SerializerUtilTest {
+    /**
+     * Tests that {@code coerce()} behaves as expected.
+     */
+    @Test
+    public void testCocerce() {
+        SecurityAttribute<String> stringAttribute =
+                SecurityAttribute.of("stringAttribute", 101, String.class, null);
+
+        String coercedString = SerializerUtil.coerce(stringAttribute, "aString");
+        assertEquals("aString", coercedString, "coerced String should equal original");
+
+        coercedString = SerializerUtil.coerce(stringAttribute, null);
+        assertNull(coercedString, "coerced null should be null");
+
+        coercedString = SerializerUtil.coerce(stringAttribute, 31337);
+        assertEquals("31337", coercedString, "coerced int should equal stringified value");
+
+        SecurityAttribute<BigDecimal> bigDecimalAttribute =
+                SecurityAttribute.of("bigDecimalAttribute", 102, BigDecimal.class, null);
+
+        BigDecimal coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, "31337");
+        assertEquals(new BigDecimal("31337"), coercedBigDecimal,
+                "coerced String should equal converted BigDecimal");
+
+        coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, "31337.00");
+        assertEquals(new BigDecimal("31337.00"), coercedBigDecimal,
+                "coerced String should equal converted BigDecimal");
+
+        coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337);
+        assertEquals(BigDecimal.valueOf(31337), coercedBigDecimal,
+                "coerced int should equal converted BigDecimal");
+
+        coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337L);
+        assertEquals(BigDecimal.valueOf(31337L), coercedBigDecimal,
+                "coerced long should equal converted BigDecimal");
+
+        coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337f);
+        assertEquals(BigDecimal.valueOf(31337f), coercedBigDecimal,
+                "coerced float should equal converted BigDecimal");
+
+        coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337d);
+        assertEquals(BigDecimal.valueOf(31337d), coercedBigDecimal,
+                "coerced double should equal converted BigDecimal");
+
+        coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337.1);
+        assertEquals(BigDecimal.valueOf(31337.1), coercedBigDecimal,
+                "coerced double should equal converted BigDecimal");
+
+        try {
+            coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, "bogus");
+            fail("coerced bogus value should have thrown exception");
+        } catch (Exception expected) {
+            // ignore
+        }
+    }
+
+    /**
+     * Tests that {@code testDefaultJdkSerializer()} behaves as expected.
+     */
+    @Test
+    public void testDefaultJdkSerializer() {
+        JdkSerializer serializer = SerializerUtil.defaultJdkSerializer();
+
+        assertNotNull(serializer, "should have obtained serializer");
+
+        // quick sanity check of the serializer
+        byte[] serialized = serializer.serialize("foo").get();
+        String deserialized = serializer.deserialize(serialized, String.class).get();
+        assertEquals("foo", deserialized, "deserialized value should equals() original");
+    }
+
     /**
      * Tests that {@code jsonToAttributes()} behaves as expected.
      */

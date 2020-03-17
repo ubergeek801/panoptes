@@ -1,6 +1,9 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -12,6 +15,8 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
 
 /**
  * {@code TradeEvaluationResultTest} tests the functionality of the {@code TradeEvaluationResult}.
@@ -68,11 +73,130 @@ public class TradeEvaluationResultTest {
     }
 
     /**
-     * Tests that an empty result behaves as expected.
+     * Tests that {@code equals()} behaves as expected.
      */
     @Test
-    public void testEmptyResult() {
-        TradeEvaluationResult emptyResult = new TradeEvaluationResult();
-        assertTrue(emptyResult.isCompliant(), "empty result should be compliant");
+    public void testEquals() {
+        // Portfolios, Rules and EvaluationGroups can be bogus for this test
+        PortfolioKey portfolio1Key = new PortfolioKey("test1", 1);
+        PortfolioKey portfolio2Key = new PortfolioKey("test2", 1);
+        RuleKey rule1Key = new RuleKey("rule1");
+        RuleKey rule2Key = new RuleKey("rule2");
+        EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
+        EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
+
+        TradeEvaluationResult result1 = new TradeEvaluationResult();
+        result1.addImpact(portfolio1Key, rule1Key, evalGroup1, Impact.POSITIVE);
+        result1.addImpact(portfolio1Key, rule1Key, evalGroup2, Impact.NEGATIVE);
+        result1.addImpact(portfolio2Key, rule2Key, evalGroup1, Impact.POSITIVE);
+        result1.addImpact(portfolio2Key, rule2Key, evalGroup2, Impact.NEGATIVE);
+        TradeEvaluationResult result1a = new TradeEvaluationResult();
+        result1a.addImpact(portfolio1Key, rule1Key, evalGroup1, Impact.POSITIVE);
+        result1a.addImpact(portfolio1Key, rule1Key, evalGroup2, Impact.NEGATIVE);
+        result1a.addImpact(portfolio2Key, rule2Key, evalGroup1, Impact.POSITIVE);
+        result1a.addImpact(portfolio2Key, rule2Key, evalGroup2, Impact.NEGATIVE);
+        TradeEvaluationResult result2 = new TradeEvaluationResult();
+        result2.addImpact(portfolio1Key, rule2Key, evalGroup1, Impact.POSITIVE);
+        result2.addImpact(portfolio1Key, rule2Key, evalGroup2, Impact.NEGATIVE);
+        result2.addImpact(portfolio2Key, rule1Key, evalGroup1, Impact.POSITIVE);
+        result2.addImpact(portfolio2Key, rule1Key, evalGroup2, Impact.NEGATIVE);
+
+        assertEquals(result1, result1, "result should equals() itself");
+        assertEquals(result1, result1a, "result should equals() identical result");
+        assertNotEquals(result1, result2, "results with different contents should not be equal");
+        assertFalse(result1.equals(null), "result should not equals() null");
+    }
+
+    /**
+     * Tests that {@code isCompliant() behaves as expected.
+     */
+    @Test
+    public void testIsCompliant() {
+        TradeEvaluationResult result = new TradeEvaluationResult();
+
+        assertTrue(result.isCompliant(), "empty result should be compliant");
+
+        PortfolioKey portfolioKey = new PortfolioKey("test1", 1);
+        RuleKey rule1Key = new RuleKey("rule1");
+        RuleKey rule2Key = new RuleKey("rule2");
+        EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
+        EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
+
+        result.addImpact(portfolioKey, rule1Key, evalGroup1, Impact.POSITIVE);
+        assertTrue(result.isCompliant(), "result with only positive Impacts should be compliant");
+
+        result.addImpact(portfolioKey, rule1Key, evalGroup2, Impact.NEUTRAL);
+        assertTrue(result.isCompliant(),
+                "result with only positive and neutral Impacts should be compliant");
+
+        result.addImpact(portfolioKey, rule2Key, evalGroup1, Impact.UNKNOWN);
+        assertFalse(result.isCompliant(), "result with an unknown Impact should not be compliant");
+
+        result.addImpact(portfolioKey, rule2Key, evalGroup2, Impact.NEGATIVE);
+        assertFalse(result.isCompliant(), "result with a negative Impact should not be compliant");
+    }
+
+    /**
+     * Tests that {@code merge()} behaves as expected.
+     */
+    @Test
+    public void testMerge() {
+        // Portfolios, Rules and EvaluationGroups can be bogus for this test
+        PortfolioKey portfolio1Key = new PortfolioKey("test1", 1);
+        PortfolioKey portfolio2Key = new PortfolioKey("test2", 1);
+        RuleKey rule1Key = new RuleKey("rule1");
+        RuleKey rule2Key = new RuleKey("rule2");
+        EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
+        EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
+
+        TradeEvaluationResult result1 = new TradeEvaluationResult();
+        result1.addImpact(portfolio1Key, rule1Key, evalGroup1, Impact.POSITIVE);
+        result1.addImpact(portfolio1Key, rule1Key, evalGroup2, Impact.NEGATIVE);
+        result1.addImpact(portfolio2Key, rule2Key, evalGroup1, Impact.POSITIVE);
+        result1.addImpact(portfolio2Key, rule2Key, evalGroup2, Impact.NEGATIVE);
+        TradeEvaluationResult result2 = new TradeEvaluationResult();
+        result2.addImpact(portfolio1Key, rule2Key, evalGroup1, Impact.POSITIVE);
+        result2.addImpact(portfolio1Key, rule2Key, evalGroup2, Impact.NEGATIVE);
+        result2.addImpact(portfolio2Key, rule1Key, evalGroup1, Impact.POSITIVE);
+        result2.addImpact(portfolio2Key, rule1Key, evalGroup2, Impact.NEGATIVE);
+
+        TradeEvaluationResult merged = result1.merge(result2);
+        Map<PortfolioRuleKey, Map<EvaluationGroup, Impact>> allImpacts = merged.getImpacts();
+
+        assertNotNull(allImpacts, "should have obtained Impact results");
+        // 2 Portfolios * 2 Rules = 4 impact results
+        assertEquals(4, allImpacts.size(), "unexpected number of PortfolioRule results");
+
+        PortfolioRuleKey portfolio1Rule1Key = new PortfolioRuleKey(portfolio1Key, rule1Key);
+        Map<EvaluationGroup, Impact> groupImpacts = allImpacts.get(portfolio1Rule1Key);
+        assertNotNull(groupImpacts, "should have found group Impacts for Portfolio 1 and Rule 1");
+        Impact impact = groupImpacts.get(evalGroup1);
+        assertEquals(Impact.POSITIVE, impact, "unexpected Impact for EvaluationGroup 1");
+        impact = groupImpacts.get(evalGroup2);
+        assertEquals(Impact.NEGATIVE, impact, "unexpected Impact for EvaluationGroup 2");
+
+        PortfolioRuleKey portfolio1Rule2Key = new PortfolioRuleKey(portfolio1Key, rule2Key);
+        groupImpacts = allImpacts.get(portfolio1Rule2Key);
+        assertNotNull(groupImpacts, "should have found group Impacts for Portfolio 1 and Rule 2");
+        impact = groupImpacts.get(evalGroup1);
+        assertEquals(Impact.POSITIVE, impact, "unexpected Impact for EvaluationGroup 1");
+        impact = groupImpacts.get(evalGroup2);
+        assertEquals(Impact.NEGATIVE, impact, "unexpected Impact for EvaluationGroup 2");
+
+        PortfolioRuleKey portfolio2Rule1Key = new PortfolioRuleKey(portfolio2Key, rule1Key);
+        groupImpacts = allImpacts.get(portfolio2Rule1Key);
+        assertNotNull(groupImpacts, "should have found group Impacts for Portfolio 2 and Rule 1");
+        impact = groupImpacts.get(evalGroup1);
+        assertEquals(Impact.POSITIVE, impact, "unexpected Impact for EvaluationGroup 1");
+        impact = groupImpacts.get(evalGroup2);
+        assertEquals(Impact.NEGATIVE, impact, "unexpected Impact for EvaluationGroup 2");
+
+        PortfolioRuleKey portfolio2Rule2Key = new PortfolioRuleKey(portfolio2Key, rule2Key);
+        groupImpacts = allImpacts.get(portfolio2Rule2Key);
+        assertNotNull(groupImpacts, "should have found group Impacts for Portfolio 2 and Rule 2");
+        impact = groupImpacts.get(evalGroup1);
+        assertEquals(Impact.POSITIVE, impact, "unexpected Impact for EvaluationGroup 1");
+        impact = groupImpacts.get(evalGroup2);
+        assertEquals(Impact.NEGATIVE, impact, "unexpected Impact for EvaluationGroup 2");
     }
 }
