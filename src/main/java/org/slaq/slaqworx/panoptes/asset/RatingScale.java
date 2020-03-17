@@ -14,7 +14,7 @@ import java.util.HashMap;
  * @author jeremy
  */
 public class RatingScale {
-    private final Double[] notchValues;
+    private final double[] notchValues;
     private final ArrayList<RatingNotch> notches;
     private final HashMap<String, RatingNotch> symbolRatingMap;
 
@@ -31,7 +31,7 @@ public class RatingScale {
         notches = new ArrayList<>(ratings);
         Collections.sort(notches);
 
-        notchValues = new Double[notches.size()];
+        notchValues = new double[notches.size()];
 
         symbolRatingMap = new HashMap<>(notches.size());
 
@@ -53,7 +53,7 @@ public class RatingScale {
 
     /**
      * Obtains the {@code RatingNotch} corresponding to the given rating value: that is, notch
-     * <i>i</i> such that <i>i</i>.lower <= value < (<i>i</i> + 1).lower. If value is lower or
+     * <i>i</i> such that <i>i</i>.lower &lt;= value &lt; (<i>i</i> + 1).lower. If value is lower or
      * higher than the minimum or maximum value of the scale, the lowest or highest
      * {@code RatingNotch}, respectively, is returned.
      *

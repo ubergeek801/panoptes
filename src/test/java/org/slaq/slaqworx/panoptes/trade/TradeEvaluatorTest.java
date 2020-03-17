@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,12 +61,10 @@ public class TradeEvaluatorTest {
     public void testEvaluate() throws Exception {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-        Security s1 = securityProvider.newSecurity("TradeEvaluatorTestSec1",
-                Map.of(SecurityAttribute.duration, 3.0, SecurityAttribute.price,
-                        new BigDecimal("100.00")));
-        Security s2 = securityProvider.newSecurity("TradeEvaluatorTestSec2",
-                Map.of(SecurityAttribute.duration, 4.0, SecurityAttribute.price,
-                        new BigDecimal("100.00")));
+        Security s1 = securityProvider.newSecurity("TradeEvaluatorTestSec1", SecurityAttribute
+                .mapOf(SecurityAttribute.duration, 3.0, SecurityAttribute.price, 100d));
+        Security s2 = securityProvider.newSecurity("TradeEvaluatorTestSec2", SecurityAttribute
+                .mapOf(SecurityAttribute.duration, 4.0, SecurityAttribute.price, 100d));
 
         HashSet<Position> p1Positions = new HashSet<>();
         p1Positions.add(new SimplePosition(1_000, s1.getKey()));
@@ -150,8 +147,7 @@ public class TradeEvaluatorTest {
      */
     @Test
     public void testEvaluate_eligibility() throws Exception {
-        Security sec1 =
-                TestUtil.createTestSecurity(assetCache, "sec1", "nobody", new BigDecimal("100"));
+        Security sec1 = TestUtil.createTestSecurity(assetCache, "sec1", "nobody", 100);
 
         // create an eligibility Rule excluding sec1
         GroovyPositionFilter sec1Filter = GroovyPositionFilter.of("s.isin == 'sec1'");
@@ -212,8 +208,8 @@ public class TradeEvaluatorTest {
      */
     @Test
     public void testEvaluateRoom() throws Exception {
-        Map<SecurityAttribute<?>, ? super Object> security1Attributes = Map.of(
-                SecurityAttribute.duration, 3d, SecurityAttribute.price, new BigDecimal("1.00"));
+        Map<SecurityAttribute<?>, ? super Object> security1Attributes = SecurityAttribute
+                .mapOf(SecurityAttribute.duration, 3d, SecurityAttribute.price, 1d);
         Security security1 = TestUtil.testSecurityProvider().newSecurity("TradeEvaluatorTestSec3",
                 security1Attributes);
 
@@ -226,8 +222,8 @@ public class TradeEvaluatorTest {
                         SecurityAttribute.duration, null, 3.5, null);
         Map<RuleKey, ? extends ConfigurableRule> p1Rules = Map.of(rule1.getKey(), rule1);
 
-        Map<SecurityAttribute<?>, ? super Object> security2Attributes = Map.of(
-                SecurityAttribute.duration, 4d, SecurityAttribute.price, new BigDecimal("1.00"));
+        Map<SecurityAttribute<?>, ? super Object> security2Attributes = SecurityAttribute
+                .mapOf(SecurityAttribute.duration, 4d, SecurityAttribute.price, 1d);
         Security trialSecurity = TestUtil.testSecurityProvider()
                 .newSecurity("TradeEvaluatorTestSec4", security2Attributes);
 

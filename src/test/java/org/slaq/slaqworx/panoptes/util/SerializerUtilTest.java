@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public class SerializerUtilTest {
         Map<SecurityAttribute<?>, ? super Object> map = SerializerUtil.jsonToAttributes(json);
         assertEquals(4, map.size(), "unexpected map size");
         assertEquals("0MV4CFXX", map.get(SecurityAttribute.cusip), "unexpected value for cusip");
-        assertEquals(new BigDecimal("2.60"), map.get(SecurityAttribute.yield),
+        assertEquals(2.6, (double)map.get(SecurityAttribute.yield), TestUtil.EPSILON,
                 "unexpected value for yield");
         assertEquals(99.1, (double)map.get(SecurityAttribute.rating1Value), TestUtil.EPSILON,
                 "unexpected value for rating1Value");
@@ -39,7 +38,7 @@ public class SerializerUtilTest {
         // note the reordered keys which unfortunately makes this test slightly brittle
         assertEquals(
                 "{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\","
-                        + "\"yield\":2.60,\"rating1Value\":99.1}",
+                        + "\"yield\":2.6,\"rating1Value\":99.1}",
                 output.toString(), "unexpected JSON");
     }
 }

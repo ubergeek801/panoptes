@@ -187,21 +187,21 @@ public class SecurityFilterPanel extends FormLayout {
         filter = append(filter, SecurityAttribute.region, regionTextField.getValue());
         filter = append(filter, SecurityAttribute.sector, sectorTextField.getValue());
         filter = append(filter, SecurityAttribute.currency, currencyTextField.getValue());
-        filter = append(filter, SecurityAttribute.coupon, couponMinMaxField.getMinValue(),
-                couponMinMaxField.getMaxValue());
+        filter = append(filter, SecurityAttribute.coupon, toDouble(couponMinMaxField.getMinValue()),
+                toDouble(couponMinMaxField.getMaxValue()));
         filter = append(filter, SecurityAttribute.maturityDate,
                 maturityDateMinMaxField.getMinValue(), maturityDateMinMaxField.getMaxValue());
         filter = append(filter, SecurityAttribute.rating1Value,
                 toDouble(ratingMinMaxField.getMinValue()),
                 toDouble(ratingMinMaxField.getMaxValue()));
-        filter = append(filter, SecurityAttribute.yield, yieldMinMaxField.getMinValue(),
-                yieldMinMaxField.getMaxValue());
+        filter = append(filter, SecurityAttribute.yield, toDouble(yieldMinMaxField.getMinValue()),
+                toDouble(yieldMinMaxField.getMaxValue()));
         filter = append(filter, SecurityAttribute.duration,
                 toDouble(durationMinMaxField.getMinValue()),
                 toDouble(durationMinMaxField.getMaxValue()));
         filter = append(filter, SecurityAttribute.issuer, issuerTextField.getValue());
-        filter = append(filter, SecurityAttribute.price, priceMinMaxField.getMinValue(),
-                priceMinMaxField.getMaxValue());
+        filter = append(filter, SecurityAttribute.price, toDouble(priceMinMaxField.getMinValue()),
+                toDouble(priceMinMaxField.getMaxValue()));
         Predicate<SecurityAttributes> finalFilter = filter;
 
         Predicate<Security> securityFilter =

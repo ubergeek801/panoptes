@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -49,11 +48,11 @@ public class SecuritySerializerTest {
     public void testSerialization() throws Exception {
         SecuritySerializer serializer = new SecuritySerializer();
 
-        Map<SecurityAttribute<?>, ? super Object> attributes = Map.of(SecurityAttribute.isin,
-                "dummy", SecurityAttribute.country, "US", SecurityAttribute.coupon,
-                new BigDecimal("4.00"), SecurityAttribute.currency, "USD",
-                SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration, 3.1,
-                SecurityAttribute.price, new BigDecimal("99.0000"));
+        Map<SecurityAttribute<?>, ? super Object> attributes =
+                SecurityAttribute.mapOf(SecurityAttribute.isin, "dummy", SecurityAttribute.country,
+                        "US", SecurityAttribute.coupon, 4d, SecurityAttribute.currency, "USD",
+                        SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration,
+                        3.1, SecurityAttribute.price, 99d);
         Security security = new Security(attributes);
 
         byte[] buffer = serializer.write(security);

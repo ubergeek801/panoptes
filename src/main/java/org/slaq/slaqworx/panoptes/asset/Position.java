@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
@@ -30,7 +29,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public interface Position extends Keyed<PositionKey>, ProtobufSerializable {
+public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSerializable {
     /**
      * Obtains the amount held by this {@code Position}.
      *
@@ -111,9 +110,9 @@ public interface Position extends Keyed<PositionKey>, ProtobufSerializable {
                 .map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
     }
 
+    @Override
     public default double getMarketValue(EvaluationContext evaluationContext) {
-        BigDecimal price = getAttributeValue(SecurityAttribute.price, evaluationContext);
-        return price.multiply(BigDecimal.valueOf(getAmount())).doubleValue();
+        return getAttributeValue(SecurityAttribute.price, evaluationContext) * getAmount();
     }
 
     /**

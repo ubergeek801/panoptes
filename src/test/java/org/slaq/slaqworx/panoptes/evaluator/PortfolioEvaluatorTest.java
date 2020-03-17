@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -115,26 +114,16 @@ public class PortfolioEvaluatorTest {
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
-        Security iss1Sec1 = TestUtil.createTestSecurity(assetCache, "iss1Sec1", "ISSFOO",
-                new BigDecimal("1.00"));
-        Security iss1Sec2 = TestUtil.createTestSecurity(assetCache, "iss1Sec2", "ISSFOO",
-                new BigDecimal("1.00"));
-        Security iss1Sec3 = TestUtil.createTestSecurity(assetCache, "iss1Sec3", "ISSFOO",
-                new BigDecimal("1.00"));
-        Security iss2Sec1 = TestUtil.createTestSecurity(assetCache, "iss2Sec1", "ISSBAR",
-                new BigDecimal("1.00"));
-        Security iss2Sec2 = TestUtil.createTestSecurity(assetCache, "iss2Sec2", "ISSBAR",
-                new BigDecimal("1.00"));
-        Security iss3Sec1 = TestUtil.createTestSecurity(assetCache, "iss3Sec1", "ISSBAZ",
-                new BigDecimal("1.00"));
-        Security iss4Sec1 = TestUtil.createTestSecurity(assetCache, "iss4Sec1", "ISSABC",
-                new BigDecimal("1.00"));
-        Security iss4Sec2 = TestUtil.createTestSecurity(assetCache, "iss4Sec2", "ISSABC",
-                new BigDecimal("1.00"));
-        Security iss5Sec1 = TestUtil.createTestSecurity(assetCache, "iss5Sec1", "ISSDEF",
-                new BigDecimal("1.00"));
-        Security iss6Sec1 = TestUtil.createTestSecurity(assetCache, "iss6Sec1", "ISSGHI",
-                new BigDecimal("1.00"));
+        Security iss1Sec1 = TestUtil.createTestSecurity(assetCache, "iss1Sec1", "ISSFOO", 1);
+        Security iss1Sec2 = TestUtil.createTestSecurity(assetCache, "iss1Sec2", "ISSFOO", 1);
+        Security iss1Sec3 = TestUtil.createTestSecurity(assetCache, "iss1Sec3", "ISSFOO", 1);
+        Security iss2Sec1 = TestUtil.createTestSecurity(assetCache, "iss2Sec1", "ISSBAR", 1);
+        Security iss2Sec2 = TestUtil.createTestSecurity(assetCache, "iss2Sec2", "ISSBAR", 1);
+        Security iss3Sec1 = TestUtil.createTestSecurity(assetCache, "iss3Sec1", "ISSBAZ", 1);
+        Security iss4Sec1 = TestUtil.createTestSecurity(assetCache, "iss4Sec1", "ISSABC", 1);
+        Security iss4Sec2 = TestUtil.createTestSecurity(assetCache, "iss4Sec2", "ISSABC", 1);
+        Security iss5Sec1 = TestUtil.createTestSecurity(assetCache, "iss5Sec1", "ISSDEF", 1);
+        Security iss6Sec1 = TestUtil.createTestSecurity(assetCache, "iss6Sec1", "ISSGHI", 1);
 
         // the top 3 issuers are ISSFOO (300 or 30%), ISSBAR (200 or 20%), ISSABC (200 or 20%) for a
         // total of 70% concentration; the top 2 are 50% concentration
@@ -233,21 +222,21 @@ public class PortfolioEvaluatorTest {
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
 
         Map<SecurityAttribute<?>, ? super Object> usdAttributes =
-                Map.of(SecurityAttribute.currency, "USD", SecurityAttribute.rating1Value, 90d,
-                        SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
-                        SecurityAttribute.price, new BigDecimal("1.00"));
+                SecurityAttribute.mapOf(SecurityAttribute.currency, "USD",
+                        SecurityAttribute.rating1Value, 90d, SecurityAttribute.duration, 3d,
+                        SecurityAttribute.issuer, "ISSFOO", SecurityAttribute.price, 1d);
         Security usdSecurity = TestUtil.createTestSecurity(assetCache, "usd", usdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
-                Map.of(SecurityAttribute.currency, "NZD", SecurityAttribute.rating1Value, 80d,
-                        SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
-                        SecurityAttribute.price, new BigDecimal("1.00"));
+                SecurityAttribute.mapOf(SecurityAttribute.currency, "NZD",
+                        SecurityAttribute.rating1Value, 80d, SecurityAttribute.duration, 4d,
+                        SecurityAttribute.issuer, "ISSFOO", SecurityAttribute.price, 1d);
         Security nzdSecurity = TestUtil.createTestSecurity(assetCache, "nzd", nzdAttributes);
 
         Map<SecurityAttribute<?>, ? super Object> cadAttributes =
-                Map.of(SecurityAttribute.currency, "CAD", SecurityAttribute.rating1Value, 75d,
-                        SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
-                        SecurityAttribute.price, new BigDecimal("1.00"));
+                SecurityAttribute.mapOf(SecurityAttribute.currency, "CAD",
+                        SecurityAttribute.rating1Value, 75d, SecurityAttribute.duration, 5d,
+                        SecurityAttribute.issuer, "ISSBAR", SecurityAttribute.price, 1d);
         Security cadSecurity = TestUtil.createTestSecurity(assetCache, "cad", cadAttributes);
 
         HashSet<Position> positions = new HashSet<>();

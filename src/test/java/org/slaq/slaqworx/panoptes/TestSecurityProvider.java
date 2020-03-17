@@ -40,7 +40,8 @@ public class TestSecurityProvider implements SecurityProvider {
      *            the additional attributes to associate with the {@code Security}
      * @return the newly created {@code Security}
      */
-    public Security newSecurity(String assetId, Map<SecurityAttribute<?>, Object> attributes) {
+    public Security newSecurity(String assetId,
+            Map<SecurityAttribute<?>, ? super Object> attributes) {
         if (assetId != null) {
             attributes = new HashMap<>(attributes);
             attributes.put(SecurityAttribute.isin, assetId);

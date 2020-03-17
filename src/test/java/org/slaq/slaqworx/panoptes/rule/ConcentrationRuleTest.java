@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,11 +37,10 @@ public class ConcentrationRuleTest {
                         SecurityAttribute.region, TestUtil.defaultTestEvaluationContext())),
                 null, 0.1, null);
 
-        Security emergingMarketSecurity =
-                securityProvider.newSecurity("em", Map.of(SecurityAttribute.region,
-                        "Emerging Markets", SecurityAttribute.price, new BigDecimal("1.00")));
-        Security usSecurity = securityProvider.newSecurity("us", Map.of(SecurityAttribute.region,
-                "US", SecurityAttribute.price, new BigDecimal("1.00")));
+        Security emergingMarketSecurity = securityProvider.newSecurity("em", SecurityAttribute
+                .mapOf(SecurityAttribute.region, "Emerging Markets", SecurityAttribute.price, 1d));
+        Security usSecurity = securityProvider.newSecurity("us", SecurityAttribute
+                .mapOf(SecurityAttribute.region, "US", SecurityAttribute.price, 1d));
 
         // create a Portfolio with 50% concentration in Emerging Markets
         HashSet<Position> positions = new HashSet<>();
@@ -116,12 +113,10 @@ public class ConcentrationRuleTest {
                         TestUtil.defaultTestEvaluationContext())),
                 0.95, 1.05, null);
 
-        Security brlSecurity =
-                securityProvider.newSecurity("brl", Map.of(SecurityAttribute.currency, "BRL",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
-        Security nzdSecurity =
-                securityProvider.newSecurity("nzd", Map.of(SecurityAttribute.currency, "NZD",
-                        SecurityAttribute.price, new BigDecimal("1.00")));
+        Security brlSecurity = securityProvider.newSecurity("brl", SecurityAttribute
+                .mapOf(SecurityAttribute.currency, "BRL", SecurityAttribute.price, 1d));
+        Security nzdSecurity = securityProvider.newSecurity("nzd", SecurityAttribute
+                .mapOf(SecurityAttribute.currency, "NZD", SecurityAttribute.price, 1d));
 
         // create a benchmark with 50% concentration in BRL
         HashSet<Position> benchmarkPositions = new HashSet<>();

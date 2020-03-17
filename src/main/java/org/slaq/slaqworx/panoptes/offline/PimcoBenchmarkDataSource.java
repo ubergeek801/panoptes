@@ -245,7 +245,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 attributes.put(SecurityAttribute.region, region);
                 attributes.put(SecurityAttribute.sector, sector);
                 attributes.put(SecurityAttribute.currency, currency);
-                attributes.put(SecurityAttribute.coupon, coupon);
+                attributes.put(SecurityAttribute.coupon, coupon.doubleValue());
                 attributes.put(SecurityAttribute.maturityDate, maturityDate);
                 attributes.put(SecurityAttribute.rating1Symbol, rating1Symbol);
                 double rating1Value = pimcoRatingScale.getRatingNotch(rating1Symbol).getMiddle();
@@ -268,7 +268,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                             pimcoRatingScale.getRatingNotch(rating3Symbol).getMiddle());
                 }
 
-                attributes.put(SecurityAttribute.yield, yield);
+                attributes.put(SecurityAttribute.yield, yield.doubleValue());
                 attributes.put(SecurityAttribute.duration, duration.doubleValue());
 
                 // use the description as the issuer unless the sector is Currency, in which case
@@ -278,7 +278,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
                 }
 
                 BigDecimal price = calculatePrice(asOfDate, maturityDate, yield);
-                attributes.put(SecurityAttribute.price, price);
+                attributes.put(SecurityAttribute.price, price.doubleValue());
                 Security security = securityMap.computeIfAbsent(new SecurityKey(isin),
                         i -> new Security(attributes));
 

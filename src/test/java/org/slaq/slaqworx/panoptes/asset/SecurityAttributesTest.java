@@ -20,8 +20,8 @@ public class SecurityAttributesTest {
     @Test
     public void testAsSortedMap() {
         Map<SecurityAttribute<?>, ? super Object> attributes =
-                Map.of(SecurityAttribute.isin, "foo", SecurityAttribute.amount, 100d,
-                        SecurityAttribute.duration, 4d, SecurityAttribute.country, "US",
+                SecurityAttribute.mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.amount,
+                        100d, SecurityAttribute.duration, 4d, SecurityAttribute.country, "US",
                         SecurityAttribute.issuer, "slaq", SecurityAttribute.price, 100d);
         SecurityAttributes securityAttributes = new SecurityAttributes(attributes);
         SortedMap<SecurityAttribute<?>, Object> sortedAttributes = securityAttributes.asSortedMap();

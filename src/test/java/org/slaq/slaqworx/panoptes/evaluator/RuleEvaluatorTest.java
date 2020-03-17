@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -164,11 +163,10 @@ public class RuleEvaluatorTest {
      */
     @Test
     public void testEvaluate_exception() {
-        Security s1 =
-                TestUtil.createTestSecurity(assetCache, "s1", "issuer1", new BigDecimal("100.00"));
+        Security s1 = TestUtil.createTestSecurity(assetCache, "s1", "issuer1", 100);
         // a Security without an issuer will cause problems with an issuer filter later
         Security s2 = TestUtil.createTestSecurity(assetCache, "s2",
-                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
 
         Position p1 = TestUtil.createTestPosition(assetCache, 250, s1);
         Position p2 = TestUtil.createTestPosition(assetCache, 750, s2);

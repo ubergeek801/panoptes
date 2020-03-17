@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -46,19 +45,19 @@ public class TestUtil {
     private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
     private static final TestRuleProvider ruleProvider = new TestRuleProvider();
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = Map.of(moovyRating,
-            90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration, 4d,
-            SecurityAttribute.country, "US", SecurityAttribute.price, new BigDecimal("1.00"));
+    public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = SecurityAttribute
+            .mapOf(moovyRating, 90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration,
+                    4d, SecurityAttribute.country, "US", SecurityAttribute.price, 1d);
     public static final Security s1 = securityProvider.newSecurity("TestUtilS1", s1Attributes);
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes = Map.of(moovyRating,
-            85d, npRating, 78d, SecurityAttribute.duration, 4d, SecurityAttribute.country, "NZ",
-            SecurityAttribute.price, new BigDecimal("1.00"));
+    public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
+            SecurityAttribute.mapOf(moovyRating, 85d, npRating, 78d, SecurityAttribute.duration, 4d,
+                    SecurityAttribute.country, "NZ", SecurityAttribute.price, 1d);
     public static final Security s2 = securityProvider.newSecurity("TestUtilS2", s2Attributes);
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes = Map.of(moovyRating,
-            80d, npRating, 82d, SecurityAttribute.duration, 2.1d, SecurityAttribute.country, "CA",
-            SecurityAttribute.price, new BigDecimal("1.00"));
+    public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes =
+            SecurityAttribute.mapOf(moovyRating, 80d, npRating, 82d, SecurityAttribute.duration,
+                    2.1d, SecurityAttribute.country, "CA", SecurityAttribute.price, 1d);
     public static final Security s3 = securityProvider.newSecurity("TestUtilS3", s3Attributes);
 
     public static final Set<Position> p1Positions =
@@ -208,9 +207,9 @@ public class TestUtil {
      * @return the {@code Security} that was created
      */
     public static Security createTestSecurity(AssetCache assetCache, String assetId, String issuer,
-            BigDecimal price) {
-        return createTestSecurity(assetCache, assetId,
-                Map.of(SecurityAttribute.issuer, issuer, SecurityAttribute.price, price));
+            double price) {
+        return createTestSecurity(assetCache, assetId, SecurityAttribute
+                .mapOf(SecurityAttribute.issuer, issuer, SecurityAttribute.price, price));
     }
 
     /**

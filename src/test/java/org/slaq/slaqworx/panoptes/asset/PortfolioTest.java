@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -49,7 +48,7 @@ public class PortfolioTest {
     @Test
     public void testGetPositions() {
         Security dummySecurity = securityProvider.newSecurity("dummy",
-                Map.of(SecurityAttribute.price, new BigDecimal("1.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
         HashSet<Position> positions = new HashSet<>();
         positions.add(new SimplePosition(100, dummySecurity.getKey()));
         positions.add(new SimplePosition(200, dummySecurity.getKey()));
@@ -87,21 +86,21 @@ public class PortfolioTest {
     public void testGetPositions_lookthrough() {
         // just a plain old Security (no lookthrough)
         Security plainSecurity1 = securityProvider.newSecurity("sec1",
-                Map.of(SecurityAttribute.price, new BigDecimal("1.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
 
         // these Securities have a Portfolio key associated and thus represent holdings in those
         // funds
         PortfolioKey p2Key = new PortfolioKey("p2", 1);
         Security p2Security = securityProvider.newSecurity("p2Sec",
-                Map.of(SecurityAttribute.price, new BigDecimal("1.00"), SecurityAttribute.portfolio,
+                SecurityAttribute.mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio,
                         p2Key, SecurityAttribute.amount, 1000d));
         PortfolioKey p3Key = new PortfolioKey("p3", 1);
         Security p3Security = securityProvider.newSecurity("p3Sec",
-                Map.of(SecurityAttribute.price, new BigDecimal("1.00"), SecurityAttribute.portfolio,
+                SecurityAttribute.mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio,
                         p3Key, SecurityAttribute.amount, 1000d));
         PortfolioKey p4Key = new PortfolioKey("p4", 1);
         Security p4Security = securityProvider.newSecurity("p4Sec",
-                Map.of(SecurityAttribute.price, new BigDecimal("1.00"), SecurityAttribute.portfolio,
+                SecurityAttribute.mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio,
                         p4Key, SecurityAttribute.amount, 1000d));
 
         // p1 is 20% p2 and 20% p3
@@ -218,11 +217,11 @@ public class PortfolioTest {
     @Test
     public void testGetPositions_taxLot() {
         Security sec1 = TestUtil.createTestSecurity(assetCache, "sec1",
-                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
         Security sec2 = TestUtil.createTestSecurity(assetCache, "sec2",
-                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
         Security sec3 = TestUtil.createTestSecurity(assetCache, "sec3",
-                Map.of(SecurityAttribute.price, new BigDecimal("100.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
 
         TaxLot p1TaxLot1 = new TaxLot(100, sec1.getKey());
         TaxLot p1TaxLot2 = new TaxLot(-50, sec1.getKey());
@@ -282,7 +281,7 @@ public class PortfolioTest {
     @Test
     public void testGetTotalMarketValue() {
         Security dummySecurity = securityProvider.newSecurity("dummy",
-                Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 2d));
         HashSet<Position> positions = new HashSet<>();
         positions.add(new SimplePosition(100, dummySecurity.getKey()));
         positions.add(new SimplePosition(200, dummySecurity.getKey()));
@@ -296,7 +295,7 @@ public class PortfolioTest {
 
         // changing the price should change the market value
         dummySecurity = securityProvider.newSecurity("dummy",
-                Map.of(SecurityAttribute.price, new BigDecimal("4.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 4d));
         assertEquals(4000, portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
                 TestUtil.EPSILON, "unexpected total amount after price change");
     }

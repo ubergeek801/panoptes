@@ -2,9 +2,7 @@ package org.slaq.slaqworx.panoptes.calc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +31,7 @@ public class TotalMarketValuePositionCalculatorTest {
 
         TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
         Security dummySecurity = securityProvider.newSecurity("dummy",
-                Map.of(SecurityAttribute.price, new BigDecimal("2.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.price, 2d));
 
         HashSet<Position> positions = new HashSet<>();
         positions.add(new SimplePosition(100, dummySecurity.getKey()));

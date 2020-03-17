@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.asset;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,10 +38,10 @@ public class SecurityTest {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         Security s = securityProvider.newSecurity("dummy",
-                Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
-                        SecurityAttribute.duration, 3.1, SecurityAttribute.coupon,
-                        new BigDecimal("4.00"), SecurityAttribute.maturityDate,
-                        LocalDate.of(2019, 8, 5), SecurityAttribute.price, new BigDecimal("1.00")));
+                SecurityAttribute.mapOf(SecurityAttribute.country, "US", SecurityAttribute.cusip,
+                        "abcde", SecurityAttribute.duration, 3.1, SecurityAttribute.coupon, 4d,
+                        SecurityAttribute.maturityDate, LocalDate.of(2019, 8, 5),
+                        SecurityAttribute.price, 1d));
         SecurityAttributes attributes = s.getAttributes();
         assertEquals("US", attributes.getValue(SecurityAttribute.country),
                 "country value should have matched");
@@ -50,7 +49,7 @@ public class SecurityTest {
                 "cusip value should have matched");
         assertEquals(3.1, attributes.getValue(SecurityAttribute.duration), TestUtil.EPSILON,
                 "duration value should have matched");
-        assertEquals(new BigDecimal("4.00"), attributes.getValue(SecurityAttribute.coupon),
+        assertEquals(4d, attributes.getValue(SecurityAttribute.coupon), TestUtil.EPSILON,
                 "coupon value should have matched");
         assertEquals(LocalDate.of(2019, 8, 5), attributes.getValue(SecurityAttribute.maturityDate),
                 "maturity date value should have matched");
@@ -61,8 +60,8 @@ public class SecurityTest {
      */
     @Test
     public void testGetAttributeValue() {
-        Map<SecurityAttribute<?>, ? super Object> attributes =
-                Map.of(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
+        Map<SecurityAttribute<?>, ? super Object> attributes = SecurityAttribute
+                .mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
         Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
         assertEquals("foo", security.getAttributeValue(SecurityAttribute.isin),
                 "unexpected value for isin");
@@ -75,14 +74,14 @@ public class SecurityTest {
      */
     @Test
     public void testGetEffectiveAttributeValue() {
-        Map<SecurityAttribute<?>, ? super Object> attributes =
-                Map.of(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
+        Map<SecurityAttribute<?>, ? super Object> attributes = SecurityAttribute
+                .mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
         Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
 
         // test some overridden attribute values
         Map<SecurityKey, SecurityAttributes> overrides =
-                Map.of(security.getKey(), new SecurityAttributes(
-                        Map.of(SecurityAttribute.duration, 3d, SecurityAttribute.country, "US")));
+                Map.of(security.getKey(), new SecurityAttributes(SecurityAttribute
+                        .mapOf(SecurityAttribute.duration, 3d, SecurityAttribute.country, "US")));
         EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache,
                 EvaluationMode.FULL_EVALUATION, overrides);
         assertEquals(3d,
@@ -102,21 +101,23 @@ public class SecurityTest {
         TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
         Security s1 = securityProvider.newSecurity("s1",
-                Map.of(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
-                        SecurityAttribute.price, new BigDecimal("99.1234")));
-        Security s2 = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.cusip, "abcde",
-                SecurityAttribute.currency, "USD", SecurityAttribute.duration, 3d));
-        Security s3 = securityProvider.newSecurity("s3", Map.of(SecurityAttribute.description,
-                "a security", SecurityAttribute.price, new BigDecimal("99.1000")));
+                SecurityAttribute.mapOf(SecurityAttribute.country, "US", SecurityAttribute.cusip,
+                        "abcde", SecurityAttribute.price, 99.1234));
+        Security s2 = securityProvider.newSecurity("s2",
+                SecurityAttribute.mapOf(SecurityAttribute.cusip, "abcde",
+                        SecurityAttribute.currency, "USD", SecurityAttribute.duration, 3d));
+        Security s3 = securityProvider.newSecurity("s3", SecurityAttribute
+                .mapOf(SecurityAttribute.description, "a security", SecurityAttribute.price, 99.1));
         Security s4 = securityProvider.newSecurity("s4", Collections.emptyMap());
         // these are the same as above, with the attributes permuted; these should hash to the same
         Security s1a = securityProvider.newSecurity("s1",
-                Map.of(SecurityAttribute.cusip, "abcde", SecurityAttribute.price,
-                        new BigDecimal("99.1234"), SecurityAttribute.country, "US"));
-        Security s2a = securityProvider.newSecurity("s2", Map.of(SecurityAttribute.cusip, "abcde",
-                SecurityAttribute.duration, 3d, SecurityAttribute.currency, "USD"));
-        Security s3a = securityProvider.newSecurity("s3", Map.of(SecurityAttribute.price,
-                new BigDecimal("99.1000"), SecurityAttribute.description, "a security"));
+                SecurityAttribute.mapOf(SecurityAttribute.cusip, "abcde", SecurityAttribute.price,
+                        99.1234, SecurityAttribute.country, "US"));
+        Security s2a = securityProvider.newSecurity("s2",
+                SecurityAttribute.mapOf(SecurityAttribute.cusip, "abcde",
+                        SecurityAttribute.duration, 3d, SecurityAttribute.currency, "USD"));
+        Security s3a = securityProvider.newSecurity("s3", SecurityAttribute
+                .mapOf(SecurityAttribute.price, 99.1, SecurityAttribute.description, "a security"));
         Security s4a = securityProvider.newSecurity("s4", Collections.emptyMap());
 
         HashSet<Security> securities = new HashSet<>();
