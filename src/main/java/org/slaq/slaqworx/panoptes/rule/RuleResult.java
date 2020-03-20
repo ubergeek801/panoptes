@@ -283,6 +283,7 @@ public class RuleResult {
         result = prime * result + (isPassed ? 1231 : 1237);
         result = prime * result + ((threshold == null) ? 0 : threshold.hashCode());
         result = prime * result + ((value == null) ? 0 : value.hashCode());
+
         return result;
     }
 

@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
@@ -78,20 +77,6 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
         this.positions = new ArrayList<>(positions);
         this.portfolioKey = portfolioKey;
         totalMarketValue = portfolioMarketValue;
-    }
-
-    /**
-     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
-     * parent {@code Portfolio}.
-     *
-     * @param positions
-     *            the {@code Position}s that will comprise this {@code PositionSet}
-     * @param portfolioKey
-     *            the (possibly {@code null}) {@code PortfolioKey} associated with this
-     *            {@code PositionSet}
-     */
-    public PositionSet(Stream<P> positions, PortfolioKey portfolioKey) {
-        this(positions.collect(Collectors.toList()), portfolioKey);
     }
 
     @Override

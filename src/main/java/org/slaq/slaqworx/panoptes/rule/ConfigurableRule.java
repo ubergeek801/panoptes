@@ -18,7 +18,5 @@ public interface ConfigurableRule extends Rule, JsonConfigurable, ProtobufSerial
      * @return the {@code Position} filter as a Groovy expression, or {@code null} if no filter is
      *         specified
      */
-    default public String getGroovyFilter() {
-        return null;
-    }
+    public String getGroovyFilter();
 }
