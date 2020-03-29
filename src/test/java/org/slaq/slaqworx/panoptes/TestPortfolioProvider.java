@@ -46,6 +46,7 @@ public class TestPortfolioProvider implements PortfolioProvider {
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
+     * @return a {@code Portfolio} with the specified configuration
      */
     public Portfolio newPortfolio(PortfolioKey key, String name, Set<Position> positions,
             Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
@@ -70,6 +71,7 @@ public class TestPortfolioProvider implements PortfolioProvider {
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
+     * @return a {@code Portfolio} with the specified configuration
      */
     public Portfolio newPortfolio(String id, String name, Set<Position> positions,
             Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {

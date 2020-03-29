@@ -61,7 +61,7 @@ public class Trade implements ProtobufSerializable {
 
         // Trade and TaxLot creation are a chicken-and-egg situation, so Trade is responsible for
         // updating its TaxLots at create time
-        transactions.values().stream().flatMap(t -> t.getPositions())
+        transactions.values().stream().flatMap(Transaction::getPositions)
                 .forEach(a -> a.setTradeKey(this.key));
     }
 
@@ -87,12 +87,15 @@ public class Trade implements ProtobufSerializable {
      * @return the total allocation count
      */
     public int getAllocationCount() {
-        return transactions.values().stream().collect(Collectors.summingInt(t -> t.size()));
+        return transactions.values().stream().collect(Collectors.summingInt(Transaction::size));
     }
 
     /**
      * Obtains allocations of this {@code Trade} corresponding to the specified {@code Portfolio}.
      *
+     * @param portfolioKey
+     *            the {@code PortfolioKey} identifying the {@code Portfolio} for which to obtain
+     *            allocations
      * @return a {@code Stream} of {@code Position}s representing the allocations for the specified
      *         {@code Portfolio}
      */
@@ -135,7 +138,10 @@ public class Trade implements ProtobufSerializable {
 
     /**
      * Obtains the {@code Transaction} corresponding to the specified {@code Portfolio}.
-     *
+     * 
+     * @param portfolioKey
+     *            the {@code PortfolioKey} identifying the {@code Portfolio} for which to obtain the
+     *            transaction
      * @return the {@code Transaction} corresponding to the specified {@code Portfolio}, or
      *         {@code null} if it does not exist
      */

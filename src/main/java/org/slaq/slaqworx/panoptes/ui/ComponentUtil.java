@@ -27,8 +27,6 @@ public class ComponentUtil {
      *
      * @param labelText
      *            the text to be used as the button label
-     * @param clickListener
-     *            the listener to be invoked when the button is clicked
      * @return a {@code Button}
      */
     public static Button createButton(String labelText) {

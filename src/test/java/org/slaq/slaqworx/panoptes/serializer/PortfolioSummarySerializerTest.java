@@ -17,6 +17,9 @@ import org.slaq.slaqworx.panoptes.ui.PortfolioSummary;
 public class PortfolioSummarySerializerTest {
     /**
      * Tests that (de)serialization works as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {

@@ -26,6 +26,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
@@ -55,6 +56,8 @@ public class PimcoBenchmarkDatabaseLoader {
      *
      * @param event
      *            a {@code StartupEvent}
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @EventListener()
     protected void onStartup(StartupEvent event) throws Exception {
@@ -93,7 +96,7 @@ public class PimcoBenchmarkDatabaseLoader {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     Map<RuleKey, ConfigurableRule> ruleMap = pf.getRules()
-                            .collect(Collectors.toMap(r -> r.getKey(), r -> (ConfigurableRule)r));
+                            .collect(Collectors.toMap(Rule::getKey, r -> (ConfigurableRule)r));
                     ruleMapStore.storeAll(ruleMap);
                 }
             });
@@ -108,7 +111,7 @@ public class PimcoBenchmarkDatabaseLoader {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     Map<PositionKey, Position> positionMap =
-                            pf.getPositions().collect(Collectors.toMap(p -> p.getKey(), p -> p));
+                            pf.getPositions().collect(Collectors.toMap(Position::getKey, p -> p));
                     positionMapStore.storeAll(positionMap);
                 }
             });

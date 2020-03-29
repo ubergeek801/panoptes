@@ -193,7 +193,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
      *            the {@code SecurityAttribute} identifying the attribute
      * @param isRequired
      *            {@code true} if a return value is required, {@code false} otherwise
-     * @param context
+     * @param evaluationContext
      *            the {@code EvaluationContext} in which the attribute value is being retrieved
      * @return the effective value of the given attribute, or {@code null} if not assigned and
      *         {@code isRequired} is {@code false}

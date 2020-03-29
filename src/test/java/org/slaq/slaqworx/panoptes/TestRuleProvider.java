@@ -48,6 +48,7 @@ public class TestRuleProvider implements RuleProvider {
      * @param groupClassifier
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
+     * @return a {@code Rule} with the specified configuration
      */
     public Rule newConcentrationRule(RuleKey key, String description,
             Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,

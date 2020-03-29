@@ -169,6 +169,12 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
      * Calculates the price of a {@code Security} given the specified attributes, normalized to USD
      * 100.
      *
+     * @param asOfDate
+     *            the effective current date of the calculation
+     * @param maturityDate
+     *            the date that the {@code Security} matures
+     * @param effectiveYield
+     *            the effective yield of the {@code Security}
      * @return the calculated price
      */
     protected BigDecimal calculatePrice(LocalDate asOfDate, LocalDate maturityDate,

@@ -30,6 +30,7 @@ public class SecurityAttributeGroupClassifier
      * @param jsonConfiguration
      *            a JSON configuration specifying the {@code SecurityAttribute} on which to classify
      *            {@code Position}s
+     * @return a {@code SecurityAttributeGroupClassifier} with the specified configuration
      */
     public static SecurityAttributeGroupClassifier fromJson(String jsonConfiguration) {
         Configuration configuration;

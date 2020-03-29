@@ -53,7 +53,7 @@ public class EvaluationContextSerializer implements ByteArraySerializer<Evaluati
      * @param securityProvider
      *            the {@code SecurityProvider} to be used by the {@code EvaluationContext} to
      *            resolve {@code Security} references
-     * @param securityProvider
+     * @param portfolioProvider
      *            the {@code PortfolioProvider} to be used by the {@code EvaluationContext} to
      *            resolve {@code Portfolio} references
      * @return a {@code EvaluationContext}

@@ -25,6 +25,9 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 public class TradeSerializerTest {
     /**
      * Tests that (de)serialization works as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {

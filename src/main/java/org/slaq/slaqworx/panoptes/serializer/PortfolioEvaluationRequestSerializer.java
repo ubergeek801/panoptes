@@ -36,7 +36,7 @@ public class PortfolioEvaluationRequestSerializer
      *
      * @param portfolioProvider
      *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
-     * @param portfolioProvider
+     * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} references
      */
     public PortfolioEvaluationRequestSerializer(PortfolioProvider portfolioProvider,

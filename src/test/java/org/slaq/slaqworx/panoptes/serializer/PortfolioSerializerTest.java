@@ -25,6 +25,9 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 public class PortfolioSerializerTest {
     /**
      * Tests that (de)serialization works as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {

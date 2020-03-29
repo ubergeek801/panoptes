@@ -40,6 +40,7 @@ public class MarketValueRule extends LimitRule {
      *            filter
      * @param groupClassifier
      *            not used; merely included to conform to expected {@code fromJson()} signature
+     * @return a {@code MarketValueRule} with the specified configuration
      */
     public static MarketValueRule fromJson(String jsonConfiguration, RuleKey key,
             String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {

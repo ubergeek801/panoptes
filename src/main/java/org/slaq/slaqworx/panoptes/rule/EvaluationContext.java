@@ -65,6 +65,8 @@ public class EvaluationContext {
      *
      * @param securityProvider
      *            the {@code SecurityProvider} to use to resolve {@code Security} references
+     * @param portfolioProvider
+     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
      * @param evaluationMode
      *            the evaluation mode in which to evaluate
      */

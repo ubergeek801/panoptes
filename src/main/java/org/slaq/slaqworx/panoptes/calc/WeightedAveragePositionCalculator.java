@@ -18,6 +18,8 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  * weighted average of a {@code Position} collection with respect to some {@code SecurityAttribute}.
  *
  * @author jeremy
+ * @param <T>
+ *            the type on which the calculator operates
  */
 public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> {
     /**

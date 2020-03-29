@@ -23,6 +23,8 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * </ul>
  *
  * @author jeremy
+ * @param <T>
+ *            the type on which the rule operates
  */
 public class WeightedAverageRule<T> extends LimitRule {
     /**
@@ -50,6 +52,7 @@ public class WeightedAverageRule<T> extends LimitRule {
      * @param groupClassifier
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
+     * @return a {@code WeightedAverageRule} with the specified configuration
      */
     public static WeightedAverageRule<?> fromJson(String jsonConfiguration, RuleKey key,
             String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {

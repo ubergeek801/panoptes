@@ -53,6 +53,7 @@ public class ConcentrationRule extends LimitRule {
      * @param groupClassifier
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
+     * @return a {@code ConcentrationRule} with the specified configuration
      */
     public static ConcentrationRule fromJson(String jsonConfiguration, RuleKey key,
             String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {

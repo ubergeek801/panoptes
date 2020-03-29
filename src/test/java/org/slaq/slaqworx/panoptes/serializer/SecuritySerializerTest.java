@@ -21,6 +21,9 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 public class SecuritySerializerTest {
     /**
      * Tests that (de)serialization works with the values specified in a test file.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testMoreSerialization() throws Exception {
@@ -43,16 +46,20 @@ public class SecuritySerializerTest {
 
     /**
      * Tests that (de)serialization works as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {
         SecuritySerializer serializer = new SecuritySerializer();
 
-        Map<SecurityAttribute<?>, ? super Object> attributes =
-                SecurityAttribute.mapOf(SecurityAttribute.isin, "dummy", SecurityAttribute.country,
-                        "US", SecurityAttribute.coupon, 4d, SecurityAttribute.currency, "USD",
-                        SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration,
-                        3.1, SecurityAttribute.price, 99d);
+        Map<SecurityAttribute<?>,
+                ? super Object> attributes = SecurityAttribute.mapOf(SecurityAttribute.isin,
+                        "dummy", SecurityAttribute.country, "US", SecurityAttribute.coupon, 4d,
+                        SecurityAttribute.currency, "USD", SecurityAttribute.maturityDate,
+                        LocalDate.now(), SecurityAttribute.duration, 3.1, SecurityAttribute.price,
+                        99d);
         Security security = new Security(attributes);
 
         byte[] buffer = serializer.write(security);

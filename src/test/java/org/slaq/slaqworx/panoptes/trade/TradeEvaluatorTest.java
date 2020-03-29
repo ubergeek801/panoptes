@@ -56,6 +56,9 @@ public class TradeEvaluatorTest {
 
     /**
      * Tests that {@code evaluate()} behaves as expected.
+     *
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testEvaluate() throws Exception {
@@ -144,6 +147,9 @@ public class TradeEvaluatorTest {
     /**
      * Tests that {@code evaluate()} behaves as expected when using a {@code MarketValueRule} to
      * evaluate {@code Transaction} eligibility.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testEvaluate_eligibility() throws Exception {
@@ -205,6 +211,9 @@ public class TradeEvaluatorTest {
 
     /**
      * Tests that {@code evaluateRoom()} behaves as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testEvaluateRoom() throws Exception {

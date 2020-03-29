@@ -14,6 +14,9 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 public class RuleKeySerializerTest {
     /**
      * Tests that (de)serialization works as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {

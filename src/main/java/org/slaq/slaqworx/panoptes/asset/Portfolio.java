@@ -191,7 +191,7 @@ public class Portfolio
     /**
      * Indicates that this {@code Portfolio} is "abstract," such as an index.
      *
-     * @return {@code} true if this {@code Portfolio} is abstract, {@code false otherwise}
+     * @return {@code true} if this {@code Portfolio} is abstract, {@code false otherwise}
      */
     public boolean isAbstract() {
         // consider a Portfolio without Rules to be abstract

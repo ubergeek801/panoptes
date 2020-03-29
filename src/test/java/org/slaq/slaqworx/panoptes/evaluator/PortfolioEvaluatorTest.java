@@ -111,6 +111,9 @@ public class PortfolioEvaluatorTest {
     /**
      * Tests that {@code evaluate()} behaves as expected with {@code GroupAggregator}s (also
      * implicitly tests {@code TopNSecurityAttributeAggregator}).
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testEvaluateAggregation() throws Exception {
@@ -216,26 +219,29 @@ public class PortfolioEvaluatorTest {
      * Tests that {@code evaluate()} behaves as expected when input {@code Position}s are
      * partitioned among multiple {@code EvaluationGroup}s. This also implicitly tests
      * {@code ConcentrationRule} and {@code WeightedAverageRule}.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testEvaluateGroups() throws Exception {
         LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
 
-        Map<SecurityAttribute<?>, ? super Object> usdAttributes =
-                SecurityAttribute.mapOf(SecurityAttribute.currency, "USD",
-                        SecurityAttribute.rating1Value, 90d, SecurityAttribute.duration, 3d,
+        Map<SecurityAttribute<?>,
+                ? super Object> usdAttributes = SecurityAttribute.mapOf(SecurityAttribute.currency,
+                        "USD", SecurityAttribute.rating1Value, 90d, SecurityAttribute.duration, 3d,
                         SecurityAttribute.issuer, "ISSFOO", SecurityAttribute.price, 1d);
         Security usdSecurity = TestUtil.createTestSecurity(assetCache, "usd", usdAttributes);
 
-        Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
-                SecurityAttribute.mapOf(SecurityAttribute.currency, "NZD",
-                        SecurityAttribute.rating1Value, 80d, SecurityAttribute.duration, 4d,
+        Map<SecurityAttribute<?>,
+                ? super Object> nzdAttributes = SecurityAttribute.mapOf(SecurityAttribute.currency,
+                        "NZD", SecurityAttribute.rating1Value, 80d, SecurityAttribute.duration, 4d,
                         SecurityAttribute.issuer, "ISSFOO", SecurityAttribute.price, 1d);
         Security nzdSecurity = TestUtil.createTestSecurity(assetCache, "nzd", nzdAttributes);
 
-        Map<SecurityAttribute<?>, ? super Object> cadAttributes =
-                SecurityAttribute.mapOf(SecurityAttribute.currency, "CAD",
-                        SecurityAttribute.rating1Value, 75d, SecurityAttribute.duration, 5d,
+        Map<SecurityAttribute<?>,
+                ? super Object> cadAttributes = SecurityAttribute.mapOf(SecurityAttribute.currency,
+                        "CAD", SecurityAttribute.rating1Value, 75d, SecurityAttribute.duration, 5d,
                         SecurityAttribute.issuer, "ISSBAR", SecurityAttribute.price, 1d);
         Security cadSecurity = TestUtil.createTestSecurity(assetCache, "cad", cadAttributes);
 
@@ -321,6 +327,9 @@ public class PortfolioEvaluatorTest {
 
     /**
      * Tests that {@code evaluate()} behaves as expected when overrides are applied.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testEvaluateOverrides() throws Exception {

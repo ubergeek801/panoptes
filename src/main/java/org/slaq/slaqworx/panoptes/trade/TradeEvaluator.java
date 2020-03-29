@@ -140,7 +140,7 @@ public class TradeEvaluator {
      * @return the (approximate) maximum market value of the given {@code Security}, less than or
      *         equal to {@code targetValue}, that can be accepted by the {@code Portfolio} without
      *         violating compliance
-     * @throws ExcecutionException
+     * @throws ExecutionException
      *             if the calculation could not be processed
      * @throws InterruptedException
      *             if the {@code Thread} was interrupted during processing

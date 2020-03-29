@@ -108,7 +108,7 @@ public class TradeEvaluationResultTest {
     }
 
     /**
-     * Tests that {@code isCompliant() behaves as expected.
+     * Tests that {@code isCompliant()} behaves as expected.
      */
     @Test
     public void testIsCompliant() {

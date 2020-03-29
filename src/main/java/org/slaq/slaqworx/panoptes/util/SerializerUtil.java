@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.util;
 import java.math.BigDecimal;
 import java.time.temporal.Temporal;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -125,9 +126,10 @@ public class SerializerUtil {
     }
 
     /**
-     * Deserializes the given JSON to a Map of {@code SecurityAttribute} values.
+     * Deserializes the given JSON to a {@code Map} of {@code SecurityAttribute} values.
      *
      * @param jsonAttributes
+     *            a JSON representation of the attributes to be deserialized
      * @return a {@code Map} correlating a {@code SecurityAttribute} to its value
      */
     public static Map<SecurityAttribute<?>, ? super Object>
@@ -149,7 +151,7 @@ public class SerializerUtil {
 
         // now coerce the values into their expected types based on the corresponding
         // SecurityAttributes
-        return jsonMap.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
+        return jsonMap.entrySet().stream().collect(Collectors.toMap(Entry::getKey,
                 e -> SerializerUtil.coerce(e.getKey(), e.getValue())));
     }
 

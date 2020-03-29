@@ -95,6 +95,9 @@ public class SerializerUtilTest {
 
     /**
      * Tests that {@code jsonToAttributes()} behaves as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testJsonToAttributes() throws Exception {

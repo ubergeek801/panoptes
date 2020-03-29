@@ -45,19 +45,22 @@ public class TestUtil {
     private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
     private static final TestRuleProvider ruleProvider = new TestRuleProvider();
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = SecurityAttribute
-            .mapOf(moovyRating, 90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration,
-                    4d, SecurityAttribute.country, "US", SecurityAttribute.price, 1d);
+    public static final Map<SecurityAttribute<?>,
+            ? super Object> s1Attributes = SecurityAttribute.mapOf(moovyRating, 90d, npRating, 92d,
+                    fetchRating, 88d, SecurityAttribute.duration, 4d, SecurityAttribute.country,
+                    "US", SecurityAttribute.price, 1d);
     public static final Security s1 = securityProvider.newSecurity("TestUtilS1", s1Attributes);
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
-            SecurityAttribute.mapOf(moovyRating, 85d, npRating, 78d, SecurityAttribute.duration, 4d,
-                    SecurityAttribute.country, "NZ", SecurityAttribute.price, 1d);
+    public static final Map<SecurityAttribute<?>,
+            ? super Object> s2Attributes = SecurityAttribute.mapOf(moovyRating, 85d, npRating, 78d,
+                    SecurityAttribute.duration, 4d, SecurityAttribute.country, "NZ",
+                    SecurityAttribute.price, 1d);
     public static final Security s2 = securityProvider.newSecurity("TestUtilS2", s2Attributes);
 
-    public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes =
-            SecurityAttribute.mapOf(moovyRating, 80d, npRating, 82d, SecurityAttribute.duration,
-                    2.1d, SecurityAttribute.country, "CA", SecurityAttribute.price, 1d);
+    public static final Map<SecurityAttribute<?>,
+            ? super Object> s3Attributes = SecurityAttribute.mapOf(moovyRating, 80d, npRating, 82d,
+                    SecurityAttribute.duration, 2.1d, SecurityAttribute.country, "CA",
+                    SecurityAttribute.price, 1d);
     public static final Security s3 = securityProvider.newSecurity("TestUtilS3", s3Attributes);
 
     public static final Set<Position> p1Positions =
@@ -97,6 +100,7 @@ public class TestUtil {
      * @param groupClassifier
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
+     * @return a {@code ConcentrationRule} with the specified configuration
      */
     public static ConcentrationRule createTestConcentrationRule(AssetCache assetCache, RuleKey key,
             String description, Predicate<PositionEvaluationContext> positionFilter,
@@ -126,6 +130,7 @@ public class TestUtil {
      * @param rules
      *            the (possibly empty) {@code Collection} of {@code Rule}s associated with the
      *            {@code Portfolio}
+     * @return a {@code Portfolio} with the specified configuration
      */
     public static Portfolio createTestPortfolio(AssetCache assetCache, String id, String name,
             Set<Position> positions, PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
@@ -259,6 +264,7 @@ public class TestUtil {
      * @param groupClassifier
      *            the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may
      *            also implement {@code GroupAggregator}
+     * @return a {@code WeightedAverageRule} with the specified configuration
      */
     public static WeightedAverageRule<Double> createTestWeightedAverageRule(AssetCache assetCache,
             RuleKey key, String description, Predicate<PositionEvaluationContext> positionFilter,

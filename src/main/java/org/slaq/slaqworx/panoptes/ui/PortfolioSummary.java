@@ -95,8 +95,8 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
         } else if (!name.equals(other.name)) {
             return false;
         }
-        if (Double.doubleToLongBits(totalMarketValue) != Double
-                .doubleToLongBits(other.totalMarketValue)) {
+        if (Double.doubleToLongBits(totalMarketValue)
+                != Double.doubleToLongBits(other.totalMarketValue)) {
             return false;
         }
         return true;
@@ -130,7 +130,7 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
     /**
      * Obtains the total market value of the {@code Portfolio}.
      *
-     * @return
+     * @return the {@code Portfolio}'s total market value
      */
     public double getTotalMarketValue() {
         return totalMarketValue;

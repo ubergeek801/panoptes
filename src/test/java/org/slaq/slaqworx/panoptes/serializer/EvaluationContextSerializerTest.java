@@ -22,6 +22,9 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 public class EvaluationContextSerializerTest {
     /**
      * Tests that (de)serialization works as expected.
+     * 
+     * @throws Exception
+     *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {
