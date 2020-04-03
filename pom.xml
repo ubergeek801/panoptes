@@ -7,6 +7,7 @@
     <groupId>org.slaq.slaqworx</groupId>
     <artifactId>panoptes</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>panoptes</name>
     <url>https://github.com/ubergeek801/panoptes</url>
@@ -21,23 +22,13 @@
         <micronaut.version>1.3.3</micronaut.version>
         <protobuf.version>3.11.4</protobuf.version>
         <vaadin.version>14.1.21</vaadin.version>
-
-        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
-            -XX:MaxGCPauseMillis=5000
-            -XX:+DisableExplicitGC --add-modules java.se
-            --add-exports
-            java.base/jdk.internal.ref=ALL-UNNAMED
-            --add-opens
-            java.base/java.lang=ALL-UNNAMED
-            --add-opens java.base/java.nio=ALL-UNNAMED
-            --add-opens
-            java.base/sun.nio.ch=ALL-UNNAMED
-            --add-opens
-            java.management/sun.management=ALL-UNNAMED
-            --add-opens
-            jdk.management/com.sun.management.internal=ALL-UNNAMED
-            -Xms2560m -Xmx2560m</globalJvmArgs>
     </properties>
+
+    <modules>
+        <module>panoptes-common</module>
+        <module>panoptes-core</module>
+        <module>panoptes-ui</module>
+    </modules>
 
     <repositories>
         <!-- bintray is sometimes needed for fresh Micronaut releases -->
@@ -54,214 +45,57 @@
     </repositories>
 
     <build>
-        <plugins>
-            <!-- compile protobuf definitions for serialization -->
-            <plugin>
-                <groupId>com.github.os72</groupId>
-                <artifactId>protoc-jar-maven-plugin</artifactId>
-                <!-- this is usually but not always the same as ${protobuf.version} -->
-                <version>3.11.4</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <protocVersion>${protobuf.version}</protocVersion>
-                            <includeStdTypes>true</includeStdTypes>
-                            <outputTargets>
-                                <outputTarget>
-                                    <type>java</type>
-                                    <outputOptions>lite</outputOptions>
-                                    <outputDirectorySuffix>protobuf</outputDirectorySuffix>
-                                </outputTarget>
-                            </outputTargets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- create a Docker image for the application -->
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>2.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <allowInsecureRegistries>true</allowInsecureRegistries>
-                    <from>
-                        <!-- :13.0.2-amd64 -->
-                        <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:56a832ff972d60e4ed47a6a99812624910a9e5755d12f658a680a180f36e038e</image> -->
-                        <!-- :13.0.2-aarch64 -->
-                        <image>bellsoft/liberica-openjdk-alpine@sha256:eec1b1edfd1c65f23c342ca228a1c3fae0ad7d3e3cdbbfb35bc8dfe527245040</image>
-                    </from>
-                    <to>
-                        <image>ubergeek801/slaqworx</image>
-                    </to>
-                    <container>
-                        <!-- TODO figure out a way to DRY the global JVM flags -->
-                        <jvmFlags>
-                            <jvmFlag>-XX:+UseG1GC</jvmFlag>
-                            <jvmFlag>-XX:+UseStringDeduplication</jvmFlag>
-                            <jvmFlag>-XX:MaxGCPauseMillis=5000</jvmFlag>
-                            <jvmFlag>-XX:+DisableExplicitGC</jvmFlag>
-                            <jvmFlag>--add-modules</jvmFlag>
-                            <jvmFlag>java.se</jvmFlag>
-                            <jvmFlag>--add-exports</jvmFlag>
-                            <jvmFlag>java.base/jdk.internal.ref=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.base/java.lang=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.base/java.nio=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.base/sun.nio.ch=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>-Xms2560m</jvmFlag>
-                            <jvmFlag>-Xmx2560m</jvmFlag>
-
-                            <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>
-                            <jvmFlag>-XX:ActiveProcessorCount=6</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.port=8000</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.local.only=false</jvmFlag>
-                        </jvmFlags>
-                    </container>
-                </configuration>
-            </plugin>
-            <!-- perform the Vaadin voodoo -->
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-frontend</goal>
-                            <goal>build-frontend</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- process the Micronaut annotations -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-inject-java</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            <!-- patch protoc output to make ECJ happy (compiles fine with javac) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-patch-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <originalFile>target/generated-sources/protobuf/org/slaq/slaqworx/panoptes/proto/PanoptesSerialization.java</originalFile>
-                    <patches>
-                        <patch>protobuf.patch</patch>
-                    </patches>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>patch-protobuf</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>apply</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- set the desired environment when running unit tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
-                <configuration>
-                    <argLine>${globalJvmArgs}</argLine>
-                </configuration>
-            </plugin>
-            <!-- produce build-info to include in the application package -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.2.5.RELEASE</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build-info</goal>
-                        </goals>
-                        <configuration>
-                            <additionalProperties>
-                                <encoding.source>UTF-8</encoding.source>
-                                <encoding.reporting>UTF-8</encoding.reporting>
-                                <java.source>${maven.compiler.source}</java.source>
-                                <java.target>${maven.compiler.target}</java.target>
-                            </additionalProperties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- produce git-info to include in the application package -->
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.0</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                    <prefix>git</prefix>
-                    <verbose>false</verbose>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <format>properties</format>
-                    <gitDescribe>
-                        <skip>false</skip>
-                        <always>false</always>
-                        <dirty>-dirty</dirty>
-                    </gitDescribe>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- process the Micronaut annotations -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>io.micronaut</groupId>
+                                <artifactId>micronaut-inject-java</artifactId>
+                                <version>${micronaut.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <!-- use a Surefire plugin recent enough for JUnit Jupiter -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.22.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-bom</artifactId>
-                <type>pom</type>
-                <scope>import</scope>
-                <version>${vaadin.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-javalite</artifactId>
+                <version>${protobuf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-kubernetes</artifactId>
+                <version>2.0.1</version>
             </dependency>
             <dependency>
                 <groupId>io.micronaut</groupId>
@@ -270,112 +104,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.9</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-javalite</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-kubernetes</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-http-server-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.configuration</groupId>
-            <artifactId>micronaut-jdbc-hikari</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.kubernetes</groupId>
-            <artifactId>micronaut-kubernetes-discovery-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>javax-websocket-server-impl</artifactId>
-            <version>${jetty.version}</version>
-            <exclusions>
-                <!-- this duplicates javax.websocket-api -->
-                <exclusion>
-                    <groupId>javax.websocket</groupId>
-                    <artifactId>javax.websocket-client-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.configuration</groupId>
-            <artifactId>micronaut-micrometer-registry-prometheus</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-management</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-continuation</artifactId>
-            <version>${jetty.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.11</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>p6spy</groupId>
-            <artifactId>p6spy</artifactId>
-            <version>3.8.7</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.micronaut.test</groupId>
-            <artifactId>micronaut-test-junit5</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
 </project>
