@@ -38,11 +38,9 @@ public class MinMaxField<V> extends CustomField<Pair<V, V>> {
     public MinMaxField(String labelText, Component min, Component max) {
         HorizontalLayout outerLayout = new HorizontalLayout();
 
-        @SuppressWarnings("unchecked")
-        HasValue<?, V> minHasValue = (HasValue<?, V>)min;
+        @SuppressWarnings("unchecked") HasValue<?, V> minHasValue = (HasValue<?, V>)min;
         this.min = minHasValue;
-        @SuppressWarnings("unchecked")
-        HasValue<?, V> maxHasValue = (HasValue<?, V>)max;
+        @SuppressWarnings("unchecked") HasValue<?, V> maxHasValue = (HasValue<?, V>)max;
         this.max = maxHasValue;
 
         // unfortunately some components want to overflow their boundaries, so some hackery is

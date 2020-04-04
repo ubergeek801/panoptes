@@ -13,7 +13,10 @@
     <artifactId>panoptes-common</artifactId>
 
     <name>panoptes-common</name>
-    <url>https://github.com/ubergeek801/panoptes/panoptes-common</url>
+
+    <properties>
+        <protobuf.version>3.11.4</protobuf.version>
+    </properties>
 
     <build>
         <plugins>
@@ -75,6 +78,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-javalite</artifactId>
+            <version>${protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -83,6 +87,10 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-kubernetes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micronaut.kubernetes</groupId>

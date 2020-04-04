@@ -70,8 +70,8 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
             }
             query.append("(");
             Object[] keyComponents = getKeyComponents(key);
-            for (int keyComponentIndex =
-                    0; keyComponentIndex < keyComponents.length; keyComponentIndex++) {
+            for (int keyComponentIndex = 0; keyComponentIndex < keyComponents.length;
+                    keyComponentIndex++) {
                 if (keyComponentIndex > 0) {
                     query.append(", ");
                 }
@@ -84,7 +84,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
         query.append(")");
 
         return getJdbcTemplate().query(query.toString(), parameters, this).stream()
-                .collect(Collectors.toMap(v -> v.getKey(), v -> v));
+                .collect(Collectors.toMap(Keyed::getKey, v -> v));
     }
 
     @Override

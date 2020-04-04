@@ -18,10 +18,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
-        <jetty.version>9.4.27.v20200227</jetty.version>
-        <micronaut.version>1.3.3</micronaut.version>
-        <protobuf.version>3.11.4</protobuf.version>
-        <vaadin.version>14.1.21</vaadin.version>
+        <micronaut.version>1.3.4</micronaut.version>
     </properties>
 
     <modules>
@@ -71,6 +68,18 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                 </plugin>
+                <!-- produce build-info to include in application packages -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>2.2.5.RELEASE</version>
+                </plugin>
+                <!-- produce git-info to include in application packages -->
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <version>4.0.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -81,11 +90,6 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.2.3</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-javalite</artifactId>
-                <version>${protobuf.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>

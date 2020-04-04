@@ -51,10 +51,8 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
  */
 @MicronautTest
 public class TradeEvaluatorTest {
-    @Inject
-    private AssetCache assetCache;
-    @Inject
-    private ClusterPortfolioEvaluator clusterEvaluator;
+    @Inject private AssetCache assetCache;
+    @Inject private ClusterPortfolioEvaluator clusterEvaluator;
 
     /**
      * Tests that {@code evaluate()} behaves as expected.
@@ -189,7 +187,7 @@ public class TradeEvaluatorTest {
         HashSet<TaxLot> sellAllocations = new HashSet<>();
         TaxLot sellAlloc1 = TestUtil.createTestTaxLot(-100, sec1);
         sellAllocations.add(sellAlloc1);
-        Transaction sellTransaction = new Transaction(null, sellAllocations);
+        Transaction sellTransaction = new Transaction(portfolio.getKey(), sellAllocations);
         Trade sellTrade =
                 new Trade(tradeDate, tradeDate, Map.of(portfolio.getKey(), sellTransaction));
 

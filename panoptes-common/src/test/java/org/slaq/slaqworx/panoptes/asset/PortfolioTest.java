@@ -36,8 +36,7 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
  */
 @MicronautTest
 public class PortfolioTest {
-    @Inject
-    private AssetCache assetCache;
+    @Inject private AssetCache assetCache;
 
     private TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
     private TestPortfolioProvider portfolioProvider = TestUtil.testPortfolioProvider();

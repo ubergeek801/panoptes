@@ -39,7 +39,7 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
         }
 
         if (positionHierarchyOptions.contains(PositionHierarchyOption.TAXLOT)) {
-            positionStream = positionStream.flatMap(p -> p.getTaxLots());
+            positionStream = positionStream.flatMap(Position::getTaxLots);
         }
 
         return positionStream;

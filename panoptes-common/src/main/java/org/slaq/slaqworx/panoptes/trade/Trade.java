@@ -138,7 +138,7 @@ public class Trade implements ProtobufSerializable {
 
     /**
      * Obtains the {@code Transaction} corresponding to the specified {@code Portfolio}.
-     * 
+     *
      * @param portfolioKey
      *            the {@code PortfolioKey} identifying the {@code Portfolio} for which to obtain the
      *            transaction
