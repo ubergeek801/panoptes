@@ -180,6 +180,13 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- FIXME although we don't use micronaut-cache, micronaut seems to depend on it -->
+        <dependency>
+            <groupId>io.micronaut.cache</groupId>
+            <artifactId>micronaut-cache-core</artifactId>
+            <version>2.0.0.M1</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-micrometer-registry-prometheus</artifactId>

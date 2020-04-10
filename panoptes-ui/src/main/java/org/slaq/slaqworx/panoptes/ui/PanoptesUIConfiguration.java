@@ -1,6 +1,9 @@
 package org.slaq.slaqworx.panoptes.ui;
 
+import javax.inject.Named;
+
 import com.vaadin.flow.server.Constants;
+import com.vaadin.flow.server.VaadinServlet;
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
@@ -31,17 +34,19 @@ public class PanoptesUIConfiguration {
     }
 
     /**
-     * Provides a Jetty {@code Server} to host the Vaadin interface.
+     * Provides a Jetty {@code Server} to host the Vaadin interface, running alongside the Micronaut
+     * server.
      *
      * @return a {@code Server}
      */
     @Bean
+    @Named("vaadinServer")
     protected Server servletServer() {
-        Server server = new Server(8090);
+        Server server = new Server(9090);
 
         WebAppContext context = new WebAppContext();
         context.setInitParameter(Constants.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
-        context.setContextPath("/panoptes");
+        context.setContextPath("/");
         context.setBaseResource(
                 Resource.newResource(getClass().getClassLoader().getResource("ui")));
         context.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
@@ -49,8 +54,8 @@ public class PanoptesUIConfiguration {
         context.setConfigurations(new Configuration[] { new AnnotationConfiguration(),
                 new WebInfConfiguration(), new WebXmlConfiguration(), new MetaInfConfiguration() });
         context.getServletContext().setExtendedListenerTypes(true);
-        // example code includes this but it appears to duplicate other configuration
-        // context.addEventListener(new ServletContextListeners());
+        context.addServlet(VaadinServlet.class, "/*");
+
         server.setHandler(context);
 
         return server;

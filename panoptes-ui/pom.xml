@@ -116,6 +116,10 @@
             <artifactId>vaadin-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.micronaut.servlet</groupId>
+            <artifactId>micronaut-http-server-jetty</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>javax-websocket-server-impl</artifactId>
             <version>${jetty.version}</version>
