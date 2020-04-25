@@ -29,6 +29,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
@@ -114,7 +115,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                 // FIXME use a proper version
                 portfolio = assetCache.getPortfolioCache().executeOnKey(
                         new PortfolioKey(portfolioIdField.getValue(), 1),
-                        new PortfolioSummarizer());
+                        new PortfolioSummarizer(new EvaluationContext(assetCache, assetCache)));
                 if (portfolio == null) {
                     portfolioIdField.setErrorMessage("not found");
                     portfolioIdField.setInvalid(true);
@@ -221,7 +222,8 @@ public class FixedIncomeTradePanel extends FormLayout {
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
                             PortfolioSummary portfolio = assetCache.getPortfolioCache()
-                                    .executeOnKey(portfolioKey, new PortfolioSummarizer());
+                                    .executeOnKey(portfolioKey, new PortfolioSummarizer(
+                                            new EvaluationContext(assetCache, assetCache)));
                             if (portfolio.isAbstract()) {
                                 // don't evaluate benchmarks
                                 updateNumRemaining(event);

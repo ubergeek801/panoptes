@@ -12,20 +12,6 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  */
 public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializable {
     /**
-     * Creates a new {@code PortfolioSummary} from the given {@code Portfolio}, using a default
-     * {@code EvaluationContext}.
-     *
-     * @param portfolio
-     *            the {@code Portfolio} to summarize
-     * @return a {@code PortfolioSummary} summarizing the given {@code Portfolio}
-     */
-    public static PortfolioSummary fromPortfolio(Portfolio portfolio) {
-        return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
-                portfolio.getBenchmarkKey(), portfolio.getMarketValueNoContext(),
-                portfolio.isAbstract());
-    }
-
-    /**
      * Creates a new {@code PortfolioSummary} from the given {@code Portfolio}.
      *
      * @param portfolio

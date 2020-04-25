@@ -54,7 +54,7 @@ public class CompliancePanel extends VerticalLayout {
             // FIXME use a proper version
             PortfolioKey portfolioKey = new PortfolioKey(portfolioIdField.getValue(), 1);
             portfolio = assetCache.getPortfolioCache().executeOnKey(portfolioKey,
-                    new PortfolioSummarizer());
+                    new PortfolioSummarizer(new EvaluationContext(assetCache, assetCache)));
             if (portfolio == null) {
                 portfolioIdField.setErrorMessage("not found");
                 portfolioIdField.setInvalid(true);

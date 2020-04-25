@@ -29,6 +29,7 @@ import org.slaq.slaqworx.panoptes.serializer.EvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioEvaluationRequestSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer;
+import org.slaq.slaqworx.panoptes.serializer.PortfolioSummarizerSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioSummarySerializer;
 import org.slaq.slaqworx.panoptes.serializer.PositionKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.PositionSerializer;
@@ -105,6 +106,9 @@ public class PanoptesCacheCommonConfiguration {
         config.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PortfolioSerializer(assetCacheProvider))
                 .setTypeClass(Portfolio.class));
+        config.addSerializerConfig(new SerializerConfig()
+                .setImplementation(new PortfolioSummarizerSerializer(assetCacheProvider))
+                .setTypeClass(PortfolioSummarizer.class));
         config.addSerializerConfig(
                 new SerializerConfig().setImplementation(new PortfolioSummarySerializer())
                         .setTypeClass(PortfolioSummary.class));

@@ -11,8 +11,7 @@ import io.micronaut.runtime.event.ApplicationStartupEvent;
 /**
  * {@code ApplicationContextProvider} provides access to the {@code ApplicationContext} of the
  * running Panoptes application. This should only be used in cases where dependency injection isn't
- * possible (or at least for which we haven't discovered an elegant mechanism), e.g. from Vaadin UI
- * components.
+ * possible, which are very few.
  *
  * @author jeremy
  */
@@ -20,8 +19,7 @@ import io.micronaut.runtime.event.ApplicationStartupEvent;
 @Context
 public class ApplicationContextProvider
         implements ApplicationEventListener<ApplicationStartupEvent> {
-    @Inject
-    private static ApplicationContext applicationContext;
+    @Inject private static ApplicationContext applicationContext;
 
     /**
      * Obtains the application context of the running Panoptes instance.

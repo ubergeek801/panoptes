@@ -25,6 +25,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.util.FakeSet;
 
@@ -129,7 +130,9 @@ public class TradingPanel extends VerticalLayout {
                                                                         query.getOffset()
                                                                                 + query.getLimit(),
                                                                         portfolioKeys.size()))),
-                                                new PortfolioSummarizer()).values().stream(),
+                                                new PortfolioSummarizer(new EvaluationContext(
+                                                        assetCache, assetCache)))
+                                                .values().stream(),
                                         query -> portfolioKeys.size());
 
         Grid<PortfolioSummary> portfolioGrid = new Grid<>();

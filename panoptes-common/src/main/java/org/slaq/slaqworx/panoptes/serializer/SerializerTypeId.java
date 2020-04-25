@@ -11,6 +11,7 @@ public enum SerializerTypeId {
     POSITION,
     PORTFOLIO_KEY,
     PORTFOLIO,
+    PORTFOLIO_SUMMARIZER,
     PORTFOLIO_SUMMARY,
     SECURITY_KEY,
     SECURITY,
