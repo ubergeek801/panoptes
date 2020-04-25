@@ -44,6 +44,8 @@ spec:
           hostPort: 8090
         - containerPort: 8000
           hostPort: 8000
+        - containerPort: 5701
+          hostPort: 5701
       - name: panoptes-telegraf
         image: telegraf:1.11.3
         env:
