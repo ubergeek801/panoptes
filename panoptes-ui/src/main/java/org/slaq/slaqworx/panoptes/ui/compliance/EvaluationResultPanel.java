@@ -14,7 +14,6 @@ import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -42,9 +41,12 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
 
     /**
      * Creates a new {@code EvaluationResultPanel}.
+     *
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve cached entities
      */
-    public EvaluationResultPanel() {
-        assetCache = ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
+    public EvaluationResultPanel(AssetCache assetCache) {
+        this.assetCache = assetCache;
 
         addHierarchyColumn(EvaluationResultRow::getRuleDescription).setAutoWidth(true)
                 .setHeader("Rule");

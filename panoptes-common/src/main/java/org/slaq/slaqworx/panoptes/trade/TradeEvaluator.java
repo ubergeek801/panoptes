@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -23,10 +23,15 @@ public interface TradeEvaluator {
      *            the {@code Trade} to be evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to perform the evaluation
-     * @return a {@code Future} {@code TradeEvaluationResult} describing the results of the
-     *         evaluation
+     * @return a {@code CompletableFuture} {@code TradeEvaluationResult} describing the results of
+     *         the evaluation
+     * @throws ExecutionException
+     *             if the evaluation could not be processed
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during evaluation
      */
-    public Future<TradeEvaluationResult> evaluate(Trade trade, EvaluationContext evaluationContext);
+    public CompletableFuture<TradeEvaluationResult> evaluate(Trade trade,
+            EvaluationContext evaluationContext) throws ExecutionException, InterruptedException;
 
     /**
      * Computes the amount of "room" available to accept the specified {@code Security} into the
@@ -58,14 +63,15 @@ public interface TradeEvaluator {
      *            room
      * @param targetValue
      *            the desired investment amount, as USD market value
-     * @return a {@Future} {@Double} representing the (approximate) maximum market value of the
-     *         given {@code Security}, less than or equal to {@code targetValue}, that can be
+     * @return a {@CompletableFuture} {@Double} representing the (approximate) maximum market value
+     *         of the given {@code Security}, less than or equal to {@code targetValue}, that can be
      *         accepted by the {@code Portfolio} without violating compliance
      * @throws ExecutionException
-     *             if the calculation could not be processed
+     *             if the evaluation could not be processed
      * @throws InterruptedException
-     *             if the {@code Thread} was interrupted during processing
+     *             if the {@code Thread} was interrupted during evaluation
      */
-    public Future<Double> evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue) throws ExecutionException, InterruptedException;
+    public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey,
+            SecurityKey securityKey, double targetValue)
+            throws ExecutionException, InterruptedException;
 }

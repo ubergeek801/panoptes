@@ -1,10 +1,8 @@
 package org.slaq.slaqworx.panoptes.cache;
 
 import java.util.Optional;
-import java.util.concurrent.ForkJoinPool;
 
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.hazelcast.config.Config;
@@ -85,9 +83,8 @@ public class PanoptesCacheConfiguration {
      *            the {@code MapConfig} to use for {@code Rule} data
      * @param serializationConfig
      *            the {@code SerializationConfig} to use for the cache
-     * @param assetCacheProvider
-     *            a {@code Provider} providing an {@code AssetCache} (used to avoid circular
-     *            injection dependencies)
+     * @param clusterExecutorConfig
+     *            the {@code ExecutorConfig} to use for clustered execution
      * @param applicationContext
      *            the current {@code ApplicationContext}
      * @return a Hazelcast {@code Config}
@@ -97,7 +94,7 @@ public class PanoptesCacheConfiguration {
             @Named("portfolio") MapConfig portfolioMapConfig,
             @Named("position") MapConfig positionMapConfig,
             @Named("security") MapConfig securityMapConfig, @Named("rule") MapConfig ruleMapConfig,
-            SerializationConfig serializationConfig, Provider<AssetCache> assetCacheProvider,
+            SerializationConfig serializationConfig, ExecutorConfig clusterExecutorConfig,
             ApplicationContext applicationContext) {
         securityAttributeLoader.loadSecurityAttributes();
 
@@ -130,10 +127,7 @@ public class PanoptesCacheConfiguration {
                 .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
                 .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
-        // set up the Portfolio evaluator executor
-        ExecutorConfig portfolioExecutorConfig = new ExecutorConfig(
-                AssetCache.CLUSTER_EXECUTOR_NAME, ForkJoinPool.getCommonPoolParallelism());
-        config.addExecutorConfig(portfolioExecutorConfig);
+        config.addExecutorConfig(clusterExecutorConfig);
 
         // set up cluster join discovery appropriate for the detected environment
         if (isClustered) {

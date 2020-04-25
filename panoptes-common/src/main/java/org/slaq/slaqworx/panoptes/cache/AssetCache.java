@@ -47,18 +47,19 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
 
     protected static final String CLUSTER_EXECUTOR_NAME = "cluster-executor";
 
-    private static final ForkJoinPool portfolioEvaluationThreadPool = ForkJoinPoolFactory
-            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "portfolio-evaluator");
+    private static final ForkJoinPool localExecutorThreadPool = ForkJoinPoolFactory
+            .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "local-executor");
 
     /**
-     * Obtains the {@code ExecutorService} used to perform {@code Portfolio} and {@code Trade}
-     * evaluations. Callers may use this to submit processing requests in parallel, which will
-     * generally result in better performance than using a separate {@code ExecutorService}.
+     * Obtains the {@code ExecutorService} used to perform local computations (typically
+     * {@code Portfolio} and {@code Trade} evaluations). Callers may use this to submit processing
+     * requests in parallel, which will generally result in better performance than using a separate
+     * {@code ExecutorService}.
      *
      * @return an {@code ExecutorService} used to evaluate {@code Trade}s
      */
-    public static ExecutorService getPortfolioExecutor() {
-        return portfolioEvaluationThreadPool;
+    public static ExecutorService getLocalExecutor() {
+        return localExecutorThreadPool;
     }
 
     private final HazelcastInstance hazelcastInstance;
@@ -85,7 +86,7 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains an {@code IExecutorService} suitable for performing work (such as portfolio
+     * Obtains an {@code IExecutorService} suitable for performing computations (such as portfolio
      * compliance evaluations) on the cluster.
      *
      * @return an {@code IExecutorService}

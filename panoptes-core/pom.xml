@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>2.1.0</version>
+                <version>2.2.0</version>
                 <executions>
                     <execution>
                         <phase>install</phase>
@@ -50,10 +50,10 @@
                 <configuration>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
                     <from>
-                        <!-- :13.0.2-amd64 -->
-                        <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:56a832ff972d60e4ed47a6a99812624910a9e5755d12f658a680a180f36e038e</image> -->
-                        <!-- :13.0.2-aarch64 -->
-                        <image>bellsoft/liberica-openjdk-alpine@sha256:eec1b1edfd1c65f23c342ca228a1c3fae0ad7d3e3cdbbfb35bc8dfe527245040</image>
+                        <!-- :14.0.1-8-amd64 -->
+                        <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:6614fd3a03a025cc80276e3c63a53e7039665e972c68868e8ad4aea2bb2a6ed3</image> -->
+                        <!-- :14.0.1-8-arm64 -->
+                        <image>bellsoft/liberica-openjdk-alpine@sha256:70fcbb909ade5160c7d26cf798ee1e3af2d2d1bb4cde25aaaa4ff4b9d4f196c0</image>
                     </from>
                     <to>
                         <image>ubergeek801/slaqworx</image>

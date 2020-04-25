@@ -16,6 +16,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import io.micronaut.context.annotation.Prototype;
+
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.ui.compliance.CompliancePanel;
 import org.slaq.slaqworx.panoptes.ui.trading.TradingPanel;
 
@@ -27,13 +32,22 @@ import org.slaq.slaqworx.panoptes.ui.trading.TradingPanel;
 @Route("")
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)
+@Prototype
 public class PanoptesApplicationPanel extends AppLayout {
     private static final long serialVersionUID = 1L;
 
     /**
      * Creates a new {@code PanoptesApplicationPanel}.
+     *
+     * @param portfolioEvaluator
+     *            the {@code PortfolioEvaluator} to use to perform compliance evaluation
+     * @param tradeEvaluator
+     *            the {@code TradeEvaluator} to use to perform compliance evaluation
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve cached entities
      */
-    public PanoptesApplicationPanel() {
+    protected PanoptesApplicationPanel(PortfolioEvaluator portfolioEvaluator,
+            TradeEvaluator tradeEvaluator, AssetCache assetCache) {
         Icon applicationIcon = new Icon(VaadinIcon.EYE);
         Span applicationTitle = new Span("Panoptes");
         applicationTitle.getStyle().set("font-weight", "bold").set("font-size", "120%")
@@ -45,11 +59,11 @@ public class PanoptesApplicationPanel extends AppLayout {
 
         addToNavbar(new DrawerToggle(), applicationIcon, applicationInfo);
 
-        TradingPanel tradingPanel = new TradingPanel();
+        TradingPanel tradingPanel = new TradingPanel(tradeEvaluator, assetCache);
         tradingPanel.setSizeFull();
         setContent(tradingPanel);
 
-        CompliancePanel compliancePanel = new CompliancePanel();
+        CompliancePanel compliancePanel = new CompliancePanel(portfolioEvaluator, assetCache);
         compliancePanel.setSizeFull();
 
         VerticalLayout aboutPanel = new VerticalLayout();

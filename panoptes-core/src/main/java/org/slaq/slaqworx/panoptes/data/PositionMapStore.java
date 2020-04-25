@@ -69,7 +69,8 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
     @Override
     protected String getStoreSql() {
-        return "insert into " + getTableName() + " (id, amount, security_id) values (?, ?, ?)"
+        return "insert into " + getTableName()
+                + " (id, amount, security_id, partition_id) values (?, ?, ?, 0)"
                 + " on conflict on constraint position_pk do update"
                 + " set amount = excluded.amount, security_id = excluded.security_id";
     }

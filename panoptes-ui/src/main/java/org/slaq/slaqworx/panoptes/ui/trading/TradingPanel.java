@@ -18,7 +18,6 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.LocalDateRenderer;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
@@ -26,6 +25,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.util.FakeSet;
 
 /**
@@ -38,16 +38,19 @@ public class TradingPanel extends VerticalLayout {
 
     /**
      * Creates a new {@code TradingPanel}.
+     *
+     * @param tradeEvaluator
+     *            the {@code TradeEvaluator} to use to perform compliance evaluation
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve cached entities
      */
-    public TradingPanel() {
-        FixedIncomeTradePanel tradePanel = new FixedIncomeTradePanel();
+    public TradingPanel(TradeEvaluator tradeEvaluator, AssetCache assetCache) {
+        FixedIncomeTradePanel tradePanel = new FixedIncomeTradePanel(tradeEvaluator, assetCache);
         Details tradePanelDetail = new Details("Trade Fixed Income", tradePanel);
         tradePanelDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
                 DetailsVariant.SMALL);
         add(tradePanelDetail);
 
-        AssetCache assetCache =
-                ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
         SecurityDataProvider securityProvider = new SecurityDataProvider(assetCache);
 
         SecurityFilterPanel securityFilter = new SecurityFilterPanel(securityProvider, assetCache);

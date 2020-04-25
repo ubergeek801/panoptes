@@ -79,8 +79,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     protected String getStoreSql() {
         return "insert into " + getTableName()
                 + " (id, description, type, configuration, filter, classifier_type,"
-                + " classifier_configuration) values (?, ?, ?, ?::json, ?, ?, ?::json)"
-                + " on conflict on constraint rule_pk do update"
+                + " classifier_configuration, partition_id) values (?, ?, ?, ?::json, ?, ?,"
+                + " ?::json, 0) on conflict on constraint rule_pk do update"
                 + " set description = excluded.description, type = excluded.type,"
                 + " configuration = excluded.configuration, filter = excluded.filter,"
                 + " classifier_type = excluded.classifier_type,"

@@ -16,7 +16,6 @@
     <logger name="dev-webpack" level="warn" />
     <logger name="org.atmosphere" level="warn" />
     <logger name="org.eclipse.jetty" level="warn" />
-    <logger name="p6spy" level="error" />
 
     <root level="info">
         <appender-ref ref="stdout" />

@@ -115,8 +115,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     @Override
     protected String getStoreSql() {
         return "insert into " + getTableName()
-                + " (id, version, name, benchmark_id, benchmark_version) values (?, ?, ?, ?, ?)"
-                + " on conflict on constraint portfolio_pk do update"
+                + " (id, version, name, benchmark_id, benchmark_version, partition_id) values (?,"
+                + " ?, ?, ?, ?, 0) on conflict on constraint portfolio_pk do update"
                 + " set name = excluded.name, benchmark_id = excluded.benchmark_id,"
                 + " benchmark_version = excluded.benchmark_version";
     }

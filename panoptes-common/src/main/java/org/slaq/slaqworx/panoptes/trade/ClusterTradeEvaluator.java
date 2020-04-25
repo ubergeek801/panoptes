@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import javax.inject.Singleton;
 
@@ -9,6 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.util.CompletableFutureAdapter;
 
 /**
  * {@code ClusterTradeEvaluator} is a {@code TradeEvaluator} which delegates processing to the
@@ -32,18 +33,29 @@ public class ClusterTradeEvaluator implements TradeEvaluator {
     }
 
     @Override
-    public Future<TradeEvaluationResult> evaluate(Trade trade,
+    public CompletableFuture<TradeEvaluationResult> evaluate(Trade trade,
             EvaluationContext evaluationContext) {
         // merely submit a request to the cluster executor
-        return assetCache.getClusterExecutor()
-                .submit(new TradeEvaluationRequest(trade.getKey(), evaluationContext));
+        CompletableFutureAdapter<TradeEvaluationResult> completableFutureAdapter =
+                new CompletableFutureAdapter<>();
+        assetCache.getClusterExecutor().submit(
+                new TradeEvaluationRequest(trade.getKey(), evaluationContext),
+                completableFutureAdapter);
+
+        return completableFutureAdapter;
     }
 
     @Override
-    public Future<Double> evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue) throws ExecutionException, InterruptedException {
+    public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey,
+            SecurityKey securityKey, double targetValue)
+            throws ExecutionException, InterruptedException {
         // merely submit a request to the cluster executor
-        return assetCache.getClusterExecutor()
-                .submit(new RoomEvaluationRequest(portfolioKey, securityKey, targetValue));
+        CompletableFutureAdapter<Double> completableFutureAdapter =
+                new CompletableFutureAdapter<>();
+        assetCache.getClusterExecutor().submit(
+                new RoomEvaluationRequest(portfolioKey, securityKey, targetValue),
+                completableFutureAdapter);
+
+        return completableFutureAdapter;
     }
 }

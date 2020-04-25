@@ -65,9 +65,9 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
 
     @Override
     protected String getStoreSql() {
-        return "insert into " + getTableName() + " (id, hash, attributes) "
-                + "values (?, ?, ?::json) on conflict on constraint security_pk do update "
-                + "set hash = excluded.hash, attributes = excluded.attributes";
+        return "insert into " + getTableName() + " (id, hash, attributes, partition_id)"
+                + " values (?, ?, ?::json, 0) on conflict on constraint security_pk do update"
+                + " set hash = excluded.hash, attributes = excluded.attributes";
     }
 
     @Override

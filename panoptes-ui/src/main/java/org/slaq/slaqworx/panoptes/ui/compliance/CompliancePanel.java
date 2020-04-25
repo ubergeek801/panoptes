@@ -8,12 +8,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
-import org.slaq.slaqworx.panoptes.evaluator.ClusterPortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
@@ -31,13 +29,13 @@ public class CompliancePanel extends VerticalLayout {
 
     /**
      * Creates a new {@code CompliancePanel}.
+     *
+     * @param portfolioEvaluator
+     *            the {@code PortfolioEvaluator} to use to perform compliance evaluation
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve cached entities
      */
-    public CompliancePanel() {
-        PortfolioEvaluator portfolioEvaluator = ApplicationContextProvider.getApplicationContext()
-                .getBean(ClusterPortfolioEvaluator.class);
-        AssetCache assetCache =
-                ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-
+    public CompliancePanel(PortfolioEvaluator portfolioEvaluator, AssetCache assetCache) {
         HorizontalLayout portfolioSelectionPanel = new HorizontalLayout();
         TextField portfolioIdField = ComponentUtil.createTextField("Portfolio ID");
         portfolioIdField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -71,7 +69,7 @@ public class CompliancePanel extends VerticalLayout {
 
         portfolioSelectionPanel.setWidthFull();
         add(portfolioSelectionPanel);
-        EvaluationResultPanel resultPanel = new EvaluationResultPanel();
+        EvaluationResultPanel resultPanel = new EvaluationResultPanel(assetCache);
         resultPanel.setSizeFull();
         add(resultPanel);
 

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import javax.inject.Named;
 
@@ -79,13 +78,13 @@ public class LocalTradeEvaluator implements TradeEvaluator {
     }
 
     @Override
-    public Future<TradeEvaluationResult> evaluate(Trade trade,
-            EvaluationContext evaluationContext) {
+    public CompletableFuture<TradeEvaluationResult> evaluate(Trade trade,
+            EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
         LOG.info("evaluating trade {} with {} allocations", trade.getKey(),
                 trade.getAllocationCount());
         // evaluate the impact on each Portfolio
-        return AssetCache.getPortfolioExecutor().submit(() -> trade.getTransactions().entrySet()
-                .parallelStream().map(portfolioTransactionEntry -> {
+        return CompletableFuture.completedFuture(AssetCache.getLocalExecutor().submit(() -> trade
+                .getTransactions().entrySet().parallelStream().map(portfolioTransactionEntry -> {
                     PortfolioKey portfolioKey = portfolioTransactionEntry.getKey();
                     Transaction transaction = portfolioTransactionEntry.getValue();
 
@@ -100,12 +99,14 @@ public class LocalTradeEvaluator implements TradeEvaluator {
                         throw new RuntimeException("could not evaluate trade", e);
                     }
                 }).collect(TradeEvaluationResult::new, TradeEvaluationResult::addImpacts,
-                        TradeEvaluationResult::merge));
+                        TradeEvaluationResult::merge))
+                .get());
     }
 
     @Override
-    public Future<Double> evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-            double targetValue) throws ExecutionException, InterruptedException {
+    public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey,
+            SecurityKey securityKey, double targetValue)
+            throws ExecutionException, InterruptedException {
         // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
         EvaluationContext evaluationContext = new EvaluationContext(securityProvider,
@@ -166,11 +167,16 @@ public class LocalTradeEvaluator implements TradeEvaluator {
      *            the desired investment amount, as USD market value
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to perform the evaluation
-     * @return a {@code Future} {@code TradeEvaluationResult} indicating the result of the
-     *         evaluation
+     * @return a {@code CompletableFuture} {@code TradeEvaluationResult} indicating the result of
+     *         the evaluation
+     * @throws ExecutionException
+     *             if the calculation could not be processed
+     * @throws InterruptedException
+     *             if the {@code Thread} was interrupted during processing
      */
-    protected Future<TradeEvaluationResult> testRoom(PortfolioKey portfolioKey,
-            SecurityKey securityKey, double targetValue, EvaluationContext evaluationContext) {
+    protected CompletableFuture<TradeEvaluationResult> testRoom(PortfolioKey portfolioKey,
+            SecurityKey securityKey, double targetValue, EvaluationContext evaluationContext)
+            throws ExecutionException, InterruptedException {
         TaxLot trialAllocation = new TaxLot(targetValue, securityKey);
         Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));
         LocalDate tradeDate = LocalDate.now();

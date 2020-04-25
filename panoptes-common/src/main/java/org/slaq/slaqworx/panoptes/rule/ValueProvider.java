@@ -39,8 +39,27 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
      * @throws IllegalArgumentException
      *             if a {@code ValueProvider} is not available for the requested type
      */
-    @SuppressWarnings("unchecked")
     public static <T> ValueProvider<T> forClass(Class<T> clazz) {
+        ValueProvider<T> provider = forClassIfAvailable(clazz);
+        if (provider != null) {
+            return provider;
+        }
+
+        throw new IllegalArgumentException("unsupported ValueProvider class: " + clazz);
+    }
+
+    /**
+     * Produces, if available, a {@code ValueProvider} that converts from values of the given
+     * {@code Class}.
+     *
+     * @param <T>
+     *            the class type of values to be converted
+     * @param clazz
+     *            the {@code Class} of values to be converted
+     * @return a {@code ValueProvider} of the requested type, or {@code null} if not available
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> ValueProvider<T> forClassIfAvailable(Class<T> clazz) {
         if (Double.class.isAssignableFrom(clazz)) {
             return (ValueProvider<T>)forDouble();
         }
@@ -56,7 +75,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
             return (ValueProvider<T>)forRatingSymbol();
         }
 
-        throw new IllegalArgumentException("unsupported ValueProvider class: " + clazz);
+        return null;
     }
 
     /**

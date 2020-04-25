@@ -26,7 +26,9 @@ public class PanoptesCacheClientConfiguration {
         config.setProperty("hazelcast.logging.type", "slf4j");
         config.setClusterName("panoptes");
         config.setSerializationConfig(serializationConfig);
-        config.getNetworkConfig().addAddress("localhost:5701");
+        // FIXME make this configurable
+        // config.getNetworkConfig().addAddress("localhost:5701");
+        config.getNetworkConfig().addAddress("10.13.35.82:5701");
 
         return HazelcastClient.newHazelcastClient(config);
     }
