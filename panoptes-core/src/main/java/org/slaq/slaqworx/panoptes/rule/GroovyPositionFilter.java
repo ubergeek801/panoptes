@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import groovy.lang.GroovyClassLoader;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.control.CompilationFailedException;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -70,25 +71,17 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
             securityExpressionMatcher.appendReplacement(translatedExpression, replacement);
         }
         securityExpressionMatcher.appendTail(translatedExpression);
+        String translatedExpressionString = translatedExpression.toString();
 
-        StringBuilder classDef = new StringBuilder("package org.slaq.slaqworx.panoptes.rule\n");
-        classDef.append("import " + Predicate.class.getName() + "\n");
-        classDef.append("import " + EvaluationContext.class.getName() + "\n");
-        classDef.append("import " + Position.class.getName() + "\n");
-        classDef.append("import " + PositionEvaluationContext.class.getName() + "\n");
-        classDef.append("import " + Security.class.getName() + "\n");
-        classDef.append("import " + SecurityAttribute.class.getName() + "\n");
-        classDef.append("class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
-        classDef.append(" boolean test(PositionEvaluationContext pctx) {\n");
-        classDef.append("  EvaluationContext ctx = pctx.evaluationContext\n");
-        classDef.append("  Position p = pctx.position\n");
-        classDef.append("  Security s = p.getSecurity(ctx)\n");
-        classDef.append("  return " + translatedExpression + "\n");
-        classDef.append(" }\n");
-        classDef.append("}");
-
-        Class<Predicate<PositionEvaluationContext>> filterClass =
-                groovyClassLoader.parseClass(classDef.toString());
+        Class<Predicate<PositionEvaluationContext>> filterClass;
+        try {
+            filterClass = groovyClassLoader
+                    .parseClass(getClassDefString(translatedExpressionString, true));
+        } catch (CompilationFailedException e) {
+            // try parsing without @groovy.transform.CompileStatic
+            filterClass = groovyClassLoader
+                    .parseClass(getClassDefString(translatedExpressionString, false));
+        }
 
         try {
             Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
@@ -118,5 +111,28 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
             evaluationContext.setException(e);
             return true;
         }
+    }
+
+    protected String getClassDefString(String translatedExpression, boolean isCompileStatic) {
+        StringBuilder classDef = new StringBuilder("package org.slaq.slaqworx.panoptes.rule\n");
+        classDef.append("import " + Predicate.class.getName() + "\n");
+        classDef.append("import " + EvaluationContext.class.getName() + "\n");
+        classDef.append("import " + Position.class.getName() + "\n");
+        classDef.append("import " + PositionEvaluationContext.class.getName() + "\n");
+        classDef.append("import " + Security.class.getName() + "\n");
+        classDef.append("import " + SecurityAttribute.class.getName() + "\n");
+        if (isCompileStatic) {
+            classDef.append("@groovy.transform.CompileStatic\n");
+        }
+        classDef.append("class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
+        classDef.append(" boolean test(PositionEvaluationContext pctx) {\n");
+        classDef.append("  EvaluationContext ctx = pctx.evaluationContext\n");
+        classDef.append("  Position p = pctx.position\n");
+        classDef.append("  Security s = p.getSecurity(ctx)\n");
+        classDef.append("  return " + translatedExpression + "\n");
+        classDef.append(" }\n");
+        classDef.append("}");
+
+        return classDef.toString();
     }
 }
