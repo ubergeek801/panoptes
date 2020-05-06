@@ -134,7 +134,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
             Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
             getJdbcTemplate().batchUpdate(
                     "insert into portfolio_position (portfolio_id, portfolio_version, position_id) "
-                            + "values (?, ?, ?)",
+                            + "values (?, ?, ?) on conflict on constraint portfolio_position_pk "
+                            + "ignore",
                     new BatchPreparedStatementSetter() {
                         @Override
                         public int getBatchSize() {
@@ -155,7 +156,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
             Iterator<Rule> ruleIter = portfolio.getRules().iterator();
             getJdbcTemplate().batchUpdate(
                     "insert into portfolio_rule (portfolio_id, portfolio_version, rule_id) "
-                            + "values (?, ?, ?)",
+                            + "values (?, ?, ?) on conflict on constraint portfolio_rule_pk ignore",
                     new BatchPreparedStatementSetter() {
                         @Override
                         public int getBatchSize() {

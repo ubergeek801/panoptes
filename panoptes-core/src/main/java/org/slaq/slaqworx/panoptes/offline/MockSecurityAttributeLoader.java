@@ -4,6 +4,7 @@ import javax.inject.Singleton;
 
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 
@@ -15,7 +16,7 @@ import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
  */
 @Singleton
 @Primary
-@Requires(env = { "offline", "test" })
+@Requires(env = { Environment.TEST, "offline" })
 public class MockSecurityAttributeLoader implements SecurityAttributeLoader {
     /**
      * Creates a new {@code MockSecurityAttributeLoader}. Restricted because this class should be

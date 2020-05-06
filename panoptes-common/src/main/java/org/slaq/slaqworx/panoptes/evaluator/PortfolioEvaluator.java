@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -24,9 +24,10 @@ public interface PortfolioEvaluator {
      *            the {@code PortfolioKey} identifying the {@code Portfolio} to be evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
+     * @return a {@code CompletableFuture} {@code Map} associating each evaluated {@code Rule} with
+     *         its result
      */
-    public Future<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+    public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
             EvaluationContext evaluationContext);
 
     /**
@@ -40,8 +41,9 @@ public interface PortfolioEvaluator {
      *            evaluation
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
-     * @return a {@code Future} {@code Map} associating each evaluated {@code Rule} with its result
+     * @return a {@code CompletableFuture} {@code Map} associating each evaluated {@code Rule} with
+     *         its result
      */
-    public Future<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+    public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
             Transaction transaction, EvaluationContext evaluationContext);
 }

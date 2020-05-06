@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Singleton;
 
@@ -10,6 +10,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
+import org.slaq.slaqworx.panoptes.util.CompletableFutureAdapter;
 
 /**
  * {@code ClusterPortfolioEvaluator} is a {@code PortfolioEvaluator} which delegates processing to
@@ -33,16 +34,21 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public Future<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+    public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
             EvaluationContext evaluationContext) {
         return evaluate(portfolioKey, null, evaluationContext);
     }
 
     @Override
-    public Future<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+    public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
             Transaction transaction, EvaluationContext evaluationContext) {
         // merely submit a request to the cluster executor
-        return assetCache.getClusterExecutor().submit(
-                new PortfolioEvaluationRequest(portfolioKey, transaction, evaluationContext));
+        CompletableFutureAdapter<Map<RuleKey, EvaluationResult>> completableFutureAdapter =
+                new CompletableFutureAdapter<>();
+        assetCache.getClusterExecutor().submit(
+                new PortfolioEvaluationRequest(portfolioKey, transaction, evaluationContext),
+                completableFutureAdapter);
+
+        return completableFutureAdapter;
     }
 }

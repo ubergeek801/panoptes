@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -134,13 +133,13 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     }
 
     @Override
-    public Future<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+    public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
             EvaluationContext evaluationContext) {
         return evaluate(portfolioKey, null, evaluationContext);
     }
 
     @Override
-    public Future<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+    public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
             Transaction transaction, EvaluationContext evaluationContext) {
         Portfolio portfolio = portfolioProvider.getPortfolio(portfolioKey);
 

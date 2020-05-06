@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.runtime.Micronaut;
@@ -29,7 +30,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  */
 @Singleton
 @Context
-@Requires(notEnv = "test")
+@Requires(notEnv = Environment.TEST)
 public class PanoptesUI implements ApplicationEventListener<ApplicationStartupEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(PanoptesUI.class);
 

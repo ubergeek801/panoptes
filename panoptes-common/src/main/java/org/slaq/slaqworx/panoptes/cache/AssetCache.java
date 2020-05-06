@@ -78,11 +78,11 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      */
     protected AssetCache(HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
-        portfolioCache = hazelcastInstance.getMap(PORTFOLIO_CACHE_NAME);
-        positionCache = hazelcastInstance.getMap(POSITION_CACHE_NAME);
-        ruleCache = hazelcastInstance.getMap(RULE_CACHE_NAME);
-        securityCache = hazelcastInstance.getMap(SECURITY_CACHE_NAME);
-        tradeCache = hazelcastInstance.getMap(TRADE_CACHE_NAME);
+        portfolioCache = CacheBootstrap.getPortfolioCache(hazelcastInstance);
+        positionCache = CacheBootstrap.getPositionCache(hazelcastInstance);
+        ruleCache = CacheBootstrap.getRuleCache(hazelcastInstance);
+        securityCache = CacheBootstrap.getSecurityCache(hazelcastInstance);
+        tradeCache = CacheBootstrap.getTradeCache(hazelcastInstance);
     }
 
     /**
@@ -121,9 +121,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Portfolio} cache from Hazelcast.
+     * Obtains the {@code Portfolio} cache.
      *
-     * @return the Hazelcast {@code Portfolio} cache
+     * @return the {@code Portfolio} cache
      */
     public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
         return portfolioCache;
@@ -135,9 +135,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Position} cache from Hazelcast.
+     * Obtains the {@code Position} cache.
      *
-     * @return the Hazelcast {@code Position} cache
+     * @return the {@code Position} cache
      */
     public IMap<PositionKey, Position> getPositionCache() {
         return positionCache;
@@ -159,9 +159,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Rule} cache from Hazelcast.
+     * Obtains the {@code Rule} cache.
      *
-     * @return the Hazelcast {@code Rule} cache
+     * @return the {@code Rule} cache
      */
     public IMap<RuleKey, ConfigurableRule> getRuleCache() {
         return ruleCache;
@@ -183,9 +183,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Security} cache from Hazelcast.
+     * Obtains the {@code Security} cache.
      *
-     * @return the Hazelcast {@code Security} cache
+     * @return the {@code Security} cache
      */
     public IMap<SecurityKey, Security> getSecurityCache() {
         return securityCache;
@@ -197,9 +197,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     /**
-     * Obtains the {@code Trade} cache from Hazelcast.
+     * Obtains the {@code Trade} cache.
      *
-     * @return the Hazelcast {@code Trade} cache
+     * @return the {@code Trade} cache
      */
     public IMap<TradeKey, Trade> getTradeCache() {
         return tradeCache;

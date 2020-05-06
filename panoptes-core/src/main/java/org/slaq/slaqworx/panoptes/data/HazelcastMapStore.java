@@ -12,6 +12,8 @@ import javax.sql.DataSource;
 
 import com.hazelcast.map.MapStore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,6 +33,8 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  */
 public abstract class HazelcastMapStore<K, V extends Keyed<K>>
         implements MapStore<K, V>, RowMapper<V> {
+    private static final Logger LOG = LoggerFactory.getLogger(HazelcastMapStore.class);
+
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -57,6 +61,8 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
 
     @Override
     public Map<K, V> loadAll(Collection<K> keys) {
+        LOG.info("loading {} {} entities", keys.size(), getTableName());
+
         String[] keyColumns = getKeyColumnNames();
         StringBuilder query = new StringBuilder(getLoadSelect());
         query.append(" where (").append(String.join(",", keyColumns) + ") in (values ");

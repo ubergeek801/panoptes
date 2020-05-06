@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
@@ -36,7 +37,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 @Singleton
-@Requires(notEnv = "test")
+@Requires(notEnv = Environment.TEST)
 public class PimcoBenchmarkDatabaseLoader {
     private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDatabaseLoader.class);
 
@@ -61,8 +62,7 @@ public class PimcoBenchmarkDatabaseLoader {
      */
     @EventListener()
     protected void onStartup(StartupEvent event) throws Exception {
-        @SuppressWarnings("resource")
-        BeanContext beanContext = event.getSource();
+        @SuppressWarnings("resource") BeanContext beanContext = event.getSource();
 
         PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
         TransactionTemplate txTemplate = beanContext.getBean(TransactionTemplate.class);

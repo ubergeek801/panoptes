@@ -12,6 +12,7 @@ import io.micronaut.context.annotation.EachBean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Replaces;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 import io.micronaut.jdbc.spring.DataSourceTransactionManagerFactory;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,7 +52,7 @@ public class PanoptesDataConfiguration {
     @Context
     @Replaces(value = DataSource.class, factory = DatasourceFactory.class)
     @EachBean(DatasourceConfiguration.class)
-    @Requires(env = { "test", "offline" })
+    @Requires(env = { Environment.TEST, "offline" })
     protected DataSource dataSource(DatasourceConfiguration datasourceConfiguration) {
         return new AbstractDataSource() {
             @Override
@@ -90,7 +91,7 @@ public class PanoptesDataConfiguration {
     @Replaces(value = PlatformTransactionManager.class,
             factory = DataSourceTransactionManagerFactory.class)
     @EachBean(DataSource.class)
-    @Requires(env = { "test", "offline" })
+    @Requires(env = { Environment.TEST, "offline" })
     protected PlatformTransactionManager transactionManager(DataSource dataSource) {
         return new PlatformTransactionManager() {
             @Override

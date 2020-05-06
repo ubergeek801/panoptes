@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.ApplicationStartupEvent;
@@ -56,7 +57,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 @Singleton
 @Context
-@Requires(notEnv = "test")
+@Requires(notEnv = Environment.TEST)
 public class Panoptes implements ApplicationEventListener<ApplicationStartupEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
@@ -94,8 +95,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
     @Override
     public void onApplicationEvent(ApplicationStartupEvent event) {
         try {
-            @SuppressWarnings("resource")
-            ApplicationContext applicationContext = event.getSource().getApplicationContext();
+            @SuppressWarnings("resource") ApplicationContext applicationContext =
+                    event.getSource().getApplicationContext();
             AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
             if (applicationContext.getEnvironment().getActiveNames().contains("offline")) {

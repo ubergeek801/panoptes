@@ -17,10 +17,13 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ManagedContext;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.env.Environment;
 
+import org.slaq.slaqworks.panoptes.cache.Hazelcast4CacheMetrics;
 import org.slaq.slaqworx.panoptes.data.HazelcastMapStoreFactory;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
@@ -91,18 +94,22 @@ public class PanoptesCacheConfiguration {
      */
     @Singleton
     protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
-            @Named("portfolio") MapConfig portfolioMapConfig,
-            @Named("position") MapConfig positionMapConfig,
-            @Named("security") MapConfig securityMapConfig, @Named("rule") MapConfig ruleMapConfig,
+            @Named(AssetCache.PORTFOLIO_CACHE_NAME) MapConfig portfolioMapConfig,
+            @Named(AssetCache.POSITION_CACHE_NAME) MapConfig positionMapConfig,
+            @Named(AssetCache.SECURITY_CACHE_NAME) MapConfig securityMapConfig,
+            @Named(AssetCache.RULE_CACHE_NAME) MapConfig ruleMapConfig,
             SerializationConfig serializationConfig, ExecutorConfig clusterExecutorConfig,
             ApplicationContext applicationContext) {
         securityAttributeLoader.loadSecurityAttributes();
 
-        boolean isClustered = (System.getenv("KUBERNETES_SERVICE_HOST") != null);
+        boolean isClustered = (applicationContext.getEnvironment().getActiveNames()
+                .contains(Environment.KUBERNETES));
 
         Config config = new Config("panoptes");
         config.setClusterName("panoptes");
         config.setProperty("hazelcast.logging.type", "slf4j");
+        config.setProperty("hazelcast.health.monitoring.threshold.memory.percentage", "90");
+        config.setProperty("hazelcast.health.monitoring.threshold.cpu.percentage", "70");
         // this probably isn't good for fault tolerance but it improves startup time
         if (isClustered) {
             config.setProperty("hazelcast.initial.min.cluster.size", "4");
@@ -138,8 +145,8 @@ public class PanoptesCacheConfiguration {
                     .setProperty("service-dns", "panoptes-hazelcast.default.svc.cluster.local");
         } else {
             // not running in Kubernetes; run standalone
-            boolean isUseMulticast =
-                    (!applicationContext.getEnvironment().getActiveNames().contains("test"));
+            boolean isUseMulticast = (!applicationContext.getEnvironment().getActiveNames()
+                    .contains(Environment.TEST));
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(isUseMulticast);
         }
 
@@ -151,12 +158,29 @@ public class PanoptesCacheConfiguration {
      *
      * @param hazelcastConfiguration
      *            the Hazelcast {@Config} with which to configure the instance
+     * @param meterRegistry
+     *            the {@code MeterRegistry} with which to register Hazelcast resources for
      * @return a {@code HazelcastInstance}
      */
     @Bean(preDestroy = "shutdown")
     @Singleton
-    protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration) {
-        return Hazelcast.newHazelcastInstance(hazelcastConfiguration);
+    protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration,
+            MeterRegistry meterRegistry) {
+        HazelcastInstance hazelcastInstance =
+                Hazelcast.newHazelcastInstance(hazelcastConfiguration);
+
+        Hazelcast4CacheMetrics.monitor(meterRegistry,
+                CacheBootstrap.getPortfolioCache(hazelcastInstance));
+        Hazelcast4CacheMetrics.monitor(meterRegistry,
+                CacheBootstrap.getPositionCache(hazelcastInstance));
+        Hazelcast4CacheMetrics.monitor(meterRegistry,
+                CacheBootstrap.getRuleCache(hazelcastInstance));
+        Hazelcast4CacheMetrics.monitor(meterRegistry,
+                CacheBootstrap.getSecurityCache(hazelcastInstance));
+        Hazelcast4CacheMetrics.monitor(meterRegistry,
+                CacheBootstrap.getTradeCache(hazelcastInstance));
+
+        return hazelcastInstance;
     }
 
     /**
@@ -167,7 +191,7 @@ public class PanoptesCacheConfiguration {
      *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
-    @Named("portfolio")
+    @Named(AssetCache.PORTFOLIO_CACHE_NAME)
     @Singleton
     protected MapConfig portfolioMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
@@ -182,7 +206,7 @@ public class PanoptesCacheConfiguration {
      *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
-    @Named("position")
+    @Named(AssetCache.POSITION_CACHE_NAME)
     @Singleton
     protected MapConfig positionMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.POSITION_CACHE_NAME, mapStoreFactory.orElse(null));
@@ -196,7 +220,7 @@ public class PanoptesCacheConfiguration {
      *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
-    @Named("rule")
+    @Named(AssetCache.RULE_CACHE_NAME)
     @Singleton
     protected MapConfig ruleMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.RULE_CACHE_NAME, mapStoreFactory.orElse(null));
@@ -210,7 +234,7 @@ public class PanoptesCacheConfiguration {
      *            omitted if persistence is not desired (e.g. unit testing)
      * @return a {@code MapConfig}
      */
-    @Named("security")
+    @Named(AssetCache.SECURITY_CACHE_NAME)
     @Singleton
     protected MapConfig securityMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
         return createMapConfiguration(AssetCache.SECURITY_CACHE_NAME, mapStoreFactory.orElse(null));

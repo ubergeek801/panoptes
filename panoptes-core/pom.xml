@@ -41,23 +41,40 @@
                 <version>2.2.0</version>
                 <executions>
                     <execution>
+                        <id>jib-amd64</id>
                         <phase>install</phase>
                         <goals>
                             <goal>build</goal>
                         </goals>
+                        <configuration>
+                            <from>
+                                <!-- :14.0.1-8-amd64 -->
+                                <image>bellsoft/liberica-openjdk-alpine@sha256:6614fd3a03a025cc80276e3c63a53e7039665e972c68868e8ad4aea2bb2a6ed3</image>
+                            </from>
+                            <to>
+                                <image>uberkube01.slaq.org:5000/slaqworx/panoptes:amd64</image>
+                            </to>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jib-arm64</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+                            <from>
+                                <!-- :11.0.7-10-aarch64 -->
+                                <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image>
+                            </from>
+                            <to>
+                                <image>uberkube01.slaq.org:5000/slaqworx/panoptes:arm64</image>
+                            </to>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
-                    <from>
-                        <!-- :14.0.1-8-amd64 -->
-                        <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:6614fd3a03a025cc80276e3c63a53e7039665e972c68868e8ad4aea2bb2a6ed3</image> -->
-                        <!-- :14.0.1-8-arm64 -->
-                        <image>bellsoft/liberica-openjdk-alpine@sha256:70fcbb909ade5160c7d26cf798ee1e3af2d2d1bb4cde25aaaa4ff4b9d4f196c0</image>
-                    </from>
-                    <to>
-                        <image>ubergeek801/slaqworx</image>
-                    </to>
                     <container>
                         <!-- TODO figure out a way to DRY the global JVM flags -->
                         <jvmFlags>
@@ -82,8 +99,7 @@
                             <jvmFlag>-Xms2560m</jvmFlag>
                             <jvmFlag>-Xmx2560m</jvmFlag>
 
-                            <jvmFlag>-XX:TieredStopAtLevel=1</jvmFlag>
-                            <jvmFlag>-XX:ActiveProcessorCount=6</jvmFlag>
+                            <jvmFlag>-noverify</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
                             <jvmFlag>-Dcom.sun.management.jmxremote.port=8000</jvmFlag>
@@ -159,6 +175,10 @@
         </dependency>
 
         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
         </dependency>
@@ -185,7 +205,6 @@
         <dependency>
             <groupId>io.micronaut.cache</groupId>
             <artifactId>micronaut-cache-core</artifactId>
-            <version>2.0.0.M1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

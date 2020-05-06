@@ -8,8 +8,6 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.slaq.slaqworx.panoptes.ApplicationContextProvider;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
@@ -150,17 +148,6 @@ public class Portfolio
     @Override
     public double getMarketValue(EvaluationContext evaluationContext) {
         return evaluationContext.getMarketValue(positionSet);
-    }
-
-    /**
-     * Obtains the market value of this {@code Portfolio} using a default {@code EvaluationContext}.
-     *
-     * @return the market value of this {@code Portfolio}
-     */
-    public double getMarketValueNoContext() {
-        AssetCache assetCache =
-                ApplicationContextProvider.getApplicationContext().getBean(AssetCache.class);
-        return getMarketValue(new EvaluationContext(assetCache, assetCache));
     }
 
     /**

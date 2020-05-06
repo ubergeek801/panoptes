@@ -230,36 +230,36 @@ public class FixedIncomeTradePanel extends FormLayout {
                                 return;
                             }
 
-                            tradeEvaluator.evaluateRoom(portfolioKey, securityKey,
-                                    tradeMarketValue.doubleValue()).thenAcceptAsync(r -> {
+                            tradeEvaluator
+                                    .evaluateRoom(portfolioKey, securityKey,
+                                            tradeMarketValue.doubleValue())
+                                    .thenAcceptAsync(r -> ui.access(() -> {
                                         try {
                                             BigDecimal roomMarketValue = BigDecimal.valueOf(r);
                                             if (roomMarketValue.compareTo(BigDecimal.ZERO) != 0) {
-                                                ui.access(() -> {
-                                                    AllocationPanel allocationPanel =
-                                                            new AllocationPanel(allocations);
-                                                    // add at the next position
-                                                    allocations.addComponentAtIndex(
-                                                            allocationIndex++, allocationPanel);
-                                                    allocationPanel.portfolioIdField
-                                                            .setValue(portfolioKey.getId());
-                                                    allocationPanel.portfolioNameField
-                                                            .setValue(portfolio.getName());
-                                                    allocationPanel.amountField
-                                                            .setValue(tradePrice == null ? null
-                                                                    : roomMarketValue.setScale(4,
-                                                                            RoundingMode.HALF_EVEN)
-                                                                            .divide(tradePrice,
-                                                                                    RoundingMode.HALF_EVEN));
-                                                    allocationPanel.marketValueField
-                                                            .setValue(roomMarketValue.setScale(4,
-                                                                    RoundingMode.HALF_EVEN));
-                                                });
+                                                AllocationPanel allocationPanel =
+                                                        new AllocationPanel(allocations);
+                                                // add at the next position
+                                                allocations.addComponentAtIndex(allocationIndex++,
+                                                        allocationPanel);
+                                                allocationPanel.portfolioIdField
+                                                        .setValue(portfolioKey.getId());
+                                                allocationPanel.portfolioNameField
+                                                        .setValue(portfolio.getName());
+                                                allocationPanel.amountField
+                                                        .setValue(tradePrice == null ? null
+                                                                : roomMarketValue.setScale(4,
+                                                                        RoundingMode.HALF_EVEN)
+                                                                        .divide(tradePrice,
+                                                                                RoundingMode.HALF_EVEN));
+                                                allocationPanel.marketValueField
+                                                        .setValue(roomMarketValue.setScale(4,
+                                                                RoundingMode.HALF_EVEN));
                                             }
                                         } finally {
                                             updateNumRemaining(event);
                                         }
-                                    }, roomEvaluatorExecutor);
+                                    }), roomEvaluatorExecutor);
                         } catch (Exception e) {
                             // FIXME deal with InterruptedException/ExecutionException
                             LOG.error("could not evaluate room for Portfolio {}", portfolioKey, e);
@@ -331,7 +331,9 @@ public class FixedIncomeTradePanel extends FormLayout {
                 event.getSource().setText("Room");
                 event.getSource().setEnabled(true);
             } else {
-                event.getSource().setText(numRemaining + " to process");
+                if (numRemaining % 10 == 0) {
+                    event.getSource().setText(numRemaining + " to process");
+                }
             }
         });
     }

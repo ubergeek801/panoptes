@@ -10,6 +10,7 @@ import com.hazelcast.map.MapLoader;
 import com.hazelcast.map.MapStoreFactory;
 
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
 
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
@@ -21,7 +22,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
  * @author jeremy
  */
 @Singleton
-@Requires(notEnv = { "test", "offline" })
+@Requires(notEnv = { Environment.TEST, "offline" })
 public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object> {
     private final Provider<AssetCache> assetCacheProvider;
     private final DataSource dataSource;
