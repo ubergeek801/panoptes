@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import com.hazelcast.map.MapStore;
+
+import io.micronaut.transaction.SynchronousTransactionManager;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -34,15 +37,20 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
         implements MapStore<K, V>, RowMapper<V> {
     private static final Logger LOG = LoggerFactory.getLogger(HazelcastMapStore.class);
 
+    private final SynchronousTransactionManager<Connection> transactionManager;
     private final Jdbi jdbi;
 
     /**
      * Creates a new {@code HazelcastMapStore} which uses the given {@code Jdbi} instance.
      *
+     * @param transactionManager
+     *            the {@code TransactionManager} to use for {@code loadAllKeys()}
      * @param jdbi
      *            the {@code Jdbi} instance to use for database operations
      */
-    protected HazelcastMapStore(Jdbi jdbi) {
+    protected HazelcastMapStore(SynchronousTransactionManager<Connection> transactionManager,
+            Jdbi jdbi) {
+        this.transactionManager = transactionManager;
         this.jdbi = jdbi;
     }
 
@@ -100,13 +108,12 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     }
 
     @Override
-    @Transactional
     public Iterable<K> loadAllKeys() {
-        // TODO find a way to return the Iterable directly rather than collecting to a List
-        return jdbi
-                .withHandle(handle -> handle.createQuery("select "
-                        + String.join(",", getKeyColumnNames()) + " from " + getTableName()))
-                .map(getKeyMapper()).list();
+        // Hazelcast will close the iterator when complete, so we need to leave the transaction and
+        // Jdbi open during the meantime (KeyIterable will take care of cleanup)
+        return new KeyIterable<>(transactionManager, jdbi,
+                "select " + String.join(",", getKeyColumnNames()) + " from " + getTableName(),
+                getKeyMapper());
     }
 
     @Override

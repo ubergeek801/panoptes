@@ -41,6 +41,6 @@ public class PanoptesCacheTestConfiguration {
         config.setSerializationConfig(serializationConfig);
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 
-        return Hazelcast.newHazelcastInstance(config);
+        return Hazelcast.getOrCreateHazelcastInstance(config);
     }
 }

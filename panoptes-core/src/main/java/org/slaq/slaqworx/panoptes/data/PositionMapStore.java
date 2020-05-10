@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -8,6 +9,7 @@ import javax.transaction.Transactional;
 
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
+import io.micronaut.transaction.SynchronousTransactionManager;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -32,11 +34,14 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
      * Creates a new {@code PositionMapStore}. Restricted because instances of this class should be
      * created through the {@code HazelcastMapStoreFactory}.
      *
+     * @param transactionManager
+     *            the {@code TransactionManager} to use for {@code loadAllKeys()}
      * @param jdbi
      *            the {@code Jdbi} instance through which to access the database
      */
-    protected PositionMapStore(Jdbi jdbi) {
-        super(jdbi);
+    protected PositionMapStore(SynchronousTransactionManager<Connection> transactionManager,
+            Jdbi jdbi) {
+        super(transactionManager, jdbi);
     }
 
     @Override

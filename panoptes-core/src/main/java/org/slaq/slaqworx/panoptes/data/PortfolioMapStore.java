@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -13,6 +14,7 @@ import javax.transaction.Transactional;
 
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
+import io.micronaut.transaction.SynchronousTransactionManager;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -42,14 +44,17 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
      * Creates a new {@code PortfolioMapStore}. Restricted because instances of this class should be
      * created through the {@code HazelcastMapStoreFactory}.
      *
+     * @param transactionManager
+     *            the {@code TransactionManager} to use for {@code loadAllKeys()}
+     * @param jdbi
+     *            the {@code Jdbi} instance through which to access the database
      * @param assetCacheProvider
      *            the {@code AsssetCache} from which to obtained cached data, wrapped in a
      *            {@code Provider} to avoid a circular injection dependency
-     * @param jdbi
-     *            the {@code Jdbi} instance through which to access the database
      */
-    protected PortfolioMapStore(Provider<AssetCache> assetCacheProvider, Jdbi jdbi) {
-        super(jdbi);
+    protected PortfolioMapStore(SynchronousTransactionManager<Connection> transactionManager,
+            Jdbi jdbi, Provider<AssetCache> assetCacheProvider) {
+        super(transactionManager, jdbi);
         this.assetCacheProvider = assetCacheProvider;
     }
 

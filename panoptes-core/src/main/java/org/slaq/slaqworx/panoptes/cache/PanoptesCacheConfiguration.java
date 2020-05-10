@@ -160,6 +160,7 @@ public class PanoptesCacheConfiguration {
      *            the Hazelcast {@Config} with which to configure the instance
      * @param meterRegistry
      *            the {@code MeterRegistry} with which to register Hazelcast resources for
+     *            monitoring
      * @return a {@code HazelcastInstance}
      */
     @Bean(preDestroy = "shutdown")
@@ -167,7 +168,7 @@ public class PanoptesCacheConfiguration {
     protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration,
             MeterRegistry meterRegistry) {
         HazelcastInstance hazelcastInstance =
-                Hazelcast.newHazelcastInstance(hazelcastConfiguration);
+                Hazelcast.getOrCreateHazelcastInstance(hazelcastConfiguration);
 
         Hazelcast4CacheMetrics.monitor(meterRegistry,
                 CacheBootstrap.getPortfolioCache(hazelcastInstance));
