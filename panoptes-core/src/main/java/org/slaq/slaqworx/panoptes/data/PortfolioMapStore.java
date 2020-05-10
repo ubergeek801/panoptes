@@ -1,20 +1,23 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Provider;
-import javax.sql.DataSource;
+import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.RowMapper;
+import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
+
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.StatementContext;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -22,7 +25,6 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
-import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
@@ -31,6 +33,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  *
  * @author jeremy
  */
+@Singleton
+@Requires(notEnv = { Environment.TEST, "offline" })
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
     private final Provider<AssetCache> assetCacheProvider;
 
@@ -41,55 +45,67 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
      * @param assetCacheProvider
      *            the {@code AsssetCache} from which to obtained cached data, wrapped in a
      *            {@code Provider} to avoid a circular injection dependency
-     * @param dataSource
-     *            the {@code DataSource} through which to access the database
+     * @param jdbi
+     *            the {@code Jdbi} instance through which to access the database
      */
-    protected PortfolioMapStore(Provider<AssetCache> assetCacheProvider, DataSource dataSource) {
-        super(dataSource);
+    protected PortfolioMapStore(Provider<AssetCache> assetCacheProvider, Jdbi jdbi) {
+        super(jdbi);
         this.assetCacheProvider = assetCacheProvider;
     }
 
     @Override
+    @Transactional
     public void delete(PortfolioKey key) {
-        getJdbcTemplate().update(
-                "delete from portfolio_position where portfolio_id = ? and portfolio_version = ?",
-                key.getId(), key.getVersion());
-        getJdbcTemplate().update(
-                "delete from portfolio_rule where portfolio_id = ? and portfolio_version = ?",
-                key.getId(), key.getVersion());
-        getJdbcTemplate().update("delete from " + getTableName() + " where id = ? and version = ?",
-                key.getId(), key.getVersion());
+        getJdbi().withHandle(handle -> {
+            handle.execute("delete from portfolio_position where portfolio_id = ? and"
+                    + " portfolio_version = ?", key.getId(), key.getVersion());
+            handle.execute("delete from portfolio_rule where portfolio_id = ? and portfolio_version"
+                    + " = ?", key.getId(), key.getVersion());
+            return handle.execute("delete from " + getTableName() + " where id = ? and version = ?",
+                    key.getId(), key.getVersion());
+        });
     }
 
     @Override
-    public Portfolio mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public Portfolio map(ResultSet rs, StatementContext context) throws SQLException {
         String id = rs.getString(1);
         int version = rs.getInt(2);
         String name = rs.getString(3);
         String benchmarkId = rs.getString(4);
         int benchmarkVersion = rs.getInt(5);
 
-        // get the keys for the related Positions
-        List<PositionKey> positionKeys = getJdbcTemplate().query(
-                "select position_id from portfolio_position"
-                        + " where portfolio_id = ? and portfolio_version = ?",
-                new Object[] { id, version },
-                (RowMapper<PositionKey>)(rsPos, rowNumPos) -> new PositionKey(rsPos.getString(1)));
-        Set<Position> positions = positionKeys.stream()
-                .map(k -> assetCacheProvider.get().getPosition(k)).collect(Collectors.toSet());
+        return getJdbi().withHandle(handle -> {
+            // get the keys for the related Positions
+            Stream<PositionKey> positionKeys = handle
+                    .select("select position_id from portfolio_position where portfolio_id = ? and"
+                            + " portfolio_version = ?", id, version)
+                    .map((posRs, ctx) -> new PositionKey(posRs.getString(1))).stream();
+            Set<Position> positions = positionKeys.map(k -> assetCacheProvider.get().getPosition(k))
+                    .collect(Collectors.toSet());
 
-        // get the keys for the related Rules
-        List<RuleKey> ruleKeys = getJdbcTemplate().query(
-                "select rule_id from portfolio_rule"
-                        + " where portfolio_id = ? and portfolio_version = ?",
-                new Object[] { id, version },
-                (RowMapper<RuleKey>)(rsPos, rowNumPos) -> new RuleKey(rsPos.getString(1)));
-        Set<ConfigurableRule> rules = ruleKeys.stream()
-                .map(k -> assetCacheProvider.get().getRule(k)).collect(Collectors.toSet());
+            // get the keys for the related Rules
+            Stream<RuleKey> ruleKeys = handle
+                    .select("select rule_id from portfolio_rule where portfolio_id = ? and"
+                            + " portfolio_version = ?", id, version)
+                    .map((ruleRs, ctx) -> new RuleKey(ruleRs.getString(1))).stream();
+            Set<ConfigurableRule> rules = ruleKeys.map(k -> assetCacheProvider.get().getRule(k))
+                    .collect(Collectors.toSet());
 
-        return new Portfolio(new PortfolioKey(id, version), name, positions,
-                (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
-                rules);
+            return new Portfolio(new PortfolioKey(id, version), name, positions,
+                    (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
+                    rules);
+        });
+    }
+
+    @Override
+    protected void bindValues(PreparedBatch batch, Portfolio portfolio) {
+        PortfolioKey benchmarkKey = portfolio.getBenchmarkKey();
+
+        batch.bind(1, portfolio.getKey().getId());
+        batch.bind(2, portfolio.getKey().getVersion());
+        batch.bind(3, portfolio.getName());
+        batch.bind(4, benchmarkKey == null ? null : benchmarkKey.getId());
+        batch.bind(5, benchmarkKey == null ? null : benchmarkKey.getVersion());
     }
 
     @Override
@@ -130,62 +146,36 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     protected void postStoreAll(Map<PortfolioKey, Portfolio> map) {
         // now that the Portfolios have been inserted, store the Position and Rule relationships
 
-        for (Portfolio portfolio : map.values()) {
-            Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
-            getJdbcTemplate().batchUpdate(
-                    "insert into portfolio_position (portfolio_id, portfolio_version, position_id) "
-                            + "values (?, ?, ?) on conflict on constraint portfolio_position_pk "
-                            + "ignore",
-                    new BatchPreparedStatementSetter() {
-                        @Override
-                        public int getBatchSize() {
-                            return (int)portfolio.getPositions().count();
-                        }
+        getJdbi().withHandle(handle -> {
+            for (Portfolio portfolio : map.values()) {
+                PreparedBatch batch = handle.prepareBatch(
+                        "insert into portfolio_position (portfolio_id, portfolio_version,"
+                                + " position_id) values (?, ?, ?) on conflict on constraint"
+                                + " portfolio_position_pk ignore");
+                portfolio.getPositions().forEach(position -> {
+                    batch.bind(1, portfolio.getKey().getId());
+                    batch.bind(2, portfolio.getKey().getVersion());
+                    batch.bind(3, position.getKey().getId());
+                    batch.add();
+                });
+                batch.execute();
+            }
 
-                        @Override
-                        public void setValues(PreparedStatement ps, int i) throws SQLException {
-                            Position position = positionIter.next();
-                            ps.setString(1, portfolio.getKey().getId());
-                            ps.setLong(2, portfolio.getKey().getVersion());
-                            ps.setString(3, position.getKey().getId());
-                        }
-                    });
-        }
+            for (Portfolio portfolio : map.values()) {
+                PreparedBatch batch = handle.prepareBatch(
+                        "insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)"
+                                + " values (?, ?, ?) on conflict on constraint portfolio_rule_pk"
+                                + " ignore");
+                portfolio.getRules().forEach(rule -> {
+                    batch.bind(1, portfolio.getKey().getId());
+                    batch.bind(2, portfolio.getKey().getVersion());
+                    batch.bind(3, rule.getKey().getId());
+                    batch.add();
+                });
+                batch.execute();
+            }
 
-        for (Portfolio portfolio : map.values()) {
-            Iterator<Rule> ruleIter = portfolio.getRules().iterator();
-            getJdbcTemplate().batchUpdate(
-                    "insert into portfolio_rule (portfolio_id, portfolio_version, rule_id) "
-                            + "values (?, ?, ?) on conflict on constraint portfolio_rule_pk ignore",
-                    new BatchPreparedStatementSetter() {
-                        @Override
-                        public int getBatchSize() {
-                            return (int)portfolio.getRules().count();
-                        }
-
-                        @Override
-                        public void setValues(PreparedStatement ps, int i) throws SQLException {
-                            Rule rule = ruleIter.next();
-                            ps.setString(1, portfolio.getKey().getId());
-                            ps.setLong(2, portfolio.getKey().getVersion());
-                            ps.setString(3, rule.getKey().getId());
-                        }
-                    });
-        }
-    }
-
-    @Override
-    protected void setValues(PreparedStatement ps, Portfolio portfolio) throws SQLException {
-        PortfolioKey benchmarkKey = portfolio.getBenchmarkKey();
-
-        ps.setString(1, portfolio.getKey().getId());
-        ps.setLong(2, portfolio.getKey().getVersion());
-        ps.setString(3, portfolio.getName());
-        ps.setString(4, benchmarkKey == null ? null : benchmarkKey.getId());
-        if (benchmarkKey == null) {
-            ps.setNull(5, Types.INTEGER);
-        } else {
-            ps.setLong(5, benchmarkKey.getVersion());
-        }
+            return null;
+        });
     }
 }

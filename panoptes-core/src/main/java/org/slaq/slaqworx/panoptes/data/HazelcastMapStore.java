@@ -1,22 +1,21 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 
 import com.hazelcast.map.MapStore;
 
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -35,107 +34,119 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
         implements MapStore<K, V>, RowMapper<V> {
     private static final Logger LOG = LoggerFactory.getLogger(HazelcastMapStore.class);
 
-    private final JdbcTemplate jdbcTemplate;
+    private final Jdbi jdbi;
 
     /**
-     * Creates a new {@code HazelcastMapStore} which uses the given {@code DataSource}.
+     * Creates a new {@code HazelcastMapStore} which uses the given {@code Jdbi} instance.
      *
-     * @param dataSource
-     *            the {@code DataSource} to use for database operations
+     * @param jdbi
+     *            the {@code Jdbi} instance to use for database operations
      */
-    protected HazelcastMapStore(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    protected HazelcastMapStore(Jdbi jdbi) {
+        this.jdbi = jdbi;
     }
 
     @Override
+    @Transactional
     public void deleteAll(Collection<K> keys) {
         keys.forEach(k -> delete(k));
     }
 
     @Override
-    public final V load(K key) {
+    @Transactional
+    public V load(K key) {
         Map<K, V> values = loadAll(List.of(key));
 
         return (values.isEmpty() ? null : values.get(0));
     }
 
     @Override
+    @Transactional
     public Map<K, V> loadAll(Collection<K> keys) {
         LOG.info("loading {} {} entities", keys.size(), getTableName());
 
         String[] keyColumns = getKeyColumnNames();
-        StringBuilder query = new StringBuilder(getLoadSelect());
-        query.append(" where (").append(String.join(",", keyColumns) + ") in (values ");
+        StringBuilder queryString = new StringBuilder(getLoadSelect());
+        queryString.append(" where (").append(String.join(",", keyColumns) + ") in (values ");
 
-        Object[] parameters = new Object[(keys.size() * keyColumns.length)];
+        List<Object> parameters = new ArrayList<>(keys.size() * keyColumns.length);
         int keyIndex = 0;
-        int parameterIndex = 0;
         for (K key : keys) {
             if (keyIndex > 0) {
-                query.append(", ");
+                queryString.append(", ");
             }
-            query.append("(");
+            queryString.append("(");
             Object[] keyComponents = getKeyComponents(key);
             for (int keyComponentIndex = 0; keyComponentIndex < keyComponents.length;
                     keyComponentIndex++) {
                 if (keyComponentIndex > 0) {
-                    query.append(", ");
+                    queryString.append(", ");
                 }
-                query.append("?");
-                parameters[parameterIndex++] = keyComponents[keyComponentIndex];
+                queryString.append("?");
+                parameters.add(keyComponents[keyComponentIndex]);
             }
-            query.append(")");
+            queryString.append(")");
             keyIndex++;
         }
-        query.append(")");
+        queryString.append(")");
 
-        return getJdbcTemplate().query(query.toString(), parameters, this).stream()
-                .collect(Collectors.toMap(Keyed::getKey, v -> v));
+        return jdbi.withHandle(handle -> {
+            Query query = handle.createQuery(queryString.toString());
+            for (int i = 0; i < parameters.size(); i++) {
+                query.bind(i, parameters.get(i));
+            }
+            return query.map(this).stream().collect(Collectors.toMap(Keyed::getKey, v -> v));
+        });
     }
 
     @Override
+    @Transactional
     public Iterable<K> loadAllKeys() {
-        try {
-            return new KeyIterator<>(
-                    jdbcTemplate.getDataSource().getConnection().prepareStatement("select "
-                            + String.join(",", getKeyColumnNames()) + " from " + getTableName()),
-                    getKeyMapper());
-        } catch (SQLException e) {
-            // TODO throw a better exception
-            throw new RuntimeException("could not get keys for " + getTableName(), e);
-        }
+        // TODO find a way to return the Iterable directly rather than collecting to a List
+        return jdbi
+                .withHandle(handle -> handle.createQuery("select "
+                        + String.join(",", getKeyColumnNames()) + " from " + getTableName()))
+                .map(getKeyMapper()).list();
     }
 
     @Override
-    public final void store(K key, V value) {
+    @Transactional
+    public void store(K key, V value) {
         storeAll(Map.of(key, value));
     }
 
     @Override
+    @Transactional
     public void storeAll(Map<K, V> map) {
         preStoreAll(map);
-        Iterator<V> valueIter = map.values().iterator();
-        jdbcTemplate.batchUpdate(getStoreSql(), new BatchPreparedStatementSetter() {
-            @Override
-            public int getBatchSize() {
-                return map.size();
-            }
 
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                HazelcastMapStore.this.setValues(ps, valueIter.next());
-            }
+        jdbi.withHandle(handle -> {
+            PreparedBatch batch = handle.prepareBatch(getStoreSql());
+            map.values().forEach(v -> bindValues(batch, v));
+            return batch.execute();
         });
+
         postStoreAll(map);
     }
 
     /**
-     * Obtains the {@code JdbcTemplate} to use for database operations.
+     * Binds the values to be inserted/updated for the given value, as part of a batch store
+     * operation (with SQL provided by {@code getStoreSql()}.
      *
-     * @return a {@code JdbcTemplate}
+     * @param batch
+     *            the {@code PreparedBatch} on which to bind the values
+     * @param value
+     *            the entity value for which to bind the values
      */
-    protected JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
+    protected abstract void bindValues(PreparedBatch batch, V value);
+
+    /**
+     * Obtains the {@code Jdbi} to use for database operations.
+     *
+     * @return a {@code Jdbi}
+     */
+    protected Jdbi getJdbi() {
+        return jdbi;
     }
 
     /**
@@ -203,17 +214,4 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     protected void preStoreAll(Map<K, V> map) {
         // default is to do nothing
     }
-
-    /**
-     * Sets the values to be inserted/updated for the given value, as part of a batch store
-     * operation (with SQL provided by {@code getStoreSql()}.
-     *
-     * @param ps
-     *            the {@code PreparedStatement} on which to set the values
-     * @param value
-     *            the entity value for which to set the values
-     * @throws SQLException
-     *             if the values could not be set
-     */
-    protected abstract void setValues(PreparedStatement ps, V value) throws SQLException;
 }

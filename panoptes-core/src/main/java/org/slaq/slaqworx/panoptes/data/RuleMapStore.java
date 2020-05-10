@@ -1,13 +1,18 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.inject.Singleton;
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 
-import org.springframework.jdbc.core.RowMapper;
+import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
+
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.StatementContext;
 
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
@@ -22,26 +27,30 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * @author jeremy
  */
 @Singleton
+@Requires(notEnv = { Environment.TEST, "offline" })
 public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     /**
      * Creates a new {@code RuleMapStore}. Restricted because instances of this class should be
-     * created through the {@code ApplicationContext}.
+     * created through the {@code HazelcastMapStoreFactory}.
      *
-     * @param dataSource
-     *            the {@code DataSource} through which to access the database
+     * @param jdbi
+     *            the {@code Jdbi} instance through which to access the database
      */
-    protected RuleMapStore(DataSource dataSource) {
-        super(dataSource);
+    protected RuleMapStore(Jdbi jdbi) {
+        super(jdbi);
     }
 
     @Override
+    @Transactional
     public void delete(RuleKey key) {
-        getJdbcTemplate().update("delete from portfolio_rule where rule_id = ?", key.getId());
-        getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
+        getJdbi().withHandle(handle -> {
+            handle.execute("delete from portfolio_rule where rule_id = ?", key.getId());
+            return handle.execute("delete from " + getTableName() + " where id = ?", key.getId());
+        });
     }
 
     @Override
-    public ConfigurableRule mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public ConfigurableRule map(ResultSet rs, StatementContext context) throws SQLException {
         String id = rs.getString(1);
         String description = rs.getString(2);
         String ruleTypeName = rs.getString(3);
@@ -52,6 +61,30 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
 
         return RuleSerializer.constructRule(id, description, ruleTypeName, configuration,
                 groovyFilter, classifierTypeName, classifierConfiguration);
+    }
+
+    @Override
+    protected void bindValues(PreparedBatch batch, ConfigurableRule rule) {
+        String classifierType;
+        String classifierConfiguration;
+        EvaluationGroupClassifier classifier = rule.getGroupClassifier();
+        if (classifier == null) {
+            classifierType = null;
+            classifierConfiguration = null;
+        } else {
+            classifierType = classifier.getClass().getName();
+            classifierConfiguration = (classifier instanceof JsonConfigurable
+                    ? ((JsonConfigurable)classifier).getJsonConfiguration()
+                    : null);
+        }
+
+        batch.bind(1, rule.getKey().getId());
+        batch.bind(2, rule.getDescription());
+        batch.bind(3, rule.getClass().getName());
+        batch.bind(4, rule.getJsonConfiguration());
+        batch.bind(5, rule.getGroovyFilter());
+        batch.bind(6, classifierType);
+        batch.bind(7, classifierConfiguration);
     }
 
     @Override
@@ -90,29 +123,5 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     @Override
     protected String getTableName() {
         return "rule";
-    }
-
-    @Override
-    protected void setValues(PreparedStatement ps, ConfigurableRule rule) throws SQLException {
-        String classifierType;
-        String classifierConfiguration;
-        EvaluationGroupClassifier classifier = rule.getGroupClassifier();
-        if (classifier == null) {
-            classifierType = null;
-            classifierConfiguration = null;
-        } else {
-            classifierType = classifier.getClass().getName();
-            classifierConfiguration = (classifier instanceof JsonConfigurable
-                    ? ((JsonConfigurable)classifier).getJsonConfiguration()
-                    : null);
-        }
-
-        ps.setString(1, rule.getKey().getId());
-        ps.setString(2, rule.getDescription());
-        ps.setString(3, rule.getClass().getName());
-        ps.setString(4, rule.getJsonConfiguration());
-        ps.setString(5, rule.getGroovyFilter());
-        ps.setString(6, classifierType);
-        ps.setString(7, classifierConfiguration);
     }
 }

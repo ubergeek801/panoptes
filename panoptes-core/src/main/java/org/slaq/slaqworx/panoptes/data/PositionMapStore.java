@@ -1,12 +1,18 @@
 package org.slaq.slaqworx.panoptes.data;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
+import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
-import org.springframework.jdbc.core.RowMapper;
+import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.env.Environment;
+
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.PreparedBatch;
+import org.jdbi.v3.core.statement.StatementContext;
 
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -19,32 +25,43 @@ import org.slaq.slaqworx.panoptes.asset.SimplePosition;
  *
  * @author jeremy
  */
+@Singleton
+@Requires(notEnv = { Environment.TEST, "offline" })
 public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
     /**
      * Creates a new {@code PositionMapStore}. Restricted because instances of this class should be
      * created through the {@code HazelcastMapStoreFactory}.
      *
-     * @param dataSource
-     *            the {@code DataSource} through which to access the database
+     * @param jdbi
+     *            the {@code Jdbi} instance through which to access the database
      */
-    protected PositionMapStore(DataSource dataSource) {
-        super(dataSource);
+    protected PositionMapStore(Jdbi jdbi) {
+        super(jdbi);
     }
 
     @Override
+    @Transactional
     public void delete(PositionKey key) {
-        getJdbcTemplate().update("delete from portfolio_position where position_id = ?",
-                key.getId());
-        getJdbcTemplate().update("delete from " + getTableName() + " where id = ?", key.getId());
+        getJdbi().withHandle(handle -> {
+            handle.execute("delete from portfolio_position where position_id = ?", key.getId());
+            return handle.execute("delete from " + getTableName() + " where id = ?", key.getId());
+        });
     }
 
     @Override
-    public Position mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public Position map(ResultSet rs, StatementContext context) throws SQLException {
         String id = rs.getString(1);
         double amount = rs.getDouble(2);
         String securityId = rs.getString(3);
 
         return new SimplePosition(new PositionKey(id), amount, new SecurityKey(securityId));
+    }
+
+    @Override
+    protected void bindValues(PreparedBatch batch, Position position) {
+        batch.bind(1, position.getKey().getId());
+        batch.bind(2, position.getAmount());
+        batch.bind(3, position.getSecurityKey().getId());
     }
 
     @Override
@@ -69,21 +86,13 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
     @Override
     protected String getStoreSql() {
-        return "insert into " + getTableName()
-                + " (id, amount, security_id, partition_id) values (?, ?, ?, 0)"
-                + " on conflict on constraint position_pk do update"
-                + " set amount = excluded.amount, security_id = excluded.security_id";
+        return "insert into " + getTableName() + " (id, amount, security_id, partition_id) values"
+                + " (?, ?, ?, 0) on conflict on constraint position_pk do update set amount ="
+                + " excluded.amount, security_id = excluded.security_id";
     }
 
     @Override
     protected String getTableName() {
         return "position";
-    }
-
-    @Override
-    protected void setValues(PreparedStatement ps, Position position) throws SQLException {
-        ps.setString(1, position.getKey().getId());
-        ps.setDouble(2, position.getAmount());
-        ps.setString(3, position.getSecurityKey().getId());
     }
 }
