@@ -3,7 +3,8 @@ package org.slaq.slaqworx.panoptes.service;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -44,61 +45,66 @@ public class ComplianceService {
     private final ClusterPortfolioEvaluator evaluator;
     private final AssetCache assetCache;
 
+    /**
+     * Creates a new {@code ComplianceService}.
+     *
+     * @param clusterPortfolioEvaluator
+     *            the evaluator to use for compliance checking
+     * @param assetCache
+     *            the {@code AssetCache} to use to resolve cached resources
+     */
     protected ComplianceService(ClusterPortfolioEvaluator clusterPortfolioEvaluator,
             AssetCache assetCache) {
         evaluator = clusterPortfolioEvaluator;
         this.assetCache = assetCache;
     }
 
+    /**
+     * Performs a compliance evaluation over all portfolios.
+     *
+     * @return a {@code Flowable<String>} providing a JSON stream, where the content structure is
+     *         currently in flux
+     */
     @Get(uri = "/all", produces = MediaType.APPLICATION_JSON_STREAM)
     public Flowable<String> evaluateCompliance() {
-        Collection<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
-        int numPortfolios = portfolioKeys.size();
-        ResultState state = new ResultState();
-        long startTime = System.currentTimeMillis();
-
-        LinkedBlockingQueue<
-                Triple<PortfolioKey, Map<RuleKey, EvaluationResult>, Throwable>> resultQueue =
-                        new LinkedBlockingQueue<>();
-
         Flowable<String> response = Flowable.create(emitter -> {
-            while (!emitter.isCancelled()) {
-                if (state.resultIndex++ == numPortfolios) {
-                    long endTime = System.currentTimeMillis();
-                    String message = "{ \"message\": \"processed " + numPortfolios
-                            + " Portfolios using " + state.numEvaluations + " Rule evaluations in "
-                            + (endTime - startTime) + " ms\" }";
-                    LOG.info(message);
-                    emitter.onNext(message);
-                    emitter.onComplete();
-                    return;
-                }
+            Collection<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
+            int numPortfolios = portfolioKeys.size();
+            ResultState state = new ResultState();
+            long startTime = System.currentTimeMillis();
 
-                // FIXME this blocks
-                Triple<PortfolioKey, Map<RuleKey, EvaluationResult>, Throwable> evaluationResult =
-                        resultQueue.take();
-                Map<RuleKey, EvaluationResult> ruleResults = evaluationResult.getMiddle();
-                if (ruleResults != null) {
-                    state.numEvaluations += ruleResults.size();
-                }
-                emitter.onNext(
-                        SerializerUtil.defaultJsonMapper().writeValueAsString(evaluationResult)
-                                + "\n");
-            }
-        }, BackpressureStrategy.BUFFER);
+            portfolioKeys.forEach(key -> {
+                CompletableFuture<Map<RuleKey, EvaluationResult>> futureResult =
+                        evaluator.evaluate(key, new EvaluationContext(assetCache, assetCache));
+                futureResult.whenComplete((result, exception) -> {
+                    synchronized (emitter) {
+                        if (emitter.isCancelled()) {
+                            // TODO maybe cancel remaining Futures too
+                            return;
+                        }
+                        try {
+                            emitter.onNext(SerializerUtil.defaultJsonMapper()
+                                    .writeValueAsString(Triple.of(key, result, exception)) + "\n");
+                        } catch (JsonProcessingException e) {
+                            // FIXME handle JsonProcessingException somehow
+                        }
+                        if (result != null) {
+                            state.numEvaluations += result.size();
+                        }
 
-        portfolioKeys.forEach(key -> {
-            CompletableFuture<Map<RuleKey, EvaluationResult>> futureResult =
-                    evaluator.evaluate(key, new EvaluationContext(assetCache, assetCache));
-            futureResult.handleAsync((result, exception) -> {
-                try {
-                    resultQueue.put(Triple.of(key, result, exception));
-                } catch (InterruptedException e) {
-                    // the queue is unbounded so this won't happen
-                }
-                return null;
+                        if (++state.resultIndex == numPortfolios) {
+                            long endTime = System.currentTimeMillis();
+                            String message = "processed " + numPortfolios + " Portfolios using "
+                                    + state.numEvaluations + " Rule evaluations in "
+                                    + (endTime - startTime) + " ms";
+                            LOG.info(message);
+                            emitter.onNext("{ \"message\": \"" + message + "\" }");
+                            emitter.onComplete();
+                        }
+                    }
+                });
             });
-        });
+        }, BackpressureStrategy.BUFFER);
 
         return response;
     }
