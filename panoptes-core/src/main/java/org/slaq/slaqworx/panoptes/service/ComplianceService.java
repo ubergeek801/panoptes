@@ -65,9 +65,9 @@ public class ComplianceService {
             while (!emitter.isCancelled()) {
                 if (state.resultIndex++ == numPortfolios) {
                     long endTime = System.currentTimeMillis();
-                    String message = "processed " + numPortfolios + " Portfolios using "
-                            + state.numEvaluations + " Rule evaluations in " + (endTime - startTime)
-                            + " ms";
+                    String message = "{ \"message\": \"processed " + numPortfolios
+                            + " Portfolios using " + state.numEvaluations + " Rule evaluations in "
+                            + (endTime - startTime) + " ms\" }";
                     LOG.info(message);
                     emitter.onNext(message);
                     emitter.onComplete();
@@ -82,7 +82,8 @@ public class ComplianceService {
                     state.numEvaluations += ruleResults.size();
                 }
                 emitter.onNext(
-                        SerializerUtil.defaultJsonMapper().writeValueAsString(evaluationResult));
+                        SerializerUtil.defaultJsonMapper().writeValueAsString(evaluationResult)
+                                + "\n");
             }
         }, BackpressureStrategy.BUFFER);
 

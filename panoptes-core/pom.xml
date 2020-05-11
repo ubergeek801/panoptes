@@ -205,10 +205,10 @@
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- FIXME although we don't use micronaut-cache, micronaut seems to depend on it -->
+        <!-- we don't use Caffeine but Micronaut health metrics seem to -->
         <dependency>
             <groupId>io.micronaut.cache</groupId>
-            <artifactId>micronaut-cache-core</artifactId>
+            <artifactId>micronaut-cache-caffeine</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>

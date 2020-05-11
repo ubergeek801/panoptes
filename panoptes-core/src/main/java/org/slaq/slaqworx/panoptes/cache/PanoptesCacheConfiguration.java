@@ -148,6 +148,7 @@ public class PanoptesCacheConfiguration {
             boolean isUseMulticast = (!applicationContext.getEnvironment().getActiveNames()
                     .contains(Environment.TEST));
             config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(isUseMulticast);
+            config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(false);
         }
 
         return config;
