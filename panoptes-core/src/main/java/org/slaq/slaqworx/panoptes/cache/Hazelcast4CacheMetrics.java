@@ -156,16 +156,6 @@ public class Hazelcast4CacheMetrics extends CacheMeterBinder {
         return null;
     }
 
-    @Override
-    protected long putCount() {
-        return cache.getLocalMapStats().getPutOperationCount();
-    }
-
-    @Override
-    protected Long size() {
-        return cache.getLocalMapStats().getOwnedEntryCount();
-    }
-
     private void nearCacheMetrics(MeterRegistry registry) {
         if (cache.getLocalMapStats().getNearCacheStats() != null) {
             Gauge.builder("cache.near.requests", cache,
@@ -196,6 +186,16 @@ public class Hazelcast4CacheMetrics extends CacheMeterBinder {
                             "The number of Near Cache key persistences (when the pre-load feature is enabled)")
                     .register(registry);
         }
+    }
+
+    @Override
+    protected long putCount() {
+        return cache.getLocalMapStats().getPutOperationCount();
+    }
+
+    @Override
+    protected Long size() {
+        return cache.getLocalMapStats().getOwnedEntryCount();
     }
 
     private void timings(MeterRegistry registry) {
