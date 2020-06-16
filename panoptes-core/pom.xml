@@ -183,22 +183,20 @@
             <artifactId>micronaut-http-server-netty</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.micronaut.configuration</groupId>
+            <groupId>io.micronaut.sql</groupId>
             <artifactId>micronaut-jdbi</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.micronaut.configuration</groupId>
+            <groupId>io.micronaut.sql</groupId>
             <artifactId>micronaut-jdbc-hikari</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micronaut.data</groupId>
             <artifactId>micronaut-data-tx</artifactId>
-            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>3.0.3</version>
         </dependency>
 
         <dependency>
@@ -215,6 +213,7 @@
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-micrometer-registry-prometheus</artifactId>
+            <version>1.1.1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -225,7 +224,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.12</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

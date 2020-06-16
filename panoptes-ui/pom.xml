@@ -16,7 +16,7 @@
 
     <properties>
         <jetty.version>9.4.28.v20200408</jetty.version>
-        <vaadin.version>14.1.28</vaadin.version>
+        <vaadin.version>14.2.1</vaadin.version>
     </properties>
 
     <build>

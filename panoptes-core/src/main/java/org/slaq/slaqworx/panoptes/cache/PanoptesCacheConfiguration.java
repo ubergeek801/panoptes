@@ -23,7 +23,6 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.env.Environment;
 
-import org.slaq.slaqworks.panoptes.cache.Hazelcast4CacheMetrics;
 import org.slaq.slaqworx.panoptes.data.HazelcastMapStoreFactory;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
