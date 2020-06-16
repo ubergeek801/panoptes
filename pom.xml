@@ -18,7 +18,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
-        <micronaut.version>2.0.0.M3</micronaut.version>
+        <micronaut.version>2.0.0.RC1</micronaut.version>
     </properties>
 
     <modules>
@@ -30,7 +30,7 @@
     <repositories>
         <!-- bintray is sometimes needed for fresh Micronaut releases -->
         <repository>
-            <id>bintray</id>
+            <id>micronaut</id>
             <url>https://dl.bintray.com/micronaut/core-releases-local</url>
             <releases>
                 <enabled>true</enabled>
@@ -38,6 +38,11 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <!-- and for ktor too, it seems -->
+        <repository>
+            <id>ktor</id>
+            <url>https://dl.bintray.com/kotlin/ktor</url>
         </repository>
     </repositories>
 
