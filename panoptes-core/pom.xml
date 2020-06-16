@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>2.2.0</version>
+                <version>2.3.0</version>
                 <executions>
                     <execution>
                         <id>jib-amd64</id>
@@ -64,8 +64,12 @@
                         </goals>
                         <configuration>
                             <from>
-                                <!-- :11.0.7-10-aarch64 -->
-                                <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image>
+                                <!-- :20.1.0-java11 -->
+                                <image>oracle/graalvm-ce@sha256:21d0cb01226f6b9f1ded61ce694f31c489ed0a81d11e4f599025739ea37e33f3</image>
+                                <!-- :11.0.7-aarch64 -->
+                                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->
+                                <!-- :14.0.1-8-aarch64 -->
+                                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:70fcbb909ade5160c7d26cf798ee1e3af2d2d1bb4cde25aaaa4ff4b9d4f196c0</image> -->
                             </from>
                             <to>
                                 <image>uberkube01.slaq.org:5000/slaqworx/panoptes:arm64</image>
@@ -198,7 +202,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>3.0.3</version>
+            <version>3.0.4</version>
         </dependency>
 
         <dependency>

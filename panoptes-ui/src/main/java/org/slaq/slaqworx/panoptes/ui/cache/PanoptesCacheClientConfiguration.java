@@ -10,6 +10,11 @@ import com.hazelcast.core.HazelcastInstance;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
+/**
+ * A Micronaut {@code Factory} that provides a cache resources suitable for client use.
+ *
+ * @author jeremy
+ */
 @Factory
 public class PanoptesCacheClientConfiguration {
     /**
@@ -25,11 +30,12 @@ public class PanoptesCacheClientConfiguration {
         ClientConfig config = new ClientConfig();
         config.setProperty("hazelcast.logging.type", "slf4j");
         config.setClusterName("panoptes");
+        config.setInstanceName("panoptes");
         config.setSerializationConfig(serializationConfig);
         // FIXME make this configurable
         // config.getNetworkConfig().addAddress("localhost:5701");
-        config.getNetworkConfig().addAddress("10.13.35.82:5701");
+        config.getNetworkConfig().addAddress("uberkube02:5701");
 
-        return HazelcastClient.newHazelcastClient(config);
+        return HazelcastClient.getOrCreateHazelcastClient(config);
     }
 }
