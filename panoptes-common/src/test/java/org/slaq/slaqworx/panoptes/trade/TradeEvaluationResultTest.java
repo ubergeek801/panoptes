@@ -11,12 +11,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
 
 /**
  * {@code TradeEvaluationResultTest} tests the functionality of the {@code TradeEvaluationResult}.

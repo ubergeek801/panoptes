@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
@@ -41,7 +42,6 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.test.TestRuleProvider;
 import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
 
 /**
  * {@code TradeEvaluatorTest} tests the functionality of the {@code TradeEvaluator} implementations,

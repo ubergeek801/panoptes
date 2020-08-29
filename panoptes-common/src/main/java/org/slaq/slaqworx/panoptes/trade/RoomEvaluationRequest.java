@@ -50,7 +50,7 @@ public class RoomEvaluationRequest
 
         TradeEvaluator evaluator =
                 applicationContext.getBean(TradeEvaluator.class, Qualifiers.byName("local"));
-        return evaluator.evaluateRoom(portfolioKey, securityKey, targetValue).get();
+        return evaluator.evaluateRoom(portfolioKey, securityKey, targetValue).join();
     }
 
     /**

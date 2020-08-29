@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.protobuf.StringValue;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioRuleImpactMsg;
@@ -16,7 +17,6 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult.PortfolioRuleKey;
 
 /**
  * {@code TradeEvaluationResultSerializer} (de)serializes the state of a

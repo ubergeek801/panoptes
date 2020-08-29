@@ -14,105 +14,13 @@
 
     <name>panoptes-core</name>
 
-    <properties>
-        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
-            -XX:MaxGCPauseMillis=5000
-            -XX:+DisableExplicitGC --add-modules java.se
-            --add-exports
-            java.base/jdk.internal.ref=ALL-UNNAMED
-            --add-opens
-            java.base/java.lang=ALL-UNNAMED
-            --add-opens java.base/java.nio=ALL-UNNAMED
-            --add-opens
-            java.base/sun.nio.ch=ALL-UNNAMED
-            --add-opens
-            java.management/sun.management=ALL-UNNAMED
-            --add-opens
-            jdk.management/com.sun.management.internal=ALL-UNNAMED
-            -Xms2560m -Xmx2560m</globalJvmArgs>
-    </properties>
-
     <build>
         <plugins>
-            <!-- create a Docker image for the application -->
+            <!-- enable Micronaut-related Maven actions -->
             <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>2.4.0</version>
-                <executions>
-                    <execution>
-                        <id>jib-amd64</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                        <configuration>
-                            <from>
-                                <!-- :14.0.1-8-amd64 -->
-                                <image>bellsoft/liberica-openjdk-alpine@sha256:6614fd3a03a025cc80276e3c63a53e7039665e972c68868e8ad4aea2bb2a6ed3</image>
-                            </from>
-                            <to>
-                                <image>uberkube01.slaq.org:5000/slaqworx/panoptes:amd64</image>
-                            </to>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>jib-arm64</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                        <configuration>
-                            <from>
-                                <!-- :20.1.0-java11 -->
-                                <image>oracle/graalvm-ce@sha256:21d0cb01226f6b9f1ded61ce694f31c489ed0a81d11e4f599025739ea37e33f3</image>
-                                <!-- :11.0.7-aarch64 -->
-                                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->
-                                <!-- :14.0.1-8-aarch64 -->
-                                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:70fcbb909ade5160c7d26cf798ee1e3af2d2d1bb4cde25aaaa4ff4b9d4f196c0</image> -->
-                            </from>
-                            <to>
-                                <image>uberkube01.slaq.org:5000/slaqworx/panoptes:arm64</image>
-                            </to>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <allowInsecureRegistries>true</allowInsecureRegistries>
-                    <container>
-                        <!-- TODO figure out a way to DRY the global JVM flags -->
-                        <jvmFlags>
-                            <jvmFlag>-XX:+UseG1GC</jvmFlag>
-                            <jvmFlag>-XX:+UseStringDeduplication</jvmFlag>
-                            <jvmFlag>-XX:MaxGCPauseMillis=5000</jvmFlag>
-                            <jvmFlag>-XX:+DisableExplicitGC</jvmFlag>
-                            <jvmFlag>--add-modules</jvmFlag>
-                            <jvmFlag>java.se</jvmFlag>
-                            <jvmFlag>--add-exports</jvmFlag>
-                            <jvmFlag>java.base/jdk.internal.ref=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.base/java.lang=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.base/java.nio=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.base/sun.nio.ch=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>--add-opens</jvmFlag>
-                            <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
-                            <jvmFlag>-Xms2560m</jvmFlag>
-                            <jvmFlag>-Xmx2560m</jvmFlag>
-
-                            <jvmFlag>-noverify</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.port=8000</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>
-                            <jvmFlag>-Dcom.sun.management.jmxremote.local.only=false</jvmFlag>
-                        </jvmFlags>
-                    </container>
-                </configuration>
+                <groupId>io.micronaut.build</groupId>
+                <artifactId>micronaut-maven-plugin</artifactId>
+                <version>1.0.0</version>
             </plugin>
             <!-- set the desired environment when running unit tests -->
             <plugin>
@@ -120,52 +28,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>${globalJvmArgs}</argLine>
-                </configuration>
-            </plugin>
-            <!-- produce build-info to include in the application package -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build-info</goal>
-                        </goals>
-                        <configuration>
-                            <additionalProperties>
-                                <encoding.source>UTF-8</encoding.source>
-                                <encoding.reporting>UTF-8</encoding.reporting>
-                                <java.source>${maven.compiler.source}</java.source>
-                                <java.target>${maven.compiler.target}</java.target>
-                            </additionalProperties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- produce git-info to include in the application package -->
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                    <prefix>git</prefix>
-                    <verbose>false</verbose>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <format>properties</format>
-                    <gitDescribe>
-                        <skip>false</skip>
-                        <always>false</always>
-                        <dirty>-dirty</dirty>
-                    </gitDescribe>
                 </configuration>
             </plugin>
         </plugins>
@@ -185,6 +47,10 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.sql</groupId>
+            <artifactId>micronaut-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micronaut.sql</groupId>
@@ -215,9 +81,8 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>io.micronaut.configuration</groupId>
+            <groupId>io.micronaut.micrometer</groupId>
             <artifactId>micronaut-micrometer-registry-prometheus</artifactId>
-            <version>1.1.1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -233,7 +98,7 @@
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
-            <version>3.9.0</version>
+            <version>3.9.1</version>
             <scope>runtime</scope>
         </dependency>
 

@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.ui.compliance;
 
-import java.util.concurrent.ExecutionException;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -78,14 +76,9 @@ public class CompliancePanel extends VerticalLayout {
                 return;
             }
 
-            try {
-                resultPanel.setResult(portfolioEvaluator
-                        .evaluate(portfolio.getKey(), new EvaluationContext(assetCache, assetCache))
-                        .get());
-            } catch (InterruptedException | ExecutionException e) {
-                // FIXME deal with InterruptedException/ExecutionException
-                return;
-            }
+            resultPanel.setResult(portfolioEvaluator
+                    .evaluate(portfolio.getKey(), new EvaluationContext(assetCache, assetCache))
+                    .join());
         });
     }
 }

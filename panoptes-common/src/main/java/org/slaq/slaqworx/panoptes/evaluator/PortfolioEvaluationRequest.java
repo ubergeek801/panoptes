@@ -47,13 +47,13 @@ public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, Evaluat
     }
 
     @Override
-    public Map<RuleKey, EvaluationResult> call() throws Exception {
+    public Map<RuleKey, EvaluationResult> call() {
         // note that this code executes on the server side; thus it needs to bootstrap the resources
         // it needs (namely the AssetCache and a local PortfolioEvaluator)
 
         PortfolioEvaluator evaluator =
                 applicationContext.getBean(PortfolioEvaluator.class, Qualifiers.byName("local"));
-        return evaluator.evaluate(portfolioKey, transaction, evaluationContext).get();
+        return evaluator.evaluate(portfolioKey, transaction, evaluationContext).join();
     }
 
     @Override
