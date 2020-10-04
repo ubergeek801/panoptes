@@ -8,10 +8,10 @@ import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A {@code PositionSet} encapsulates a set of {@code Positions}, optionally related to a parent
- * {@code Portfolio}. If the parent is specified, it should not be assumed that the members of this
- * {@code PositionSet} are also members of the {@code Portfolio}'s {@code Positions}; rather, the
- * relationship exists only so that {@code Position} processing logic may access
+ * A {@code PositionSet} encapsulates a set of {@code Positions}, optionally related to a containing
+ * {@code Portfolio}. If the container is specified, it should not be assumed that the members of
+ * this {@code PositionSet} are also members of the {@code Portfolio}'s {@code Positions}; rather,
+ * the relationship exists only so that {@code Position} processing logic may access
  * {@code Portfolio}-level data if necessary.
  * <p>
  * Because a {@code PositionSet} associated with a {@code Portfolio} may not comprise all of its
@@ -36,8 +36,8 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
     private Double totalMarketValue;
 
     /**
-     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with no parent
-     * {@code Portfolio}.
+     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with no
+     * container {@code Portfolio}.
      *
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}
@@ -48,7 +48,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
 
     /**
      * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
-     * parent {@code Portfolio}.
+     * container {@code Portfolio}.
      *
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}
@@ -62,7 +62,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
 
     /**
      * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
-     * parent {@code Portfolio} and portfolio market value.
+     * containing {@code Portfolio} and portfolio market value.
      *
      * @param positions
      *            the {@code Position}s that will comprise this {@code PositionSet}

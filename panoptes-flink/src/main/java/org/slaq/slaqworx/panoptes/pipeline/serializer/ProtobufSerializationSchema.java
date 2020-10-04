@@ -17,6 +17,14 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
+/**
+ * A convenient base class for implementing {@code KafkaSerializationSchema}e that delegate to a
+ * {@code ProtobufSerializer}.
+ *
+ * @author jeremy
+ * @param <T>
+ *            the type to be (de)serialized
+ */
 public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable> implements
         KafkaSerializationSchema<T>, Provider<AssetCache>, PortfolioProvider, SecurityProvider {
     private static final long serialVersionUID = 1L;
@@ -27,6 +35,12 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
 
     private transient ProtobufSerializer<T> serializer;
 
+    /**
+     * Creates a new {@code ProtobufSerializationSchema} for the given topic.
+     *
+     * @param topic
+     *            the topic to which this serialization schema is to be applied
+     */
     protected ProtobufSerializationSchema(String topic) {
         this.topic = topic;
     }
@@ -63,8 +77,20 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
         }
     }
 
+    /**
+     * Creates a {@code ProtobufSerializer} that can handle this
+     * {@code ProtobufSerializationSchema}'s associated type.
+     *
+     * @return a {@code ProtobufSerializer}
+     */
     protected abstract ProtobufSerializer<T> createSerializer();
 
+    /**
+     * Obtains (creating, if necessary) a {@code ProtobufSerializer} that can handle this
+     * {@code ProtobufSerializationSchema}'s associated type.
+     *
+     * @return a {@code ProtobufSerializer}
+     */
     protected final ProtobufSerializer<T> getSerializer() {
         if (serializer == null) {
             serializer = createSerializer();
@@ -73,7 +99,16 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
         return serializer;
     }
 
-    protected byte[] serializeKey(T element) throws Exception {
+    /**
+     * Serializes the given key. The default implementation returns {@code null}.
+     *
+     * @param key
+     *            the key to be serialized
+     * @return a serialized representation of the key
+     * @throws Exception
+     *             if the key could not be serialized
+     */
+    protected byte[] serializeKey(T key) throws Exception {
         return null;
     }
 }

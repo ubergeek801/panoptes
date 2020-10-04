@@ -64,10 +64,6 @@
             <groupId>io.micronaut.data</groupId>
             <artifactId>micronaut-data-tx</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

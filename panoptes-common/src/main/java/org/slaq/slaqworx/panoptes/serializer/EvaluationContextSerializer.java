@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -26,7 +24,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
  * @author jeremy
  */
 @Singleton
-public class EvaluationContextSerializer implements ByteArraySerializer<EvaluationContext> {
+public class EvaluationContextSerializer implements ProtobufSerializer<EvaluationContext> {
     /**
      * Converts an {@code EvaluationContext} into a new {@code EvaluationContextMsg}.
      *

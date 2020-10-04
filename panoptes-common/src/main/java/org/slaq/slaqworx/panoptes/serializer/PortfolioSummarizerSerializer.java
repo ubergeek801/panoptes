@@ -6,8 +6,6 @@ import java.io.IOException;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import com.hazelcast.nio.serialization.ByteArraySerializer;
-
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -21,7 +19,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  * @author jeremy
  */
 @Singleton
-public class PortfolioSummarizerSerializer implements ByteArraySerializer<PortfolioSummarizer> {
+public class PortfolioSummarizerSerializer implements ProtobufSerializer<PortfolioSummarizer> {
     /**
      * Converts an {@code PortfolioSummarizer} into a new {@code EvaluationContextMsg}.
      *

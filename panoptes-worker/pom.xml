@@ -48,8 +48,8 @@
                         </goals>
                         <configuration>
                             <from>
-                                <!-- :14.0.1-8-amd64 -->
-                                <image>bellsoft/liberica-openjdk-alpine@sha256:6614fd3a03a025cc80276e3c63a53e7039665e972c68868e8ad4aea2bb2a6ed3</image>
+                                <!-- :14.0.2-amd64 -->
+                                <image>bellsoft/liberica-openjdk-alpine@sha256:027616c557b84556bbb88c9d08b992714c30f5eeef642aacf2bdf5c4ef6e1f47</image>
                             </from>
                             <to>
                                 <image>uberkube01.slaq.org:5000/slaqworx/panoptes:amd64</image>
@@ -64,8 +64,8 @@
                         </goals>
                         <configuration>
                             <from>
-                                <!-- :20.1.0-java11 -->
-                                <image>oracle/graalvm-ce@sha256:21d0cb01226f6b9f1ded61ce694f31c489ed0a81d11e4f599025739ea37e33f3</image>
+                                <!-- :20.2.0-java11-arm64 -->
+                                <image>oracle/graalvm-ce@sha256:494222b828e6096bd00b16b9626b54665546fc5b60a8080c99be8d29af829638</image>
                                 <!-- :11.0.7-aarch64 -->
                                 <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->
                                 <!-- :14.0.1-8-aarch64 -->

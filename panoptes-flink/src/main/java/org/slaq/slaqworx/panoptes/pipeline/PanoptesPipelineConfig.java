@@ -17,10 +17,14 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationRequestDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationResultSerializationSchema;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.SecurityDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationRequestDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationResultSerializationSchema;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
@@ -30,21 +34,49 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 public class PanoptesPipelineConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
 
+    public static final String BENCHMARK_SOURCE = "benchmarkSource";
+    public static final String PORTFOLIO_SOURCE = "portfolioSource";
     public static final String PORTFOLIO_EVALUATION_REQUEST_SOURCE =
             "portfolioEvaluationRequestSource";
     public static final String PORTFOLIO_EVALUATION_RESULT_SINK = "portfolioEvaluationResultSink";
+    public static final String SECURITY_SOURCE = "securitySource";
     public static final String TRADE_EVALUATION_REQUEST_SOURCE = "tradeEvaluationRequestSource";
     public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
 
     @Property(name = "kafka") private Properties kafkaProperties;
+    @Property(name = "kafka-topic.benchmark-topic") private String benchmarkTopic;
+    @Property(name = "kafka-topic.portfolio-topic") private String portfolioTopic;
     @Property(
-            name = "kafka.portfolio-request-topic") private String portfolioEvaluationRequestTopic;
-    @Property(name = "kafka.portfolio-result-topic") private String portfolioEvaluationResultTopic;
-    @Property(name = "kafka.trade-request-topic") private String tradeEvaluationRequestTopic;
-    @Property(name = "kafka.trade-result-topic") private String tradeEvaluationResultTopic;
+            name = "kafka-topic.portfolio-request-topic") private String portfolioEvaluationRequestTopic;
+    @Property(
+            name = "kafka-topic.portfolio-result-topic") private String portfolioEvaluationResultTopic;
+    @Property(name = "kafka-topic.security-topic") private String securityTopic;
+    @Property(name = "kafka-topic.trade-request-topic") private String tradeEvaluationRequestTopic;
+    @Property(name = "kafka-topic.trade-result-topic") private String tradeEvaluationResultTopic;
 
+    /**
+     * Creates a new {@code PanoptesPipelineConfig}. Restricted because this class is managed by
+     * Micronaut.
+     */
     protected PanoptesPipelineConfig() {
         // nothing to do
+    }
+
+    /**
+     * Configures and provides a {@code SourceFunction} to source benchmark data from Kafka.
+     *
+     * @return a {@code SourceFunction}
+     */
+    @Singleton
+    @Named(BENCHMARK_SOURCE)
+    protected SourceFunction<Portfolio> benchmarkSource() {
+        LOGGER.info("using {} as benchmark topic", benchmarkTopic);
+
+        FlinkKafkaConsumer<Portfolio> consumer = new FlinkKafkaConsumer<>(benchmarkTopic,
+                new PortfolioDeserializationSchema(), kafkaProperties);
+        consumer.setStartFromEarliest();
+
+        return consumer;
     }
 
     /**
@@ -103,6 +135,40 @@ public class PanoptesPipelineConfig {
         producer.setWriteTimestampToKafka(true);
 
         return producer;
+    }
+
+    /**
+     * Configures and provides a {@code SourceFunction} to source portfolio data from Kafka.
+     *
+     * @return a {@code SourceFunction}
+     */
+    @Singleton
+    @Named(PORTFOLIO_SOURCE)
+    protected SourceFunction<Portfolio> portfolioSource() {
+        LOGGER.info("using {} as portfolio topic", portfolioTopic);
+
+        FlinkKafkaConsumer<Portfolio> consumer = new FlinkKafkaConsumer<>(portfolioTopic,
+                new PortfolioDeserializationSchema(), kafkaProperties);
+        consumer.setStartFromEarliest();
+
+        return consumer;
+    }
+
+    /**
+     * Configures and provides a {@code SourceFunction} to source security data from Kafka.
+     *
+     * @return a {@code SourceFunction}
+     */
+    @Singleton
+    @Named(SECURITY_SOURCE)
+    protected SourceFunction<Security> securitySource() {
+        LOGGER.info("using {} as security topic", securityTopic);
+
+        FlinkKafkaConsumer<Security> consumer = new FlinkKafkaConsumer<>(securityTopic,
+                new SecurityDeserializationSchema(), kafkaProperties);
+        consumer.setStartFromEarliest();
+
+        return consumer;
     }
 
     /**

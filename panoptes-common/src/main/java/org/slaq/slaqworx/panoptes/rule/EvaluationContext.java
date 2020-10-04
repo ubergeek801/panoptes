@@ -11,6 +11,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * {@code EvaluationContext} provides contextual information related to the execution of
@@ -20,7 +21,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
  *
  * @author jeremy
  */
-public class EvaluationContext {
+public class EvaluationContext implements ProtobufSerializable {
     /**
      * {@code EvaluationMode} specifies behaviors to be observed during evaluation.
      */

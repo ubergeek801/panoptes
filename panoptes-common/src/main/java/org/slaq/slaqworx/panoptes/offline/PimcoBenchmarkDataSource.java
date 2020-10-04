@@ -104,6 +104,15 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         return benchmarkMap.get(benchmarkKey);
     }
 
+    /**
+     * Obtains a {@code Map} mapping portfolio key to its corresponding benchmark.
+     *
+     * @return a {@code Map} of portfolio key to benchmark
+     */
+    public Map<PortfolioKey, Portfolio> getBenchmarkMap() {
+        return benchmarkMap;
+    }
+
     @Override
     public Portfolio getPortfolio(PortfolioKey key) {
         // we only know about benchmarks
