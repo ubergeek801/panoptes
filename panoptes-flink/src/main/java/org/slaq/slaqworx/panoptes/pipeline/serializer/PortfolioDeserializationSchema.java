@@ -20,6 +20,6 @@ public class PortfolioDeserializationSchema extends ProtobufDeserializationSchem
 
     @Override
     protected ProtobufSerializer<Portfolio> createSerializer() {
-        return new PortfolioSerializer(null);
+        return new PortfolioSerializer();
     }
 }

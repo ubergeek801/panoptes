@@ -18,7 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioDeserializationSchema;
@@ -27,12 +30,17 @@ import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationResultS
 import org.slaq.slaqworx.panoptes.pipeline.serializer.SecurityDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationRequestDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationResultSerializationSchema;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKeyKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioSummaryKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKeyKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKryoSerializer;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 @Factory
 public class PanoptesPipelineConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
 
     public static final String BENCHMARK_SOURCE = "benchmarkSource";
     public static final String PORTFOLIO_SOURCE = "portfolioSource";
@@ -70,7 +78,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(BENCHMARK_SOURCE)
     protected SourceFunction<Portfolio> benchmarkSource() {
-        LOGGER.info("using {} as benchmark topic", benchmarkTopic);
+        LOG.info("using {} as benchmark topic", benchmarkTopic);
 
         FlinkKafkaConsumer<Portfolio> consumer = new FlinkKafkaConsumer<>(benchmarkTopic,
                 new PortfolioDeserializationSchema(), kafkaProperties);
@@ -87,12 +95,26 @@ public class PanoptesPipelineConfig {
     @Singleton
     protected StreamExecutionEnvironment executionEnvironment() {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        LOGGER.info("using global parallelism {}", env.getParallelism());
+        LOG.info("using global parallelism {}", env.getParallelism());
 
         // since we deal with immutable (or effectively immutable) objects, we can reduce Flink's
         // copying; this doesn't do much for larger machines but does help in more
         // resource-constrained environments
         env.getConfig().enableObjectReuse();
+
+        // in Flink, Protobuf serialization is supported via custom serializers reigstered with
+        // Flink; we need these for any (top-level) classes passed between Flink operators, classes
+        // used in operator state, etc.
+        env.getConfig().registerTypeWithKryoSerializer(Portfolio.class,
+                PortfolioKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(PortfolioKey.class,
+                PortfolioKeyKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(PortfolioSummary.class,
+                PortfolioSummaryKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(Security.class,
+                SecurityKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(SecurityKey.class,
+                SecurityKeyKryoSerializer.class);
 
         return env;
     }
@@ -106,8 +128,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(PORTFOLIO_EVALUATION_REQUEST_SOURCE)
     protected SourceFunction<PortfolioEvaluationRequest> portfolioEvaluationRequestSource() {
-        LOGGER.info("using {} as portfolioEvaluationRequest topic",
-                portfolioEvaluationRequestTopic);
+        LOG.info("using {} as portfolioEvaluationRequest topic", portfolioEvaluationRequestTopic);
 
         FlinkKafkaConsumer<PortfolioEvaluationRequest> consumer =
                 new FlinkKafkaConsumer<>(portfolioEvaluationRequestTopic,
@@ -125,7 +146,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(PORTFOLIO_EVALUATION_RESULT_SINK)
     protected SinkFunction<EvaluationResult> portfolioEvaluationResultSink() {
-        LOGGER.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
+        LOG.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
 
         FlinkKafkaProducer<EvaluationResult> producer =
                 new FlinkKafkaProducer<>(tradeEvaluationResultTopic,
@@ -145,7 +166,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(PORTFOLIO_SOURCE)
     protected SourceFunction<Portfolio> portfolioSource() {
-        LOGGER.info("using {} as portfolio topic", portfolioTopic);
+        LOG.info("using {} as portfolio topic", portfolioTopic);
 
         FlinkKafkaConsumer<Portfolio> consumer = new FlinkKafkaConsumer<>(portfolioTopic,
                 new PortfolioDeserializationSchema(), kafkaProperties);
@@ -162,7 +183,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(SECURITY_SOURCE)
     protected SourceFunction<Security> securitySource() {
-        LOGGER.info("using {} as security topic", securityTopic);
+        LOG.info("using {} as security topic", securityTopic);
 
         FlinkKafkaConsumer<Security> consumer = new FlinkKafkaConsumer<>(securityTopic,
                 new SecurityDeserializationSchema(), kafkaProperties);
@@ -180,7 +201,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(TRADE_EVALUATION_REQUEST_SOURCE)
     protected SourceFunction<TradeEvaluationRequest> tradeEvaluationRequestSource() {
-        LOGGER.info("using {} as tradeEvaluationRequest topic", tradeEvaluationRequestTopic);
+        LOG.info("using {} as tradeEvaluationRequest topic", tradeEvaluationRequestTopic);
 
         FlinkKafkaConsumer<TradeEvaluationRequest> consumer =
                 new FlinkKafkaConsumer<>(tradeEvaluationRequestTopic,
@@ -197,7 +218,7 @@ public class PanoptesPipelineConfig {
     @Singleton
     @Named(TRADE_EVALUATION_RESULT_SINK)
     protected SinkFunction<TradeEvaluationResult> tradeEvaluationResultSink() {
-        LOGGER.info("using {} as tradeEvaluationResult topic", tradeEvaluationResultTopic);
+        LOG.info("using {} as tradeEvaluationResult topic", tradeEvaluationResultTopic);
 
         FlinkKafkaProducer<TradeEvaluationResult> producer =
                 new FlinkKafkaProducer<>(tradeEvaluationResultTopic,

@@ -23,8 +23,8 @@ message PortfolioMsg {
     IdVersionKeyMsg key = 1;
     string name = 2;
     IdVersionKeyMsg benchmarkKey = 3;
-    repeated IdKeyMsg ruleKey = 4;
-    repeated IdKeyMsg positionKey = 5;
+    repeated RuleMsg rule = 4;
+    repeated PositionMsg position = 5;
 }
 
 message PortfolioSummaryMsg {

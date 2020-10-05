@@ -6,6 +6,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slaq.slaqworx.panoptes.asset.MarketValueProvider;
 import org.slaq.slaqworx.panoptes.asset.MarketValued;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
@@ -21,7 +22,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  *
  * @author jeremy
  */
-public class EvaluationContext implements ProtobufSerializable {
+public class EvaluationContext implements MarketValueProvider, ProtobufSerializable {
     /**
      * {@code EvaluationMode} specifies behaviors to be observed during evaluation.
      */
@@ -167,16 +168,9 @@ public class EvaluationContext implements ProtobufSerializable {
         return evaluationMode;
     }
 
-    /**
-     * Obtains the market value of the given holding (generally a {@code Portfolio} or a subset of
-     * its {@code Position}s). Once calculated, the value is cached for the lifetime of this
-     * {@code EvaluationContext}.
-     *
-     * @param holding
-     *            the holding for which to obtain the market value
-     * @return the market value of the given holding
-     */
+    @Override
     public double getMarketValue(MarketValued holding) {
+        // compute/cache the market value of this holding
         return marketValues.computeIfAbsent(holding, k -> holding.getMarketValue(this));
     }
 

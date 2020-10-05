@@ -153,7 +153,6 @@
             </exclusions>
         </dependency>
 
-        <!-- FIXME Micronaut doesn't find these classes unless they have compile scope -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
@@ -164,12 +163,14 @@
                     <artifactId>commons-lang3</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <!-- in Flink >= 1.11.x, this is included by flink-clients_${scala.binary.version} -->
             <artifactId>flink-clients_${flink.scala.binary.version}</artifactId>
             <version>${flink.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -180,6 +181,7 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-metrics-jmx_${flink.scala.binary.version}</artifactId>
             <version>${flink.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

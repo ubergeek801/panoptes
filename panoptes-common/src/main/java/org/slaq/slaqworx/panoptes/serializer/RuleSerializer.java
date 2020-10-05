@@ -93,6 +93,55 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
     }
 
     /**
+     * Converts a {@code ConfigurableRule} into a new {@code RuleMsg}.
+     *
+     * @param rule
+     *            the {@code ConfigurableRule} to be converted
+     * @return a {@code RuleMsg}
+     */
+    public static RuleMsg convert(ConfigurableRule rule) {
+        IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
+        keyBuilder.setId(rule.getKey().getId());
+
+        // TODO this code is similar to that in RuleMapStore; try to consolidate
+        RuleMsg.Builder ruleBuilder = RuleMsg.newBuilder();
+        ruleBuilder.setKey(keyBuilder);
+        ruleBuilder.setDescription(rule.getDescription());
+        ruleBuilder.setType(rule.getClass().getName());
+        if (rule.getJsonConfiguration() != null) {
+            ruleBuilder.setConfiguration(rule.getJsonConfiguration());
+        }
+        if (rule.getGroovyFilter() != null) {
+            ruleBuilder.setFilter(rule.getGroovyFilter());
+        }
+        EvaluationGroupClassifier classifier = rule.getGroupClassifier();
+        if (classifier != null) {
+            ruleBuilder.setClassifierType(classifier.getClass().getName());
+            if (classifier instanceof JsonConfigurable) {
+                String jsonConfiguration = ((JsonConfigurable)classifier).getJsonConfiguration();
+                if (jsonConfiguration != null) {
+                    ruleBuilder.setClassifierConfiguration(jsonConfiguration);
+                }
+            }
+        }
+
+        return ruleBuilder.build();
+    }
+
+    /**
+     * Converts a {@code RuleMsg} into a new {@code ConfigurableRule}.
+     *
+     * @param ruleMsg
+     *            the {@code RuleMsg} to be converted
+     * @return a {@code ConfigurableRule}
+     */
+    public static ConfigurableRule convert(RuleMsg ruleMsg) {
+        return constructRule(ruleMsg.getKey().getId(), ruleMsg.getDescription(), ruleMsg.getType(),
+                ruleMsg.getConfiguration(), ruleMsg.getFilter(), ruleMsg.getClassifierType(),
+                ruleMsg.getClassifierConfiguration());
+    }
+
+    /**
      * Resolves the {@code Class} with the given name.
      *
      * @param <T>
@@ -116,8 +165,7 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
         }
 
         try {
-            @SuppressWarnings("unchecked")
-            Class<T> clazz = (Class<T>)Class.forName(className);
+            @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>)Class.forName(className);
 
             return clazz;
         } catch (ClassNotFoundException e) {
@@ -148,40 +196,15 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
     public ConfigurableRule read(byte[] buffer) throws IOException {
         RuleMsg ruleMsg = RuleMsg.parseFrom(buffer);
 
-        return constructRule(ruleMsg.getKey().getId(), ruleMsg.getDescription(), ruleMsg.getType(),
-                ruleMsg.getConfiguration(), ruleMsg.getFilter(), ruleMsg.getClassifierType(),
-                ruleMsg.getClassifierConfiguration());
+        return convert(ruleMsg);
     }
 
     @Override
     public byte[] write(ConfigurableRule rule) throws IOException {
-        IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
-        keyBuilder.setId(rule.getKey().getId());
-
-        // TODO this code is similar to that in RuleMapStore; try to consolidate
-        RuleMsg.Builder ruleBuilder = RuleMsg.newBuilder();
-        ruleBuilder.setKey(keyBuilder);
-        ruleBuilder.setDescription(rule.getDescription());
-        ruleBuilder.setType(rule.getClass().getName());
-        if (rule.getJsonConfiguration() != null) {
-            ruleBuilder.setConfiguration(rule.getJsonConfiguration());
-        }
-        if (rule.getGroovyFilter() != null) {
-            ruleBuilder.setFilter(rule.getGroovyFilter());
-        }
-        EvaluationGroupClassifier classifier = rule.getGroupClassifier();
-        if (classifier != null) {
-            ruleBuilder.setClassifierType(classifier.getClass().getName());
-            if (classifier instanceof JsonConfigurable) {
-                String jsonConfiguration = ((JsonConfigurable)classifier).getJsonConfiguration();
-                if (jsonConfiguration != null) {
-                    ruleBuilder.setClassifierConfiguration(jsonConfiguration);
-                }
-            }
-        }
+        RuleMsg ruleMsg = convert(rule);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ruleBuilder.build().writeTo(out);
+        ruleMsg.writeTo(out);
         return out.toByteArray();
     }
 }

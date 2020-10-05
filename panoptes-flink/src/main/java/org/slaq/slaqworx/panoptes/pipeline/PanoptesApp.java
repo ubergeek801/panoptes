@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 @Context
 @Requires(notEnv = Environment.TEST)
 public class PanoptesApp {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PanoptesApp.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PanoptesApp.class);
 
     private static ApplicationContext globalAppContext;
 
@@ -36,11 +36,11 @@ public class PanoptesApp {
     public static void main(String[] args) throws Exception {
         try (ApplicationContext appContext = createAppContext(args)) {
             globalAppContext = appContext;
-            LOGGER.info("configuring PanoptesPipeline");
+            LOG.info("configuring PanoptesPipeline");
 
             PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
 
-            LOGGER.info("executing PanoptesPipeline");
+            LOG.info("executing PanoptesPipeline");
 
             pipeline.execute(args);
         }

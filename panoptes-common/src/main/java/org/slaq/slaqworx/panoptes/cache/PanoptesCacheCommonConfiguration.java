@@ -104,8 +104,7 @@ public class PanoptesCacheCommonConfiguration {
         config.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
         config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioSerializer(assetCacheProvider))
-                .setTypeClass(Portfolio.class));
+                .setImplementation(new PortfolioSerializer()).setTypeClass(Portfolio.class));
         config.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PortfolioSummarizerSerializer(assetCacheProvider))
                 .setTypeClass(PortfolioSummarizer.class));

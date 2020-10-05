@@ -74,7 +74,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
         // FIXME some of these need additional services
         serdeMap.put(EvaluationContext.class, createSerde(new EvaluationContextSerializer(null)));
         serdeMap.put(PortfolioKey.class, createSerde(new PortfolioKeySerializer()));
-        serdeMap.put(Portfolio.class, createSerde(new PortfolioSerializer(null)));
+        serdeMap.put(Portfolio.class, createSerde(new PortfolioSerializer()));
         serdeMap.put(PortfolioSummarizer.class,
                 createSerde(new PortfolioSummarizerSerializer(null)));
         serdeMap.put(PortfolioSummary.class, createSerde(new PortfolioSummarySerializer()));

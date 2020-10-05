@@ -21,6 +21,28 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
 @Singleton
 public class PositionSerializer implements ProtobufSerializer<Position> {
     /**
+     * Converts a {@code Position} into a new {@code PositionMsg}.
+     *
+     * @param position
+     *            the {@code Position} to be converted
+     * @return a {@code PositionMsg}
+     */
+    public static PositionMsg convert(Position position) {
+        IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
+        keyBuilder.setId(position.getKey().getId());
+
+        IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
+        securityKeyBuilder.setId(position.getSecurityKey().getId());
+
+        PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
+        positionBuilder.setKey(keyBuilder);
+        positionBuilder.setAmount(position.getAmount());
+        positionBuilder.setSecurityKey(securityKeyBuilder);
+
+        return positionBuilder.build();
+    }
+
+    /**
      * Converts a {@code PositionMsg} into a new {@code Position}.
      *
      * @param positionMsg
@@ -77,19 +99,10 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
 
     @Override
     public byte[] write(Position position) throws IOException {
-        IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
-        keyBuilder.setId(position.getKey().getId());
-
-        IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-        securityKeyBuilder.setId(position.getSecurityKey().getId());
-
-        PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
-        positionBuilder.setKey(keyBuilder);
-        positionBuilder.setAmount(position.getAmount());
-        positionBuilder.setSecurityKey(securityKeyBuilder);
+        PositionMsg positionMsg = convert(position);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        positionBuilder.build().writeTo(out);
+        positionMsg.writeTo(out);
         return out.toByteArray();
     }
 }

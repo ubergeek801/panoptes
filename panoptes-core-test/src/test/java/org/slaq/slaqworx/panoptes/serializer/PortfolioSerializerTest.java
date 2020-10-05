@@ -32,8 +32,7 @@ public class PortfolioSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        PortfolioSerializer serializer = new PortfolioSerializer(TestUtil.testPositionProvider(),
-                TestRuleProvider.getInstance());
+        PortfolioSerializer serializer = new PortfolioSerializer();
 
         Portfolio portfolio = TestUtil.p1;
         byte[] buffer = serializer.write(TestUtil.p1);

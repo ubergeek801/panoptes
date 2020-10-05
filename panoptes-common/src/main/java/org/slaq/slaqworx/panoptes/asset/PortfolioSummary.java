@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.asset;
 
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
@@ -16,14 +15,14 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
      *
      * @param portfolio
      *            the {@code Portfolio} to summarize
-     * @param evaluationContext
-     *            the {@code EvaluationContext} in whichi to perform evaluations
+     * @param marketValueProvider
+     *            a {@code MarketValueProvider} to use for market value calculations
      * @return a {@code PortfolioSummary} summarizing the given {@code Portfolio}
      */
     public static PortfolioSummary fromPortfolio(Portfolio portfolio,
-            EvaluationContext evaluationContext) {
+            MarketValueProvider marketValueProvider) {
         return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
-                portfolio.getBenchmarkKey(), evaluationContext.getMarketValue(portfolio),
+                portfolio.getBenchmarkKey(), marketValueProvider.getMarketValue(portfolio),
                 portfolio.isAbstract());
     }
 
