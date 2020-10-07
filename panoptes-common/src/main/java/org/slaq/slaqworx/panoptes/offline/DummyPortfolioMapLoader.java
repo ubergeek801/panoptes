@@ -50,10 +50,10 @@ public class DummyPortfolioMapLoader
 
     private static final String PORTFOLIO_NAMES_FILE = "portfolionames.txt";
 
-    private static final int NUM_PORTFOLIOS = 500;
     private static final int MIN_POSITIONS = 1000;
     private static final int MAX_ADDITIONAL_POSITIONS = 1000;
 
+    private final int numPortfolios;
     private final Portfolio[] benchmarks;
     private final ArrayList<String> portfolioNames;
     private final HashMap<PortfolioKey, Portfolio> portfolioMap = new HashMap<>();
@@ -91,10 +91,14 @@ public class DummyPortfolioMapLoader
     /**
      * Creates a new {@code DummyPortfolioMapLoader}.
      *
+     * @param numPortfolios
+     *            the number of portfolios to be created
      * @throws IOException
      *             if {@code Porfolio} data could not be loaded
      */
-    public DummyPortfolioMapLoader() throws IOException {
+    public DummyPortfolioMapLoader(int numPortfolios) throws IOException {
+        this.numPortfolios = numPortfolios;
+
         dataSource = PimcoBenchmarkDataSource.getInstance();
 
         benchmarks =
@@ -168,7 +172,7 @@ public class DummyPortfolioMapLoader
     @Override
     public Map<PortfolioKey, Portfolio> loadAll(Collection<PortfolioKey> keys) {
         LOG.info("loading Portfolios for {} keys", keys.size());
-        return keys.stream().collect(Collectors.toMap(k -> k, k -> load(k)));
+        return keys.stream().collect(Collectors.toMap(k -> k, this::load));
     }
 
     @Override
@@ -182,7 +186,7 @@ public class DummyPortfolioMapLoader
 
             @Override
             public boolean hasNext() {
-                return currentPosition < NUM_PORTFOLIOS;
+                return currentPosition < numPortfolios;
             }
 
             @Override
@@ -498,7 +502,7 @@ public class DummyPortfolioMapLoader
                     null, 0d));
         }
 
-        ruleMap.putAll(rules.stream().collect(Collectors.toMap(r -> r.getKey(), r -> r)));
+        ruleMap.putAll(rules.stream().collect(Collectors.toMap(ConfigurableRule::getKey, r -> r)));
         return rules;
     }
 }

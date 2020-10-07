@@ -20,7 +20,10 @@ public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> ext
     @Override
     public T read(Kryo kryo, Input input, Class<T> type) {
         try {
-            return getProtobufSerializer().read(input.readAllBytes());
+            int length = input.readInt(true);
+            byte[] buffer = new byte[length];
+            input.readBytes(buffer);
+            return getProtobufSerializer().read(buffer);
         } catch (IOException e) {
             // FIXME throw a real exception
             throw new RuntimeException("could not deserialize input", e);
@@ -30,7 +33,9 @@ public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> ext
     @Override
     public void write(Kryo kryo, Output output, T object) {
         try {
-            output.write(getProtobufSerializer().write(object));
+            byte[] buffer = getProtobufSerializer().write(object);
+            output.writeInt(buffer.length, true);
+            output.writeBytes(buffer);
         } catch (IOException e) {
             // FIXME throw a real exception
             throw new RuntimeException("could not deserialize input", e);

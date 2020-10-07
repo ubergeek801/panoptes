@@ -1,13 +1,8 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.flink.api.common.state.BroadcastState;
-import org.apache.flink.api.common.state.MapState;
-import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
@@ -22,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
-import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -37,25 +31,15 @@ public class PortfolioMarketValueCalculator
             TypeInformation.of(new TypeHint<Portfolio>() {
                 // trivial
             });
-    private static final TypeInformation<Boolean> BOOLEAN_TYPE_INFO =
-            TypeInformation.of(new TypeHint<Boolean>() {
-                // trivial
-            });
 
     private static final ValueStateDescriptor<Portfolio> PORTFOLIO_STATE_DESCRIPTOR =
             new ValueStateDescriptor<>("portfolio", PORTFOLIO_TYPE_INFO);
-    // we don't really need the value here, but there is no such thing as a SetState
-    private static final MapStateDescriptor<SecurityKey, Boolean> HELD_SECURITY_STATE_DESCRIPTOR =
-            new MapStateDescriptor<>("heldSecurity", PanoptesPipeline.SECURITY_KEY_TYPE_INFO,
-                    BOOLEAN_TYPE_INFO);
 
-    private ValueState<Portfolio> portfolioState;
-    private MapState<SecurityKey, Boolean> heldSecurityState;
+    private transient ValueState<Portfolio> portfolioState;
 
     @Override
     public void open(Configuration config) throws Exception {
         portfolioState = getRuntimeContext().getState(PORTFOLIO_STATE_DESCRIPTOR);
-        heldSecurityState = getRuntimeContext().getMapState(HELD_SECURITY_STATE_DESCRIPTOR);
     }
 
     @Override
@@ -67,23 +51,8 @@ public class PortfolioMarketValueCalculator
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
         securityState.put(security.getKey(), security);
 
-        HashSet<PortfolioKey> completedPortfolios = new HashSet<>();
-        context.applyToKeyedState(HELD_SECURITY_STATE_DESCRIPTOR,
-                (portfolioKey, outstandingSecurities) -> {
-                    // remove the security key from the set of remaining keys
-                    boolean wasEmpty = outstandingSecurities.isEmpty();
-                    if (!wasEmpty) {
-                        outstandingSecurities.remove(security.getKey());
-                        if (outstandingSecurities.isEmpty()) {
-                            // we now have all the information we need for this portfolio; mark it
-                            // as complete
-                            completedPortfolios.add(portfolioKey);
-                        }
-                    }
-                });
-
-        context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR, (portfolioKey,
-                state) -> emitPortfolio(out, state.value(), securityState, completedPortfolios));
+        context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR,
+                (portfolioKey, state) -> emitPortfolio(out, state.value(), securityState));
     }
 
     @Override
@@ -96,17 +65,7 @@ public class PortfolioMarketValueCalculator
         ReadOnlyBroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
 
-        // determine whether we have all held securities for the portfolio
-        Map<SecurityKey, Boolean> unmatchedSecurities = portfolio.getPositions()
-                .map(Position::getSecurityKey).collect(Collectors.toMap(k -> k, k -> true));
-        securityState.immutableEntries().forEach(e -> unmatchedSecurities.remove(e.getKey()));
-        if (unmatchedSecurities.isEmpty()) {
-            // we've already encountered all the securities we need
-            emitPortfolio(out, portfolio, securityState, null);
-        } else {
-            // haven't seen everything yet; remember what we still need
-            heldSecurityState.putAll(unmatchedSecurities);
-        }
+        emitPortfolio(out, portfolio, securityState);
     }
 
     /**
@@ -120,15 +79,20 @@ public class PortfolioMarketValueCalculator
      *            the portfolio being processed, or {@code null} if it has not been encountered yet
      * @param securityState
      *            the security information currently held in broadcast state
-     * @param completedPortfolios
-     *            the portfolios previously determined to have all securities accounted for, or
-     *            {@code null} to bypass checking
      */
     protected void emitPortfolio(Collector<PortfolioSummary> out, Portfolio portfolio,
-            ReadOnlyBroadcastState<SecurityKey, Security> securityState,
-            Set<PortfolioKey> completedPortfolios) {
-        if (completedPortfolios != null && !completedPortfolios.contains(portfolio.getKey())) {
-            // this one isn't ready yet
+            ReadOnlyBroadcastState<SecurityKey, Security> securityState) {
+        // determine whether we have all held securities for the portfolio
+        boolean isComplete = portfolio.getPositions().allMatch(p -> {
+            try {
+                return securityState.contains(p.getSecurityKey());
+            } catch (Exception e) {
+                // FIXME throw a real exception
+                throw new RuntimeException(
+                        "could not determine completeness for " + portfolio.getKey(), e);
+            }
+        });
+        if (!isComplete) {
             return;
         }
 

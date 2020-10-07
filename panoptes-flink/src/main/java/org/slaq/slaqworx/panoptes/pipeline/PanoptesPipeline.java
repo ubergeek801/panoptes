@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
@@ -38,7 +37,7 @@ public class PanoptesPipeline {
                 // trivial
             });
     public static final MapStateDescriptor<SecurityKey, Security> SECURITY_STATE_DESCRIPTOR =
-            new MapStateDescriptor<>("SecurityBroadcastState", SECURITY_KEY_TYPE_INFO,
+            new MapStateDescriptor<>("securityBroadcast", SECURITY_KEY_TYPE_INFO,
                     SECURITY_TYPE_INFO);
 
     private final SourceFunction<Portfolio> benchmarkKafkaSource;
@@ -80,7 +79,7 @@ public class PanoptesPipeline {
     public void execute(String... args) throws Exception {
         LOG.info("initializing pipeline");
 
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
         SingleOutputStreamOperator<Security> securitySource =
                 env.addSource(securityKafkaSource).name("securitySource").uid("securitySource");
@@ -97,14 +96,9 @@ public class PanoptesPipeline {
         // right now just emit a PortfolioSummary for each encountered portfolio
         unifiedPortfolioStream.keyBy(Portfolio::getKey).connect(securityStream)
                 .process(new PortfolioMarketValueCalculator()).name("portfolioEvaluator")
-                .uid("portfolioEvaluator").addSink(new SinkFunction<>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void invoke(PortfolioSummary portfolio, Context context) {
-                        LOG.info("processed portfolio: {}", portfolio);
-                    }
-                }).name("portfolioResultSink").uid("portfolioResultSink");
+                .uid("portfolioEvaluator").disableChaining()
+                .addSink(new PortfolioSummaryPublisher()).name("portfolioResultSink")
+                .uid("portfolioResultSink");
 
         /*
          * env.addSource(tradeRequestSource).map(TradeEvaluationRequest::call)

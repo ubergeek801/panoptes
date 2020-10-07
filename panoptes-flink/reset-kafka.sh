@@ -9,12 +9,12 @@ $KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --delete 
 $KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --delete --topic securities
 $KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --delete --topic tradeRequests
 $KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --delete --topic tradeResults
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic benchmarks
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic portfolioRequests
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic portfolioResults
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic portfolios
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic positions
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic rules
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic securities
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic tradeRequests
-$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 96 --topic tradeResults
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic benchmarks
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic portfolioRequests
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic portfolioResults
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic portfolios
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic positions
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic rules
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic securities
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic tradeRequests
+$KAFKA_BIN/kafka-topics.sh --bootstrap-server uberkube06.slaq.org:9092 --create --partitions 16 --topic tradeResults

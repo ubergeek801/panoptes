@@ -82,7 +82,7 @@ public class PimcoBenchmarkDatabaseLoader {
             return null;
         });
 
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(500);
         ArrayList<Portfolio> portfolios = new ArrayList<>();
         for (PortfolioKey key : mapLoader.loadAllKeys()) {
             Portfolio portfolio = mapLoader.load(key);

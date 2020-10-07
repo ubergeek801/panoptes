@@ -106,7 +106,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     protected void bootstrapPortfolios() throws IOException {
         // generate the portfolios
         LOG.info("generating portfolios");
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader();
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(100);
         ArrayList<Portfolio> portfolios = new ArrayList<>();
         for (PortfolioKey key : mapLoader.loadAllKeys()) {
             Portfolio portfolio = mapLoader.load(key);
