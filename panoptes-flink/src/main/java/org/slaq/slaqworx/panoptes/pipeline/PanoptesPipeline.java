@@ -96,9 +96,8 @@ public class PanoptesPipeline {
         // right now just emit a PortfolioSummary for each encountered portfolio
         unifiedPortfolioStream.keyBy(Portfolio::getKey).connect(securityStream)
                 .process(new PortfolioMarketValueCalculator()).name("portfolioEvaluator")
-                .uid("portfolioEvaluator").disableChaining()
-                .addSink(new PortfolioSummaryPublisher()).name("portfolioResultSink")
-                .uid("portfolioResultSink");
+                .uid("portfolioEvaluator").addSink(new PortfolioSummaryPublisher())
+                .name("portfolioResultSink").uid("portfolioResultSink");
 
         /*
          * env.addSource(tradeRequestSource).map(TradeEvaluationRequest::call)

@@ -27,6 +27,7 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
     }
 
     private final PortfolioKey key;
+
     private final String name;
     private final PortfolioKey benchmarkKey;
     private final double totalMarketValue;
@@ -155,5 +156,11 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
      */
     public boolean isAbstract() {
         return isAbstract;
+    }
+
+    @Override
+    public String toString() {
+        return "PortfolioSummary[key=" + key + ", name=" + name + ", benchmarkKey=" + benchmarkKey
+                + ", totalMarketValue=" + totalMarketValue + ", isAbstract=" + isAbstract + "]";
     }
 }

@@ -6,8 +6,6 @@ import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
@@ -27,15 +25,10 @@ public class PortfolioMarketValueCalculator
 
     private static final Logger LOG = LoggerFactory.getLogger(PortfolioMarketValueCalculator.class);
 
-    private static final TypeInformation<Portfolio> PORTFOLIO_TYPE_INFO =
-            TypeInformation.of(new TypeHint<Portfolio>() {
-                // trivial
-            });
+    private static final ValueStateDescriptor<PortfolioState> PORTFOLIO_STATE_DESCRIPTOR =
+            new ValueStateDescriptor<>("portfolio", PortfolioState.class);
 
-    private static final ValueStateDescriptor<Portfolio> PORTFOLIO_STATE_DESCRIPTOR =
-            new ValueStateDescriptor<>("portfolio", PORTFOLIO_TYPE_INFO);
-
-    private transient ValueState<Portfolio> portfolioState;
+    private transient ValueState<PortfolioState> portfolioState;
 
     @Override
     public void open(Configuration config) throws Exception {
@@ -61,11 +54,11 @@ public class PortfolioMarketValueCalculator
                     PortfolioSummary>.ReadOnlyContext context,
             Collector<PortfolioSummary> out) throws Exception {
         LOG.info("processing portfolio {} (\"{}\")", portfolio.getKey(), portfolio.getName());
-        portfolioState.update(portfolio);
+        portfolioState.update(new PortfolioState(portfolio));
         ReadOnlyBroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
 
-        emitPortfolio(out, portfolio, securityState);
+        emitPortfolio(out, portfolioState.value(), securityState);
     }
 
     /**
@@ -75,13 +68,19 @@ public class PortfolioMarketValueCalculator
      *
      * @param out
      *            the {@code Collector} to which to output portfolio information encountered
-     * @param portfolio
-     *            the portfolio being processed, or {@code null} if it has not been encountered yet
+     * @param portfolioState
+     *            the state of the portfolio being processed
      * @param securityState
      *            the security information currently held in broadcast state
      */
-    protected void emitPortfolio(Collector<PortfolioSummary> out, Portfolio portfolio,
+    protected void emitPortfolio(Collector<PortfolioSummary> out, PortfolioState portfolioState,
             ReadOnlyBroadcastState<SecurityKey, Security> securityState) {
+        if (portfolioState.isPublished()) {
+            // never mind
+            return;
+        }
+
+        Portfolio portfolio = portfolioState.getPortfolio();
         // determine whether we have all held securities for the portfolio
         boolean isComplete = portfolio.getPositions().allMatch(p -> {
             try {
@@ -96,6 +95,7 @@ public class PortfolioMarketValueCalculator
             return;
         }
 
+        portfolioState.setPublished(true);
         out.collect(PortfolioSummary.fromPortfolio(portfolio,
                 p -> portfolio.getPositions().collect(Collectors.summingDouble(pos -> {
                     try {
