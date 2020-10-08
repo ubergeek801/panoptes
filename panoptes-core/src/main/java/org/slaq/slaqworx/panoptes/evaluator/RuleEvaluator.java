@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
@@ -161,8 +162,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
         // group the Positions of the Portfolio into classifications according to the Rule's
         // GroupClassifier
-        Map<EvaluationGroup, PositionSupplier> classifiedPortfolioPositions = classify(
-                portfolioPositions, evaluationContext.getMarketValue(portfolioPositions));
+        Map<EvaluationGroup, PositionSupplier> classifiedPortfolioPositions =
+                classify(portfolioPositions, evaluationContext.getMarketValue(portfolioPositions));
 
         // do the same for the proposed Positions, if specified
         Map<EvaluationGroup, PositionSupplier> classifiedProposedPositions;
@@ -171,8 +172,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
         } else {
             PositionSupplier concatPositions =
                     PositionSupplier.concat(portfolioPositions, proposedPositions);
-            classifiedProposedPositions = classify(concatPositions,
-                    evaluationContext.getMarketValue(concatPositions));
+            classifiedProposedPositions =
+                    classify(concatPositions, evaluationContext.getMarketValue(concatPositions));
         }
 
         // do the same for the benchmark, if specified
@@ -251,18 +252,16 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
     protected Map<EvaluationGroup, RuleResult> evaluate(
             Map<EvaluationGroup, PositionSupplier> evaluatedPositions,
             Map<EvaluationGroup, PositionSupplier> classifiedBenchmarkPositions) {
-        return evaluatedPositions.entrySet().stream()
-                .collect(Collectors.toMap(e -> e.getKey(), e -> {
-                    EvaluationGroup evaluationGroup = e.getKey();
-                    PositionSupplier portfolioPositions = e.getValue();
-                    PositionSupplier benchmarkPositions =
-                            (classifiedBenchmarkPositions == null ? null
-                                    : classifiedBenchmarkPositions.get(evaluationGroup));
+        return evaluatedPositions.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> {
+            EvaluationGroup evaluationGroup = e.getKey();
+            PositionSupplier portfolioPositions = e.getValue();
+            PositionSupplier benchmarkPositions = (classifiedBenchmarkPositions == null ? null
+                    : classifiedBenchmarkPositions.get(evaluationGroup));
 
-                    RuleResult singleResult = rule.evaluate(portfolioPositions, benchmarkPositions,
-                            evaluationGroup, evaluationContext);
+            RuleResult singleResult = rule.evaluate(portfolioPositions, benchmarkPositions,
+                    evaluationGroup, evaluationContext);
 
-                    return singleResult;
-                }));
+            return singleResult;
+        }));
     }
 }

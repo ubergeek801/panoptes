@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import java.util.stream.Collectors;
-
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.common.state.ValueState;
@@ -14,23 +12,25 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
+import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
+import org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A proof-of-concept operator that merely ingests securities and portfolios, emitting market values
- * (actually portfolio summaries) as portfolios are "completed" (that is, all held securities are
- * received).
+ * A process function which collects security and portfolio position data and evaluates portfolio
+ * compliance using the portfolio-supplied rules.
  *
  * @author jeremy
  */
-public class PortfolioMarketValueCalculator
-        extends KeyedBroadcastProcessFunction<PortfolioKey, Portfolio, Security, PortfolioSummary> {
+public class PortfolioRuleEvaluator
+        extends KeyedBroadcastProcessFunction<PortfolioKey, Portfolio, Security, EvaluationResult> {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(PortfolioMarketValueCalculator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PortfolioRuleEvaluator.class);
 
     private static final ValueStateDescriptor<PortfolioState> PORTFOLIO_STATE_DESCRIPTOR =
             new ValueStateDescriptor<>("portfolio", PortfolioState.class);
@@ -45,40 +45,73 @@ public class PortfolioMarketValueCalculator
     @Override
     public void processBroadcastElement(Security security,
             KeyedBroadcastProcessFunction<PortfolioKey, Portfolio, Security,
-                    PortfolioSummary>.Context context,
-            Collector<PortfolioSummary> out) throws Exception {
+                    EvaluationResult>.Context context,
+            Collector<EvaluationResult> out) throws Exception {
         BroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
         securityState.put(security.getKey(), security);
 
         context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR,
-                (portfolioKey, state) -> emitPortfolio(out, state.value(), securityState));
+                (portfolioKey, state) -> processPortfolio(out, state.value(), securityState));
     }
 
     @Override
     public void processElement(Portfolio portfolio,
             KeyedBroadcastProcessFunction<PortfolioKey, Portfolio, Security,
-                    PortfolioSummary>.ReadOnlyContext context,
-            Collector<PortfolioSummary> out) throws Exception {
+                    EvaluationResult>.ReadOnlyContext context,
+            Collector<EvaluationResult> out) throws Exception {
         LOG.info("processing portfolio {} (\"{}\")", portfolio.getKey(), portfolio.getName());
         portfolioState.update(new PortfolioState(portfolio));
         ReadOnlyBroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
 
-        emitPortfolio(out, portfolioState.value(), securityState);
+        processPortfolio(out, portfolioState.value(), securityState);
     }
 
     /**
-     * Emits Portfolio information iff security data is complete.
+     * Performs a portfolio evaluation and publishes the result.
      *
      * @param out
-     *            the {@code Collector} to which to output portfolio information encountered
+     *            the {@code Collector} to which to output compliance results
      * @param portfolioState
      *            the state of the portfolio being processed
      * @param securityState
      *            the security information currently held in broadcast state
      */
-    protected void emitPortfolio(Collector<PortfolioSummary> out, PortfolioState portfolioState,
+    protected void evaluatePortfolio(Collector<EvaluationResult> out, PortfolioState portfolioState,
+            ReadOnlyBroadcastState<SecurityKey, Security> securityState) {
+        Portfolio portfolio = portfolioState.getPortfolio();
+
+        portfolioState.setPublished(true);
+
+        // this is questionable but there shouldn't be any other portfolios queried
+        PortfolioProvider portfolioProvider = (k -> portfolio);
+        SecurityProvider securityProvider = (k, context) -> {
+            try {
+                return securityState.get(k);
+            } catch (Exception e) {
+                // FIXME throw a real exception
+                throw new RuntimeException("could not get security " + k, e);
+            }
+        };
+
+        // FIXME deal with benchmark
+        portfolio.getRules().forEach(rule -> out.collect(new RuleEvaluator(rule, portfolio, null,
+                new EvaluationContext(securityProvider, portfolioProvider)).call()));
+    }
+
+    /**
+     * Determines whether the given portfolio is "complete" (all security information has been
+     * provided) and performs a compliance evaluation if so.
+     *
+     * @param out
+     *            the {@code Collector} to which to output compliance results
+     * @param portfolioState
+     *            the state of the portfolio being processed
+     * @param securityState
+     *            the security information currently held in broadcast state
+     */
+    protected void processPortfolio(Collector<EvaluationResult> out, PortfolioState portfolioState,
             ReadOnlyBroadcastState<SecurityKey, Security> securityState) {
         if (portfolioState.isPublished()) {
             // never mind
@@ -100,17 +133,7 @@ public class PortfolioMarketValueCalculator
             return;
         }
 
-        portfolioState.setPublished(true);
-        out.collect(PortfolioSummary.fromPortfolio(portfolio,
-                p -> portfolio.getPositions().collect(Collectors.summingDouble(pos -> {
-                    try {
-                        return pos.getAmount() * securityState.get(pos.getSecurityKey())
-                                .getAttributeValue(SecurityAttribute.price);
-                    } catch (Exception e) {
-                        // FIXME throw a real exception
-                        throw new RuntimeException(
-                                "could not calculate market value for " + portfolio.getKey(), e);
-                    }
-                }))));
+        // portfolio is ready for evaluation; proceed
+        evaluatePortfolio(out, portfolioState, securityState);
     }
 }

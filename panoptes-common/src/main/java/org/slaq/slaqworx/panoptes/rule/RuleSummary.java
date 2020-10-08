@@ -4,7 +4,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code RuleSummary} is a projection of {@code Rule} used primarily by the compliance display.
+ * A projection of {@code Rule} used primarily by the compliance display.
  *
  * @author jeremy
  */
@@ -109,6 +109,7 @@ public class RuleSummary implements Keyed<RuleKey>, ProtobufSerializable {
         result = prime * result + ((key == null) ? 0 : key.hashCode());
         result = prime * result
                 + ((parameterDescription == null) ? 0 : parameterDescription.hashCode());
+
         return result;
     }
 }

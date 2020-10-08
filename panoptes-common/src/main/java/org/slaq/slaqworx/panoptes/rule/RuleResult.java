@@ -48,11 +48,8 @@ public class RuleResult {
     private static final double EPSILON = 0.000_001;
 
     private final boolean isPassed;
-
     private final Threshold threshold;
-
     private final Double value;
-
     private final Double benchmarkValue;
     private final Throwable exception;
 

@@ -6,6 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 
+/**
+ * A {@code SinkFunction} that merely logs the received {@code PortfolioSummary}.
+ *
+ * @author jeremy
+ */
 public class PortfolioSummaryPublisher implements SinkFunction<PortfolioSummary> {
     private static final long serialVersionUID = 1L;
 

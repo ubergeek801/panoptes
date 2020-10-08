@@ -81,37 +81,27 @@ public class PanoptesPipeline {
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
+        // obtain securities from Kafka and broadcast
         SingleOutputStreamOperator<Security> securitySource =
                 env.addSource(securityKafkaSource).name("securitySource").uid("securitySource");
         BroadcastStream<Security> securityStream =
                 securitySource.broadcast(SECURITY_STATE_DESCRIPTOR);
 
+        // obtain portfolios and benchmarks from Kafka, and combine into a single stream
         SingleOutputStreamOperator<Portfolio> portfolioSource =
                 env.addSource(portfolioKafkaSource).name("portfolioSource").uid("portfolioSource");
         SingleOutputStreamOperator<Portfolio> benchmarkSource =
                 env.addSource(benchmarkKafkaSource).name("benchmarkSource").uid("benchmarkSource");
-
         DataStream<Portfolio> unifiedPortfolioStream = portfolioSource.union(benchmarkSource);
 
-        // right now just emit a PortfolioSummary for each encountered portfolio
-        unifiedPortfolioStream.keyBy(Portfolio::getKey).connect(securityStream)
-                .process(new PortfolioMarketValueCalculator()).name("portfolioEvaluator")
-                .uid("portfolioEvaluator").addSink(new PortfolioSummaryPublisher())
-                .name("portfolioResultSink").uid("portfolioResultSink");
+        // connect the portfolio stream to the security broadcast, and feed into a rule evaluator
+        SingleOutputStreamOperator<EvaluationResult> resultStream =
+                unifiedPortfolioStream.keyBy(Portfolio::getKey).connect(securityStream)
+                        .process(new PortfolioRuleEvaluator()).name("portfolioEvaluator")
+                        .uid("portfolioEvaluator");
 
-        /*
-         * env.addSource(tradeRequestSource).map(TradeEvaluationRequest::call)
-         * .addSink(tradeResultSink); env.addSource(portfolioRequestSource).flatMap((request, out)
-         * -> { Portfolio p =
-         * PanoptesApp.getAssetCache(args).getPortfolio(request.getPortfolioKey());
-         * p.getRules().forEach(rule -> out .collect(new PortfolioRuleKey(request.getPortfolioKey(),
-         * rule.getKey()))); }, TypeInformation.of(PortfolioRuleKey.class)).map(pr -> { AssetCache
-         * assetCache = PanoptesApp.getAssetCache(args); Portfolio p =
-         * assetCache.getPortfolio(pr.getPortfolioKey()); Rule rule =
-         * assetCache.getRule(pr.getRuleKey()); EvaluationContext context = new
-         * EvaluationContext(assetCache, assetCache); return new RuleEvaluator(rule, p,
-         * p.getBenchmark(assetCache), context).call(); }).addSink(portfolioResultSink);
-         */
+        resultStream.addSink(new EvaluationResultPublisher()).name("evaluationResultSink")
+                .uid("evaluationResultSink");
 
         LOG.info("initialized pipeline");
 

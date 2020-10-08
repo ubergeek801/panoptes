@@ -108,7 +108,7 @@ public class EvaluationResult implements ProtobufSerializable {
      *         least one indicates failure
      */
     public boolean isPassed() {
-        return results.values().stream().allMatch(r -> r.isPassed());
+        return results.values().stream().allMatch(RuleResult::isPassed);
     }
 
     /**
