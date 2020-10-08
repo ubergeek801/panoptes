@@ -4,13 +4,17 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * {@code RuleResult} encapsulates the results of a {@code Rule} evaluation, typically grouped by
+ * Encapsulates the results of a single {@code Rule} evaluation, typically grouped by
  * {@code EvaluationGroup} and aggregated into an {@code EvaluationResult}. Currently this class
  * contains aspects of Boolean- and value-based evaluations, which possibly should be separated.
+ * <p>
+ * For benchmark-relative rules, a {@code ValueResult} is determined for both the base/target
+ * portoflio and the benchmark portfolio individually, to be combined eventually by a
+ * {@code BenchmarkComparator}.
  *
  * @author jeremy
  */
-public class RuleResult {
+public class ValueResult {
     /**
      * {@code Impact} describes the impact of some change (such as a proposed {@code Trade}) on a
      * {@code Rule}, as evaluated before and after the proposed changes are considered.
@@ -50,7 +54,6 @@ public class RuleResult {
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
-    private final Double benchmarkValue;
     private final Throwable exception;
 
     /**
@@ -59,11 +62,10 @@ public class RuleResult {
      * @param isPassed
      *            {@code true} if the evaluation passed, {@code false} otherwise
      */
-    public RuleResult(boolean isPassed) {
+    public ValueResult(boolean isPassed) {
         this.isPassed = isPassed;
         threshold = null;
         value = null;
-        benchmarkValue = null;
         exception = null;
     }
 
@@ -77,27 +79,10 @@ public class RuleResult {
      * @param value
      *            the actual evaluation result value
      */
-    public RuleResult(Threshold threshold, double value) {
-        this(threshold, value, null);
-    }
-
-    /**
-     * Creates a new value-based {@code RuleResult} indicating the threshold status for evaluation,
-     * the actual result value and the benchmark result value.
-     *
-     * @param threshold
-     *            a {@code Threshold} value indicating whether the value is within the evaluation
-     *            threshold
-     * @param value
-     *            the actual evaluation result value
-     * @param benchmarkValue
-     *            the corresponding benchmark evaluation value, or {@code null} if not applicable
-     */
-    public RuleResult(Threshold threshold, double value, Double benchmarkValue) {
+    public ValueResult(Threshold threshold, double value) {
         isPassed = (threshold == Threshold.WITHIN);
         this.threshold = threshold;
         this.value = value;
-        this.benchmarkValue = benchmarkValue;
         exception = null;
     }
 
@@ -108,11 +93,10 @@ public class RuleResult {
      * @param exception
      *            the exception causing the failure
      */
-    public RuleResult(Throwable exception) {
+    public ValueResult(Throwable exception) {
         isPassed = false;
         threshold = null;
         value = null;
-        benchmarkValue = null;
         this.exception = exception;
     }
 
@@ -125,7 +109,7 @@ public class RuleResult {
      *            the {@code RuleResult} to compare to
      * @return an {@code Impact} describing the impact of the change on the evaluations
      */
-    public Impact compare(RuleResult originalResult) {
+    public Impact compare(ValueResult originalResult) {
         if (originalResult == null) {
             // groupings may appear in the proposed state that did not appear in the original state;
             // in this case consider a pass to be neutral and a fail to be negative
@@ -206,14 +190,7 @@ public class RuleResult {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        RuleResult other = (RuleResult)obj;
-        if (benchmarkValue == null) {
-            if (other.benchmarkValue != null) {
-                return false;
-            }
-        } else if (!benchmarkValue.equals(other.benchmarkValue)) {
-            return false;
-        }
+        ValueResult other = (ValueResult)obj;
         if (!exceptionEquals(exception, other.exception)) {
             return false;
         }
@@ -232,16 +209,6 @@ public class RuleResult {
         }
 
         return true;
-    }
-
-    /**
-     * Obtains the value associated with this result, as calculated for the benchmark, if any.
-     *
-     * @return the value associated with this result (if value-based), or {@code null} if it does
-     *         not exist (Boolean-based or value-based with no benchmark specified)
-     */
-    public Double getBenchmarkValue() {
-        return benchmarkValue;
     }
 
     /**
@@ -276,7 +243,6 @@ public class RuleResult {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((benchmarkValue == null) ? 0 : benchmarkValue.hashCode());
         result = prime * result + (isPassed ? 1231 : 1237);
         result = prime * result + ((threshold == null) ? 0 : threshold.hashCode());
         result = prime * result + ((value == null) ? 0 : value.hashCode());
@@ -296,7 +262,7 @@ public class RuleResult {
     @Override
     public String toString() {
         return "RuleResult [isPassed=" + isPassed + ", threshold=" + threshold + ", value=" + value
-                + ", benchmarkValue=" + benchmarkValue + ", exception=" + exception + "]";
+                + ", exception=" + exception + "]";
     }
 
     /**

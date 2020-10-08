@@ -37,7 +37,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.test.TestRuleProvider;
 import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;

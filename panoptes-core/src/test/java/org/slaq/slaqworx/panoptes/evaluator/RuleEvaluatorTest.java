@@ -32,7 +32,7 @@ import org.slaq.slaqworx.panoptes.rule.GenericRule;
 import org.slaq.slaqworx.panoptes.rule.GroovyPositionFilter;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
@@ -57,7 +57,7 @@ public class RuleEvaluatorTest {
                         "id"));
         Rule rule = new GenericRule(null, "dummy rule", classifier) {
             @Override
-            protected RuleResult eval(PositionSupplier portfolioPositions,
+            protected ValueResult eval(PositionSupplier portfolioPositions,
                     PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
                     EvaluationContext evaluationContext) {
                 // will not actually be invoked anyway
@@ -91,11 +91,11 @@ public class RuleEvaluatorTest {
                 new RuleEvaluator(rule, TestUtil.p1, null, TestUtil.defaultTestEvaluationContext())
                         .call();
         assertNotNull(result, "result should never be null");
-        Map<EvaluationGroup, RuleResult> groupedResults = result.getResults();
+        Map<EvaluationGroup, ValueResult> groupedResults = result.getResults();
         assertNotNull(groupedResults, "result groups should never be null");
         assertEquals(1, groupedResults.size(),
                 "a single (filtered) Position should result in a single group");
-        RuleResult ruleResult = groupedResults.values().iterator().next();
+        ValueResult ruleResult = groupedResults.values().iterator().next();
         assertFalse(ruleResult.isPassed(), "rule with 3.9 upper limit should have failed");
 
         rule = new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration, 3.9,
@@ -183,7 +183,7 @@ public class RuleEvaluatorTest {
 
         // there was no grouping so there should be only one result
         assertEquals(1, results.getResults().size(), "unexpected number of results");
-        RuleResult result = results.getResult(EvaluationGroup.defaultGroup());
+        ValueResult result = results.getResult(EvaluationGroup.defaultGroup());
         assertNotNull(result, "expected to find result for default group");
         // the Rule should have failed due to a NoDataException
         assertFalse(result.isPassed(), "failed evaluation result should not have passed");

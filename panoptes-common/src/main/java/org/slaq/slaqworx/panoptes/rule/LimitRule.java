@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.function.Predicate;
 
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
  * A {@code LimitRule} stipulates limits on values that can be calculated on a {@code Portfolio}'s
@@ -80,7 +80,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
     }
 
     @Override
-    protected final RuleResult eval(PositionSupplier portfolioPositions,
+    protected final ValueResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
             EvaluationContext evaluationContext) {
         double value = getValue(portfolioPositions, evaluationContext);
@@ -102,14 +102,14 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
         }
 
         if (lowerLimit != null && (scaledValue != Double.NaN && scaledValue < lowerLimit)) {
-            return new RuleResult(Threshold.BELOW, value, benchmarkValue);
+            return new ValueResult(Threshold.BELOW, value);
         }
 
         if (upperLimit != null && (scaledValue == Double.NaN || scaledValue > upperLimit)) {
-            return new RuleResult(Threshold.ABOVE, value, benchmarkValue);
+            return new ValueResult(Threshold.ABOVE, value);
         }
 
-        return new RuleResult(Threshold.WITHIN, value, benchmarkValue);
+        return new ValueResult(Threshold.WITHIN, value);
     }
 
     /**

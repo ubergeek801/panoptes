@@ -27,7 +27,7 @@ public class WeightedAverageRuleTest {
 
         WeightedAverageRule<?> rule = new WeightedAverageRule<>(null, "test", null,
                 TestUtil.moovyRating, 1.02, null, null);
-        RuleResult result = rule.evaluate(TestUtil.p1, TestUtil.p2, null,
+        ValueResult result = rule.evaluate(TestUtil.p1, TestUtil.p2, null,
                 TestUtil.defaultTestEvaluationContext());
         assertFalse(result.isPassed(), "rule with 102% lower limit should have failed");
 

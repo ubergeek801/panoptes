@@ -80,7 +80,7 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
-    public RuleResult evaluate(PositionSupplier portfolioPositions,
+    public ValueResult evaluate(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
             EvaluationContext evaluationContext) {
         try {
@@ -88,7 +88,7 @@ public abstract class GenericRule implements Rule {
                     evaluationGroup == null ? EvaluationGroup.defaultGroup() : evaluationGroup,
                     evaluationContext);
         } catch (Exception e) {
-            return new RuleResult(e);
+            return new ValueResult(e);
         }
     }
 
@@ -137,7 +137,7 @@ public abstract class GenericRule implements Rule {
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
-    protected abstract RuleResult eval(PositionSupplier portfolioPositions,
+    protected abstract ValueResult eval(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
             EvaluationContext evaluationContext);
 }

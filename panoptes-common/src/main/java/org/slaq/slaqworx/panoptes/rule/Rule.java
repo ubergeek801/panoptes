@@ -43,7 +43,7 @@ public interface Rule extends Keyed<RuleKey> {
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
-    public RuleResult evaluate(PositionSupplier portfolioPositions,
+    public ValueResult evaluate(PositionSupplier portfolioPositions,
             PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
             EvaluationContext evaluationContext);
 

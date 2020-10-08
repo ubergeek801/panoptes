@@ -26,7 +26,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GroupAggregator;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
 
 /**
  * {@code RuleEvaluator} is a {@code Callable} that evaluates a single {@code Rule} against a set of
@@ -203,10 +203,10 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
         // for each group of Positions, evaluate the Rule against the group, for the Portfolio,
         // proposed (if specified) and the Benchmark (if specified)
-        Map<EvaluationGroup, RuleResult> ruleResults =
+        Map<EvaluationGroup, ValueResult> ruleResults =
                 evaluate(classifiedPortfolioPositions, classifiedBenchmarkPositions);
 
-        Map<EvaluationGroup, RuleResult> proposedResults;
+        Map<EvaluationGroup, ValueResult> proposedResults;
         if (classifiedProposedPositions == null) {
             proposedResults = null;
         } else {
@@ -249,7 +249,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      *            the (possibly {@code null} benchmark {@code Position}s to be evaluated against
      * @return the {@code Rule} evaluation results grouped by {@code EvaluationGroup}
      */
-    protected Map<EvaluationGroup, RuleResult> evaluate(
+    protected Map<EvaluationGroup, ValueResult> evaluate(
             Map<EvaluationGroup, PositionSupplier> evaluatedPositions,
             Map<EvaluationGroup, PositionSupplier> classifiedBenchmarkPositions) {
         return evaluatedPositions.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> {
@@ -258,7 +258,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
             PositionSupplier benchmarkPositions = (classifiedBenchmarkPositions == null ? null
                     : classifiedBenchmarkPositions.get(evaluationGroup));
 
-            RuleResult singleResult = rule.evaluate(portfolioPositions, benchmarkPositions,
+            ValueResult singleResult = rule.evaluate(portfolioPositions, benchmarkPositions,
                     evaluationGroup, evaluationContext);
 
             return singleResult;

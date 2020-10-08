@@ -10,8 +10,8 @@ import org.slaq.slaqworx.panoptes.cache.RuleSummarizer;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 
 /**
@@ -24,7 +24,7 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
     /**
      * A {@code Comparator} that compares {@code EvaluationGroup}s lexically by ID.
      */
-    private static final Comparator<? super Entry<EvaluationGroup, RuleResult>> groupComparator =
+    private static final Comparator<? super Entry<EvaluationGroup, ValueResult>> groupComparator =
             ((e1, o2) -> e1.getKey().getId().compareTo(o2.getKey().getId()));
 
     private final Map.Entry<RuleKey, EvaluationResult> evaluationResult;
@@ -115,7 +115,7 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
      *
      * @return a {@code Map} associating {@code EvaluationGroup} to {@code RuleResult}
      */
-    protected Map<EvaluationGroup, RuleResult> getGroupResults() {
+    protected Map<EvaluationGroup, ValueResult> getGroupResults() {
         return evaluationResult.getValue().getResults();
     }
 }

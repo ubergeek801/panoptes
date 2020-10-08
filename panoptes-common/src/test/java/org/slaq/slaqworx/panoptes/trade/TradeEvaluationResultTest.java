@@ -15,8 +15,8 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 
 /**
  * {@code TradeEvaluationResultTest} tests the functionality of the {@code TradeEvaluationResult}.
@@ -35,8 +35,8 @@ public class TradeEvaluationResultTest {
         RuleKey rule2Key = new RuleKey("rule2");
         EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
         EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
-        RuleResult PASS = new RuleResult(true);
-        RuleResult FAIL = new RuleResult(false);
+        ValueResult PASS = new ValueResult(true);
+        ValueResult FAIL = new ValueResult(false);
 
         // result grouping may vary between current and proposed states, regardless of evaluation
         // mode

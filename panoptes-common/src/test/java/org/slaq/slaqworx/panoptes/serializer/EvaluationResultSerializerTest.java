@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
  * {@code EvaluationResultSerializerTest} tests the functionality of the
@@ -21,7 +21,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
 public class EvaluationResultSerializerTest {
     /**
      * Tests that (de)serialization works as expected.
-     * 
+     *
      * @throws Exception
      *             if an unexpected error occurs
      */
@@ -34,16 +34,16 @@ public class EvaluationResultSerializerTest {
         EvaluationGroup group1 = new EvaluationGroup("group1", "group1Key");
         EvaluationGroup group2 = new EvaluationGroup("group2", "group2Key");
 
-        RuleResult defaultResult = new RuleResult(Threshold.BELOW, 2d);
-        RuleResult group1Result = new RuleResult(false);
-        RuleResult group2Result = new RuleResult(Threshold.WITHIN, 1d, 2d);
-        Map<EvaluationGroup, RuleResult> results =
+        ValueResult defaultResult = new ValueResult(Threshold.BELOW, 2d);
+        ValueResult group1Result = new ValueResult(false);
+        ValueResult group2Result = new ValueResult(Threshold.WITHIN, 1d);
+        Map<EvaluationGroup, ValueResult> results =
                 Map.of(defaultGroup, defaultResult, group1, group1Result, group2, group2Result);
 
-        RuleResult proposedDefaultResult = new RuleResult(Threshold.WITHIN, 4d);
-        RuleResult proposedGroup1Result = new RuleResult(true);
-        RuleResult proposedGroup2Result = new RuleResult(Threshold.ABOVE, 3d, 2d);
-        Map<EvaluationGroup, RuleResult> proposedResults = Map.of(defaultGroup,
+        ValueResult proposedDefaultResult = new ValueResult(Threshold.WITHIN, 4d);
+        ValueResult proposedGroup1Result = new ValueResult(true);
+        ValueResult proposedGroup2Result = new ValueResult(Threshold.ABOVE, 3d);
+        Map<EvaluationGroup, ValueResult> proposedResults = Map.of(defaultGroup,
                 proposedDefaultResult, group1, proposedGroup1Result, group2, proposedGroup2Result);
 
         EvaluationResult result = new EvaluationResult(ruleKey, results, proposedResults);

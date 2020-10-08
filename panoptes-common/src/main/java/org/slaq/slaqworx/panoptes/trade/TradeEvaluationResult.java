@@ -10,8 +10,8 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
@@ -94,7 +94,7 @@ public class TradeEvaluationResult implements ProtobufSerializable {
             RuleKey ruleKey = ruleEntry.getKey();
             EvaluationResult groupResults = ruleEntry.getValue();
             groupResults.getProposedResults().forEach((group, proposedResult) -> {
-                RuleResult portfolioResult = groupResults.getResult(group);
+                ValueResult portfolioResult = groupResults.getResult(group);
                 addImpact(portfolioKey, ruleKey, group, proposedResult.compare(portfolioResult));
             });
         });

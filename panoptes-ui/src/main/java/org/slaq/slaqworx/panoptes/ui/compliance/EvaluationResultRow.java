@@ -2,7 +2,7 @@ package org.slaq.slaqworx.panoptes.ui.compliance;
 
 import java.util.stream.Stream;
 
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
  * {@code EvaluationResultRow} is an interface that facilitates adaptation of

@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
  * {@code GroupResultAdapter} adapts evaluation group-level results to a tabular representation. Its
@@ -16,7 +16,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
  */
 public class GroupResultAdapter implements EvaluationResultRow {
     private final PortfolioRuleResultAdapter parent;
-    private final Map.Entry<EvaluationGroup, RuleResult> groupResult;
+    private final Map.Entry<EvaluationGroup, ValueResult> groupResult;
 
     /**
      * Creates a new {@code GroupResultAdapter} with the given parent and mapping the given group
@@ -29,14 +29,15 @@ public class GroupResultAdapter implements EvaluationResultRow {
      *            to row format
      */
     public GroupResultAdapter(PortfolioRuleResultAdapter parent,
-            Entry<EvaluationGroup, RuleResult> groupResult) {
+            Entry<EvaluationGroup, ValueResult> groupResult) {
         this.parent = parent;
         this.groupResult = groupResult;
     }
 
     @Override
     public Double getBenchmarkValue() {
-        return groupResult.getValue().getBenchmarkValue();
+        // FIXME re-implement the benchmark value appropriately
+        return null;
     }
 
     @Override

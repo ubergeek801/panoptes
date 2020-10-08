@@ -15,11 +15,11 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationResultMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.ExceptionMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleResultMsg;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.ValueResultMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Threshold;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
  * {@code EvaluationResultSerializer} (de)serializes the state of a {@code EvaluationResult} using
@@ -52,9 +52,9 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
 
         RuleKey ruleKey = new RuleKey(ruleKeyMsg.getId());
 
-        Map<EvaluationGroup, RuleResult> results =
+        Map<EvaluationGroup, ValueResult> results =
                 convertResults(evaluationResultMsg.getResultList());
-        Map<EvaluationGroup, RuleResult> proposedResults =
+        Map<EvaluationGroup, ValueResult> proposedResults =
                 convertResults(evaluationResultMsg.getProposedResultList());
 
         return new EvaluationResult(ruleKey, results, proposedResults);
@@ -79,13 +79,13 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
      * Converts an {@code EvaluationGroup}/{@code RuleResult} pair into its serialized form.
      *
      * @param evaluationGroup
-     *            the {@code EvaluationGroup} from which to create a {@code RuleResultMsg}
+     *            the {@code EvaluationGroup} from which to create a {@code ValueResultMsg}
      * @param ruleResult
-     *            the {@code RuleResult} from which to create a {@code RuleResultMsg}
-     * @return a {@code RuleResultMsg} providing a serialization of the given data
+     *            the {@code RuleResult} from which to create a {@code ValueResultMsg}
+     * @return a {@code ValueResultMsg} providing a serialization of the given data
      */
-    protected RuleResultMsg convert(EvaluationGroup evaluationGroup, RuleResult ruleResult) {
-        RuleResultMsg.Builder resultMsgBuilder = RuleResultMsg.newBuilder();
+    protected ValueResultMsg convert(EvaluationGroup evaluationGroup, ValueResult ruleResult) {
+        ValueResultMsg.Builder resultMsgBuilder = ValueResultMsg.newBuilder();
         resultMsgBuilder.setId(evaluationGroup.getId());
         String aggregationKey = evaluationGroup.getAggregationKey();
         if (aggregationKey != null) {
@@ -101,9 +101,6 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
         } else if (ruleResult.getThreshold() != null && ruleResult.getValue() != null) {
             resultMsgBuilder.setThreshold(StringValue.of(ruleResult.getThreshold().name()));
             resultMsgBuilder.setValue(DoubleValue.of(ruleResult.getValue()));
-            if (ruleResult.getBenchmarkValue() != null) {
-                resultMsgBuilder.setBenchmarkValue(DoubleValue.of(ruleResult.getBenchmarkValue()));
-            }
             resultMsgBuilder.setIsPassed(ruleResult.isPassed());
         } else {
             resultMsgBuilder.setIsPassed(ruleResult.isPassed());
@@ -113,43 +110,41 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
     }
 
     /**
-     * Converts a {@code RuleResultMsg} into its deserialized form.
+     * Converts a {@code ValueResultMsg} into its deserialized form.
      *
      * @param resultMsg
-     *            the {@code RuleResultMsg} to be deserialized
+     *            the {@code ValueResultMsg} to be deserialized
      * @return a {@code RuleResult} constructed from the serialized data
      */
-    protected RuleResult convert(RuleResultMsg resultMsg) {
+    protected ValueResult convert(ValueResultMsg resultMsg) {
         if (resultMsg.hasException()) {
             ExceptionMsg exceptionMsg = resultMsg.getException();
 
             // FIXME fully reconstruct the exception
-            return new RuleResult(new Exception(exceptionMsg.getExceptionClass()
+            return new ValueResult(new Exception(exceptionMsg.getExceptionClass()
                     + " thrown with message: " + exceptionMsg.getMessage()));
         }
 
         if (!resultMsg.hasThreshold() || !resultMsg.hasValue()) {
             // must be a "simple" result
-            return new RuleResult(resultMsg.getIsPassed());
+            return new ValueResult(resultMsg.getIsPassed());
         }
 
         // must be a "value" result
-        Double benchmarkValue =
-                (resultMsg.hasBenchmarkValue() ? resultMsg.getBenchmarkValue().getValue() : null);
-        return new RuleResult(Threshold.valueOf(resultMsg.getThreshold().getValue()),
-                resultMsg.getValue().getValue(), benchmarkValue);
+        return new ValueResult(Threshold.valueOf(resultMsg.getThreshold().getValue()),
+                resultMsg.getValue().getValue());
     }
 
     /**
-     * Converts a collection of {@code RuleResultMsg}s into deserialized form.
+     * Converts a collection of {@code ValueResultMsg}s into deserialized form.
      *
      * @param resultMsgs
-     *            the {@code RuleResultMsg}s to be deserialized
+     *            the {@code ValueResultMsg}s to be deserialized
      * @return a {@code Map} correlating each {@code EvaluationGroup} to the {@code RuleResult}
      *         computed for that group
      */
-    protected Map<EvaluationGroup, RuleResult>
-            convertResults(Collection<RuleResultMsg> resultMsgs) {
+    protected Map<EvaluationGroup, ValueResult>
+            convertResults(Collection<ValueResultMsg> resultMsgs) {
         return resultMsgs.stream().map(resultMsg -> {
             String aggregationKey =
                     (resultMsg.hasAggregationKey() ? resultMsg.getAggregationKey().getValue()
@@ -165,9 +160,9 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
      * @param results
      *            a {@code Map} correlating each {@code EvaluationGroup} to the {@code RuleResult}
      *            computed for that group
-     * @return a {@code Collection<RuleResultMsg>} representing the serialized form
+     * @return a {@code Collection<ValueResultMsg>} representing the serialized form
      */
-    protected Collection<RuleResultMsg> convertResults(Map<EvaluationGroup, RuleResult> results) {
+    protected Collection<ValueResultMsg> convertResults(Map<EvaluationGroup, ValueResult> results) {
         return results.entrySet().stream().map(e -> convert(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
     }

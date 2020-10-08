@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
@@ -15,8 +15,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  */
 public class EvaluationResult implements ProtobufSerializable {
     private final RuleKey ruleKey;
-    private final Map<EvaluationGroup, RuleResult> results;
-    private final Map<EvaluationGroup, RuleResult> proposedResults;
+    private final Map<EvaluationGroup, ValueResult> results;
+    private final Map<EvaluationGroup, ValueResult> proposedResults;
 
     /**
      * Creates a new {@code EvaluationResult} for the specified {@code Rule} using the given grouped
@@ -27,7 +27,7 @@ public class EvaluationResult implements ProtobufSerializable {
      * @param results
      *            a {@code Map} containing the grouped evaluation results
      */
-    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, RuleResult> results) {
+    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, ValueResult> results) {
         this(ruleKey, results, null);
     }
 
@@ -43,8 +43,8 @@ public class EvaluationResult implements ProtobufSerializable {
      *            a (possibly {@code null} {@code Map} containing the grouped evaluation results of
      *            a proposed set of {@code Position}s, if requested
      */
-    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, RuleResult> results,
-            Map<EvaluationGroup, RuleResult> proposedResults) {
+    public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, ValueResult> results,
+            Map<EvaluationGroup, ValueResult> proposedResults) {
         this.ruleKey = ruleKey;
         this.results = results;
         this.proposedResults = (proposedResults == null ? Collections.emptyMap() : proposedResults);
@@ -58,7 +58,7 @@ public class EvaluationResult implements ProtobufSerializable {
      * @return a {@code RuleResult} describing the requested proposed results, or {@code null} if
      *         there were no proposed results for the specified group
      */
-    public RuleResult getProposedResult(EvaluationGroup group) {
+    public ValueResult getProposedResult(EvaluationGroup group) {
         return proposedResults.get(group);
     }
 
@@ -67,7 +67,7 @@ public class EvaluationResult implements ProtobufSerializable {
      *
      * @return a {@code Map} of {@code EvaluationGroup} to its corresponding proposed result
      */
-    public Map<EvaluationGroup, RuleResult> getProposedResults() {
+    public Map<EvaluationGroup, ValueResult> getProposedResults() {
         return proposedResults;
     }
 
@@ -79,7 +79,7 @@ public class EvaluationResult implements ProtobufSerializable {
      * @return a {@code RuleResult} describing the requested results, or {@code null} if there were
      *         no results for the specified group
      */
-    public RuleResult getResult(EvaluationGroup group) {
+    public ValueResult getResult(EvaluationGroup group) {
         return results.get(group);
     }
 
@@ -88,7 +88,7 @@ public class EvaluationResult implements ProtobufSerializable {
      *
      * @return a {@code Map} of {@code EvaluationGroup} to its corresponding result
      */
-    public Map<EvaluationGroup, RuleResult> getResults() {
+    public Map<EvaluationGroup, ValueResult> getResults() {
         return results;
     }
 
@@ -108,7 +108,7 @@ public class EvaluationResult implements ProtobufSerializable {
      *         least one indicates failure
      */
     public boolean isPassed() {
-        return results.values().stream().allMatch(RuleResult::isPassed);
+        return results.values().stream().allMatch(ValueResult::isPassed);
     }
 
     /**

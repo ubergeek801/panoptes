@@ -92,20 +92,19 @@ message ExceptionMsg {
     ExceptionMsg cause = 4;
 }
 
-message RuleResultMsg {
+message ValueResultMsg {
     string id = 1;
     google.protobuf.StringValue aggregationKey = 2;
     bool isPassed = 3;
     google.protobuf.StringValue threshold = 4;
     google.protobuf.DoubleValue value = 5;
-    google.protobuf.DoubleValue benchmarkValue = 6;
-    ExceptionMsg exception = 7;
+    ExceptionMsg exception = 6;
 }
 
 message EvaluationResultMsg {
     IdKeyMsg ruleKey = 1;
-    repeated RuleResultMsg result = 2;
-    repeated RuleResultMsg proposedResult = 3;
+    repeated ValueResultMsg result = 2;
+    repeated ValueResultMsg proposedResult = 3;
 }
 
 message RuleImpactMsg {

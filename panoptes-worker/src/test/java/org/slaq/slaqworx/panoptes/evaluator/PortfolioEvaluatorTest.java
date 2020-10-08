@@ -33,7 +33,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.test.TestRuleProvider;
@@ -60,10 +60,10 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        public RuleResult eval(PositionSupplier portfolioPositions,
+        public ValueResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
                 EvaluationContext evaluationContext) {
-            return new RuleResult(isPass);
+            return new ValueResult(isPass);
         }
     }
 
@@ -77,7 +77,7 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        protected RuleResult eval(PositionSupplier portfolioPositions,
+        protected ValueResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
                 EvaluationContext evaluationContext) {
             throw new RuntimeException("exception test");
@@ -97,10 +97,10 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        public RuleResult eval(PositionSupplier portfolioPositions,
+        public ValueResult eval(PositionSupplier portfolioPositions,
                 PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
                 EvaluationContext evaluationContext) {
-            return new RuleResult(benchmarkKey.equals(benchmarkPositions.getPortfolioKey()));
+            return new ValueResult(benchmarkKey.equals(benchmarkPositions.getPortfolioKey()));
         }
     }
 

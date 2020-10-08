@@ -15,7 +15,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleImpactMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TradeEvaluationResultMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.RuleResult.Impact;
+import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 /**
