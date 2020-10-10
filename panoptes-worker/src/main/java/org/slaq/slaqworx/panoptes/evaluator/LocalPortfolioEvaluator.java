@@ -171,10 +171,25 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 evaluationContext.getEvaluationMode() == EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
         // evaluate the Rules
-        Map<RuleKey, EvaluationResult> results = rules.takeWhile(shortCircuiter)
-                .map(r -> new RuleEvaluator(r, portfolio, transaction,
-                        portfolio.getBenchmark(portfolioProvider), evaluationContext).call())
-                .peek(shortCircuiter)
+        Map<RuleKey, EvaluationResult> results = rules.takeWhile(shortCircuiter).map(r -> {
+            EvaluationResult baseResult =
+                    new RuleEvaluator(r, portfolio, transaction, evaluationContext).call();
+            Portfolio benchmark = portfolio.getBenchmark(portfolioProvider);
+            EvaluationResult benchmarkResult;
+            if (benchmark != null && r.isBenchmarkSupported()) {
+                // attempt to get from cache first
+                benchmarkResult = evaluationContext.getBenchmarkResult(r.getKey());
+                if (benchmarkResult == null) {
+                    benchmarkResult =
+                            new RuleEvaluator(r, benchmark, transaction, evaluationContext).call();
+                    evaluationContext.cacheBenchmarkValue(r.getKey(), benchmarkResult);
+                }
+            } else {
+                benchmarkResult = null;
+            }
+
+            return new BenchmarkComparator().compare(baseResult, benchmarkResult, r);
+        }).peek(shortCircuiter)
                 .collect(Collectors.toMap(EvaluationResult::getRuleKey, result -> result));
 
         LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms",

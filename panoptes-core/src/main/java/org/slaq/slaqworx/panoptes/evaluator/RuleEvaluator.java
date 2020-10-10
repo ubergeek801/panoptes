@@ -104,7 +104,6 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
     private final Rule rule;
     private final PositionSupplier portfolioPositions;
     private final PositionSupplier proposedPositions;
-    private final PositionSupplier benchmarkPositions;
     private final EvaluationContext evaluationContext;
 
     /**
@@ -115,14 +114,12 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      *            the {@code Rule} to be evaluated
      * @param portfolioPositions
      *            the {@code Position}s against which to evaluate the {@code Rule}
-     * @param benchmarkPositions
-     *            the (possibly {@code null} benchmark {@code Position}s against which to evaluate
      * @param evaluationContext
      *            the context in which the {@code Rule} is to be evaluated
      */
     public RuleEvaluator(Rule rule, PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationContext evaluationContext) {
-        this(rule, portfolioPositions, null, benchmarkPositions, evaluationContext);
+            EvaluationContext evaluationContext) {
+        this(rule, portfolioPositions, null, evaluationContext);
     }
 
     /**
@@ -137,18 +134,14 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
      *            the (possibly {@code null}) proposed {@code Position}s (e.g. by a proposed
      *            {@code Trade} to be combined with the {@code Portfolio} {@code Position}s in a
      *            separate evaluation
-     * @param benchmarkPositions
-     *            the (possibly {@code null} benchmark {@code Position}s against which to evaluate
      * @param evaluationContext
      *            the context in which the {@code Rule} is to be evaluated
      */
     public RuleEvaluator(Rule rule, PositionSupplier portfolioPositions,
-            PositionSupplier proposedPositions, PositionSupplier benchmarkPositions,
-            EvaluationContext evaluationContext) {
+            PositionSupplier proposedPositions, EvaluationContext evaluationContext) {
         this.rule = rule;
         this.portfolioPositions = portfolioPositions;
         this.proposedPositions = proposedPositions;
-        this.benchmarkPositions = benchmarkPositions;
         this.evaluationContext = evaluationContext;
         // a new EvaluationContext should be provided to each new RuleEvaluator, but just in case...
         evaluationContext.clear();
@@ -176,15 +169,6 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
                     classify(concatPositions, evaluationContext.getMarketValue(concatPositions));
         }
 
-        // do the same for the benchmark, if specified
-        Map<EvaluationGroup, PositionSupplier> classifiedBenchmarkPositions;
-        if (benchmarkPositions == null) {
-            classifiedBenchmarkPositions = null;
-        } else {
-            classifiedBenchmarkPositions = classify(benchmarkPositions,
-                    evaluationContext.getMarketValue(benchmarkPositions));
-        }
-
         // Execute the Rule's GroupAggregators (if any) to create additional EvaluationGroups. For
         // example, a Rule may aggregate the Positions holding the top five issuers in the Portfolio
         // into a new group.
@@ -195,22 +179,17 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
                 classifiedProposedPositions =
                         a.aggregate(classifiedProposedPositions, evaluationContext);
             }
-            if (classifiedBenchmarkPositions != null) {
-                classifiedBenchmarkPositions =
-                        a.aggregate(classifiedBenchmarkPositions, evaluationContext);
-            }
         }
 
-        // for each group of Positions, evaluate the Rule against the group, for the Portfolio,
-        // proposed (if specified) and the Benchmark (if specified)
-        Map<EvaluationGroup, ValueResult> ruleResults =
-                evaluate(classifiedPortfolioPositions, classifiedBenchmarkPositions);
+        // for each group of Positions, evaluate the Rule against the group, for the Portfolio and
+        // (if specified) for the Portfolio + proposed positions
+        Map<EvaluationGroup, ValueResult> ruleResults = evaluate(classifiedPortfolioPositions);
 
         Map<EvaluationGroup, ValueResult> proposedResults;
         if (classifiedProposedPositions == null) {
             proposedResults = null;
         } else {
-            proposedResults = evaluate(classifiedProposedPositions, classifiedBenchmarkPositions);
+            proposedResults = evaluate(classifiedProposedPositions);
         }
 
         return new EvaluationResult(rule.getKey(), ruleResults, proposedResults);
@@ -240,26 +219,20 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
     }
 
     /**
-     * Evaluates the given {@code Position}s, optionally against the given benchmark
-     * {@code Positions} (if specified).
+     * Evaluates the given {@code Position}s.
      *
      * @param evaluatedPositions
      *            the {@code Position}s to be evaluated
-     * @param classifiedBenchmarkPositions
-     *            the (possibly {@code null} benchmark {@code Position}s to be evaluated against
      * @return the {@code Rule} evaluation results grouped by {@code EvaluationGroup}
      */
-    protected Map<EvaluationGroup, ValueResult> evaluate(
-            Map<EvaluationGroup, PositionSupplier> evaluatedPositions,
-            Map<EvaluationGroup, PositionSupplier> classifiedBenchmarkPositions) {
+    protected Map<EvaluationGroup, ValueResult>
+            evaluate(Map<EvaluationGroup, PositionSupplier> evaluatedPositions) {
         return evaluatedPositions.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> {
             EvaluationGroup evaluationGroup = e.getKey();
             PositionSupplier portfolioPositions = e.getValue();
-            PositionSupplier benchmarkPositions = (classifiedBenchmarkPositions == null ? null
-                    : classifiedBenchmarkPositions.get(evaluationGroup));
 
-            ValueResult singleResult = rule.evaluate(portfolioPositions, benchmarkPositions,
-                    evaluationGroup, evaluationContext);
+            ValueResult singleResult =
+                    rule.evaluate(portfolioPositions, evaluationGroup, evaluationContext);
 
             return singleResult;
         }));

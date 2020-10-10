@@ -54,6 +54,7 @@ public class ValueResult {
     private final boolean isPassed;
     private final Threshold threshold;
     private final Double value;
+    private final Double benchmarkValue;
     private final Throwable exception;
 
     /**
@@ -66,6 +67,7 @@ public class ValueResult {
         this.isPassed = isPassed;
         threshold = null;
         value = null;
+        benchmarkValue = null;
         exception = null;
     }
 
@@ -80,9 +82,26 @@ public class ValueResult {
      *            the actual evaluation result value
      */
     public ValueResult(Threshold threshold, double value) {
+        this(threshold, value, null);
+    }
+
+    /**
+     * Creates a new value-based {@code RuleResult} indicating the threshold status for evaluation
+     * and the actual result value.
+     *
+     * @param threshold
+     *            a {@code Threshold} value indicating whether the value is within the evaluation
+     *            threshold
+     * @param value
+     *            the actual evaluation result value
+     * @param benchmarkValue
+     *            the (possibly null) benchmark evaluation result value
+     */
+    public ValueResult(Threshold threshold, double value, Double benchmarkValue) {
         isPassed = (threshold == Threshold.WITHIN);
         this.threshold = threshold;
         this.value = value;
+        this.benchmarkValue = benchmarkValue;
         exception = null;
     }
 
@@ -97,6 +116,7 @@ public class ValueResult {
         isPassed = false;
         threshold = null;
         value = null;
+        benchmarkValue = null;
         this.exception = exception;
     }
 
@@ -209,6 +229,16 @@ public class ValueResult {
         }
 
         return true;
+    }
+
+    /**
+     * Obtains the benchmark value associated with this result.
+     *
+     * @return the benchmark value associated with this result (if value-based), or {@code null} if
+     *         it does not exist (Boolean-based) or there was no benchmark comparison
+     */
+    public Double getBenchmarkValue() {
+        return benchmarkValue;
     }
 
     /**

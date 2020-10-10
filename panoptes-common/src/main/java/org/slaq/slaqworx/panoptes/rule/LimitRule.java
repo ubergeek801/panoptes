@@ -14,6 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  */
 public abstract class LimitRule extends GenericRule implements ConfigurableRule {
     private final Predicate<PositionEvaluationContext> positionFilter;
+
     private final Double lowerLimit;
     private final Double upperLimit;
 
@@ -58,6 +59,21 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
     }
 
     @Override
+    public String getJsonConfiguration() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Obtains this {@code Rule}'s (possibly {@code null}) lower limit.
+     *
+     * @return the lower limit against which to evaluate
+     */
+    public Double getLowerLimit() {
+        return lowerLimit;
+    }
+
+    @Override
     public String getParameterDescription() {
         ArrayList<String> descriptions = new ArrayList<>();
         if (positionFilter != null && positionFilter instanceof GroovyPositionFilter) {
@@ -79,55 +95,37 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
         return positionFilter;
     }
 
-    @Override
-    protected final ValueResult eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
-            EvaluationContext evaluationContext) {
-        double value = getValue(portfolioPositions, evaluationContext);
-        double scaledValue;
-        Double benchmarkValue;
-        if (benchmarkPositions != null) {
-            // use the cached benchmark value if available; otherwise compute and cache it
-            benchmarkValue = evaluationContext.getBenchmarkValue(getKey(), evaluationGroup);
-            if (benchmarkValue == null) {
-                benchmarkValue = getValue(benchmarkPositions, evaluationContext);
-                evaluationContext.cacheBenchmarkValue(getKey(), evaluationGroup, benchmarkValue);
-            }
-            // rescale the value to the benchmark; this may result in NaN, which means that the
-            // Position's portfolio concentration is infinitely greater than the benchmark
-            scaledValue = value / benchmarkValue;
-        } else {
-            benchmarkValue = null;
-            scaledValue = value;
-        }
-
-        if (lowerLimit != null && (scaledValue != Double.NaN && scaledValue < lowerLimit)) {
-            return new ValueResult(Threshold.BELOW, value);
-        }
-
-        if (upperLimit != null && (scaledValue == Double.NaN || scaledValue > upperLimit)) {
-            return new ValueResult(Threshold.ABOVE, value);
-        }
-
-        return new ValueResult(Threshold.WITHIN, value);
-    }
-
-    /**
-     * Obtains this {@code Rule}'s (possibly {@code null}) lower limit.
-     *
-     * @return the lower limit against which to evaluate
-     */
-    protected Double getLowerLimit() {
-        return lowerLimit;
-    }
-
     /**
      * Obtains this {@code Rule}'s (possibly {@code null}) upper limit.
      *
      * @return the upper limit against which to evaluate
      */
-    protected Double getUpperLimit() {
+    public Double getUpperLimit() {
         return upperLimit;
+    }
+
+    @Override
+    public boolean isBenchmarkSupported() {
+        return true;
+    }
+
+    @Override
+    protected final ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
+            EvaluationContext evaluationContext) {
+        double value = getValue(positions, evaluationContext);
+
+        // note that for a rule that compares against a benchmark, this will not be the "final
+        // answer"; that will be determined by e.g. a BenchmarkComparator
+
+        if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
+            return new ValueResult(Threshold.BELOW, value);
+        }
+
+        if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
+            return new ValueResult(Threshold.ABOVE, value);
+        }
+
+        return new ValueResult(Threshold.WITHIN, value);
     }
 
     /**

@@ -3,17 +3,21 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import java.util.Collections;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
+import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
  * {@code EvaluationResult} aggregates {@code RuleResult}s for a single {@code Rule} evaluation.
  *
  * @author jeremy
  */
-public class EvaluationResult implements ProtobufSerializable {
+public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
     private final RuleKey ruleKey;
     private final Map<EvaluationGroup, ValueResult> results;
     private final Map<EvaluationGroup, ValueResult> proposedResults;
@@ -48,6 +52,11 @@ public class EvaluationResult implements ProtobufSerializable {
         this.ruleKey = ruleKey;
         this.results = results;
         this.proposedResults = (proposedResults == null ? Collections.emptyMap() : proposedResults);
+    }
+
+    @Override
+    public RuleKey getKey() {
+        return ruleKey;
     }
 
     /**
@@ -118,5 +127,10 @@ public class EvaluationResult implements ProtobufSerializable {
      */
     public int size() {
         return results.size();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }
 }

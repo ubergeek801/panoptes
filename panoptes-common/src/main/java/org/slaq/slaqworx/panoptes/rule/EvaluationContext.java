@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +11,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
@@ -41,8 +41,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
     private final PortfolioProvider portfolioProvider;
     private final EvaluationMode evaluationMode;
     private final Map<SecurityKey, SecurityAttributes> securityOverrides;
-    private final Map<RuleKey, Map<EvaluationGroup, Double>> benchmarkValues =
-            new ConcurrentHashMap<>(100);
+    private final Map<RuleKey, EvaluationResult> benchmarkResults = new ConcurrentHashMap<>(100);
     private final Map<MarketValued, Double> marketValues =
             Collections.synchronizedMap(new IdentityHashMap<>(10));
 
@@ -103,20 +102,15 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
     }
 
     /**
-     * Caches the benchmark value for the specified {@code Rule} and {@code EvaluationGroup}.
+     * Caches the benchmark value for the specified {@code Rule}
      *
      * @param ruleKey
      *            the {@code RuleKey} identifying the currently evaluating {@code Rule}
-     * @param group
-     *            the currently evaluating {@code EvaluationGroup}
-     * @param value
-     *            the benchmark value corresponding to the {@code Rule} and {@code EvaluationGroup}
+     * @param result
+     *            the benchmark result corresponding to the {@code Rule}
      */
-    public void cacheBenchmarkValue(RuleKey ruleKey, EvaluationGroup group, Double value) {
-        Map<EvaluationGroup, Double> groupValues =
-                benchmarkValues.computeIfAbsent(ruleKey, k -> new HashMap<>(20));
-
-        groupValues.put(group, value);
+    public void cacheBenchmarkValue(RuleKey ruleKey, EvaluationResult result) {
+        benchmarkResults.put(ruleKey, result);
     }
 
     /**
@@ -124,7 +118,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
      * {@code EvaluationContext} whenever possible.
      */
     public void clear() {
-        benchmarkValues.clear();
+        benchmarkResults.clear();
         marketValues.clear();
     }
 
@@ -144,19 +138,14 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
     }
 
     /**
-     * Obtains the currently cached benchmark value corresponding to the specified {@code Rule} and
-     * {@code EvaluationGroup}.
+     * Obtains the currently cached benchmark value corresponding to the specified {@code Rule}.
      *
      * @param ruleKey
      *            the {@code RuleKey} identifying the currently evaluating {@code Rule}
-     * @param group
-     *            the currently evaluating {@code EvaluationGroup}
      * @return the cached benchmark value if present, or {@code null} otherwise
      */
-    public Double getBenchmarkValue(RuleKey ruleKey, EvaluationGroup group) {
-        Map<EvaluationGroup, Double> groupValues =
-                benchmarkValues.computeIfAbsent(ruleKey, k -> new HashMap<>(20));
-        return groupValues.get(group);
+    public EvaluationResult getBenchmarkResult(RuleKey ruleKey) {
+        return benchmarkResults.get(ruleKey);
     }
 
     /**

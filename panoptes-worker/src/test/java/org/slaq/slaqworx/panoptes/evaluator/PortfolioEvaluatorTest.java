@@ -33,9 +33,9 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.SecurityAttributeGroupClassifier;
 import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
+import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.test.TestRuleProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
@@ -60,8 +60,7 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        public ValueResult eval(PositionSupplier portfolioPositions,
-                PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+        public ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
                 EvaluationContext evaluationContext) {
             return new ValueResult(isPass);
         }
@@ -77,8 +76,7 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        protected ValueResult eval(PositionSupplier portfolioPositions,
-                PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+        protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
                 EvaluationContext evaluationContext) {
             throw new RuntimeException("exception test");
         }
@@ -97,17 +95,19 @@ public class PortfolioEvaluatorTest {
         }
 
         @Override
-        public ValueResult eval(PositionSupplier portfolioPositions,
-                PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+        public ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
                 EvaluationContext evaluationContext) {
-            return new ValueResult(benchmarkKey.equals(benchmarkPositions.getPortfolioKey()));
+            return new ValueResult(benchmarkKey.equals(positions.getPortfolioKey()));
+        }
+
+        @Override
+        public boolean isBenchmarkSupported() {
+            return true;
         }
     }
 
-    @Inject
-    private AssetCache assetCache;
-    @Inject
-    private ClusterPortfolioEvaluator clusterEvaluator;
+    @Inject private AssetCache assetCache;
+    @Inject private ClusterPortfolioEvaluator clusterEvaluator;
 
     /**
      * Tests that {@code evaluate()} behaves as expected with {@code GroupAggregator}s (also

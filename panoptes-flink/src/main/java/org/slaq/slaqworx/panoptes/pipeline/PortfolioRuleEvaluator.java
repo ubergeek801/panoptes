@@ -96,7 +96,7 @@ public class PortfolioRuleEvaluator
         };
 
         // FIXME deal with benchmark
-        portfolio.getRules().forEach(rule -> out.collect(new RuleEvaluator(rule, portfolio, null,
+        portfolio.getRules().forEach(rule -> out.collect(new RuleEvaluator(rule, portfolio,
                 new EvaluationContext(securityProvider, portfolioProvider)).call()));
     }
 

@@ -12,6 +12,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  */
 public abstract class GenericRule implements Rule {
     private final RuleKey key;
+
     private final String description;
     private final EvaluationGroupClassifier groupClassifier;
     private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();
@@ -80,11 +81,10 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
-    public ValueResult evaluate(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+    public ValueResult evaluate(PositionSupplier positions, EvaluationGroup evaluationGroup,
             EvaluationContext evaluationContext) {
         try {
-            return eval(portfolioPositions, benchmarkPositions,
+            return eval(positions,
                     evaluationGroup == null ? EvaluationGroup.defaultGroup() : evaluationGroup,
                     evaluationContext);
         } catch (Exception e) {
@@ -122,22 +122,23 @@ public abstract class GenericRule implements Rule {
         return key.hashCode();
     }
 
+    @Override
+    public boolean isBenchmarkSupported() {
+        return false;
+    }
+
     /**
-     * Evaluates the {@code Rule} on the given {@code Portfolio} {@code Position}s, optionally
-     * relative to a given benchmark. The public {@code evaluate()} methods ultimately delegate to
-     * this one.
+     * Evaluates the {@code Rule} on the given {@code Portfolio} {@code Position}s. The public
+     * {@code evaluate()} methods ultimately delegate to this one.
      *
-     * @param portfolioPositions
+     * @param positions
      *            the {@code Portfolio} {@code Position}s on which to evaluate the {@code Rule}
-     * @param benchmarkPositions
-     *            the (possibly {@code null}) benchmark {@code Position}s to evaluate relative to
      * @param evaluationGroup
      *            the {@code EvaluationGroup} on which the {@code Rule} is being evaluated
      * @param evaluationContext
      *            the {@code EvaluationContext} under which to evaluate
      * @return the result of the {@code Rule} evaluation
      */
-    protected abstract ValueResult eval(PositionSupplier portfolioPositions,
-            PositionSupplier benchmarkPositions, EvaluationGroup evaluationGroup,
+    protected abstract ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
             EvaluationContext evaluationContext);
 }
