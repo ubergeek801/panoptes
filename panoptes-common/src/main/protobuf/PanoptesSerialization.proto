@@ -57,6 +57,11 @@ message RuleSummaryMsg {
     string parameterDescription = 3;
 }
 
+message PortfolioRuleKeyMsg {
+    IdVersionKeyMsg portfolioKey = 1;
+    IdKeyMsg ruleKey = 2;
+}
+
 message SecurityMsg {
     map<string, string> attributes = 1;
 }

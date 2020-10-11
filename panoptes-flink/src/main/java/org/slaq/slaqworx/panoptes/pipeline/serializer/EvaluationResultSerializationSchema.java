@@ -4,11 +4,11 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.serializer.EvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
-public class PortfolioEvaluationResultSerializationSchema
+public class EvaluationResultSerializationSchema
         extends ProtobufSerializationSchema<EvaluationResult> {
     private static final long serialVersionUID = 1L;
 
-    public PortfolioEvaluationResultSerializationSchema(String topic) {
+    public EvaluationResultSerializationSchema(String topic) {
         super(topic);
     }
 

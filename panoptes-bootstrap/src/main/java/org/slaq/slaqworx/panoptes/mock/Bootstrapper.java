@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
@@ -30,6 +31,7 @@ import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
  */
 @Singleton
 @Context
+@Requires(env = { "bootstrap" })
 public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(Bootstrapper.class);
 
@@ -41,7 +43,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
      */
     public static void main(String[] args) {
         try (ApplicationContext appContext = Micronaut.build(args).mainClass(Bootstrapper.class)
-                .environments("offline").args(args).start()) {
+                .environments("bootstrap", "offline").args(args).start()) {
             // nothing else to do
         }
     }
@@ -106,7 +108,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     protected void bootstrapPortfolios() throws IOException {
         // generate the portfolios
         LOG.info("generating portfolios");
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(100);
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(800);
         ArrayList<Portfolio> portfolios = new ArrayList<>();
         for (PortfolioKey key : mapLoader.loadAllKeys()) {
             Portfolio portfolio = mapLoader.load(key);

@@ -1,12 +1,13 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * {@code PortfolioRuleKey} is used as a key to specify or retrieve evaluation results by
  * {@code Portfolio} and {@code Rule}.
  */
-public class PortfolioRuleKey {
+public class PortfolioRuleKey implements ProtobufSerializable {
     private final PortfolioKey portfolioKey;
     private final RuleKey ruleKey;
 

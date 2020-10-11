@@ -19,22 +19,28 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.EvaluationResultSerializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationRequestDeserializationSchema;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationResultSerializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.SecurityDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationRequestDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationResultSerializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioRuleKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioSummaryKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKryoSerializer;
+import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
+import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
+import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
@@ -102,15 +108,27 @@ public class PanoptesPipelineConfig {
         // resource-constrained environments
         env.getConfig().enableObjectReuse();
 
-        // in Flink, Protobuf serialization is supported via custom serializers reigstered with
+        env.disableOperatorChaining();
+
+        // in Flink, Protobuf serialization is supported via custom serializers registered with
         // Flink; we need these for any (top-level) classes passed between Flink operators, classes
         // used in operator state, etc.
         env.getConfig().registerTypeWithKryoSerializer(Portfolio.class,
                 PortfolioKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(PortfolioKey.class,
                 PortfolioKeyKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(PortfolioRuleKey.class,
+                PortfolioRuleKeyKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(PortfolioSummary.class,
                 PortfolioSummaryKryoSerializer.class);
+        // theoretically we should just be able to register a Rule (or maybe ConfigurableRule)
+        // serializer, but Flink/Kryo aren't happy unless we register the concrete rule classes
+        env.getConfig().registerTypeWithKryoSerializer(ConcentrationRule.class,
+                RuleKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(MarketValueRule.class,
+                RuleKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(WeightedAverageRule.class,
+                RuleKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(Security.class,
                 SecurityKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(SecurityKey.class,
@@ -150,8 +168,7 @@ public class PanoptesPipelineConfig {
 
         FlinkKafkaProducer<EvaluationResult> producer =
                 new FlinkKafkaProducer<>(tradeEvaluationResultTopic,
-                        new PortfolioEvaluationResultSerializationSchema(
-                                portfolioEvaluationResultTopic),
+                        new EvaluationResultSerializationSchema(portfolioEvaluationResultTopic),
                         kafkaProperties, Semantic.AT_LEAST_ONCE);
         producer.setWriteTimestampToKafka(true);
 

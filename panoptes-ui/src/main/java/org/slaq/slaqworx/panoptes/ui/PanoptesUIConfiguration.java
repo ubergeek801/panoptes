@@ -2,7 +2,7 @@ package org.slaq.slaqworx.panoptes.ui;
 
 import javax.inject.Named;
 
-import com.vaadin.flow.server.Constants;
+import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.VaadinServlet;
 
 import io.micronaut.context.ApplicationContext;
@@ -49,7 +49,7 @@ public class PanoptesUIConfiguration {
         Server server = new Server(9090);
 
         WebAppContext context = new WebAppContext();
-        context.setInitParameter(Constants.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
+        context.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
         context.setContextPath("/");
         context.setBaseResource(
                 Resource.newResource(getClass().getClassLoader().getResource("ui")));
