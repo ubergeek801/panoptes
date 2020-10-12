@@ -113,8 +113,18 @@ public abstract class GenericRule implements Rule {
     }
 
     @Override
+    public Double getLowerLimit() {
+        return null;
+    }
+
+    @Override
     public String getParameterDescription() {
         return "unknown configuration";
+    }
+
+    @Override
+    public Double getUpperLimit() {
+        return null;
     }
 
     @Override

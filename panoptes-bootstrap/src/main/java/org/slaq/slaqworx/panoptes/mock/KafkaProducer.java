@@ -4,7 +4,6 @@ import io.micronaut.configuration.kafka.annotation.KafkaClient;
 import io.micronaut.configuration.kafka.annotation.KafkaKey;
 import io.micronaut.configuration.kafka.annotation.Topic;
 
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -12,6 +11,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
+import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
@@ -27,10 +27,12 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
 @KafkaClient
 public interface KafkaProducer {
     @Topic("${kafka-topic.benchmark-topic}")
-    public void publishBenchmark(@KafkaKey PortfolioKey benchmarkKey, Portfolio benchmark);
+    public void publishBenchmarkEvent(@KafkaKey PortfolioKey benchmarkKey,
+            PortfolioEvent benchmarkEvent);
 
     @Topic("${kafka-topic.portfolio-topic}")
-    public void publishPortfolio(@KafkaKey PortfolioKey portfolioKey, Portfolio portfolio);
+    public void publishPortfolioEvent(@KafkaKey PortfolioKey portfolioKey,
+            PortfolioEvent portfolioEvent);
 
     @Topic("${kafka-topic.portfolio-request-topic}")
     public void publishPortfolioRequest(@KafkaKey PortfolioKey portfolioKey,

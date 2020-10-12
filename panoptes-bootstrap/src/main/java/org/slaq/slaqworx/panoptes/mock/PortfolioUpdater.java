@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 
 @Singleton
@@ -70,7 +71,7 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
     public void updatePortfolios() throws IOException {
         // generate the portfolios
         LOG.info("generating portfolios");
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(200);
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(600);
         ArrayList<Portfolio> portfolios = new ArrayList<>();
         for (PortfolioKey key : mapLoader.loadAllKeys()) {
             Portfolio portfolio = mapLoader.load(key);
@@ -80,14 +81,22 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
             }
         }
 
-        // republish some random portfolios
-        ArrayList<Portfolio> randomPortfolios = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
-            randomPortfolios.add(portfolios.remove((int)(Math.random() * portfolios.size())));
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < 120000) {
+            // republish some random portfolios
+            ArrayList<Portfolio> portfoliosCopy = new ArrayList<>(portfolios);
+            ArrayList<Portfolio> randomPortfolios = new ArrayList<>();
+            for (int i = 0; i < 100; i++) {
+                randomPortfolios
+                        .add(portfoliosCopy.remove((int)(Math.random() * portfoliosCopy.size())));
+            }
+
+            long[] eventId = new long[] { System.currentTimeMillis() };
+            LOG.info("publishing {} portfolios", randomPortfolios.size());
+            randomPortfolios.forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(),
+                    new PortfolioCommandEvent(eventId[0]++, p.getKey())));
         }
 
-        LOG.info("publishing {} portfolios", randomPortfolios.size());
-        randomPortfolios.forEach(p -> kafkaProducer.publishPortfolio(p.getKey(), p));
         LOG.info("published portfolios");
     }
 }

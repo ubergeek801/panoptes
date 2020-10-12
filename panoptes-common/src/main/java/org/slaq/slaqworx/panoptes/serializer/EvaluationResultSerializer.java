@@ -28,40 +28,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * @author jeremy
  */
 public class EvaluationResultSerializer implements ProtobufSerializer<EvaluationResult> {
-    /**
-     * Creates a new {@code EvaluationResultSerializer}.
-     */
-    public EvaluationResultSerializer() {
-        // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.EVALUATION_RESULT.ordinal();
-    }
-
-    @Override
-    public EvaluationResult read(byte[] buffer) throws IOException {
-        EvaluationResultMsg evaluationResultMsg = EvaluationResultMsg.parseFrom(buffer);
-        IdKeyMsg ruleKeyMsg = evaluationResultMsg.getRuleKey();
-
-        RuleKey ruleKey = new RuleKey(ruleKeyMsg.getId());
-
-        Map<EvaluationGroup, ValueResult> results =
-                convertResults(evaluationResultMsg.getResultList());
-        Map<EvaluationGroup, ValueResult> proposedResults =
-                convertResults(evaluationResultMsg.getProposedResultList());
-
-        return new EvaluationResult(ruleKey, results, proposedResults);
-    }
-
-    @Override
-    public byte[] write(EvaluationResult result) throws IOException {
+    public static EvaluationResultMsg convert(EvaluationResult result) {
         IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
         ruleKeyBuilder.setId(result.getRuleKey().getId());
 
@@ -70,9 +37,19 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
         resultBuilder.addAllResult(convertResults(result.getResults()));
         resultBuilder.addAllProposedResult(convertResults(result.getProposedResults()));
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        resultBuilder.build().writeTo(out);
-        return out.toByteArray();
+        return resultBuilder.build();
+    }
+
+    public static EvaluationResult convert(EvaluationResultMsg evaluationResultMsg) {
+        IdKeyMsg ruleKeyMsg = evaluationResultMsg.getRuleKey();
+        RuleKey ruleKey = new RuleKey(ruleKeyMsg.getId());
+
+        Map<EvaluationGroup, ValueResult> results =
+                convertResults(evaluationResultMsg.getResultList());
+        Map<EvaluationGroup, ValueResult> proposedResults =
+                convertResults(evaluationResultMsg.getProposedResultList());
+
+        return new EvaluationResult(ruleKey, results, proposedResults);
     }
 
     /**
@@ -84,7 +61,8 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
      *            the {@code RuleResult} from which to create a {@code ValueResultMsg}
      * @return a {@code ValueResultMsg} providing a serialization of the given data
      */
-    protected ValueResultMsg convert(EvaluationGroup evaluationGroup, ValueResult ruleResult) {
+    protected static ValueResultMsg convert(EvaluationGroup evaluationGroup,
+            ValueResult ruleResult) {
         ValueResultMsg.Builder resultMsgBuilder = ValueResultMsg.newBuilder();
         resultMsgBuilder.setId(evaluationGroup.getId());
         String aggregationKey = evaluationGroup.getAggregationKey();
@@ -116,7 +94,7 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
      *            the {@code ValueResultMsg} to be deserialized
      * @return a {@code RuleResult} constructed from the serialized data
      */
-    protected ValueResult convert(ValueResultMsg resultMsg) {
+    protected static ValueResult convert(ValueResultMsg resultMsg) {
         if (resultMsg.hasException()) {
             ExceptionMsg exceptionMsg = resultMsg.getException();
 
@@ -143,7 +121,7 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
      * @return a {@code Map} correlating each {@code EvaluationGroup} to the {@code RuleResult}
      *         computed for that group
      */
-    protected Map<EvaluationGroup, ValueResult>
+    protected static Map<EvaluationGroup, ValueResult>
             convertResults(Collection<ValueResultMsg> resultMsgs) {
         return resultMsgs.stream().map(resultMsg -> {
             String aggregationKey =
@@ -162,8 +140,42 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
      *            computed for that group
      * @return a {@code Collection<ValueResultMsg>} representing the serialized form
      */
-    protected Collection<ValueResultMsg> convertResults(Map<EvaluationGroup, ValueResult> results) {
+    protected static Collection<ValueResultMsg>
+            convertResults(Map<EvaluationGroup, ValueResult> results) {
         return results.entrySet().stream().map(e -> convert(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Creates a new {@code EvaluationResultSerializer}.
+     */
+    public EvaluationResultSerializer() {
+        // nothing to do
+    }
+
+    @Override
+    public void destroy() {
+        // nothing to do
+    }
+
+    @Override
+    public int getTypeId() {
+        return SerializerTypeId.EVALUATION_RESULT.ordinal();
+    }
+
+    @Override
+    public EvaluationResult read(byte[] buffer) throws IOException {
+        EvaluationResultMsg evaluationResultMsg = EvaluationResultMsg.parseFrom(buffer);
+
+        return convert(evaluationResultMsg);
+    }
+
+    @Override
+    public byte[] write(EvaluationResult result) throws IOException {
+        EvaluationResultMsg msg = convert(result);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        msg.writeTo(out);
+        return out.toByteArray();
     }
 }

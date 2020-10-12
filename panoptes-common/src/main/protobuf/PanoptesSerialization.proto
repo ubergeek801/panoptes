@@ -138,3 +138,26 @@ message RoomEvaluationRequestMsg {
 message TradeEvaluationResultMsg {
     repeated PortfolioRuleImpactMsg portfolioRuleImpact = 1;
 }
+
+// the following are used by Flink operators; maybe this will become a distinct package
+
+message PortfolioEventMsg {
+    message PortfolioCommandMsg {
+        int64 eventId = 1;
+        IdVersionKeyMsg portfolioKey = 2;
+    }
+    oneof content {
+        PortfolioCommandMsg command = 1;
+        PortfolioMsg portfolio = 2;
+    }
+}
+
+message RuleEvaluationResultMsg {
+    int64 eventId = 1;
+    IdVersionKeyMsg portfolioKey = 2;
+    IdVersionKeyMsg benchmarkKey = 3;
+    bool isBenchmarkSupported = 4;
+    google.protobuf.DoubleValue lowerLimit = 5;
+    google.protobuf.DoubleValue upperLimit = 6;
+    EvaluationResultMsg evaluationResult = 7;
+}

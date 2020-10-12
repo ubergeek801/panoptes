@@ -1,7 +1,5 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import java.util.stream.Stream;
-
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 
@@ -15,7 +13,7 @@ public class PortfolioRuleEvaluator extends RuleEvaluator {
     private static final long serialVersionUID = 1L;
 
     public PortfolioRuleEvaluator() {
-        // nothing to do
+        super("portfolio");
     }
 
     @Override
@@ -25,8 +23,8 @@ public class PortfolioRuleEvaluator extends RuleEvaluator {
     }
 
     @Override
-    protected Stream<Rule> getEffectiveRules(Portfolio portfolio) {
+    protected Iterable<Rule> getEffectiveRules(Portfolio portfolio) {
         // simply use the portfolio's rules
-        return portfolio.getRules();
+        return portfolio.getRules()::iterator;
     }
 }

@@ -23,7 +23,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  *
  * @author jeremy
  */
-public interface Rule extends Keyed<RuleKey> {
+public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
     /**
      * Evaluates the {@code Rule} on the given {@code Portfolio}, optionally relative to a given
      * benchmark, subject to the given evaluation context.
@@ -90,5 +90,6 @@ public interface Rule extends Keyed<RuleKey> {
      *
      * @return {@code true} if benchmark comparisons are supported, {@code false} otherwise
      */
+    @Override
     public boolean isBenchmarkSupported();
 }

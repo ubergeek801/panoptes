@@ -22,11 +22,13 @@ import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
+import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 import org.slaq.slaqworx.panoptes.serializer.EvaluationContextSerializer;
+import org.slaq.slaqworx.panoptes.serializer.PortfolioEventSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioSummarizerSerializer;
@@ -73,8 +75,9 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
 
         // FIXME some of these need additional services
         serdeMap.put(EvaluationContext.class, createSerde(new EvaluationContextSerializer(null)));
-        serdeMap.put(PortfolioKey.class, createSerde(new PortfolioKeySerializer()));
         serdeMap.put(Portfolio.class, createSerde(new PortfolioSerializer()));
+        serdeMap.put(PortfolioEvent.class, createSerde(new PortfolioEventSerializer()));
+        serdeMap.put(PortfolioKey.class, createSerde(new PortfolioKeySerializer()));
         serdeMap.put(PortfolioSummarizer.class,
                 createSerde(new PortfolioSummarizerSerializer(null)));
         serdeMap.put(PortfolioSummary.class, createSerde(new PortfolioSummarySerializer()));

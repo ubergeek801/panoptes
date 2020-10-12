@@ -22,46 +22,7 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  */
 @Singleton
 public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
-    /**
-     * Creates a new {@code PortfolioSerializer}.
-     */
-    public PortfolioSerializer() {
-        // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO.ordinal();
-    }
-
-    @Override
-    public Portfolio read(byte[] buffer) throws IOException {
-        PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);
-        IdVersionKeyMsg keyMsg = portfolioMsg.getKey();
-        PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
-        PortfolioKey benchmarkKey;
-        if (portfolioMsg.hasBenchmarkKey()) {
-            IdVersionKeyMsg benchmarkKeyMsg = portfolioMsg.getBenchmarkKey();
-            benchmarkKey = new PortfolioKey(benchmarkKeyMsg.getId(), benchmarkKeyMsg.getVersion());
-        } else {
-            benchmarkKey = null;
-        }
-
-        Set<Position> positions = portfolioMsg.getPositionList().stream()
-                .map(PositionSerializer::convert).collect(Collectors.toSet());
-        Set<Rule> rules = portfolioMsg.getRuleList().stream().map(RuleSerializer::convert)
-                .collect(Collectors.toSet());
-
-        return new Portfolio(key, portfolioMsg.getName(), positions, benchmarkKey, rules);
-    }
-
-    @Override
-    public byte[] write(Portfolio portfolio) throws IOException {
+    public static PortfolioMsg convert(Portfolio portfolio) {
         IdVersionKeyMsg.Builder keyBuilder = IdVersionKeyMsg.newBuilder();
         keyBuilder.setId(portfolio.getKey().getId());
         keyBuilder.setVersion(portfolio.getKey().getVersion());
@@ -88,8 +49,58 @@ public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
         portfolio.getPositions()
                 .forEach(p -> portfolioBuilder.addPosition(PositionSerializer.convert(p)));
 
+        return portfolioBuilder.build();
+    }
+
+    public static Portfolio convert(PortfolioMsg portfolioMsg) {
+        IdVersionKeyMsg keyMsg = portfolioMsg.getKey();
+        PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
+        PortfolioKey benchmarkKey;
+        if (portfolioMsg.hasBenchmarkKey()) {
+            IdVersionKeyMsg benchmarkKeyMsg = portfolioMsg.getBenchmarkKey();
+            benchmarkKey = new PortfolioKey(benchmarkKeyMsg.getId(), benchmarkKeyMsg.getVersion());
+        } else {
+            benchmarkKey = null;
+        }
+
+        Set<Position> positions = portfolioMsg.getPositionList().stream()
+                .map(PositionSerializer::convert).collect(Collectors.toSet());
+        Set<Rule> rules = portfolioMsg.getRuleList().stream().map(RuleSerializer::convert)
+                .collect(Collectors.toSet());
+
+        return new Portfolio(key, portfolioMsg.getName(), positions, benchmarkKey, rules);
+    }
+
+    /**
+     * Creates a new {@code PortfolioSerializer}.
+     */
+    public PortfolioSerializer() {
+        // nothing to do
+    }
+
+    @Override
+    public void destroy() {
+        // nothing to do
+    }
+
+    @Override
+    public int getTypeId() {
+        return SerializerTypeId.PORTFOLIO.ordinal();
+    }
+
+    @Override
+    public Portfolio read(byte[] buffer) throws IOException {
+        PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);
+
+        return convert(portfolioMsg);
+    }
+
+    @Override
+    public byte[] write(Portfolio portfolio) throws IOException {
+        PortfolioMsg msg = convert(portfolio);
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        portfolioBuilder.build().writeTo(out);
+        msg.writeTo(out);
         return out.toByteArray();
     }
 }

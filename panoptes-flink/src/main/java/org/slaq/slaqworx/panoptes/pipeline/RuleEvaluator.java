@@ -1,13 +1,11 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import java.util.Iterator;
-import java.util.stream.Stream;
 
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
@@ -22,6 +20,10 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
+import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
+import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
+import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
+import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 
@@ -31,8 +33,8 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  *
  * @author jeremy
  */
-public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<PortfolioKey, Portfolio,
-        Security, Tuple4<PortfolioKey, PortfolioKey, Rule, EvaluationResult>> {
+public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<PortfolioKey,
+        PortfolioEvent, Security, RuleEvaluationResult> {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluator.class);
@@ -40,10 +42,11 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
     private static final ValueStateDescriptor<Portfolio> PORTFOLIO_STATE_DESCRIPTOR =
             new ValueStateDescriptor<>("portfolio", Portfolio.class);
 
+    private String portfolioType;
     private transient ValueState<Portfolio> portfolioState;
 
-    protected RuleEvaluator() {
-        // nothing to do
+    protected RuleEvaluator(String portfolioType) {
+        this.portfolioType = portfolioType;
     }
 
     @Override
@@ -53,10 +56,9 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
 
     @Override
     public void processBroadcastElement(Security security,
-            KeyedBroadcastProcessFunction<PortfolioKey, Portfolio, Security,
-                    Tuple4<PortfolioKey, PortfolioKey, Rule, EvaluationResult>>.Context context,
-            Collector<Tuple4<PortfolioKey, PortfolioKey, Rule, EvaluationResult>> out)
-            throws Exception {
+            KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
+                    RuleEvaluationResult>.Context context,
+            Collector<RuleEvaluationResult> out) throws Exception {
         BroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
         securityState.put(security.getKey(), security);
@@ -66,14 +68,28 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
     }
 
     @Override
-    public void processElement(Portfolio portfolio,
-            KeyedBroadcastProcessFunction<PortfolioKey, Portfolio, Security,
-                    Tuple4<PortfolioKey, PortfolioKey, Rule,
-                            EvaluationResult>>.ReadOnlyContext context,
-            Collector<Tuple4<PortfolioKey, PortfolioKey, Rule, EvaluationResult>> out)
-            throws Exception {
-        if (checkPortfolio(portfolio)) {
-            getPortfolioState().update(portfolio);
+    public void processElement(PortfolioEvent portfolioEvent,
+            KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
+                    RuleEvaluationResult>.ReadOnlyContext context,
+            Collector<RuleEvaluationResult> out) throws Exception {
+        boolean isPortfolioProcessable;
+        Portfolio portfolio;
+        if (portfolioEvent instanceof PortfolioCommandEvent) {
+            portfolio = getPortfolioState().value();
+            isPortfolioProcessable = true;
+        } else if (portfolioEvent instanceof PortfolioDataEvent) {
+            portfolio = ((PortfolioDataEvent)portfolioEvent).getPortfolio();
+            isPortfolioProcessable = checkPortfolio(portfolio);
+            if (isPortfolioProcessable) {
+                getPortfolioState().update(portfolio);
+            }
+        } else {
+            // this shouldn't be possible since only the two types of PortfolioEvents exist
+            throw new IllegalArgumentException("don't know how to process PortfolioEvent of type "
+                    + portfolioEvent.getClass());
+        }
+
+        if (isPortfolioProcessable && portfolio != null) {
             ReadOnlyBroadcastState<SecurityKey, Security> securityState =
                     context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
             processPortfolio(out, portfolio, null, securityState);
@@ -94,10 +110,8 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
      * @throws Exception
      *             if an error occurs during processing
      */
-    protected void evaluatePortfolio(
-            Collector<Tuple4<PortfolioKey, PortfolioKey, Rule, EvaluationResult>> out,
-            Portfolio portfolio, ReadOnlyBroadcastState<SecurityKey, Security> securityState)
-            throws Exception {
+    protected void evaluatePortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
+            ReadOnlyBroadcastState<SecurityKey, Security> securityState) throws Exception {
         // this is questionable but there shouldn't be any other portfolios queried
         PortfolioProvider portfolioProvider = (k -> portfolio);
         SecurityProvider securityProvider = (k, context) -> {
@@ -109,17 +123,24 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
             }
         };
 
-        LOG.info("processing portfolio {} (\"{}\")", portfolio.getKey(), portfolio.getName());
+        LOG.info("processing {} {} (\"{}\")", portfolioType, portfolio.getKey(),
+                portfolio.getName());
         getEffectiveRules(portfolio).forEach(rule -> {
-            out.collect(
-                    Tuple4.of(portfolio.getKey(), portfolio.getBenchmarkKey(), rule,
-                            new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
-                                    new EvaluationContext(securityProvider, portfolioProvider))
-                                            .call()));
+            // FIXME get/generate eventId
+            long eventId = System.currentTimeMillis();
+
+            EvaluationResult evaluationResult =
+                    new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
+                            new EvaluationContext(securityProvider, portfolioProvider)).call();
+            // enrich the result with some other essential information
+            RuleEvaluationResult ruleEvaluationResult = new RuleEvaluationResult(eventId,
+                    portfolio.getKey(), portfolio.getBenchmarkKey(), rule.isBenchmarkSupported(),
+                    rule.getLowerLimit(), rule.getUpperLimit(), evaluationResult);
+            out.collect(ruleEvaluationResult);
         });
     }
 
-    protected abstract Stream<Rule> getEffectiveRules(Portfolio portfolio) throws Exception;
+    protected abstract Iterable<Rule> getEffectiveRules(Portfolio portfolio) throws Exception;
 
     protected ValueState<Portfolio> getPortfolioState() {
         return portfolioState;
@@ -141,10 +162,9 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
      * @throws Exception
      *             if an error occurs during processing
      */
-    protected void processPortfolio(
-            Collector<Tuple4<PortfolioKey, PortfolioKey, Rule, EvaluationResult>> out,
-            Portfolio portfolio, Security currentSecurity,
-            ReadOnlyBroadcastState<SecurityKey, Security> securityState) throws Exception {
+    protected void processPortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
+            Security currentSecurity, ReadOnlyBroadcastState<SecurityKey, Security> securityState)
+            throws Exception {
         // determine whether we have all held securities for the portfolio, and whether the current
         // security is in the portfolio
         boolean isComplete = true;

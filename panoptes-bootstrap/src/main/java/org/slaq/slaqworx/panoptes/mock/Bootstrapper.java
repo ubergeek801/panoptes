@@ -20,6 +20,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
 
@@ -95,7 +96,8 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
                 PimcoBenchmarkDataSource.getInstance().getBenchmarkMap();
 
         LOG.info("publishing {} benchmarks", benchmarks.size());
-        benchmarks.forEach((k, b) -> kafkaProducer.publishBenchmark(k, b));
+        benchmarks.forEach(
+                (k, b) -> kafkaProducer.publishBenchmarkEvent(k, new PortfolioDataEvent(b)));
         LOG.info("published benchmarks");
     }
 
@@ -108,7 +110,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     protected void bootstrapPortfolios() throws IOException {
         // generate the portfolios
         LOG.info("generating portfolios");
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(800);
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(600);
         ArrayList<Portfolio> portfolios = new ArrayList<>();
         for (PortfolioKey key : mapLoader.loadAllKeys()) {
             Portfolio portfolio = mapLoader.load(key);
@@ -119,7 +121,8 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
         }
 
         LOG.info("publishing {} portfolios", portfolios.size());
-        portfolios.forEach(p -> kafkaProducer.publishPortfolio(p.getKey(), p));
+        portfolios.forEach(
+                p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
         LOG.info("published portfolios");
     }
 

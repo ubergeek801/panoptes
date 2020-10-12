@@ -30,7 +30,7 @@ public class PortfolioRuleKeySerializer implements ProtobufSerializer<PortfolioR
 
     @Override
     public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_KEY.ordinal();
+        return SerializerTypeId.PORTFOLIO_RULE_KEY.ordinal();
     }
 
     @Override

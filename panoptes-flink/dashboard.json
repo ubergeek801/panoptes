@@ -102,7 +102,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": null,
+          "label": "records in/sec",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -206,7 +206,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": null,
+          "label": "records out/sec",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -298,7 +298,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": null,
+          "label": "records out/sec",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -310,7 +310,7 @@
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -382,21 +382,15 @@
         {
           "expr": "flink_taskmanager_Status_JVM_CPU_Load",
           "interval": "",
-          "legendFormat": "CPU {{host}}",
+          "legendFormat": "{{host}}",
           "refId": "A"
-        },
-        {
-          "expr": "flink_taskmanager_Status_JVM_Memory_Heap_Used",
-          "interval": "",
-          "legendFormat": "heap {{host}}",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Utilization",
+      "title": "CPU Utilization",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -413,7 +407,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": null,
+          "label": "cpu %",
           "logBase": 1,
           "max": "1",
           "min": "0",
@@ -425,7 +419,117 @@
           "logBase": 1,
           "max": null,
           "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "hiddenSeries": false,
+      "id": 9,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "percentage": false,
+      "pluginVersion": "7.1.5",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "heap 10_42_1_142",
+          "yaxis": 2
+        },
+        {
+          "alias": "heap 10_42_3_146",
+          "yaxis": 2
+        },
+        {
+          "alias": "heap 10_42_2_142",
+          "yaxis": 2
+        },
+        {
+          "alias": "heap 10_42_5_145",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "flink_taskmanager_Status_JVM_Memory_Heap_Used",
+          "interval": "",
+          "legendFormat": "{{host}}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Heap Utilization",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "heap used, bytes",
+          "logBase": 1,
+          "max": "2500000000",
+          "min": "0",
           "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
         }
       ],
       "yaxis": {

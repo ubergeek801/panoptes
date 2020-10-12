@@ -64,11 +64,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
         return null;
     }
 
-    /**
-     * Obtains this {@code Rule}'s (possibly {@code null}) lower limit.
-     *
-     * @return the lower limit against which to evaluate
-     */
+    @Override
     public Double getLowerLimit() {
         return lowerLimit;
     }
@@ -95,11 +91,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
         return positionFilter;
     }
 
-    /**
-     * Obtains this {@code Rule}'s (possibly {@code null}) upper limit.
-     *
-     * @return the upper limit against which to evaluate
-     */
+    @Override
     public Double getUpperLimit() {
         return upperLimit;
     }

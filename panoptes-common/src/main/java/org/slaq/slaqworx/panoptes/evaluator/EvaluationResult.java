@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -19,6 +20,7 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  */
 public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
     private final RuleKey ruleKey;
+
     private final Map<EvaluationGroup, ValueResult> results;
     private final Map<EvaluationGroup, ValueResult> proposedResults;
 
@@ -52,6 +54,23 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
         this.ruleKey = ruleKey;
         this.results = results;
         this.proposedResults = (proposedResults == null ? Collections.emptyMap() : proposedResults);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        EvaluationResult other = (EvaluationResult)obj;
+
+        return Objects.equals(proposedResults, other.proposedResults)
+                && Objects.equals(results, other.results) && Objects.equals(ruleKey, other.ruleKey);
     }
 
     @Override
@@ -108,6 +127,11 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
      */
     public RuleKey getRuleKey() {
         return ruleKey;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(proposedResults, results, ruleKey);
     }
 
     /**

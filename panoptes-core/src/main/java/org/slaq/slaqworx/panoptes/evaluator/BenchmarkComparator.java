@@ -5,9 +5,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import org.slaq.slaqworx.panoptes.rule.BenchmarkComparable;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
-import org.slaq.slaqworx.panoptes.rule.LimitRule;
-import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
@@ -26,7 +25,7 @@ public class BenchmarkComparator {
     }
 
     public EvaluationResult compare(EvaluationResult baseResult, EvaluationResult benchmarkResult,
-            Rule rule) {
+            BenchmarkComparable rule) {
         if (benchmarkResult == null) {
             // presume no benchmark used; just use the base result
             return baseResult;
@@ -37,16 +36,8 @@ public class BenchmarkComparator {
             return baseResult;
         }
 
-        Double lowerLimit;
-        Double upperLimit;
-        if (rule instanceof LimitRule) {
-            lowerLimit = ((LimitRule)rule).getLowerLimit();
-            upperLimit = ((LimitRule)rule).getUpperLimit();
-        } else {
-            // limits are not applicable
-            lowerLimit = null;
-            upperLimit = null;
-        }
+        Double lowerLimit = rule.getLowerLimit();
+        Double upperLimit = rule.getUpperLimit();
 
         Map<EvaluationGroup,
                 ValueResult> baseResults = baseResult.getResults().entrySet().stream()

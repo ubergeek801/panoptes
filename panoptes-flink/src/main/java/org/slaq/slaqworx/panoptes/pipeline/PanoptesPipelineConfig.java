@@ -25,21 +25,28 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
+import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
+import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.EvaluationResultSerializationSchema;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationRequestDeserializationSchema;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEventDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.SecurityDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationRequestDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationResultSerializationSchema;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.EvaluationResultKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioEventKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioRuleKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioSummaryKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleEvaluationResultKryoSerializer;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKeyKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKryoSerializer;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
@@ -83,11 +90,11 @@ public class PanoptesPipelineConfig {
      */
     @Singleton
     @Named(BENCHMARK_SOURCE)
-    protected SourceFunction<Portfolio> benchmarkSource() {
+    protected SourceFunction<PortfolioEvent> benchmarkSource() {
         LOG.info("using {} as benchmark topic", benchmarkTopic);
 
-        FlinkKafkaConsumer<Portfolio> consumer = new FlinkKafkaConsumer<>(benchmarkTopic,
-                new PortfolioDeserializationSchema(), kafkaProperties);
+        FlinkKafkaConsumer<PortfolioEvent> consumer = new FlinkKafkaConsumer<>(benchmarkTopic,
+                new PortfolioEventDeserializationSchema(), kafkaProperties);
         consumer.setStartFromEarliest();
 
         return consumer;
@@ -113,14 +120,21 @@ public class PanoptesPipelineConfig {
         // in Flink, Protobuf serialization is supported via custom serializers registered with
         // Flink; we need these for any (top-level) classes passed between Flink operators, classes
         // used in operator state, etc.
+        env.getConfig().registerTypeWithKryoSerializer(EvaluationResult.class,
+                EvaluationResultKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(Portfolio.class,
                 PortfolioKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(PortfolioEvent.class,
+                PortfolioEventKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(PortfolioKey.class,
                 PortfolioKeyKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(PortfolioRuleKey.class,
                 PortfolioRuleKeyKryoSerializer.class);
         env.getConfig().registerTypeWithKryoSerializer(PortfolioSummary.class,
                 PortfolioSummaryKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(RuleEvaluationResult.class,
+                RuleEvaluationResultKryoSerializer.class);
+        env.getConfig().registerTypeWithKryoSerializer(RuleKey.class, RuleKeyKryoSerializer.class);
         // theoretically we should just be able to register a Rule (or maybe ConfigurableRule)
         // serializer, but Flink/Kryo aren't happy unless we register the concrete rule classes
         env.getConfig().registerTypeWithKryoSerializer(ConcentrationRule.class,
@@ -182,11 +196,11 @@ public class PanoptesPipelineConfig {
      */
     @Singleton
     @Named(PORTFOLIO_SOURCE)
-    protected SourceFunction<Portfolio> portfolioSource() {
+    protected SourceFunction<PortfolioEvent> portfolioSource() {
         LOG.info("using {} as portfolio topic", portfolioTopic);
 
-        FlinkKafkaConsumer<Portfolio> consumer = new FlinkKafkaConsumer<>(portfolioTopic,
-                new PortfolioDeserializationSchema(), kafkaProperties);
+        FlinkKafkaConsumer<PortfolioEvent> consumer = new FlinkKafkaConsumer<>(portfolioTopic,
+                new PortfolioEventDeserializationSchema(), kafkaProperties);
         consumer.setStartFromEarliest();
 
         return consumer;
