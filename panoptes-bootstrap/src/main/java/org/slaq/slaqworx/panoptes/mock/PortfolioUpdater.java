@@ -71,7 +71,7 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
     public void updatePortfolios() throws IOException {
         // generate the portfolios
         LOG.info("generating portfolios");
-        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(600);
+        DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(800);
         ArrayList<Portfolio> portfolios = new ArrayList<>();
         for (PortfolioKey key : mapLoader.loadAllKeys()) {
             Portfolio portfolio = mapLoader.load(key);

@@ -106,12 +106,13 @@ public class PanoptesPipeline {
                 .connect(securityStream).process(new BenchmarkRuleEvaluator())
                 .name("benchmarkEvaluator").uid("benchmarkEvaluator");
 
-        // feed the rule evaluation results (keyed by benchmark ID) and benchmark evaluation results
-        // (keyed by portfolio ID which *is* the benchmark ID for a benchmark) into a benchmark
-        // comparator
-        SingleOutputStreamOperator<EvaluationResult> resultStream =
-                portfolioResultStream.keyBy(RuleEvaluationResult::getFlinkSafeBenchmarkKey)
-                        .connect(benchmarkResultStream.keyBy(RuleEvaluationResult::getPortfolioKey))
+        // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark
+        // evaluation results (keyed by portfolio ID, which *is* the benchmark ID for a benchmark, +
+        // rule ID) into a benchmark comparator
+        SingleOutputStreamOperator<RuleEvaluationResult> resultStream =
+                portfolioResultStream.keyBy(RuleEvaluationResult::getBenchmarkEvaluationKey)
+                        .connect(benchmarkResultStream
+                                .keyBy(RuleEvaluationResult::getBenchmarkEvaluationKey))
                         .process(new BenchmarkComparator()).name("benchmarkComparator")
                         .uid("benchmarkComparator");
 

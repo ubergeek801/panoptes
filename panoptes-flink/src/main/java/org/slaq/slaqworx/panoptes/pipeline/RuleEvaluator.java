@@ -76,7 +76,9 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
         Portfolio portfolio;
         if (portfolioEvent instanceof PortfolioCommandEvent) {
             portfolio = getPortfolioState().value();
-            isPortfolioProcessable = true;
+            // process only if the command refers to the keyed portfolio specifically
+            isPortfolioProcessable = (portfolio != null
+                    && portfolio.getPortfolioKey().equals(portfolioEvent.getPortfolioKey()));
         } else if (portfolioEvent instanceof PortfolioDataEvent) {
             portfolio = ((PortfolioDataEvent)portfolioEvent).getPortfolio();
             isPortfolioProcessable = checkPortfolio(portfolio);

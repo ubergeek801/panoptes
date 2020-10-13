@@ -3,13 +3,12 @@ package org.slaq.slaqworx.panoptes.event;
 import java.util.Objects;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.BenchmarkComparable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerializable {
-    public static final PortfolioKey NO_BENCHMARK = new PortfolioKey("NO_BENCHMARK", 1);
-
     private final long eventId;
     private final PortfolioKey portfolioKey;
     private final PortfolioKey benchmarkKey;
@@ -50,6 +49,11 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
                 && Objects.equals(upperLimit, other.upperLimit);
     }
 
+    public PortfolioRuleKey getBenchmarkEvaluationKey() {
+        return new PortfolioRuleKey(benchmarkKey == null ? portfolioKey : benchmarkKey,
+                evaluationResult.getRuleKey());
+    }
+
     public PortfolioKey getBenchmarkKey() {
         return benchmarkKey;
     }
@@ -60,16 +64,6 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
 
     public long getEventId() {
         return eventId;
-    }
-
-    /**
-     * Obtains a benchmark key that is suitable for a Flink stream key, which is not permitted to be
-     * {@code null}.
-     *
-     * @return the benchmark key if not {@code null}, otherwise {@code NO_BENCHMARK}
-     */
-    public PortfolioKey getFlinkSafeBenchmarkKey() {
-        return (benchmarkKey == null ? NO_BENCHMARK : benchmarkKey);
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
@@ -27,17 +28,18 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * @author jeremy
  */
 public class BenchmarkComparatorTest {
-    private KeyedTwoInputStreamOperatorTestHarness<PortfolioKey, RuleEvaluationResult,
-            RuleEvaluationResult, EvaluationResult> harness;
+    private KeyedTwoInputStreamOperatorTestHarness<PortfolioRuleKey, RuleEvaluationResult,
+            RuleEvaluationResult, RuleEvaluationResult> harness;
 
     @BeforeEach
     public void setup() throws Exception {
         BenchmarkComparator comparator = new BenchmarkComparator();
-        KeyedCoProcessOperator<PortfolioKey, RuleEvaluationResult, RuleEvaluationResult,
-                EvaluationResult> comparatorOperator = new KeyedCoProcessOperator<>(comparator);
+        KeyedCoProcessOperator<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
+                RuleEvaluationResult> comparatorOperator = new KeyedCoProcessOperator<>(comparator);
         harness = new KeyedTwoInputStreamOperatorTestHarness<>(comparatorOperator,
-                RuleEvaluationResult::getFlinkSafeBenchmarkKey,
-                RuleEvaluationResult::getPortfolioKey, TypeInformation.of(PortfolioKey.class));
+                RuleEvaluationResult::getBenchmarkEvaluationKey,
+                RuleEvaluationResult::getBenchmarkEvaluationKey,
+                TypeInformation.of(PortfolioRuleKey.class));
         harness.setup();
         harness.open();
     }
@@ -71,12 +73,13 @@ public class BenchmarkComparatorTest {
         harness.processElement2(benchmarkResultInput, 0L);
         harness.processElement1(portfolioResultInput, 1L);
 
-        // actual output type is EvaluationResult
+        // actual output type is RuleEvaluationResult
         Queue<Object> output = harness.getOutput();
 
         Queue<Object> expectedOutput = new LinkedList<>();
-        StreamRecord<EvaluationResult> expectedResult =
-                new StreamRecord<>(new EvaluationResult(ruleKey, portfolioEvaluationResults), 1L);
+        StreamRecord<RuleEvaluationResult> expectedResult =
+                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, benchmarkKey, true, 0d,
+                        5d, new EvaluationResult(ruleKey, portfolioEvaluationResults)), 1L);
         expectedOutput.add(expectedResult);
 
         TestHarnessUtil.assertOutputEquals("actual output did not match expected output",
@@ -109,8 +112,9 @@ public class BenchmarkComparatorTest {
         Queue<Object> output = harness.getOutput();
 
         Queue<Object> expectedOutput = new LinkedList<>();
-        StreamRecord<EvaluationResult> expectedResult =
-                new StreamRecord<>(new EvaluationResult(ruleKey, portfolioEvaluationResults), 0L);
+        StreamRecord<RuleEvaluationResult> expectedResult =
+                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, null, true, 0d, 5d,
+                        new EvaluationResult(ruleKey, portfolioEvaluationResults)), 0L);
         expectedOutput.add(expectedResult);
 
         TestHarnessUtil.assertOutputEquals("actual output did not match expected output",
@@ -150,8 +154,9 @@ public class BenchmarkComparatorTest {
         Queue<Object> output = harness.getOutput();
 
         Queue<Object> expectedOutput = new LinkedList<>();
-        StreamRecord<EvaluationResult> expectedResult =
-                new StreamRecord<>(new EvaluationResult(ruleKey, portfolioEvaluationResults), 1L);
+        StreamRecord<RuleEvaluationResult> expectedResult =
+                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, benchmarkKey, true, 0d,
+                        5d, new EvaluationResult(ruleKey, portfolioEvaluationResults)), 1L);
         expectedOutput.add(expectedResult);
 
         TestHarnessUtil.assertOutputEquals("actual output did not match expected output",
