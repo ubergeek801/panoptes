@@ -24,7 +24,6 @@
             <plugin>
                 <groupId>com.github.os72</groupId>
                 <artifactId>protoc-jar-maven-plugin</artifactId>
-                <!-- this is usually but not always the same as ${protobuf.version} -->
                 <version>3.11.4</version>
                 <executions>
                     <execution>

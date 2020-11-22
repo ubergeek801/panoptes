@@ -27,7 +27,7 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
     private static final Logger LOG = LoggerFactory.getLogger(PortfolioUpdater.class);
 
     /**
-     * Executes the {@code Bootstrapper} application.
+     * Executes the {@code PortfolioUpdater} application.
      *
      * @param args
      *            the program arguments (unused)
@@ -42,7 +42,7 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
     private final KafkaProducer kafkaProducer;
 
     /**
-     * Creates a {@code Bootstrapper} that publishes using the given {@code KafkaProducer}.
+     * Creates a {@code PortfolioUpdater} that publishes using the given {@code KafkaProducer}.
      *
      * @param kafkaProducer
      *            the {@code KafkaProducer} with which to publish events to Kafka
@@ -53,9 +53,9 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
 
     @Override
     public void onApplicationEvent(StartupEvent event) {
-        PortfolioUpdater bootstrapper = event.getSource().getBean(PortfolioUpdater.class);
+        PortfolioUpdater updater = event.getSource().getBean(PortfolioUpdater.class);
         try {
-            bootstrapper.updatePortfolios();
+            updater.updatePortfolios();
         } catch (Exception e) {
             // FIXME throw a better exception
             throw new RuntimeException("could not perform bootstrap", e);

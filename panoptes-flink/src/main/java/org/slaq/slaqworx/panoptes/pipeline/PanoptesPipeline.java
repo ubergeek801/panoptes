@@ -9,6 +9,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
@@ -16,13 +17,14 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
+import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 @Singleton
@@ -47,7 +49,7 @@ public class PanoptesPipeline {
     private final SourceFunction<PortfolioEvaluationRequest> portfolioRequestSource;
     private final SinkFunction<EvaluationResult> portfolioResultSink;
     private final SourceFunction<Security> securityKafkaSource;
-    private final SourceFunction<TradeEvaluationRequest> tradeRequestSource;
+    private final SourceFunction<Trade> tradeKafkaSource;
     private final SinkFunction<TradeEvaluationResult> tradeResultSink;
 
     private final StreamExecutionEnvironment env;
@@ -63,8 +65,7 @@ public class PanoptesPipeline {
                     EvaluationResult> portfolioResultSink,
             @Named(PanoptesPipelineConfig.SECURITY_SOURCE) SourceFunction<
                     Security> securityKafkaSource,
-            @Named(PanoptesPipelineConfig.TRADE_EVALUATION_REQUEST_SOURCE) SourceFunction<
-                    TradeEvaluationRequest> tradeRequestSource,
+            @Named(PanoptesPipelineConfig.TRADE_SOURCE) SourceFunction<Trade> tradeSource,
             @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK) SinkFunction<
                     TradeEvaluationResult> tradeResultSink,
             StreamExecutionEnvironment flinkEnvironment) {
@@ -73,7 +74,7 @@ public class PanoptesPipeline {
         this.portfolioRequestSource = portfolioRequestSource;
         this.portfolioResultSink = portfolioResultSink;
         this.securityKafkaSource = securityKafkaSource;
-        this.tradeRequestSource = tradeRequestSource;
+        tradeKafkaSource = tradeSource;
         this.tradeResultSink = tradeResultSink;
         env = flinkEnvironment;
     }
@@ -89,16 +90,26 @@ public class PanoptesPipeline {
         BroadcastStream<Security> securityStream =
                 securitySource.broadcast(SECURITY_STATE_DESCRIPTOR);
 
-        // obtain portfolios from Kafka and feed into a rule evaluator
+        // obtain trades from Kafka
+        SingleOutputStreamOperator<Trade> tradeSource =
+                env.addSource(tradeKafkaSource).name("tradeSource").uid("tradeSource");
+        // split each trade into its constituent transactions
+        KeyedStream<PortfolioEvent, PortfolioKey> transactionStream =
+                tradeSource.flatMap(new TradeSplitter()).name("tradeTransactions")
+                        .uid("tradeTransactions").keyBy(PortfolioEvent::getPortfolioKey);
+
+        // obtain portfolio (event)s from Kafka, union with transaction events, connect with
+        // securities and feed into a portfolio rule evaluator
         SingleOutputStreamOperator<PortfolioEvent> portfolioSource =
                 env.addSource(portfolioKafkaSource).name("portfolioSource").uid("portfolioSource");
         SingleOutputStreamOperator<RuleEvaluationResult> portfolioResultStream =
-                portfolioSource.keyBy(PortfolioEvent::getPortfolioKey).connect(securityStream)
-                        .process(new PortfolioRuleEvaluator()).name("portfolioEvaluator")
-                        .uid("portfolioEvaluator");
+                portfolioSource.union(transactionStream).keyBy(PortfolioEvent::getPortfolioKey)
+                        .connect(securityStream).process(new PortfolioRuleEvaluator())
+                        .name("portfolioEvaluator").uid("portfolioEvaluator");
 
-        // obtain benchmarks from Kafka, merge them with the portfolio stream, and feed into a
-        // benchmark rule evaluator
+        // obtain benchmarks from Kafka, union them with the portfolio stream, and feed into a
+        // benchmark rule evaluator (this evaluator only evaluates benchmarks, but collects rules
+        // from the non-benchmark portfolios)
         DataStream<PortfolioEvent> benchmarkSource = env.addSource(benchmarkKafkaSource)
                 .name("benchmarkSource").uid("benchmarkSource").union(portfolioSource);
         SingleOutputStreamOperator<RuleEvaluationResult> benchmarkResultStream = benchmarkSource

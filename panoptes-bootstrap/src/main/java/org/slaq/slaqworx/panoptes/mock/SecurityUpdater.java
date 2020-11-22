@@ -25,7 +25,7 @@ public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityUpdater.class);
 
     /**
-     * Executes the {@code Bootstrapper} application.
+     * Executes the {@code SecurityUpdater} application.
      *
      * @param args
      *            the program arguments (unused)
@@ -40,7 +40,7 @@ public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
     private final KafkaProducer kafkaProducer;
 
     /**
-     * Creates a {@code Bootstrapper} that publishes using the given {@code KafkaProducer}.
+     * Creates a {@code SecurityUpdater} that publishes using the given {@code KafkaProducer}.
      *
      * @param kafkaProducer
      *            the {@code KafkaProducer} with which to publish events to Kafka
@@ -51,9 +51,9 @@ public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
 
     @Override
     public void onApplicationEvent(StartupEvent event) {
-        SecurityUpdater bootstrapper = event.getSource().getBean(SecurityUpdater.class);
+        SecurityUpdater updater = event.getSource().getBean(SecurityUpdater.class);
         try {
-            bootstrapper.updateSecurities();
+            updater.updateSecurities();
         } catch (Exception e) {
             // FIXME throw a better exception
             throw new RuntimeException("could not perform bootstrap", e);

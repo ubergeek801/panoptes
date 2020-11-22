@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
+import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
@@ -51,9 +51,9 @@ public interface KafkaProducer {
     @Topic("${kafka-topic.security-topic}")
     public void publishSecurity(@KafkaKey SecurityKey securityKey, Security security);
 
+    @Topic("${kafka-topic.trade-topic}")
+    public void publishTrade(@KafkaKey TradeKey tradeKey, Trade trade);
+
     @Topic("${kafka-topic.trade-result-topic}")
     public void publishTradeResult(@KafkaKey TradeKey tradeKey, TradeEvaluationResult result);
-
-    @Topic("${kafka-topic.trade-request-topic}")
-    public void publisTradeRequest(@KafkaKey TradeKey tradeKey, TradeEvaluationRequest request);
 }

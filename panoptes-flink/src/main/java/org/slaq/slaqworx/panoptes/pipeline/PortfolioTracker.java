@@ -1,12 +1,19 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
+import org.apache.commons.collections.IteratorUtils;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -20,85 +27,68 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
-import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
-import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
- * A process function which collects security and portfolio position data and evaluates portfolio
- * compliance using the portfolio-supplied rules.
+ * A utility for determining whether a tracked portfolio is ready for evaluation (that is, all of
+ * its held securities have been encountered), and for performing the rule evaluations when ready.
  *
  * @author jeremy
  */
-public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<PortfolioKey,
-        PortfolioEvent, Security, RuleEvaluationResult> {
+public class PortfolioTracker implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PortfolioTracker.class);
 
     private static final ValueStateDescriptor<Portfolio> PORTFOLIO_STATE_DESCRIPTOR =
             new ValueStateDescriptor<>("portfolio", Portfolio.class);
 
+    private static final ConcurrentHashMap<PortfolioKey, Boolean> portfolioCompleteState =
+            new ConcurrentHashMap<>();
+
     private String portfolioType;
     private transient ValueState<Portfolio> portfolioState;
 
-    protected RuleEvaluator(String portfolioType) {
+    /**
+     * Creates a new {@code PortfolioTracker} using the given {@code RuntimeContext} to create
+     * process state.
+     *
+     * @param context
+     *            the {@code RuntimeContext} in which to create process state
+     * @param portfolioType
+     *            the type of portfolio (typically "portfolio" or "benchmark") being tracked; used
+     *            only by logging
+     */
+    protected PortfolioTracker(RuntimeContext context, String portfolioType) {
+        portfolioState = context.getState(PORTFOLIO_STATE_DESCRIPTOR);
         this.portfolioType = portfolioType;
     }
 
-    @Override
-    public void open(Configuration config) throws Exception {
-        portfolioState = getRuntimeContext().getState(PORTFOLIO_STATE_DESCRIPTOR);
+    public Portfolio getPortfolio() throws IOException {
+        return portfolioState.value();
     }
 
-    @Override
-    public void processBroadcastElement(Security security,
+    public void trackPortfolio(Portfolio portfolio) throws IOException {
+        portfolioState.update(portfolio);
+    }
+
+    public void trackSecurity(
             KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
                     RuleEvaluationResult>.Context context,
+            Security security, Function<Portfolio, Iterable<Rule>> rules,
             Collector<RuleEvaluationResult> out) throws Exception {
         BroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
         securityState.put(security.getKey(), security);
 
-        context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR, (portfolioKey,
-                state) -> processPortfolio(out, state.value(), security, securityState));
+        context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR, (portfolioKey, state) -> {
+            Portfolio portfolio = state.value();
+            processPortfolio(out, portfolio, security, securityState, rules.apply(portfolio));
+        });
     }
-
-    @Override
-    public void processElement(PortfolioEvent portfolioEvent,
-            KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
-                    RuleEvaluationResult>.ReadOnlyContext context,
-            Collector<RuleEvaluationResult> out) throws Exception {
-        boolean isPortfolioProcessable;
-        Portfolio portfolio;
-        if (portfolioEvent instanceof PortfolioCommandEvent) {
-            portfolio = getPortfolioState().value();
-            // process only if the command refers to the keyed portfolio specifically
-            isPortfolioProcessable = (portfolio != null
-                    && portfolio.getPortfolioKey().equals(portfolioEvent.getPortfolioKey()));
-        } else if (portfolioEvent instanceof PortfolioDataEvent) {
-            portfolio = ((PortfolioDataEvent)portfolioEvent).getPortfolio();
-            isPortfolioProcessable = checkPortfolio(portfolio);
-            if (isPortfolioProcessable) {
-                getPortfolioState().update(portfolio);
-            }
-        } else {
-            // this shouldn't be possible since only the two types of PortfolioEvents exist
-            throw new IllegalArgumentException("don't know how to process PortfolioEvent of type "
-                    + portfolioEvent.getClass());
-        }
-
-        if (isPortfolioProcessable && portfolio != null) {
-            ReadOnlyBroadcastState<SecurityKey, Security> securityState =
-                    context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-            processPortfolio(out, portfolio, null, securityState);
-        }
-    }
-
-    protected abstract boolean checkPortfolio(Portfolio portfolio) throws Exception;
 
     /**
      * Performs a portfolio evaluation and publishes the result.
@@ -109,11 +99,11 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
      *            the portfolio being processed
      * @param securityState
      *            the security information currently held in broadcast state
-     * @throws Exception
-     *             if an error occurs during processing
+     * @param rules
+     *            the rules to be evaluated
      */
     protected void evaluatePortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
-            ReadOnlyBroadcastState<SecurityKey, Security> securityState) throws Exception {
+            ReadOnlyBroadcastState<SecurityKey, Security> securityState, Collection<Rule> rules) {
         // this is questionable but there shouldn't be any other portfolios queried
         PortfolioProvider portfolioProvider = (k -> portfolio);
         SecurityProvider securityProvider = (k, context) -> {
@@ -125,9 +115,9 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
             }
         };
 
-        LOG.info("processing {} {} (\"{}\")", portfolioType, portfolio.getKey(),
-                portfolio.getName());
-        getEffectiveRules(portfolio).forEach(rule -> {
+        LOG.info("processing {} rules for {} {} (\"{}\")", rules.size(), portfolioType,
+                portfolio.getKey(), portfolio.getName());
+        rules.forEach(rule -> {
             // FIXME get/generate eventId
             long eventId = System.currentTimeMillis();
 
@@ -140,12 +130,8 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
                     rule.getLowerLimit(), rule.getUpperLimit(), evaluationResult);
             out.collect(ruleEvaluationResult);
         });
-    }
-
-    protected abstract Iterable<Rule> getEffectiveRules(Portfolio portfolio) throws Exception;
-
-    protected ValueState<Portfolio> getPortfolioState() {
-        return portfolioState;
+        LOG.info("processed {} rules for {} {} (\"{}\")", rules.size(), portfolioType,
+                portfolio.getKey(), portfolio.getName());
     }
 
     /**
@@ -161,34 +147,53 @@ public abstract class RuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
      *            encountered
      * @param securityState
      *            the security information currently held in broadcast state
+     * @param rules
+     *            the rules to be evaluated; if {@code null} or empty, then nothing will be done
      * @throws Exception
      *             if an error occurs during processing
      */
     protected void processPortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
-            Security currentSecurity, ReadOnlyBroadcastState<SecurityKey, Security> securityState)
-            throws Exception {
-        // determine whether we have all held securities for the portfolio, and whether the current
-        // security is in the portfolio
-        boolean isComplete = true;
-        boolean isCurrentSecurityHeld = (currentSecurity == null);
-        Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
-        while (positionIter.hasNext()) {
-            Position position = positionIter.next();
-            if (!securityState.contains(position.getSecurityKey())) {
-                isComplete = false;
-                break;
-            }
-            if (currentSecurity != null
-                    && position.getSecurityKey().equals(currentSecurity.getKey())) {
-                isCurrentSecurityHeld = true;
-            }
-        }
-        if (!isComplete || !isCurrentSecurityHeld) {
-            // we are either not ready or not affected
+            Security currentSecurity, ReadOnlyBroadcastState<SecurityKey, Security> securityState,
+            Iterable<Rule> rules) throws Exception {
+        // if there are no rules to be evaluated, then don't bother
+        List<Rule> ruleCollection = IteratorUtils.toList(rules.iterator());
+        if (ruleCollection.isEmpty()) {
             return;
         }
 
+        boolean needSecurityHeld = (currentSecurity != null);
+        boolean needPortfolioComplete =
+                (!Boolean.TRUE.equals(portfolioCompleteState.get(portfolio.getKey())));
+
+        if (needSecurityHeld || needPortfolioComplete) {
+            // determine whether we have all held securities for the portfolio, and whether the
+            // current security is in the portfolio
+            boolean isComplete = true;
+            boolean isCurrentSecurityHeld = (currentSecurity == null);
+            Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
+            while (positionIter.hasNext()) {
+                Position position = positionIter.next();
+                if (!securityState.contains(position.getSecurityKey())) {
+                    isComplete = false;
+                    break;
+                }
+                if (currentSecurity != null
+                        && position.getSecurityKey().equals(currentSecurity.getKey())) {
+                    isCurrentSecurityHeld = true;
+                }
+            }
+
+            if (isComplete) {
+                portfolioCompleteState.put(portfolio.getKey(), true);
+            }
+
+            if (!isComplete || !isCurrentSecurityHeld) {
+                // we are either not ready or not affected
+                return;
+            }
+        }
+
         // portfolio is ready for evaluation; proceed
-        evaluatePortfolio(out, portfolio, securityState);
+        evaluatePortfolio(out, portfolio, securityState, ruleCollection);
     }
 }

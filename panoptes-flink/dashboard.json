@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -79,6 +79,18 @@
           "interval": "",
           "legendFormat": "securities",
           "refId": "C"
+        },
+        {
+          "expr": "sum(flink_taskmanager_job_task_operator_numRecordsOutPerSecond{operator_name=\"Source:_tradeSource\"})",
+          "interval": "",
+          "legendFormat": "trades",
+          "refId": "D"
+        },
+        {
+          "expr": "sum(flink_taskmanager_job_task_operator_numRecordsOutPerSecond{operator_name=\"tradeTransactions\"})",
+          "interval": "",
+          "legendFormat": "transactions",
+          "refId": "E"
         }
       ],
       "thresholds": [],
@@ -564,6 +576,6 @@
   },
   "timezone": "",
   "title": "Panoptes Monitoring",
-  "uid": null,
-  "version": 0
+  "uid": "v-ow5woMz",
+  "version": 2
 }

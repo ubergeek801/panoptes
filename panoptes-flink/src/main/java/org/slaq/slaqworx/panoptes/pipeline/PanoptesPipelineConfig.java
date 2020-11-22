@@ -31,7 +31,7 @@ import org.slaq.slaqworx.panoptes.pipeline.serializer.EvaluationResultSerializat
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEvaluationRequestDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEventDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.SecurityDeserializationSchema;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationRequestDeserializationSchema;
+import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationResultSerializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.EvaluationResultKryoSerializer;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioEventKryoSerializer;
@@ -48,7 +48,7 @@ import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
+import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 @Factory
@@ -61,7 +61,7 @@ public class PanoptesPipelineConfig {
             "portfolioEvaluationRequestSource";
     public static final String PORTFOLIO_EVALUATION_RESULT_SINK = "portfolioEvaluationResultSink";
     public static final String SECURITY_SOURCE = "securitySource";
-    public static final String TRADE_EVALUATION_REQUEST_SOURCE = "tradeEvaluationRequestSource";
+    public static final String TRADE_SOURCE = "tradeSource";
     public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
 
     @Property(name = "kafka") private Properties kafkaProperties;
@@ -72,7 +72,7 @@ public class PanoptesPipelineConfig {
     @Property(
             name = "kafka-topic.portfolio-result-topic") private String portfolioEvaluationResultTopic;
     @Property(name = "kafka-topic.security-topic") private String securityTopic;
-    @Property(name = "kafka-topic.trade-request-topic") private String tradeEvaluationRequestTopic;
+    @Property(name = "kafka-topic.trade-topic") private String tradeTopic;
     @Property(name = "kafka-topic.trade-result-topic") private String tradeEvaluationResultTopic;
 
     /**
@@ -181,7 +181,7 @@ public class PanoptesPipelineConfig {
         LOG.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
 
         FlinkKafkaProducer<EvaluationResult> producer =
-                new FlinkKafkaProducer<>(tradeEvaluationResultTopic,
+                new FlinkKafkaProducer<>(portfolioEvaluationResultTopic,
                         new EvaluationResultSerializationSchema(portfolioEvaluationResultTopic),
                         kafkaProperties, Semantic.AT_LEAST_ONCE);
         producer.setWriteTimestampToKafka(true);
@@ -224,24 +224,6 @@ public class PanoptesPipelineConfig {
     }
 
     /**
-     * Configures and provides a {@code SourceFunction} to source trade evaluation requests from
-     * Kafka.
-     *
-     * @return a {@code SourceFunction}
-     */
-    @Singleton
-    @Named(TRADE_EVALUATION_REQUEST_SOURCE)
-    protected SourceFunction<TradeEvaluationRequest> tradeEvaluationRequestSource() {
-        LOG.info("using {} as tradeEvaluationRequest topic", tradeEvaluationRequestTopic);
-
-        FlinkKafkaConsumer<TradeEvaluationRequest> consumer =
-                new FlinkKafkaConsumer<>(tradeEvaluationRequestTopic,
-                        new TradeEvaluationRequestDeserializationSchema(), kafkaProperties);
-
-        return consumer;
-    }
-
-    /**
      * Configures and provides a {@code SinkFunction} to publish trade evaluation results to Kafka.
      *
      * @return a {@code SinkFunction}
@@ -258,5 +240,21 @@ public class PanoptesPipelineConfig {
         producer.setWriteTimestampToKafka(true);
 
         return producer;
+    }
+
+    /**
+     * Configures and provides a {@code SourceFunction} to source trades from Kafka.
+     *
+     * @return a {@code SourceFunction}
+     */
+    @Singleton
+    @Named(TRADE_SOURCE)
+    protected SourceFunction<Trade> tradeSource() {
+        LOG.info("using {} as trade topic", tradeTopic);
+
+        FlinkKafkaConsumer<Trade> consumer = new FlinkKafkaConsumer<>(tradeTopic,
+                new TradeDeserializationSchema(), kafkaProperties);
+
+        return consumer;
     }
 }
