@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.trade.TransactionKey;
 
 /**
- * {@code TransactionSerializer} (de)serializes the state of a {@code Transaction} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Transaction}.
  *
  * @author jeremy
  */
@@ -73,8 +73,7 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
         PortfolioKey portfolioKey =
                 new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
         List<TaxLot> allocations = transactionMsg.getPositionList().stream()
-                .map(positionMsg -> PositionSerializer.convertTaxLot(positionMsg))
-                .collect(Collectors.toList());
+                .map(PositionSerializer::convertTaxLot).collect(Collectors.toList());
 
         return new Transaction(transactionKey, portfolioKey, allocations);
     }

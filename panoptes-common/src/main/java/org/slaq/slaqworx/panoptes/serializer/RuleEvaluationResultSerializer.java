@@ -12,7 +12,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg;
 
 /**
- * A (de)serializer for the state of a {@code RuleEvaluationResult} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code RuleEvaluationResult}.
  *
  * @author jeremy
  */

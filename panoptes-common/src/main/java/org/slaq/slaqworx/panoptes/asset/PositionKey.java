@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code PositionKey} is a key used to reference {@code Position}s.
+ * A key used to reference {@code Position}s.
  *
  * @author jeremy
  */

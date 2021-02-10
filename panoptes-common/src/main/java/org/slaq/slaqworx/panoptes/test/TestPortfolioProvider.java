@@ -11,7 +11,7 @@ import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 
 /**
- * {@code TestPortfolioProvider} is a {@code PortfolioProvider} suitable for testing purposes.
+ * A {@code PortfolioProvider} suitable for testing purposes.
  *
  * @author jeremy
  */

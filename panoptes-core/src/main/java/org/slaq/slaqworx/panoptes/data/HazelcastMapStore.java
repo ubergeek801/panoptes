@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code HazelcastMapStore} is a partial implementation of a {@code MapStore} which provides
- * efficient implementations for {@code loadAll()} and {@code storeAll()} (using SQL {@code IN}
- * clauses for the former and JDBC batching for the latter).
+ * A partial implementation of a {@code MapStore} which provides efficient implementations for
+ * {@code loadAll()} and {@code storeAll()} (using SQL {@code IN} clauses for the former and JDBC
+ * batching for the latter).
  *
  * @author jeremy
  * @param <K>
@@ -57,7 +57,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     @Override
     @Transactional
     public void deleteAll(Collection<K> keys) {
-        keys.forEach(k -> delete(k));
+        keys.forEach(this::delete);
     }
 
     @Override

@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * {@code RuleSerializer} (de)serializes the state of a {@code Rule} (actually a
- * {@code ConfigurableRule} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Rule} (actually a
+ * {@code ConfigurableRule}.
  * <p>
  * Note that in order for deserialization to work, the {@code Rule} class must define the static
  * method:

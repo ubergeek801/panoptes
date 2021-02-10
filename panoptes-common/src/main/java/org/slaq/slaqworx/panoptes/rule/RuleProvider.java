@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 /**
- * {@code RuleProvider} is the interface for a service that provides access to {@code Rule} data.
+ * The interface for a service that provides access to {@code Rule} data.
  *
  * @author jeremy
  */

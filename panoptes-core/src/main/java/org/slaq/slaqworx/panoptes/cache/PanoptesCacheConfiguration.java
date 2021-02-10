@@ -28,8 +28,7 @@ import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * {@code PanoptesCacheConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
- * related to the Hazelcast cache.
+ * AMicronaut {@code Factory} that provides {@code Bean}s related to the Hazelcast cache.
  *
  * @author jeremy
  */

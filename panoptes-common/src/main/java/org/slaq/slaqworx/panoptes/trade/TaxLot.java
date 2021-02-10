@@ -5,9 +5,9 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
- * A {@code TaxLot} is a {@code Position} that arises from posting a {@code Trade} against a
- * {@code Portfolio}. A {@code Portfolio}'s {@code Position}s are in fact aggregations of
- * {@code TaxLot}s (see {@code PortfolioPosition}.
+ * A {@code Position} that arises from posting a {@code Trade} against a {@code Portfolio}. A
+ * {@code Portfolio}'s {@code Position}s are in fact aggregations of {@code TaxLot}s (see
+ * {@code PortfolioPosition}.
  * <p>
  * Note that a {@code TaxLot} is always associated with a {@code Trade}, but since {@code TaxLot}s
  * are supplied to a {@code Trade} at construction time, the relationship must be set during this

@@ -10,9 +10,20 @@ import com.esotericsoftware.kryo.io.Output;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
+/**
+ * A convenient base class for implementing a Kryo {@code Serializer} (for Flink compatibility)
+ * using Protobuf.
+ *
+ * @author jeremy
+ * @param <T>
+ *            the type to be serialized
+ */
 public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> extends Serializer<T> {
     private ProtobufSerializer<T> serializer;
 
+    /**
+     * Creates a new {@code ProtobufKryoSerializer}.
+     */
     protected ProtobufKryoSerializer() {
         // nothing to do
     }
@@ -42,8 +53,19 @@ public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> ext
         }
     }
 
+    /**
+     * Creates a {@code ProtobufSerializer} instance appropriate for the handled type.
+     *
+     * @return a {@code ProtobufSerializer}
+     */
     protected abstract ProtobufSerializer<T> createProtobufSerializer();
 
+    /**
+     * Obtains the singleton {@code ProtobufSerializer}, creating it if necessary using
+     * {@code createProtobufSerializer()}.
+     *
+     * @return a {@code ProtobufSerializer}
+     */
     protected final ProtobufSerializer<T> getProtobufSerializer() {
         if (serializer == null) {
             serializer = createProtobufSerializer();

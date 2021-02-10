@@ -16,9 +16,8 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * {@code GroovyPositionFilter} is a {@code Position}-based {@code Predicate} that can be used as a
- * {@code Position} filter for {@code Rule} evaluation. Currently it is the only such filter that
- * can be persisted.
+ * A {@code Position}-based {@code Predicate} that can be used as a {@code Position} filter for
+ * {@code Rule} evaluation. Currently it is the only such filter that can be persisted.
  *
  * @author jeremy
  */

@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A {@code ConcentrationRule} stipulates limits on {@code Portfolio} concentration in
+ * A {@code LimitRule} which stipulates limits on {@code Portfolio} concentration in
  * {@code Security} holdings matched by a given {@code Position} filter, either in absolute terms or
  * relative to a benchmark. Examples of absolute rules include:
  * <ul>

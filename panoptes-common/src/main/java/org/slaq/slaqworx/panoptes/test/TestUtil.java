@@ -19,7 +19,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * {@code TestUtil} provides common utilities to support Panoptes testing.
+ * Provides common utilities to support Panoptes testing.
  *
  * @author jeremy
  */

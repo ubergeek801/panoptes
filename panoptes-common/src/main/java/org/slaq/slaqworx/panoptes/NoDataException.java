@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes;
 
 /**
- * {@code NoDataException} indicates an exceptional circumstance in which the data required to
- * perform an evaluation was not available.
+ * Indicates an exceptional circumstance in which the data required to perform an evaluation was not
+ * available.
  *
  * @author jeremy
  */

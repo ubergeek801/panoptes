@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code TradeSerializer} (de)serializes the state of a {@code Trade} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Trade}.
  *
  * @author jeremy
  */
@@ -51,9 +51,9 @@ public class TradeSerializer implements ProtobufSerializer<Trade> {
         DateMsg settlementDateMsg = tradeMsg.getSettlementDate();
         LocalDate settlementDate = LocalDate.of(settlementDateMsg.getYear(),
                 settlementDateMsg.getMonth(), settlementDateMsg.getDay());
-        Map<PortfolioKey, Transaction> transactions = tradeMsg.getTransactionList().stream()
-                .map(transactionMsg -> TransactionSerializer.convert(transactionMsg))
-                .collect(Collectors.toMap(t -> t.getPortfolioKey(), t -> t));
+        Map<PortfolioKey, Transaction> transactions =
+                tradeMsg.getTransactionList().stream().map(TransactionSerializer::convert)
+                        .collect(Collectors.toMap(Transaction::getPortfolioKey, t -> t));
         return new Trade(tradeKey, tradeDate, settlementDate, transactions);
     }
 

@@ -26,8 +26,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code LocalTradeEvaluator} is a {@code TradeEvaluator} which performs processing on the local
- * node.
+ * A {@code TradeEvaluator} which performs processing on the local node.
  *
  * @author jeremy
  */

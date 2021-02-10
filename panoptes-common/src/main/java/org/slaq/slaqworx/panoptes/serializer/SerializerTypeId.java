@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
 /**
- * {@code SerializerTypeId} enumerates the type IDs used by Hazelcast serializers.
+ * Enumerates the type IDs used by Hazelcast serializers.
  *
  * @author jeremy
  */

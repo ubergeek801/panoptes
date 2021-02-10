@@ -9,8 +9,8 @@ import io.micronaut.context.env.Environment;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 
 /**
- * {@code MockSecurityAttributeLoader} is a {@code SecurityAttributeLoader} that does nothing
- * (leaving the default {@code SecurityAttribute}s in place).
+ * A {@code SecurityAttributeLoader} that does nothing (leaving the default
+ * {@code SecurityAttribute}s in place).
  *
  * @author jeremy
  */

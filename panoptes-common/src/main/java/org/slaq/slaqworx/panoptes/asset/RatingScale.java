@@ -7,9 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * A {@code RatingScale} encapsulates an ordered list of {@code RatingNotch}es which are used by a
- * particular rater, and provides operations to convert between numeric and symbolic ratings within
- * the scale.
+ * Encapsulates an ordered list of {@code RatingNotch}es which are used by a particular rater, and
+ * provides operations to convert between numeric and symbolic ratings within the scale.
  *
  * @author jeremy
  */

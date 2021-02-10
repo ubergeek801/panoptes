@@ -44,7 +44,7 @@ public class PortfolioRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
             KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
                     RuleEvaluationResult>.Context context,
             Collector<RuleEvaluationResult> out) throws Exception {
-        portfolioTracker.trackSecurity(context, security, (p -> p.getRules()::iterator), out);
+        portfolioTracker.applySecurity(context, security, (p -> p.getRules()::iterator), out);
     }
 
     @Override

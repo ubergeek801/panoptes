@@ -11,8 +11,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.util.SerializablePredicate;
 
 /**
- * {@code SecurityFilter} is a Hazelcast {@code Predicate} that supports querying {@code Security}
- * entities based on various attribute values.
+ * A Hazelcast {@code Predicate} that supports querying {@code Security} entities based on various
+ * attribute values.
  *
  * @author jeremy
  */

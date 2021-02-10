@@ -11,8 +11,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 
 /**
- * {@code RuleSummarizer} is a Hazelcast {@code EntryProcessor} that produces a {@code RuleSummary}
- * projection for a given {@code Rule}.
+ * A Hazelcast {@code EntryProcessor} that produces a {@code RuleSummary} projection for a given
+ * {@code Rule}.
  *
  * @author jeremy
  */

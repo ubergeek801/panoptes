@@ -7,8 +7,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * {@code PositionCalculator} is the parent of classes which perform calculations on
- * {@code Position}s, typically to be employed in the implementation of {@code Rule}s.
+ * The parent of classes which perform calculations on {@code Position}s, typically to be employed
+ * in the implementation of {@code Rule}s.
  *
  * @author jeremy
  * @param <T>

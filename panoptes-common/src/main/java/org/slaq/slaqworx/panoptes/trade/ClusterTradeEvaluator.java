@@ -12,8 +12,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.util.CompletableFutureAdapter;
 
 /**
- * {@code ClusterTradeEvaluator} is a {@code TradeEvaluator} which delegates processing to the
- * cluster.
+ * A {@code TradeEvaluator} which delegates processing to the cluster.
  *
  * @author jeremy
  */

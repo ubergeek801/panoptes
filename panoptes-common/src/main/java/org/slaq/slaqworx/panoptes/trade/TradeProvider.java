@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 /**
- * {@code TradeProvider} is the interface for a service that provides access to {@code Trade} data.
+ * The interface for a service that provides access to {@code Trade} data.
  *
  * @author jeremy
  */

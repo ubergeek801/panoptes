@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 
 /**
- * A {@code SecurityAttribute} identifies a particular attribute of a {@code Security}. Implements
- * {@code Serializable} for convenience of implementing cluster-friendly {@code Security} filters.
+ * Identifies a particular attribute of a {@code Security}. Implements {@code Serializable} for
+ * convenience of implementing cluster-friendly {@code Security} filters.
  *
  * @author jeremy
  * @param <T>
@@ -569,8 +569,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
      */
     public static <T> SecurityAttribute<T> of(String name, int index, Class<T> type,
             ValueProvider<T> valueProvider) {
-        @SuppressWarnings("unchecked")
-        SecurityAttribute<T> attribute =
+        @SuppressWarnings("unchecked") SecurityAttribute<T> attribute =
                 (SecurityAttribute<T>)attributesByName.computeIfAbsent(name,
                         n -> new SecurityAttribute<>(name, index, type, valueProvider));
         attributesByIndex.put(index, attribute);

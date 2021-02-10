@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A {@code Portfolio} is a set of {@code Position}s held by some entity, which may be (for example)
- * a customer account, a hypothetical model, or something more abstract such as a benchmark.
+ * A set of {@code Position}s held by some entity, which may be (for example) a customer account, a
+ * hypothetical model, or something more abstract such as a benchmark.
  *
  * @author jeremy
  */

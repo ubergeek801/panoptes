@@ -11,9 +11,9 @@ import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A {@code WeightedAverageRule} stipulates limits on a calculated value, based on its weighted
- * average within a {@code Portfolio}'s composition, either in absolute terms or relative to a
- * benchmark. Examples of absolute rules include:
+ * A {@code LimitRule} which stipulates limits on a calculated value, based on its weighted average
+ * within a {@code Portfolio}'s composition, either in absolute terms or relative to a benchmark.
+ * Examples of absolute rules include:
  * <ul>
  * <li>the weighted average of a {@code Portfolio}'s duration may not exceed 5.0
  * </ul>
@@ -68,11 +68,11 @@ public class WeightedAverageRule<T> extends LimitRule {
 
         SecurityAttribute<?> calculationAttribute = SecurityAttribute.of(configuration.attribute);
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        WeightedAverageRule<?> rule = new WeightedAverageRule(key, description,
-                (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
-                calculationAttribute, configuration.lowerLimit, configuration.upperLimit,
-                groupClassifier);
+        @SuppressWarnings({ "rawtypes", "unchecked" }) WeightedAverageRule<?> rule =
+                new WeightedAverageRule(key, description,
+                        (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
+                        calculationAttribute, configuration.lowerLimit, configuration.upperLimit,
+                        groupClassifier);
         return rule;
     }
 

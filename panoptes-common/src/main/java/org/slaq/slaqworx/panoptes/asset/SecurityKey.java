@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code SecurityKey} is a key used to reference {@code Security} entities.
+ * A key used to reference {@code Security} entities.
  *
  * @author jeremy
  */

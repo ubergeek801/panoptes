@@ -15,9 +15,8 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code TradeEvaluationResult} encapsulates the results of a {@code Trade} evaluation. For a given
- * {@code Portfolio} and {@code Rule}, impacts on the proposed {@code Trade} are recorded by
- * {@code EvaluationGroup}.
+ * Encapsulates the results of a {@code Trade} evaluation. For a given {@code Portfolio} and
+ * {@code Rule}, impacts on the proposed {@code Trade} are recorded by {@code EvaluationGroup}.
  *
  * @author jeremy
  */

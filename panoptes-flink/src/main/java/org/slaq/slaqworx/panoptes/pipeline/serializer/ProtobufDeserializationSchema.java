@@ -10,6 +10,14 @@ import org.slaq.slaqworx.panoptes.pipeline.PanoptesApp;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
+/**
+ * A convenient base class for implementing {@code KafkaDeserializationSchema}e that delegate to a
+ * {@code ProtobufSerializer}.
+ *
+ * @author jeremy
+ * @param <T>
+ *            the type to be deserialized
+ */
 public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializable>
         implements KafkaDeserializationSchema<T>, Provider<AssetCache> {
     private static final long serialVersionUID = 1L;
@@ -17,6 +25,9 @@ public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializab
     private transient AssetCache assetCache;
     private transient ProtobufSerializer<T> serializer;
 
+    /**
+     * Creates a new {@code ProtobufDeserializationSchema}.
+     */
     protected ProtobufDeserializationSchema() {
         // nothing to do
     }
@@ -40,8 +51,19 @@ public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializab
         return false;
     }
 
+    /**
+     * Creates a {@code ProtobufSerializer} instance appropriate for the handled type.
+     *
+     * @return a {@code ProtobufSerializer}
+     */
     protected abstract ProtobufSerializer<T> createSerializer();
 
+    /**
+     * Obtains the singleton {@code ProtobufSerializer}, creating it if necessary using
+     * {@code createProtobufSerializer()}.
+     *
+     * @return a {@code ProtobufSerializer}
+     */
     protected final ProtobufSerializer<T> getSerializer() {
         if (serializer == null) {
             serializer = createSerializer();

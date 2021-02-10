@@ -6,10 +6,10 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A {@code Rule} is a testable assertion against a set of {@code Position}s (typically supplied by
- * a {@code Portfolio}). A collection of {@code Rule}s is typically used to assure compliance with
- * the investment guidelines of a customer account. A {@code Rule} may be durable (e.g. sourced from
- * a database/cache) or ephemeral (e.g. supplied by a simulation mechanism or even a unit test).
+ * A testable assertion against a set of {@code Position}s (typically supplied by a
+ * {@code Portfolio}). A collection of {@code Rule}s is typically used to assure compliance with the
+ * investment guidelines of a customer account. A {@code Rule} may be durable (e.g. sourced from a
+ * database/cache) or ephemeral (e.g. supplied by a simulation mechanism or even a unit test).
  * <p>
  * In general, the calculations and results of {@code Rule} evaluation can be grouped as specified
  * by an {@code EvaluationGroupClassifier}; for example, results may be grouped by {@code Security}

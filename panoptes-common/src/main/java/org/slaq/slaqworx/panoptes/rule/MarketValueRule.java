@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A {@code MarketValueRule} stipulates absolute limits on the market value of a {@code Portfolio}'s
+ * A {@code LimitRule} which stipulates absolute limits on the market value of a {@code Portfolio}'s
  * composition. Practically speaking, there aren't many uses for this, but one important use is
  * that, combined with a filter and a zero upper limit, such a {@code Rule} can impose eligibility
  * requirements. As such, the {@code Portfolio}'s benchmark is never considered.

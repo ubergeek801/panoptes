@@ -8,10 +8,10 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A {@code Security} is an investable instrument. Unlike most other asset-related entities, a
- * {@code Security} is implicitly "versioned" by hashing its attributes: the resulting hash is used
- * as an alternate key. Thus when a {@code Security} changes (due to a change in some analytic field
- * such as yield or rating), the new version will use a different hash as the alternate key.
+ * An investable instrument. Unlike most other asset-related entities, a {@code Security} is
+ * implicitly "versioned" by hashing its attributes: the resulting hash is used as an alternate key.
+ * Thus when a {@code Security} changes (due to a change in some analytic field such as yield or
+ * rating), the new version will use a different hash as the alternate key.
  * <p>
  * In order to support hypothetical scenarios, the value of any {@code SecurityAttribute} may be
  * overridden in an {@code EvaluationContext}. The attribute value with overrides considered is
@@ -133,8 +133,8 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
      *             if the attribute value is not assigned and {@code isRequired} is {@code true}
      */
     public <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired) {
-        @SuppressWarnings("unchecked")
-        T value = (T)getAttributeValue(attribute.getIndex(), isRequired);
+        @SuppressWarnings("unchecked") T value =
+                (T)getAttributeValue(attribute.getIndex(), isRequired);
 
         return value;
     }
@@ -202,8 +202,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
      */
     public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
             EvaluationContext evaluationContext) {
-        @SuppressWarnings("unchecked")
-        T value =
+        @SuppressWarnings("unchecked") T value =
                 (T)getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
 
         return value;

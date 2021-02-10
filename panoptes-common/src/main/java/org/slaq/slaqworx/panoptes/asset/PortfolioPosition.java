@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * A {@code PortfolioPosition} is a {@code Position} that is held by a {@code Portfolio} and, as
- * such, is an aggregate of {@code TaxLot}s.
+ * A {@code Position} that is held by a {@code Portfolio} and, as such, is an aggregate of
+ * {@code TaxLot}s.
  *
  * @author jeremy
  */
@@ -25,7 +25,7 @@ public class PortfolioPosition extends AbstractPosition {
      */
     public PortfolioPosition(Collection<TaxLot> taxLots) {
         this.taxLots = new ArrayList<>(taxLots);
-        amount = this.taxLots.stream().collect(Collectors.summingDouble(t -> t.getAmount()));
+        amount = this.taxLots.stream().collect(Collectors.summingDouble(TaxLot::getAmount));
     }
 
     @Override

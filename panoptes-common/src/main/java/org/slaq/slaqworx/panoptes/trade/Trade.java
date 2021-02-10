@@ -9,9 +9,8 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A {@code Trade} is an aggregate of {@code Transaction}s that modify one or more
- * {@code Portfolio}s by altering (increasing or decreasing) the net position of one or more
- * {@code Security} holdings.
+ * An aggregate of {@code Transaction}s that modify one or more {@code Portfolio}s by altering
+ * (increasing or decreasing) the net position of one or more {@code Security} holdings.
  *
  * @author jeremy
  */

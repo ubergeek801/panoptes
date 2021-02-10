@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A {@code RatingNotch} describes an individual step of a {@code RatingScale}.
+ * Describes an individual step of a {@code RatingScale}.
  *
  * @author jeremy
  */

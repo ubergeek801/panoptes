@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextM
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A utility for(de)serializing the state of a {@code PortfolioSummarizer} using Protobuf.
+ * A {@code ProtobufSerializer} which for(de)serializes the state of a {@code PortfolioSummarizer}.
  *
  * @author jeremy
  */

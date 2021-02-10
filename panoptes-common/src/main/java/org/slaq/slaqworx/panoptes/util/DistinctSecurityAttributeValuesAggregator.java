@@ -12,9 +12,9 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
- * {@code DistinctSecurityAttributeValuesAggregator}, in addition to being a solid entry in the
- * Impractically Long Class Names Competition, is an {@code Aggregator} that extracts the distinct
- * non-{@code null} values of a specified {@code SecurityAttribute}.
+ * An {@code Aggregator} which extracts the distinct non-{@code null} values of a specified
+ * {@code SecurityAttribute}, as well as a solid entry in the Impractically Long Class Names
+ * Competition.
  *
  * @author jeremy
  * @param <T>
@@ -41,8 +41,8 @@ public class DistinctSecurityAttributeValuesAggregator<T>
 
     @Override
     public void accumulate(Entry<SecurityKey, Security> input) {
-        @SuppressWarnings("unchecked")
-        T value = (T)input.getValue().getAttributeValue(SecurityAttribute.of(attributeName), false);
+        @SuppressWarnings("unchecked") T value =
+                (T)input.getValue().getAttributeValue(SecurityAttribute.of(attributeName), false);
         if (value != null) {
             distinctValues.add(value);
         }

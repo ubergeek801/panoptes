@@ -10,13 +10,13 @@ import org.slaq.slaqworx.panoptes.cache.RuleSummarizer;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
-import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 
 /**
- * {@code PortfolioRuleResultAdapter} adapts {@code Portfolio}-level results to a tabular
- * representation. Its children are typically {@code GroupResultAdapter}s.
+ * Adapts {@code Portfolio}-level results to a tabular representation. Its children are typically
+ * {@code GroupResultAdapter}s.
  *
  * @author jeremy
  */

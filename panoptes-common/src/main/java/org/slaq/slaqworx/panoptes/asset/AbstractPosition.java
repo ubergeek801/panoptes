@@ -1,9 +1,9 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * {@code AbstractPosition} is a partial implementation of {@code Position} which provides
- * {@code equals()} and {@code hashCode()} semantics based on the {@code Position}'s key.
- * 
+ * A partial implementation of {@code Position} which provides {@code equals()} and
+ * {@code hashCode()} semantics based on the {@code Position}'s key.
+ *
  * @author jeremy
  */
 public abstract class AbstractPosition implements Position {

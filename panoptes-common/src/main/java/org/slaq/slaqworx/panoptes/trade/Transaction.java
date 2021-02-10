@@ -10,9 +10,9 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A {@code Transaction} is a component of a {@code Trade} which modifies a single {@code Portfolio}
- * by altering (increasing or decreasing) the net position of one or more of its {@code Security}
- * holdings. The {@code Positions} of a {@code Trade} are also known as allocations.
+ * A component of a {@code Trade} which modifies a single {@code Portfolio} by altering (increasing
+ * or decreasing) the net position of one or more of its {@code Security} holdings. The
+ * {@code Positions} of a {@code Trade} are also known as allocations.
  *
  * @author jeremy
  */

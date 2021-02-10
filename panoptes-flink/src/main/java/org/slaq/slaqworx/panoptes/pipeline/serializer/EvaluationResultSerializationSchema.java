@@ -16,4 +16,10 @@ public class EvaluationResultSerializationSchema
     protected ProtobufSerializer<EvaluationResult> createSerializer() {
         return new EvaluationResultSerializer();
     }
+
+    @Override
+    protected byte[] serializeKey(EvaluationResult result) {
+        // not currently needed
+        return null;
+    }
 }

@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * {@code WeightedAveragePositionCalculator} is a {@code PositionCalculator} that determines the
- * weighted average of a {@code Position} collection with respect to some {@code SecurityAttribute}.
+ * A {@code PositionCalculator} that determines the weighted average of a {@code Position}
+ * collection with respect to some {@code SecurityAttribute}.
  *
  * @author jeremy
  * @param <T>

@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * {@code PositionSerializer} (de)serializes the state of a {@code Position} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Position}.
  *
  * @author jeremy
  */

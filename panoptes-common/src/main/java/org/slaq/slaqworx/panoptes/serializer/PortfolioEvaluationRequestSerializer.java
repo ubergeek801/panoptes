@@ -19,8 +19,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code PortfolioEvaluationRequestSerializer} (de)serializes the state of a
- * {@code PortfolioEvaluationRequest} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a
+ * {@code PortfolioEvaluationRequest}.
  *
  * @author jeremy
  */

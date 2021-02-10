@@ -8,9 +8,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A {@code TradeEvaluator} determines the impact of {@code Trade}s on {@code Portfolio}s by
- * evaluating and comparing the {@code Portfolio}'s current (pre-trade) and proposed (post-trade)
- * states.
+ * Determines the impact of {@code Trade}s on {@code Portfolio}s by evaluating and comparing the
+ * {@code Portfolio}'s current (pre-trade) and proposed (post-trade) states.
  *
  * @author jeremy
  */

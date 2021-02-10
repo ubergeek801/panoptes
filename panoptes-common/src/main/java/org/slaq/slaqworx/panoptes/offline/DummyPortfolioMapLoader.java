@@ -39,8 +39,7 @@ import org.slaq.slaqworx.panoptes.rule.TopNSecurityAttributeAggregator;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
- * {@code DummyPortfolioMapLoader} is a {@code MapStore} that initializes the Hazelcast cache with
- * random {@code Portfolio} data.
+ * A {@code MapStore} that initializes the Hazelcast cache with random {@code Portfolio} data.
  *
  * @author jeremy
  */

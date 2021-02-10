@@ -16,9 +16,8 @@ import org.slaq.slaqworx.panoptes.cache.SecurityFilter;
 import org.slaq.slaqworx.panoptes.util.FakeSet;
 
 /**
- * {@code SecurityDataProvider} is a {@code BackEndDataProvider} that provides {@code Security}
- * data, typically for {@code Grid} consumption, allowing the application of a user-specified
- * filter.
+ * A {@code BackEndDataProvider} that provides {@code Security} data, typically for {@code Grid}
+ * consumption, allowing the application of a user-specified filter.
  *
  * @author jeremy
  */

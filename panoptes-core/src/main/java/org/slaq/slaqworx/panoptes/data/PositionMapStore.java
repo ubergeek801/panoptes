@@ -22,8 +22,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
- * {@code PositionMapStore} is a Hazelcast {@code MapStore} that provides {@code Position}
- * persistence services.
+ * A Hazelcast {@code MapStore} that provides {@code Position} persistence services.
  *
  * @author jeremy
  */

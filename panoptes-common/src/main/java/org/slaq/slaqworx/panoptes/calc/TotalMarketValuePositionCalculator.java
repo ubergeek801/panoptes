@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * {@code TotalMarketValuePositionCalculator} is a {@code PositionCalculator} that determines the
- * sum of market values of a {@code Position} collection.
+ * A {@code PositionCalculator} that determines the sum of market values of a {@code Position}
+ * collection.
  *
  * @author jeremy
  */

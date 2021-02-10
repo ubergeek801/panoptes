@@ -16,8 +16,8 @@ import java.util.Objects;
  */
 public class ValueResult {
     /**
-     * {@code Impact} describes the impact of some change (such as a proposed {@code Trade}) on a
-     * {@code Rule}, as evaluated before and after the proposed changes are considered.
+     * Describes the impact of some change (such as a proposed {@code Trade}) on a {@code Rule}, as
+     * evaluated before and after the proposed changes are considered.
      */
     public enum Impact {
         /**
@@ -39,8 +39,8 @@ public class ValueResult {
     }
 
     /**
-     * {@code Threshold} indicates whether a value-based result is below, within or above the
-     * evaluated {@code Rule}'s threshold.
+     * Indicates whether a value-based result is below, within or above the evaluated {@code Rule}'s
+     * threshold.
      * <p>
      * TODO there are probably better names for these
      */

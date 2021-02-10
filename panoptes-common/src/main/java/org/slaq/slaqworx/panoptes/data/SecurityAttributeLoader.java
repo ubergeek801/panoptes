@@ -1,8 +1,7 @@
 package org.slaq.slaqworx.panoptes.data;
 
 /**
- * {@code SecurityAttributeLoader} is the interface for a service that initializes the known
- * {@code SecurityAttribute}s.
+ * The interface for a service that initializes the known {@code SecurityAttribute}s.
  *
  * @author jeremy
  */

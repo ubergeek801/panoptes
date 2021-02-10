@@ -1,8 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * {@code PortfolioProvider} is the interface for a service that provides access to
- * {@code Portfolio} data.
+ * The interface for a service that provides access to {@code Portfolio} data.
  *
  * @author jeremy
  */

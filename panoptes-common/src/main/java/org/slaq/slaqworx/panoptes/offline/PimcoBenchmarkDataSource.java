@@ -31,8 +31,7 @@ import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * {@code PimcoBenchmarkDataSource} provides access to the data obtained from the PIMCO benchmark
- * constituent files.
+ * Provides access to the data obtained from the PIMCO benchmark constituent files.
  *
  * @author jeremy
  */

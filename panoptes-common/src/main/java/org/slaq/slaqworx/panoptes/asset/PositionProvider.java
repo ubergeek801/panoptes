@@ -1,8 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * {@code PositionProvider} is the interface for a service that provides access to {@code Position}
- * data.
+ * The interface for a service that provides access to {@code Position} data.
  *
  * @author jeremy
  */

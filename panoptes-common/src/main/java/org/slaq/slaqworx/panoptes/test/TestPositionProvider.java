@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
- * {@code TestPositionProvider} is a {@code PositionProvider} suitable for testing purposes.
+ * A {@code PositionProvider} suitable for testing purposes.
  *
  * @author jeremy
  */

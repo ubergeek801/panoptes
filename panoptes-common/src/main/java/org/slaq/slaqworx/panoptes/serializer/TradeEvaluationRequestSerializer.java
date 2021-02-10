@@ -15,8 +15,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * {@code TradeEvaluationRequestSerializer} (de)serializes the state of a
- * {@code TradeEvaluationRequest} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code TradeEvaluationRequest}.
  *
  * @author jeremy
  */

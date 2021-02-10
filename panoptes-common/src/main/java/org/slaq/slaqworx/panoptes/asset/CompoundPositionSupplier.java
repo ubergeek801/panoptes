@@ -5,8 +5,8 @@ import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * {@code CompoundPositionSupplier} is a {@code PositionSupplier} that represents the
- * "concatenation" of multiple {@code PositionSupplier}s.
+ * A {@code PositionSupplier} that represents the "concatenation" of multiple
+ * {@code PositionSupplier}s.
  *
  * @author jeremy
  */

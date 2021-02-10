@@ -9,9 +9,9 @@ import java.util.function.BiFunction;
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
 
 /**
- * {@code ValueProvider} is a {@code BiFunction} that converts a value of a specified type (within a
- * given {@code EvaluationContext}) to a {@code Double}, to facilitate calculations on various types
- * of {@code SecurityAttribute}s. Implements {@code Serializable} for convenience of implementing
+ * A {@code BiFunction} that converts a value of a specified type (within a given
+ * {@code EvaluationContext}) to a {@code Double}, to facilitate calculations on various types of
+ * {@code SecurityAttribute}s. Implements {@code Serializable} for convenience of implementing
  * cluster-friendly {@code Security} filters.
  *
  * @author jeremy

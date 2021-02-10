@@ -5,8 +5,7 @@ import java.util.Map;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
- * {@code GroupAggregator} is the interface for functions which aggregate existing groups of
- * positions into new groups.
+ * The interface for functions which aggregate existing groups of positions into new groups.
  *
  * @author jeremy
  */

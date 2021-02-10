@@ -4,8 +4,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 
 /**
- * {@code ForkJoinPoolFactory} provides {@code ForkJoinPool} instances with particular
- * characteristics.
+ * Provides {@code ForkJoinPool} instances with particular characteristics.
  *
  * @author jeremy
  */

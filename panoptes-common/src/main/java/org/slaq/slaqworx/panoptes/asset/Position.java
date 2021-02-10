@@ -10,9 +10,9 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A {@code Position} is a holding of some amount of a particular {@code Security} by some
- * {@code Portfolio}. A {@code Position} may be durable (e.g. sourced from a database/cache) or
- * ephemeral (e.g. supplied by a proposed {@code Trade} or even a unit test).
+ * A holding of some amount of a particular {@code Security} by some {@code Portfolio}. A
+ * {@code Position} may be durable (e.g. sourced from a database/cache) or ephemeral (e.g. supplied
+ * by a proposed {@code Trade} or even a unit test).
  * <p>
  * {@code Position}s are inherently hierarchical on a number of dimensions:
  * <ul>

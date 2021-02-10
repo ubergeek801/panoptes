@@ -27,6 +27,11 @@ import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
+/**
+ * A Flink pipeline which realizes the Panoptes event processing logic.
+ *
+ * @author jeremy
+ */
 @Singleton
 public class PanoptesPipeline {
     private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
@@ -54,6 +59,27 @@ public class PanoptesPipeline {
 
     private final StreamExecutionEnvironment env;
 
+    /**
+     * Creates a new {@code PanoptesPipeline} using the given resources. Restricted because this
+     * class should be instantiated through Micronaut.
+     *
+     * @param benchmarkKafkaSource
+     *            a {@code SourceFunction} producing benchmark-related events
+     * @param portfolioKafkaSource
+     *            a {@code SourceFunction} producing portfolio-related events
+     * @param portfolioRequestSource
+     *            a {@code SourceFunction} producing portfolio evaluation requests
+     * @param portfolioResultSink
+     *            a {@code SinkFunction} consuming portfolio evaluation results
+     * @param securityKafkaSource
+     *            a {@code SourceFunction} producing security-related events
+     * @param tradeSource
+     *            a {@code SourceFunction} producing trade evaluation requests
+     * @param tradeResultSink
+     *            a {@code SinkFunction} consuming trade evaluation results
+     * @param flinkEnvironment
+     *            the Flink execution environment to use
+     */
     protected PanoptesPipeline(
             @Named(PanoptesPipelineConfig.BENCHMARK_SOURCE) SourceFunction<
                     PortfolioEvent> benchmarkKafkaSource,
@@ -79,7 +105,15 @@ public class PanoptesPipeline {
         env = flinkEnvironment;
     }
 
-    public void execute(String... args) throws Exception {
+    /**
+     * Creates the Panoptes application pipeline.
+     *
+     * @param args
+     *            the arguments with which to initialize the pipeline
+     * @throws Exception
+     *             if the pipeline could not be created
+     */
+    public void create(String... args) throws Exception {
         LOG.info("initializing pipeline");
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);

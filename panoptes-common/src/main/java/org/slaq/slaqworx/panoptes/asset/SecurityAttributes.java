@@ -16,9 +16,8 @@ import java.util.stream.IntStream;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * {@code SecurityAttributes} is a container for {@code SecurityAttribute}s which provides type-safe
- * access when referencing an attribute by its type. It also enforces immutability of a
- * {@code Security}'s attributes.
+ * A container for {@code SecurityAttribute}s which provides type-safe access when referencing an
+ * attribute by its type. It also enforces immutability of a {@code Security}'s attributes.
  *
  * @author jeremy
  */
@@ -103,8 +102,7 @@ public class SecurityAttributes implements Serializable {
      * @return the value of the given attribute, or {@code null} if not assigned
      */
     public <T> T getValue(SecurityAttribute<T> attribute) {
-        @SuppressWarnings("unchecked")
-        T value = (T)getValue(attribute.getIndex());
+        @SuppressWarnings("unchecked") T value = (T)getValue(attribute.getIndex());
         return value;
     }
 

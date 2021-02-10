@@ -4,7 +4,7 @@ import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code RuleKey} is a key used to reference {@code Rule}s.
+ * A key used to reference {@code Rule}s.
  *
  * @author jeremy
  */

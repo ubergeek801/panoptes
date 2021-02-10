@@ -18,8 +18,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 
 /**
- * {@code EvaluationContextSerializer} (de)serializes the state of an {@code EvaluationContext}
- * using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of an {@code EvaluationContext}.
  *
  * @author jeremy
  */

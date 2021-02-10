@@ -30,8 +30,7 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code PortfolioMapStore} is a Hazelcast {@code MapStore} that provides {@code Portfolio}
- * persistence services.
+ * A Hazelcast {@code MapStore} that provides {@code Portfolio} persistence services.
  *
  * @author jeremy
  */

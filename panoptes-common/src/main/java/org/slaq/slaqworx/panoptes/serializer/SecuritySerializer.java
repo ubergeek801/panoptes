@@ -15,7 +15,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.SecurityMsg;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * {@code SecuritySerializer} (de)serializes the state of a {@code Security} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Security}.
  *
  * @author jeremy
  */

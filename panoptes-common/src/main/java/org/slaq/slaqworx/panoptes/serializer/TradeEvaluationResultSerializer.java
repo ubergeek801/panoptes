@@ -19,8 +19,8 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 /**
- * {@code TradeEvaluationResultSerializer} (de)serializes the state of a
- * {@code TradeEvaluationResult} using Protobuf.
+ * A {@code TradeEvaluationResultSerializer} which (de)serializes the state of a
+ * {@code TradeEvaluationResult}.
  *
  * @author jeremy
  */

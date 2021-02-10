@@ -29,10 +29,10 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
 
 /**
- * {@code RuleEvaluator} is a {@code Callable} that evaluates a single {@code Rule} against a set of
- * {@code Position}s (and optionally a set of benchmark {@code Position}s). The results are grouped
- * by the {@code EvaluationGroupClassifier} defined by the {@code Rule}; there is always at least
- * one group (unless the input set of {@code Position}s is empty).
+ * A {@code Callable} that evaluates a single {@code Rule} against a set of {@code Position}s (and
+ * optionally a set of benchmark {@code Position}s). The results are grouped by the
+ * {@code EvaluationGroupClassifier} defined by the {@code Rule}; there is always at least one group
+ * (unless the input set of {@code Position}s is empty).
  * <p>
  * Given that a {@code RuleEvaluator} requires a {@code EvaluationContext} at construction time, the
  * evaluator can only be used for that context. {@code RuleEvaluator} creation is meant to be

@@ -10,7 +10,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * {@code TestSecurityProvider} is a {@code SecurityProvider} suitable for testing purposes.
+ * A {@code SecurityProvider} suitable for testing purposes.
  *
  * @author jeremy
  */

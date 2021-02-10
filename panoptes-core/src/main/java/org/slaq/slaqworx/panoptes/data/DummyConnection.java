@@ -8,8 +8,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.SQLXML;
 import java.sql.Savepoint;
@@ -34,334 +32,276 @@ public class DummyConnection implements Connection {
     }
 
     @Override
-    public void abort(Executor executor) throws SQLException {
-        // TODO Auto-generated method stub
-
+    public void abort(Executor executor) {
+        // nothing to do
     }
 
     @Override
-    public void clearWarnings() throws SQLException {
-        // TODO Auto-generated method stub
-
+    public void clearWarnings() {
+        // nothing to do
     }
 
     @Override
-    public void close() throws SQLException {
-        // TODO Auto-generated method stub
-
+    public void close() {
+        // nothing to do
     }
 
     @Override
-    public void commit() throws SQLException {
-        // TODO Auto-generated method stub
-
+    public void commit() {
+        // nothing to do
     }
 
     @Override
-    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        // TODO Auto-generated method stub
+    public Array createArrayOf(String typeName, Object[] elements) {
         return null;
     }
 
     @Override
-    public Blob createBlob() throws SQLException {
-        // TODO Auto-generated method stub
+    public Blob createBlob() {
         return null;
     }
 
     @Override
-    public Clob createClob() throws SQLException {
-        // TODO Auto-generated method stub
+    public Clob createClob() {
         return null;
     }
 
     @Override
-    public NClob createNClob() throws SQLException {
-        // TODO Auto-generated method stub
+    public NClob createNClob() {
         return null;
     }
 
     @Override
-    public SQLXML createSQLXML() throws SQLException {
-        // TODO Auto-generated method stub
+    public SQLXML createSQLXML() {
         return null;
     }
 
     @Override
-    public Statement createStatement() throws SQLException {
-        // TODO Auto-generated method stub
+    public Statement createStatement() {
         return null;
     }
 
     @Override
-    public Statement createStatement(int resultSetType, int resultSetConcurrency)
-            throws SQLException {
-        // TODO Auto-generated method stub
+    public Statement createStatement(int resultSetType, int resultSetConcurrency) {
         return null;
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability) throws SQLException {
-        // TODO Auto-generated method stub
+            int resultSetHoldability) {
         return null;
     }
 
     @Override
-    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        // TODO Auto-generated method stub
+    public Struct createStruct(String typeName, Object[] attributes) {
         return null;
     }
 
     @Override
-    public boolean getAutoCommit() throws SQLException {
-        // TODO Auto-generated method stub
+    public boolean getAutoCommit() {
         return false;
     }
 
     @Override
-    public String getCatalog() throws SQLException {
-        // TODO Auto-generated method stub
+    public String getCatalog() {
         return null;
     }
 
     @Override
-    public Properties getClientInfo() throws SQLException {
-        // TODO Auto-generated method stub
+    public Properties getClientInfo() {
         return null;
     }
 
     @Override
-    public String getClientInfo(String name) throws SQLException {
-        // TODO Auto-generated method stub
+    public String getClientInfo(String name) {
         return null;
     }
 
     @Override
-    public int getHoldability() throws SQLException {
-        // TODO Auto-generated method stub
+    public int getHoldability() {
         return 0;
     }
 
     @Override
-    public DatabaseMetaData getMetaData() throws SQLException {
-        // TODO Auto-generated method stub
+    public DatabaseMetaData getMetaData() {
         return null;
     }
 
     @Override
-    public int getNetworkTimeout() throws SQLException {
-        // TODO Auto-generated method stub
+    public int getNetworkTimeout() {
         return 0;
     }
 
     @Override
-    public String getSchema() throws SQLException {
-        // TODO Auto-generated method stub
+    public String getSchema() {
         return null;
     }
 
     @Override
-    public int getTransactionIsolation() throws SQLException {
-        // TODO Auto-generated method stub
+    public int getTransactionIsolation() {
         return 0;
     }
 
     @Override
-    public Map<String, Class<?>> getTypeMap() throws SQLException {
-        // TODO Auto-generated method stub
+    public Map<String, Class<?>> getTypeMap() {
         return null;
     }
 
     @Override
-    public SQLWarning getWarnings() throws SQLException {
-        // TODO Auto-generated method stub
+    public SQLWarning getWarnings() {
         return null;
     }
 
     @Override
-    public boolean isClosed() throws SQLException {
-        // TODO Auto-generated method stub
+    public boolean isClosed() {
         return false;
     }
 
     @Override
-    public boolean isReadOnly() throws SQLException {
-        // TODO Auto-generated method stub
+    public boolean isReadOnly() {
         return false;
     }
 
     @Override
-    public boolean isValid(int timeout) throws SQLException {
-        // TODO Auto-generated method stub
+    public boolean isValid(int timeout) {
         return false;
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        // TODO Auto-generated method stub
+    public boolean isWrapperFor(Class<?> iface) {
         return false;
     }
 
     @Override
-    public String nativeSQL(String sql) throws SQLException {
-        // TODO Auto-generated method stub
+    public String nativeSQL(String sql) {
         return null;
     }
 
     @Override
-    public CallableStatement prepareCall(String sql) throws SQLException {
-        // TODO Auto-generated method stub
+    public CallableStatement prepareCall(String sql) {
         return null;
     }
 
     @Override
-    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
-            throws SQLException {
-        // TODO Auto-generated method stub
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) {
         return null;
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability) throws SQLException {
-        // TODO Auto-generated method stub
+            int resultSetHoldability) {
         return null;
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql) throws SQLException {
-        // TODO Auto-generated method stub
+    public PreparedStatement prepareStatement(String sql) {
         return null;
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
-            throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType,
-            int resultSetConcurrency) throws SQLException {
-        // TODO Auto-generated method stub
+    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) {
         return null;
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-            int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        // TODO Auto-generated method stub
+            int resultSetConcurrency) {
         return null;
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
-        // TODO Auto-generated method stub
+    public PreparedStatement prepareStatement(String sql, int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability) {
         return null;
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, String[] columnNames)
-            throws SQLException {
-        // TODO Auto-generated method stub
+    public PreparedStatement prepareStatement(String sql, int[] columnIndexes) {
         return null;
     }
 
     @Override
-    public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void rollback() throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void rollback(Savepoint savepoint) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setAutoCommit(boolean autoCommit) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setCatalog(String catalog) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setHoldability(int holdability) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setReadOnly(boolean readOnly) throws SQLException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public Savepoint setSavepoint() throws SQLException {
-        // TODO Auto-generated method stub
+    public PreparedStatement prepareStatement(String sql, String[] columnNames) {
         return null;
     }
 
     @Override
-    public Savepoint setSavepoint(String name) throws SQLException {
-        // TODO Auto-generated method stub
+    public void releaseSavepoint(Savepoint savepoint) {
+        // nothing to do
+    }
+
+    @Override
+    public void rollback() {
+        // nothing to do
+    }
+
+    @Override
+    public void rollback(Savepoint savepoint) {
+        // nothing to do
+    }
+
+    @Override
+    public void setAutoCommit(boolean autoCommit) {
+        // nothing to do
+    }
+
+    @Override
+    public void setCatalog(String catalog) {
+        // nothing to do
+    }
+
+    @Override
+    public void setClientInfo(Properties properties) {
+        // nothing to do
+    }
+
+    @Override
+    public void setClientInfo(String name, String value) {
+        // nothing to do
+    }
+
+    @Override
+    public void setHoldability(int holdability) {
+        // nothing to do
+    }
+
+    @Override
+    public void setNetworkTimeout(Executor executor, int milliseconds) {
+        // nothing to do
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        // nothing to do
+    }
+
+    @Override
+    public Savepoint setSavepoint() {
         return null;
     }
 
     @Override
-    public void setSchema(String schema) throws SQLException {
-        // TODO Auto-generated method stub
-
+    public Savepoint setSavepoint(String name) {
+        return null;
     }
 
     @Override
-    public void setTransactionIsolation(int level) throws SQLException {
-        // TODO Auto-generated method stub
-
+    public void setSchema(String schema) {
+        // nothing to do
     }
 
     @Override
-    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-        // TODO Auto-generated method stub
-
+    public void setTransactionIsolation(int level) {
+        // nothing to do
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        // TODO Auto-generated method stub
+    public void setTypeMap(Map<String, Class<?>> map) {
+        // nothing to do
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> iface) {
         return null;
     }
 }

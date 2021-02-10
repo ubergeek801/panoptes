@@ -7,7 +7,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * {@code TradeKeySerializer} (de)serializes the state of a {@code TradeKey} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code TradeKey}.
  *
  * @author jeremy
  */

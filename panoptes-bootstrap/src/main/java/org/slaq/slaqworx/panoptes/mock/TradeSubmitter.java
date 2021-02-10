@@ -87,7 +87,7 @@ public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
         ArrayList<Security> securities =
                 new ArrayList<>(PimcoBenchmarkDataSource.getInstance().getSecurityMap().values());
 
-        int numTrades = 500;
+        int numTrades = 1000;
         Random random = new Random(0);
         LOG.info("publishing {} trades", numTrades);
 

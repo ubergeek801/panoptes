@@ -21,8 +21,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * {@code SecurityMapStore} is a Hazelcast {@code MapStore} that provides {@code Security}
- * persistence services.
+ * A Hazelcast {@code MapStore} that provides {@code Security} persistence services.
  *
  * @author jeremy
  */

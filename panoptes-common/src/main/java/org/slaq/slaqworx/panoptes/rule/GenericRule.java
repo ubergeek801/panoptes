@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
- * {@code GenericRule} is a partial implementation of {@code Rule} which does some basic
- * initialization and housekeeping. Extending this class is recommended but optional.
+ * A partial implementation of {@code Rule} which does some basic initialization and housekeeping.
+ * Extending this class is recommended but optional.
  *
  * @author jeremy
  */

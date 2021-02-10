@@ -3,8 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * {@code SecurityProvider} is the interface for a service that provides access to {@code Security}
- * data.
+ * The interface for a service that provides access to {@code Security} data.
  *
  * @author jeremy
  */

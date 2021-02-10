@@ -22,8 +22,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
- * {@code EvaluationResultSerializer} (de)serializes the state of a {@code EvaluationResult} using
- * Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code EvaluationResult}.
  *
  * @author jeremy
  */

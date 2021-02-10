@@ -13,9 +13,8 @@ import io.micronaut.context.env.Environment;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 
 /**
- * {@code HazelcastMapStoreFactory} is a {@code MapStoreFactory} that provides {@code MapStore}s for
- * the cached {@code Map}s (e.g. {@code Portfolio}, {@code Position}, {@code Rule},
- * {@code Security}).
+ * A {@code MapStoreFactory} that provides {@code MapStore}s for the cached {@code Map}s (e.g.
+ * {@code Portfolio}, {@code Position}, {@code Rule}, {@code Security}).
  *
  * @author jeremy
  */

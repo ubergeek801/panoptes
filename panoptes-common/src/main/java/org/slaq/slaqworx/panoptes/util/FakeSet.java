@@ -6,10 +6,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * {@code FakeSet} allows a {@code Collection} to masquerade as a {@code Set} (e.g. to avoid copying
- * data in order to create a new {@code Set} from a {@code List}. It is the user's responsibility to
- * ensure either that the provided collection has the necessary uniqueness characteristics or that
- * uniqueness is unimportant for the usage at hand.
+ * A {@code Set} implementation which allows a {@code Collection} to masquerade as a {@code Set}
+ * (e.g. to avoid copying data in order to create a new {@code Set} from a {@code List}. It is the
+ * user's responsibility to ensure either that the provided collection has the necessary uniqueness
+ * characteristics, or that uniqueness is unimportant for the usage at hand.
  *
  * @author jeremy
  * @param <E>

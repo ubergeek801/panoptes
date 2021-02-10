@@ -3,8 +3,8 @@ package org.slaq.slaqworx.panoptes.rule;
 import org.slaq.slaqworx.panoptes.asset.Position;
 
 /**
- * A {@code PositionEvaluationContext} can be thought of as the {@code EvaluationContext} for a
- * {@code Position}, as it is a composite of the two; it mostly exists for the convenience of
+ * An {@code EvaluationContext} wrapper which can be thought of as the {@code EvaluationContext} for
+ * a {@code Position}, as it is a composite of the two; it mostly exists for the convenience of
  * specifying {@code Position} filters as {@code Predicate}s. Unlike an {@code EvaluationContext}
  * which may be used for an entire {@code Portfolio} evaluation, a {@code PositionEvaluationContext}
  * is unique to the {@code Position} being evaluated and may contain additional state about the

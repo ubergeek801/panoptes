@@ -23,8 +23,7 @@ import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * {@code RuleMapStore} is a Hazelcast {@code MapStore} that provides {@code Rule} persistence
- * services.
+ * A Hazelcast {@code MapStore} that provides {@code Rule} persistence services.
  *
  * @author jeremy
  */

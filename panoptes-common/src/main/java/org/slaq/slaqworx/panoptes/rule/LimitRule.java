@@ -7,7 +7,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
- * A {@code LimitRule} stipulates limits on values that can be calculated on a {@code Portfolio}'s
+ * A {@code Rule} which stipulates limits on values that can be calculated on a {@code Portfolio}'s
  * composition, either in absolute terms or relative to a benchmark.
  *
  * @author jeremy

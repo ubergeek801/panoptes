@@ -8,8 +8,8 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * {@code SecurityAttributeGroupClassifier} is an {@code EvaluationGroupClassifier} which classifies
- * {@code Position}s based on the value of a specified {@code SecurityAttribute}.
+ * An {@code EvaluationGroupClassifier} which classifies {@code Position}s based on the value of a
+ * specified {@code SecurityAttribute}.
  *
  * @author jeremy
  */

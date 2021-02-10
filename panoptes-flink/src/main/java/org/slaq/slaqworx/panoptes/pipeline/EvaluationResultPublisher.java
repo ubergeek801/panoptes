@@ -7,6 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 
+/**
+ * A sink which consumes {@code RuleEvaluationResult}s. Currently this merely writes a summary of
+ * each result to the log.
+ *
+ * @author jeremy
+ */
 public class EvaluationResultPublisher implements SinkFunction<RuleEvaluationResult> {
     private static final long serialVersionUID = 1L;
 

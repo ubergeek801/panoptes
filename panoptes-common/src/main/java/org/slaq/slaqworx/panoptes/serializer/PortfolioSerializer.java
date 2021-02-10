@@ -16,7 +16,7 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
- * {@code PortfolioSerializer} (de)serializes the state of a {@code Portfolio} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Portfolio}.
  *
  * @author jeremy
  */

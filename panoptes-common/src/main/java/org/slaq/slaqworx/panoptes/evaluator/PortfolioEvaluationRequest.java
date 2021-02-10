@@ -14,9 +14,8 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * {@code PortfolioEvaluationRequest} is a {@code Callable} which facilitates clustered
- * {@code Portfolio} evaluation by serializing the evaluation parameters for execution on a remote
- * cluster node.
+ * A {@code Callable} which facilitates clustered {@code Portfolio} evaluation by serializing the
+ * evaluation parameters for execution on a remote cluster node.
  *
  * @author jeremy
  */

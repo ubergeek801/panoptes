@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code PortfolioKey} is a key used to reference {@code Portfolio}s.
+ * A key used to reference {@code Portfolio}s.
  *
  * @author jeremy
  */

@@ -4,9 +4,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A {@code ConfigurableRule} is a {@code Rule} that can be configured, typically via
- * deserialization from a persistent representation using JSON configuration parameters and/or
- * Groovy filter expressions.
+ * A {@code Rule} that can be configured, typically via deserialization from a persistent
+ * representation using JSON configuration parameters and/or Groovy filter expressions.
  *
  * @author jeremy
  */

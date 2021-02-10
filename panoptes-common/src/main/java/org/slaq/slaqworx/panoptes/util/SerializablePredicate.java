@@ -4,6 +4,16 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+/**
+ * A {@code Predicate} which is also {@code Serializable}; can be helpful in coercing certain
+ * functional constructs (particularly lambdas) into behaving nicely with serialization mechanisms
+ * employed by Flink, Hazelcast, etc. More or less duplicates the operations of {@code Predicate}
+ * but substituting {@code SerializablePredicate}.
+ *
+ * @author jeremy
+ * @param <T>
+ *            the type that serves as the target of the {@code Predicate}
+ */
 @FunctionalInterface
 public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
     /**

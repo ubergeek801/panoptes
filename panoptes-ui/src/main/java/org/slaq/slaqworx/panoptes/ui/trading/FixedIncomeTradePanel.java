@@ -35,9 +35,8 @@ import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
- * {@code FixedIncomeTradePanel} is a component of the experimental user interface, used to enter
- * parameters of a simple fixed income security trade and calculate room in {@code Portfolio}s for
- * that {@code Security} name.
+ * A component of the experimental user interface, used to enter parameters of a simple fixed income
+ * security trade and calculate room in {@code Portfolio}s for that {@code Security} name.
  *
  * @author jeremy
  */
@@ -323,6 +322,12 @@ public class FixedIncomeTradePanel extends FormLayout {
         });
     }
 
+    /**
+     * Updates the number of portfolios remaining to be updated.
+     *
+     * @param event
+     *            an event from the source component to be updated
+     */
     protected void updateNumRemaining(ComponentEvent<Button> event) {
         getUI().get().access(() -> {
             if (--numRemaining == 0) {

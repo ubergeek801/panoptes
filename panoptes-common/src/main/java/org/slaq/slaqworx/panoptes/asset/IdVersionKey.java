@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
 /**
- * {@code IdVersionKey} is a key used to reference some asset types (using trivial subclasses).
+ * A key used to reference some asset types (using trivial subclasses).
  *
  * @author jeremy
  */

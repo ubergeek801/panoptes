@@ -16,8 +16,8 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 
 /**
- * {@code PanoptesDataConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
- * related to {@code DataSource}s, {@code EntityManager}s, etc.
+ * A Micronaut {@code Factory} that provides {@code Bean}s related to {@code DataSource}s,
+ * {@code EntityManager}s, etc.
  *
  * @author jeremy
  */

@@ -7,14 +7,15 @@ import java.util.Spliterator;
 import java.util.stream.Stream;
 
 /**
- * {@code StreamUtil} provides utilities for manipulating {@code Stream}s.
+ * Provides utilities for manipulating {@code Stream}s.
  *
  * @author jeremy
  */
 public class StreamUtil {
     /**
      * Splits the given {@code Stream} into partitions that are (estimated to be) no larger than the
-     * specified maximum size.
+     * specified maximum size. While not enforced, this is likely to be useful only on {@code SIZED}
+     * streams.
      *
      * @param <T>
      *            the type of elements in the {@code Stream}

@@ -3,8 +3,8 @@ package org.slaq.slaqworx.panoptes.rule;
 import java.util.function.Supplier;
 
 /**
- * {@code EvaluationGroupClassifier} classifies {@code Position}s into {@code EvaluationGroup}s for
- * the purpose of grouping rule evaluation results.
+ * Classifies {@code Position}s into {@code EvaluationGroup}s for the purpose of grouping rule
+ * evaluation results.
  *
  * @author jeremy
  */

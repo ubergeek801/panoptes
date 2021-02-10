@@ -6,10 +6,9 @@ import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A {@code HierarchicalPositionSupplier} is a {@code PositionSupplier} which provides hierarchies
- * of {@code Position}s, such as by employing "look-through" to {@code Position}s of constituent
- * {@code Portfolio}s, or by providing visibility to a {@code Position}'s individual
- * {@code TaxLot}s.
+ * A {@code PositionSupplier} which provides hierarchies of {@code Position}s, such as by employing
+ * "look-through" to {@code Position}s of constituent {@code Portfolio}s, or by providing visibility
+ * to a {@code Position}'s individual {@code TaxLot}s.
  *
  * @author jeremy
  */

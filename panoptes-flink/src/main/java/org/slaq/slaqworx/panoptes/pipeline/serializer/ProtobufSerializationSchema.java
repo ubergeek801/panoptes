@@ -23,7 +23,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  *
  * @author jeremy
  * @param <T>
- *            the type to be (de)serialized
+ *            the type to be serialized
  */
 public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable> implements
         KafkaSerializationSchema<T>, Provider<AssetCache>, PortfolioProvider, SecurityProvider {
@@ -100,15 +100,13 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
     }
 
     /**
-     * Serializes the given key. The default implementation returns {@code null}.
+     * Produces a serialized representation of the given element's key.
      *
-     * @param key
-     *            the key to be serialized
-     * @return a serialized representation of the key
+     * @param element
+     *            the element for which to provide a serialized key
+     * @return a serialized representation of the element's key, or {@code null} if not applicable
      * @throws Exception
      *             if the key could not be serialized
      */
-    protected byte[] serializeKey(T key) throws Exception {
-        return null;
-    }
+    protected abstract byte[] serializeKey(T element) throws Exception;
 }

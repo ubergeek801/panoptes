@@ -50,9 +50,8 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * {@code PanoptesCacheCommonConfiguration} is a Micronaut {@code Factory} that provides
- * {@code Bean}s related to the Hazelcast cache, which are suitable for most configurations (e.g.
- * standalone, cluster member, cluster client).
+ * A Micronaut {@code Factory} that provides {@code Bean}s related to the Hazelcast cache, which are
+ * suitable for most configurations (e.g. standalone, cluster member, cluster client).
  *
  * @author jeremy
  */

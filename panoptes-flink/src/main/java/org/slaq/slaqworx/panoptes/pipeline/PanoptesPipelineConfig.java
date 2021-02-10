@@ -51,6 +51,12 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
+/**
+ * A Micronaut {@code Factory} which configures and provides various beans to the
+ * {@code ApplicationContext}.
+ *
+ * @author jeremy
+ */
 @Factory
 public class PanoptesPipelineConfig {
     private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);

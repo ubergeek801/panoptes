@@ -67,18 +67,25 @@ public class PortfolioTracker implements Serializable {
         this.portfolioType = portfolioType;
     }
 
-    public Portfolio getPortfolio() throws IOException {
-        return portfolioState.value();
-    }
-
-    public void trackPortfolio(Portfolio portfolio) throws IOException {
-        portfolioState.update(portfolio);
-    }
-
-    public void trackSecurity(
+    /**
+     * Applies the given security to the tracked portfolio, evaluating related rules if appropriate.
+     *
+     * @param context
+     *            the process context related to the security event
+     * @param security
+     *            the security currently being encountered
+     * @param ruleProvider
+     *            a {@code Function} which provides rules to be evaluated for a given
+     *            {@code Portfolio}
+     * @param out
+     *            a {@code Collector} to which rule evaluation results, if any, are output
+     * @throws Exception
+     *             if a state-related operation fails
+     */
+    public void applySecurity(
             KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
                     RuleEvaluationResult>.Context context,
-            Security security, Function<Portfolio, Iterable<Rule>> rules,
+            Security security, Function<Portfolio, Iterable<Rule>> ruleProvider,
             Collector<RuleEvaluationResult> out) throws Exception {
         BroadcastState<SecurityKey, Security> securityState =
                 context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
@@ -86,8 +93,32 @@ public class PortfolioTracker implements Serializable {
 
         context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR, (portfolioKey, state) -> {
             Portfolio portfolio = state.value();
-            processPortfolio(out, portfolio, security, securityState, rules.apply(portfolio));
+            processPortfolio(out, portfolio, security, securityState,
+                    ruleProvider.apply(portfolio));
         });
+    }
+
+    /**
+     * Obtains the portfolio being tracked in the current process state.
+     *
+     * @return a {@code Portfolio}
+     * @throws IOException
+     *             if the state operation fails
+     */
+    public Portfolio getPortfolio() throws IOException {
+        return portfolioState.value();
+    }
+
+    /**
+     * Register the given portfolio for tracking in the current process state.
+     *
+     * @param portfolio
+     *            the {@code Portfolio} to be tracked
+     * @throws IOException
+     *             if the state operation fails
+     */
+    public void trackPortfolio(Portfolio portfolio) throws IOException {
+        portfolioState.update(portfolio);
     }
 
     /**
@@ -141,7 +172,7 @@ public class PortfolioTracker implements Serializable {
      * @param out
      *            the {@code Collector} to which to output compliance results
      * @param portfolio
-     *            the portfolio being processed
+     *            the portfolio being processed; if {@code null}, then nothing will be done
      * @param currentSecurity
      *            the security being encountered, or {@code null} if a portfolio is being
      *            encountered
@@ -155,6 +186,10 @@ public class PortfolioTracker implements Serializable {
     protected void processPortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
             Security currentSecurity, ReadOnlyBroadcastState<SecurityKey, Security> securityState,
             Iterable<Rule> rules) throws Exception {
+        if (portfolio == null) {
+            return;
+        }
+
         // if there are no rules to be evaluated, then don't bother
         List<Rule> ruleCollection = IteratorUtils.toList(rules.iterator());
         if (ruleCollection.isEmpty()) {

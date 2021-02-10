@@ -9,9 +9,9 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * A {@code PortfolioEvaluator} is responsible for the process of evaluating a set of {@code Rule}s
- * against some {@code Portfolio} and possibly some related benchmark. Processing may be local or
- * distributed based on the implementation.
+ * The interface for the process of evaluating a set of {@code Rule}s against some {@code Portfolio}
+ * and possibly some related benchmark. Processing may be local or distributed based on the
+ * implementation.
  *
  * @author jeremy
  */

@@ -12,8 +12,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code PortfolioSummarizer} is a Hazelcast {@code EntryProcessor} that produces a
- * {@code PortfolioSummary} projection for a given {@code Portfolio}.
+ * A Hazelcast {@code EntryProcessor} that produces a {@code PortfolioSummary} projection for a
+ * given {@code Portfolio}.
  * <p>
  * Note that although {@code EntryProcessor} is {@code Serializable}, this class expects to be
  * serialized using Protobuf (because the contained {@code EvaluationContext} is not

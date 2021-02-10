@@ -4,8 +4,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code PortfolioSummary} is a projection of {@code Portfolio} used primarily by the
- * {@code Portfolio} table display.
+ * A projection of {@code Portfolio} used primarily by the {@code Portfolio} table display.
  *
  * @author jeremy
  */

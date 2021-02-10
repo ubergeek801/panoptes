@@ -16,4 +16,10 @@ public class TradeEvaluationResultSerializationSchema
     protected ProtobufSerializer<TradeEvaluationResult> createSerializer() {
         return new TradeEvaluationResultSerializer();
     }
+
+    @Override
+    protected byte[] serializeKey(TradeEvaluationResult result) {
+        // not currently needed
+        return null;
+    }
 }

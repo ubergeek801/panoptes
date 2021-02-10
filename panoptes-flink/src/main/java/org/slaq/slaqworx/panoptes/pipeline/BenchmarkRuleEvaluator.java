@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +63,7 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
             KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
                     RuleEvaluationResult>.Context context,
             Collector<RuleEvaluationResult> out) throws Exception {
-        portfolioTracker.trackSecurity(context, security, (p -> {
+        portfolioTracker.applySecurity(context, security, (p -> {
             try {
                 return benchmarkRulesState.values();
             } catch (Exception e) {
@@ -92,12 +94,26 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
                     benchmarkRulesState.values());
         } else {
             // the portfolio is not a benchmark, but it may have rules that are of interest, so try
-            // to extract them
-            extractRules(portfolio);
+            // to extract and process them
+            Collection<Rule> newRules = extractRules(portfolio);
+            // process any newly-encountered rules against the benchmark
+            ReadOnlyBroadcastState<SecurityKey, Security> securityState =
+                    context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
+            portfolioTracker.processPortfolio(out, portfolioTracker.getPortfolio(), null,
+                    securityState, newRules);
         }
     }
 
-    protected void extractRules(Portfolio portfolio) {
+    /**
+     * Extracts benchmark-enabled rules from the given portfolio.
+     *
+     * @param portfolio
+     *            the {@code Portfolio} from which to extract rules
+     * @return a {@code Collection} of rules which are benchmark-enabled
+     */
+    protected Collection<Rule> extractRules(Portfolio portfolio) {
+        ArrayList<Rule> newRules = new ArrayList<>();
+
         // since our input stream is keyed on the portfolio's benchmark, any portfolio that we
         // encounter should have its (benchmark-enabled) rules evaluated against the benchmark
         if (portfolio.getBenchmarkKey() != null) {
@@ -109,6 +125,10 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
                         portfolio.getKey());
                 benchmarkEnabledRules.forEach(r -> {
                     try {
+                        if (!benchmarkRulesState.contains(r.getKey())) {
+                            // we haven't seen this rule before
+                            newRules.add(r);
+                        }
                         benchmarkRulesState.put(r.getKey(), r);
                     } catch (Exception e) {
                         // FIXME throw a real exception
@@ -117,8 +137,16 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
                 });
             }
         }
+
+        return newRules;
     }
 
+    /**
+     * Obtains the process state containing currently tracked rules. Should only be useful for test
+     * cases.
+     *
+     * @return a {@code MapState} relating rule keys to their corresponding rules
+     */
     protected MapState<RuleKey, Rule> getBenchmarkRulesState() {
         return benchmarkRulesState;
     }

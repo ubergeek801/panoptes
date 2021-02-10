@@ -11,7 +11,7 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 
 /**
- * A Micronaut {@code Factory} that provides a cache resources suitable for client use.
+ * A Micronaut {@code Factory} that provides cache resources suitable for client use.
  *
  * @author jeremy
  */

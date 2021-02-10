@@ -12,7 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * {@code MinMaxField} encapsulates a label and pair of input fields to specify a minimum and
- * maximum value for a field (e.g to specify a filter range).
+ * maximum value for a field (e.g. to specify a filter range).
  *
  * @author jeremy
  * @param <V>

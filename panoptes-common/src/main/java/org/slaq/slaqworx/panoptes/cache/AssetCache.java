@@ -31,8 +31,8 @@ import org.slaq.slaqworx.panoptes.util.DistinctSecurityAttributeValuesAggregator
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
- * {@code AssetCache} provides operations for accessing {@code Portfolio} and related data (e.g.
- * {@code Position}s, {@code Security} entities) from the distributed cache.
+ * Provides operations for accessing {@code Portfolio} and related data (e.g. {@code Position}s,
+ * {@code Security} entities) from the distributed cache.
  *
  * @author jeremy
  */

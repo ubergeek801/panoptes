@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 /**
- * {@code EvaluationGroup} is a value type used as a key when classifying rule evaluation results.
+ * A value type used as a key when classifying rule evaluation results.
  *
  * @author jeremy
  */

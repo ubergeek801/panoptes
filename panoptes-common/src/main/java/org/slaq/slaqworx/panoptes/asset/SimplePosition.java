@@ -1,11 +1,11 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A {@code SimplePosition} is a {@code Position} that is somewhat of a contrivance in that it is
- * constructed "out of thin air," in contrast to a "real" {@code Position} which, in a
- * {@code Portfolio}, is actually an aggregation of {@code TaxLot}s derived from
- * {@code Transaction}s against the same {@code Security}. {@code SimplePosition} may be used to
- * represent benchmark weights or other artificially-constructed {@code Position}-like entities.
+ * A {@code Position} that is somewhat of a contrivance in that it is constructed "out of thin air,"
+ * in contrast to a "real" {@code Position} which, in a {@code Portfolio}, is actually an
+ * aggregation of {@code TaxLot}s derived from {@code Transaction}s against the same
+ * {@code Security}. {@code SimplePosition} may be used to represent benchmark weights or other
+ * artificially-constructed {@code Position}-like entities.
  *
  * @author jeremy
  */

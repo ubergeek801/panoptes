@@ -11,7 +11,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioRuleKeyMs
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * A (de)serializer for the state of a {@code PortfolioRuleKey} using Protobuf.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code PortfolioRuleKey}.
  *
  * @author jeremy
  */

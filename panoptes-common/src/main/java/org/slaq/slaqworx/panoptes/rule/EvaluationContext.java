@@ -15,10 +15,10 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * {@code EvaluationContext} provides contextual information related to the execution of
- * {@code Portfolio} evaluation. Normally, a new {@code EvaluationContext} should be used for each
- * {@code RuleEvaluator} instance, but scenarios which would benefit from benchmark value caching
- * across multiple invocations of the same {@code Rule} may reuse an {@code EvaluationContext}.
+ * Provides contextual information related to the execution of {@code Portfolio} evaluation.
+ * Normally, a new {@code EvaluationContext} should be used for each {@code RuleEvaluator} instance,
+ * but scenarios which would benefit from benchmark value caching across multiple invocations of the
+ * same {@code Rule} may reuse an {@code EvaluationContext}.
  *
  * @author jeremy
  */

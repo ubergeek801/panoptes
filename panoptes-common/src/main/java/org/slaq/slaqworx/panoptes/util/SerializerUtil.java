@@ -18,8 +18,7 @@ import io.micronaut.core.serialize.JdkSerializer;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * {@code SerializerUtil} provides utilities for performing various types of serialization
- * (particularly JSON).
+ * Provides utilities for performing various types of serialization (particularly JSON).
  *
  * @author jeremy
  */

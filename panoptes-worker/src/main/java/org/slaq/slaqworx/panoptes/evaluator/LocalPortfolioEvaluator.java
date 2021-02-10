@@ -35,9 +35,9 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 @Named("local")
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     /**
-     * {@code ShortCircuiter} is a {@code Predicate} and {@code Consumer} intended for use with on a
-     * {@code Stream} of {@code Rule}s. The {@code Stream} is "short-circuited" by
-     * {@code takeWhile()} after a failed result is encountered by {@code peek()}.
+     * A {@code Predicate} and {@code Consumer} intended for use with on a {@code Stream} of
+     * {@code Rule}s. The {@code Stream} is "short-circuited" by {@code takeWhile()} after a failed
+     * result is encountered by {@code peek()}.
      * <p>
      * Note that a {@code Predicate} used by {@code takeWhile()} is expected to be stateless; we
      * bend that definition somewhat by maintaining state (specifically, whether a failed result has
@@ -55,7 +55,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
         private EvaluationResult failedResult;
 
         /**
-         * Creates a new {@code ShortCircuitingResultMapper}.
+         * Creates a new {@code ShortCircuiter}.
          *
          * @param portfolioKey
          *            a {@code PortfolioKey} identifying the {@code Portfolio} being evaluated

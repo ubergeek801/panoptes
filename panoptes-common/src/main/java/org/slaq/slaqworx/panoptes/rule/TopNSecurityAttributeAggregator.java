@@ -16,11 +16,10 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * {@code TopNSecurityAttributeAggregator} is a {@code SecurityAttributeGroupClassifier} which
- * classifies {@code Positions} based on a specified {@code SecurityAttribute}, and also (as a
- * {@code GroupAggregator}) aggregates the "top n" resulting groups into a composite group. The
- * number of classified groups is limited to n + 1 (and will be smaller if the number of distinct
- * attribute values is smaller than n).
+ * A {@code SecurityAttributeGroupClassifier} which classifies {@code Positions} based on a
+ * specified {@code SecurityAttribute}, and also (as a {@code GroupAggregator}) aggregates the "top
+ * n" resulting groups into a composite group. The number of classified groups is limited to n + 1
+ * (and will be smaller if the number of distinct attribute values is smaller than n).
  *
  * @author jeremy
  */

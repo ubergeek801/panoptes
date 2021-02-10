@@ -6,9 +6,9 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * A {@code PositionSupplier} supplies {@code Position}s. An implementor might be a customer
- * {@code Portfolio} or a "raw" set of {@code Position}s. A {@code PositionSupplier} may provide
- * access to a related {@code Portfolio} (which may be the supplier itself), but note that the
+ * Supplies {@code Position}s. An implementor might be a customer {@code Portfolio} or a "raw" set
+ * of {@code Position}s. A {@code PositionSupplier} may provide access to a related
+ * {@code Portfolio} (which may be the supplier itself), but note that the
  * {@code PositionSupplier}'s members may not be the same as the related {@code Portfolio}'s (the
  * supplier may, for example, provide access to a filtered set).
  *

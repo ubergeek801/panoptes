@@ -11,8 +11,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * {@code RoomEvaluationRequest} is a {@code Callable} which facilitates clustered room-in-name
- * evaluation by serializing the evaluation parameters for execution on a remote cluster node.
+ * A {@code Callable} which facilitates clustered room-in-name evaluation by serializing the
+ * evaluation parameters for execution on a remote cluster node.
  *
  * @author jeremy
  */

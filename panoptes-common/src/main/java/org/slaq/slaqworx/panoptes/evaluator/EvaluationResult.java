@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * {@code EvaluationResult} aggregates {@code RuleResult}s for a single {@code Rule} evaluation.
+ * Aggregates {@code RuleResult}s for a single {@code Rule} evaluation.
  *
  * @author jeremy
  */
