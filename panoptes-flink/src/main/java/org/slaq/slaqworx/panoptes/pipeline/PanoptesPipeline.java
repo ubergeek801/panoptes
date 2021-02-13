@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -115,8 +114,6 @@ public class PanoptesPipeline {
      */
     public void create(String... args) throws Exception {
         LOG.info("initializing pipeline");
-
-        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
         // obtain securities from Kafka and broadcast
         SingleOutputStreamOperator<Security> securitySource =

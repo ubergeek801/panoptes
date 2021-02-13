@@ -21,7 +21,7 @@ import org.slaq.slaqworx.panoptes.util.FakeSet;
  *
  * @author jeremy
  */
-public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, Security> {
+public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, Void> {
     private static final long serialVersionUID = 1L;
 
     private final AssetCache assetCache;
@@ -61,7 +61,7 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
     }
 
     @Override
-    protected Stream<Security> fetchFromBackEnd(Query<Security, Security> query) {
+    protected Stream<Security> fetchFromBackEnd(Query<Security, Void> query) {
         return assetCache.getSecurityCache()
                 .getAll(new FakeSet<>(securityKeys.subList(query.getOffset(),
                         Math.min(query.getOffset() + query.getLimit(), securityKeys.size()))))
@@ -69,7 +69,7 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
     }
 
     @Override
-    protected int sizeInBackEnd(Query<Security, Security> query) {
+    protected int sizeInBackEnd(Query<Security, Void> query) {
         return securityKeys.size();
     }
 }

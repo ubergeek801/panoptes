@@ -64,7 +64,7 @@ public class TradingPanel extends VerticalLayout {
         securityGrid.setColumnReorderingAllowed(true);
         securityGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_ROW_BORDERS,
                 GridVariant.LUMO_COMPACT);
-        securityGrid.setDataProvider(securityProvider);
+        securityGrid.setItems(securityProvider);
 
         securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("Asset ID");
@@ -139,7 +139,7 @@ public class TradingPanel extends VerticalLayout {
         portfolioGrid.setColumnReorderingAllowed(true);
         portfolioGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_COMPACT);
-        portfolioGrid.setDataProvider(portfolioProvider);
+        portfolioGrid.setItems(portfolioProvider);
 
         portfolioGrid.addColumn(p -> p.getKey().getId()).setAutoWidth(true).setFrozen(true)
                 .setHeader("ID");
