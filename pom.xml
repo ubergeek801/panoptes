@@ -27,6 +27,7 @@
         <module>panoptes-core</module>
         <module>panoptes-core-test</module>
         <module>panoptes-flink</module>
+        <module>panoptes-jet</module>
         <module>panoptes-ui</module>
         <module>panoptes-worker</module>
     </modules>
