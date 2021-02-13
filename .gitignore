@@ -12,6 +12,10 @@ target/
 # ignore Vaadin artifacts which can be regenerated
 package-lock.json
 package.json
+pnpmfile.js
+pnpm-lock.yaml
+tsconfig.json
+types.d.ts
 webpack.config.js
 webpack.generated.js
 node_modules/

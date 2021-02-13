@@ -38,7 +38,6 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>2.7.1</version>
                 <executions>
                     <execution>
                         <id>jib-amd64</id>
@@ -118,7 +117,6 @@
             <plugin>
                 <groupId>io.micronaut.build</groupId>
                 <artifactId>micronaut-maven-plugin</artifactId>
-                <version>1.0.0</version>
             </plugin>
             <!-- set the desired environment when running unit tests -->
             <plugin>
