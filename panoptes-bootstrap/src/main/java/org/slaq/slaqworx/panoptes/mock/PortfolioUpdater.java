@@ -20,6 +20,11 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 
+/**
+ * A standalone application which publishes random portfolio update events to Kafka.
+ *
+ * @author jeremy
+ */
 @Singleton
 @Context
 @Requires(env = { "portfolio-update" })

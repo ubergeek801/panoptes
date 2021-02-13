@@ -29,6 +29,11 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
+/**
+ * A standalone application which publishes random trade events to Kafka.
+ *
+ * @author jeremy
+ */
 @Singleton
 @Context
 @Requires(env = { "trade-submit" })

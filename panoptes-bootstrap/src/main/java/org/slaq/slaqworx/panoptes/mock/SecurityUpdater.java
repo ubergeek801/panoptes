@@ -18,6 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
 
+/**
+ * A standalone application which publishes random security update events to Kafka.
+ *
+ * @author jeremy
+ */
 @Singleton
 @Context
 @Requires(env = { "security-update" })

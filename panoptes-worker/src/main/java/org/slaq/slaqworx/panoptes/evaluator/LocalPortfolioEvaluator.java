@@ -25,9 +25,9 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code LocalPortfolioEvaluator} is a {@code PortfolioEvaluator} which performs processing on the
- * local node. {@code Rule}s are evaluated sequentially (although in no particular order); any
- * desired processing concurrency is expected to be provided at a higher layer of abstraction.
+ * A {@code PortfolioEvaluator} which performs processing on the local node. {@code Rule}s are
+ * evaluated sequentially (although in no particular order); any desired processing concurrency is
+ * expected to be provided at a higher layer of abstraction.
  *
  * @author jeremy
  */

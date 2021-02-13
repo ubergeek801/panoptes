@@ -50,8 +50,8 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * Panoptes is a prototype system for investment portfolio compliance assurance. {@code Panoptes} is
- * the entry point of the application.
+ * Panoptes is a prototype system for investment portfolio compliance assurance. This class is the
+ * entry point of the application.
  *
  * @author jeremy
  */

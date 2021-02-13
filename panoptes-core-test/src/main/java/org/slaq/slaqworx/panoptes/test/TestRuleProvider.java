@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
- * {@code TestRuleProvider} is a {@code RuleProvider} suitable for testing purposes.
+ * A {@code RuleProvider} suitable for testing purposes.
  *
  * @author jeremy
  */
