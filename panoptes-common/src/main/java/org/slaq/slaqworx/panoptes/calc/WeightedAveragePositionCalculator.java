@@ -27,7 +27,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
      * {@code Position}s.
      */
     private static class AmountAccumulator {
-        double weightedMarketValue = 0;
+        double weightedAttributeValue = 0;
         double marketValue = 0;
     }
 
@@ -48,7 +48,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
 
         @Override
         public BiConsumer<AmountAccumulator, PositionEvaluationContext> accumulator() {
-            // accumulate the Position's amount and weighted amount
+            // accumulate the Position's weighted attribute value and market value
             return (a, c) -> {
                 Position p = c.getPosition();
                 EvaluationContext context = c.getEvaluationContext();
@@ -59,7 +59,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
                     return;
                 }
                 double positionMarketValue = p.getMarketValue(c.getEvaluationContext());
-                a.weightedMarketValue += positionMarketValue * attributeValue.doubleValue();
+                a.weightedAttributeValue += positionMarketValue * attributeValue.doubleValue();
                 a.marketValue += positionMarketValue;
             };
         }
@@ -73,7 +73,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
         public BinaryOperator<AmountAccumulator> combiner() {
             // combine (sum) two accumulators into one
             return (a1, a2) -> {
-                a1.weightedMarketValue += a2.weightedMarketValue;
+                a1.weightedAttributeValue += a2.weightedAttributeValue;
                 a1.marketValue += a2.marketValue;
                 return a1;
             };
@@ -82,7 +82,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
         @Override
         public Function<AmountAccumulator, Double> finisher() {
             // calculate the weighted average
-            return a -> a.weightedMarketValue / a.marketValue;
+            return a -> a.weightedAttributeValue / a.marketValue;
         }
 
         @Override
