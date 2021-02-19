@@ -21,6 +21,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
@@ -54,7 +55,7 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
 
     @Override
     public void open(Configuration config) throws Exception {
-        portfolioTracker = new PortfolioTracker(getRuntimeContext(), "benchmark");
+        portfolioTracker = new PortfolioTracker(getRuntimeContext(), EvaluationSource.BENCHMARK);
         benchmarkRulesState = getRuntimeContext().getMapState(BENCHMARK_RULES_STATE_DESCRIPTOR);
     }
 

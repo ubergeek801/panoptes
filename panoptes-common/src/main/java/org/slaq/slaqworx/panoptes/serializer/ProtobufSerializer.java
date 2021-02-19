@@ -4,7 +4,7 @@ import com.hazelcast.nio.serialization.ByteArraySerializer;
 
 /**
  * A {@code ByteArraySerializer} which enforces that serializable types are marked with the
- * {@code PortobufSerializable} interface.
+ * {@code ProtobufSerializable} interface.
  *
  * @author jeremy
  * @param <T>

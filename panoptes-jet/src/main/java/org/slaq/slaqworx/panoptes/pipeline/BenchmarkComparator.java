@@ -1,15 +1,19 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.co.KeyedCoProcessFunction;
-import org.apache.flink.util.Collector;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import com.hazelcast.function.SupplierEx;
+import com.hazelcast.jet.Traverser;
+import com.hazelcast.jet.Traversers;
+import com.hazelcast.jet.function.TriFunction;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
+import org.slaq.slaqworx.panoptes.pipeline.BenchmarkComparator.BenchmarkComparatorState;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 
 /**
@@ -23,20 +27,21 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResu
  *
  * @author jeremy
  */
-public class BenchmarkComparator extends KeyedCoProcessFunction<PortfolioRuleKey,
-        RuleEvaluationResult, RuleEvaluationResult, RuleEvaluationResult> {
+public class BenchmarkComparator
+        implements SupplierEx<BenchmarkComparatorState>, TriFunction<BenchmarkComparatorState,
+                PortfolioRuleKey, RuleEvaluationResult, Traverser<RuleEvaluationResult>> {
+    static class BenchmarkComparatorState implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        // contains the portfolio's rule results mapped by the rule key
+        RuleEvaluationResult baseResult;
+        // contains the benchmark's rule results for the keyed benchmark and rule
+        EvaluationResult benchmarkResult;
+    }
+
     private static final long serialVersionUID = 1L;
 
-    private static final ValueStateDescriptor<
-            RuleEvaluationResult> PORTFOLIO_RESULT_STATE_DESCRIPTOR =
-                    new ValueStateDescriptor<>("portfolioResult", RuleEvaluationResult.class);
-    private static final ValueStateDescriptor<EvaluationResult> BENCHMARK_RESULT_STATE_DESCRIPTOR =
-            new ValueStateDescriptor<>("benchmarkResult", EvaluationResult.class);
-
-    // contains the portfolio's rule results mapped by the rule key
-    private transient ValueState<RuleEvaluationResult> baseResultState;
-    // contains the benchmark's rule results for the keyed benchmark and rule
-    private transient ValueState<EvaluationResult> benchmarkResultState;
+    private transient BenchmarkComparatorState processState;
 
     /**
      * Creates a new {@code BenchmarkComparator}.
@@ -46,74 +51,87 @@ public class BenchmarkComparator extends KeyedCoProcessFunction<PortfolioRuleKey
     }
 
     @Override
-    public void open(Configuration parameters) throws Exception {
-        baseResultState = getRuntimeContext().getState(PORTFOLIO_RESULT_STATE_DESCRIPTOR);
-        benchmarkResultState = getRuntimeContext().getState(BENCHMARK_RESULT_STATE_DESCRIPTOR);
+    public Traverser<RuleEvaluationResult> applyEx(BenchmarkComparatorState processState,
+            PortfolioRuleKey eventKey, RuleEvaluationResult event) {
+        this.processState = processState;
+
+        ArrayList<RuleEvaluationResult> results = new ArrayList<>();
+        switch (event.getSource()) {
+        case BENCHMARK:
+            processBenchmarkResult(event, results);
+            break;
+        case PORTFOLIO:
+            processPortfolioResult(event, results);
+            break;
+        default:
+            // FIXME fail somehow
+        }
+
+        return Traversers.traverseIterable(results);
     }
 
     @Override
-    public void processElement1(RuleEvaluationResult portfolioResult,
-            KeyedCoProcessFunction<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
-                    RuleEvaluationResult>.Context context,
-            Collector<RuleEvaluationResult> out) throws Exception {
+    public BenchmarkComparatorState getEx() {
+        return new BenchmarkComparatorState();
+    }
+
+    public void processBenchmarkResult(RuleEvaluationResult portfolioResult,
+            Collection<RuleEvaluationResult> comparedResults) {
         // the element being processed is a portfolio rule evaluation result
 
         // if the portfolio does not have a benchmark or if the rule does not support benchmarks,
         // then we can pass the result through and forget about it
         PortfolioKey benchmarkKey = portfolioResult.getBenchmarkKey();
         if (benchmarkKey == null || !portfolioResult.isBenchmarkSupported()) {
-            out.collect(portfolioResult);
+            comparedResults.add(portfolioResult);
             return;
         }
 
         // the portfolio/rule are benchmark-enabled; capture the portfolio state for immediate
         // and/or future publication
-        baseResultState.update(portfolioResult);
+        processState.baseResult = portfolioResult;
 
         // check whether we have the corresponding benchmark results yet
-        EvaluationResult benchmarkResult = benchmarkResultState.value();
+        EvaluationResult benchmarkResult = processState.benchmarkResult;
         if (benchmarkResult == null) {
             // can't do anything yet
             return;
         }
 
         // benchmark results are present, so proceed with processing
-        processPortfolioResult(out, portfolioResult, benchmarkResult);
+        processPortfolioResult(comparedResults, portfolioResult, benchmarkResult);
     }
 
-    @Override
-    public void processElement2(RuleEvaluationResult benchmarkResult,
-            KeyedCoProcessFunction<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
-                    RuleEvaluationResult>.Context context,
-            Collector<RuleEvaluationResult> out) throws Exception {
+    public void processPortfolioResult(RuleEvaluationResult benchmarkResult,
+            Collection<RuleEvaluationResult> comparedResults) {
         // the element being processed is a benchmark rule evaluation result
 
         // store the benchmark result in the process state
         EvaluationResult benchmarkEvaluationResult = benchmarkResult.getEvaluationResult();
-        benchmarkResultState.update(benchmarkEvaluationResult);
+        processState.benchmarkResult = benchmarkEvaluationResult;
 
         // check whether we have the corresponding portfolio (base) results yet
-        RuleEvaluationResult baseResult = baseResultState.value();
+        RuleEvaluationResult baseResult = processState.baseResult;
         if (baseResult == null) {
             // can't do anything yet
             return;
         }
 
-        processPortfolioResult(out, baseResult, benchmarkEvaluationResult);
+        processPortfolioResult(comparedResults, baseResult, benchmarkEvaluationResult);
     }
 
     /**
      * Compares the base portfolio result and corresponding benchmark result and publishes the
      * comparison result to the given collector.
      *
-     * @param out
-     *            the {@code Collector} to which to publish the comparison result
+     * @param comparedResults
+     *            the {@code Collection} to which to publish the comparison result
      * @param baseResult
      *            the rule evaluation result from the base portfolio
      * @param benchmarkResult
      *            the rule evaluation result from the corresponding benchmark
      */
-    protected void processPortfolioResult(Collector<RuleEvaluationResult> out,
+    protected void processPortfolioResult(Collection<RuleEvaluationResult> comparedResults,
             RuleEvaluationResult baseResult, EvaluationResult benchmarkResult) {
         EvaluationResult benchmarkComparisonResult =
                 new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
@@ -123,6 +141,6 @@ public class BenchmarkComparator extends KeyedCoProcessFunction<PortfolioRuleKey
                 baseResult.getPortfolioKey(), baseResult.getBenchmarkKey(),
                 EvaluationSource.BENCHMARK_COMPARISON, baseResult.isBenchmarkSupported(),
                 baseResult.getLowerLimit(), baseResult.getUpperLimit(), benchmarkComparisonResult);
-        out.collect(finalResult);
+        comparedResults.add(finalResult);
     }
 }

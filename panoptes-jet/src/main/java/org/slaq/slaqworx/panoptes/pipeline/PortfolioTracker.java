@@ -1,21 +1,14 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.api.common.state.BroadcastState;
-import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
-import org.apache.flink.util.Collector;
+import com.hazelcast.map.IMap;
+import com.hazelcast.multimap.MultiMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +20,6 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
-import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -44,110 +36,89 @@ public class PortfolioTracker implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PortfolioTracker.class);
 
-    private static final ValueStateDescriptor<Portfolio> PORTFOLIO_STATE_DESCRIPTOR =
-            new ValueStateDescriptor<>("portfolio", Portfolio.class);
-
     private static final ConcurrentHashMap<PortfolioKey, Boolean> portfolioCompleteState =
             new ConcurrentHashMap<>();
 
     private EvaluationSource evaluationSource;
-    private transient ValueState<Portfolio> portfolioState;
+    private Portfolio portfolio;
 
     /**
-     * Creates a new {@code PortfolioTracker} using the given {@code RuntimeContext} to create
-     * process state.
+     * Creates a new {@code PortfolioTracker}.
      *
-     * @param context
-     *            the {@code RuntimeContext} in which to create process state
      * @param evaluationSource
-     *            the type of source portfolio (portfolio or benchmark) being tracked
+     *            the type of portfolio (portfolio or benchmark) being tracked
      */
-    protected PortfolioTracker(RuntimeContext context, EvaluationSource evaluationSource) {
-        portfolioState = context.getState(PORTFOLIO_STATE_DESCRIPTOR);
+    protected PortfolioTracker(EvaluationSource evaluationSource) {
         this.evaluationSource = evaluationSource;
     }
 
     /**
      * Applies the given security to the tracked portfolio, evaluating related rules if appropriate.
      *
-     * @param context
-     *            the process context related to the security event
      * @param security
      *            the security currently being encountered
      * @param ruleProvider
      *            a {@code Function} which provides rules to be evaluated for a given
      *            {@code Portfolio}
-     * @param out
-     *            a {@code Collector} to which rule evaluation results, if any, are output
-     * @throws Exception
-     *             if a state-related operation fails
+     * @param results
+     *            a {@code Collection} to which rule evaluation results, if any, are output
      */
-    public void applySecurity(
-            KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
-                    RuleEvaluationResult>.Context context,
-            Security security, Function<Portfolio, Iterable<Rule>> ruleProvider,
-            Collector<RuleEvaluationResult> out) throws Exception {
-        BroadcastState<SecurityKey, Security> securityState =
-                context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-        securityState.put(security.getKey(), security);
+    public void applySecurity(Security security, Function<Portfolio, Iterable<Rule>> ruleProvider,
+            Collection<RuleEvaluationResult> results) {
+        // FIXME get the security map
+        IMap<SecurityKey, Security> securityMap = null;
 
-        context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR, (portfolioKey, state) -> {
-            Portfolio portfolio = state.value();
-            processPortfolio(out, portfolio, security, securityState,
-                    ruleProvider.apply(portfolio));
-        });
+        processPortfolio(results, portfolio, security, securityMap, ruleProvider.apply(portfolio));
     }
 
     /**
      * Obtains the portfolio being tracked in the current process state.
      *
      * @return a {@code Portfolio}
-     * @throws IOException
-     *             if the state operation fails
      */
-    public Portfolio getPortfolio() throws IOException {
-        return portfolioState.value();
+    public Portfolio getPortfolio() {
+        return portfolio;
     }
 
     /**
-     * Register the given portfolio for tracking in the current process state.
+     * Registers the given portfolio for tracking in the current process state.
      *
      * @param portfolio
      *            the {@code Portfolio} to be tracked
-     * @throws IOException
-     *             if the state operation fails
+     * @param heldSecuritiesMap
+     *            a {@code MultiMap} mapping the key of a security to the keys of portfolios that
+     *            hold it
      */
-    public void trackPortfolio(Portfolio portfolio) throws IOException {
-        portfolioState.update(portfolio);
+    public void trackPortfolio(Portfolio portfolio,
+            MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap) {
+        this.portfolio = portfolio;
+
+        // FIXME possibly lock here
+        portfolio.getPositions()
+                .forEach(p -> heldSecuritiesMap.put(p.getSecurityKey(), portfolio.getKey()));
     }
 
     /**
      * Performs a portfolio evaluation and publishes the result.
      *
-     * @param out
-     *            the {@code Collector} to which to output compliance results
+     * @param results
+     *            the {@code Collection} to which to output compliance results
      * @param portfolio
      *            the portfolio being processed
-     * @param securityState
-     *            the security information currently held in broadcast state
+     * @param securityMap
+     *            an {@code IMap} containing known security information
      * @param rules
      *            the rules to be evaluated
      */
-    protected void evaluatePortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
-            ReadOnlyBroadcastState<SecurityKey, Security> securityState, Collection<Rule> rules) {
+    protected void evaluatePortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
+            IMap<SecurityKey, Security> securityMap, Iterable<Rule> rules) {
         // this is questionable but there shouldn't be any other portfolios queried
         PortfolioProvider portfolioProvider = (k -> portfolio);
-        SecurityProvider securityProvider = (k, context) -> {
-            try {
-                return securityState.get(k);
-            } catch (Exception e) {
-                // FIXME throw a real exception
-                throw new RuntimeException("could not get security " + k, e);
-            }
-        };
+        SecurityProvider securityProvider = (k, context) -> securityMap.get(k);
 
-        LOG.info("processing {} rules for {} {} (\"{}\")", rules.size(), evaluationSource,
-                portfolio.getKey(), portfolio.getName());
+        LOG.info("processing rules for {} {} (\"{}\")", evaluationSource, portfolio.getKey(),
+                portfolio.getName());
+        int[] numRules = new int[0];
         rules.forEach(rule -> {
             // FIXME get/generate eventId
             long eventId = System.currentTimeMillis();
@@ -160,9 +131,10 @@ public class PortfolioTracker implements Serializable {
                     portfolio.getKey(), portfolio.getBenchmarkKey(), evaluationSource,
                     rule.isBenchmarkSupported(), rule.getLowerLimit(), rule.getUpperLimit(),
                     evaluationResult);
-            out.collect(ruleEvaluationResult);
+            results.add(ruleEvaluationResult);
+            numRules[0]++;
         });
-        LOG.info("processed {} rules for {} {} (\"{}\")", rules.size(), evaluationSource,
+        LOG.info("processed {} rules for {} {} (\"{}\")", numRules[0], evaluationSource,
                 portfolio.getKey(), portfolio.getName());
     }
 
@@ -170,30 +142,27 @@ public class PortfolioTracker implements Serializable {
      * Determines whether the given portfolio is "complete" (all security information has been
      * provided) and performs a compliance evaluation if so.
      *
-     * @param out
-     *            the {@code Collector} to which to output compliance results
+     * @param results
+     *            the {@code Collection} to which to output compliance results
      * @param portfolio
      *            the portfolio being processed; if {@code null}, then nothing will be done
      * @param currentSecurity
      *            the security being encountered, or {@code null} if a portfolio is being
      *            encountered
-     * @param securityState
-     *            the security information currently held in broadcast state
+     * @param securityMap
+     *            an {@code IMap} containing known security information
      * @param rules
      *            the rules to be evaluated; if {@code null} or empty, then nothing will be done
-     * @throws Exception
-     *             if an error occurs during processing
      */
-    protected void processPortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
-            Security currentSecurity, ReadOnlyBroadcastState<SecurityKey, Security> securityState,
-            Iterable<Rule> rules) throws Exception {
+    protected void processPortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
+            Security currentSecurity, IMap<SecurityKey, Security> securityMap,
+            Iterable<Rule> rules) {
         if (portfolio == null) {
             return;
         }
 
         // if there are no rules to be evaluated, then don't bother
-        List<Rule> ruleCollection = IteratorUtils.toList(rules.iterator());
-        if (ruleCollection.isEmpty()) {
+        if (!rules.iterator().hasNext()) {
             return;
         }
 
@@ -209,7 +178,7 @@ public class PortfolioTracker implements Serializable {
             Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
             while (positionIter.hasNext()) {
                 Position position = positionIter.next();
-                if (!securityState.contains(position.getSecurityKey())) {
+                if (!securityMap.containsKey(position.getSecurityKey())) {
                     isComplete = false;
                     break;
                 }
@@ -230,6 +199,6 @@ public class PortfolioTracker implements Serializable {
         }
 
         // portfolio is ready for evaluation; proceed
-        evaluatePortfolio(out, portfolio, securityState, ruleCollection);
+        evaluatePortfolio(results, portfolio, securityMap, rules);
     }
 }

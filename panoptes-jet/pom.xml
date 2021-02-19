@@ -15,6 +15,7 @@
     <name>panoptes-jet</name>
 
     <properties>
+        <jet.version>4.4</jet.version>
     </properties>
 
     <build>
@@ -83,9 +84,27 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.slaq.slaqworx</groupId>
+            <artifactId>panoptes-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.hazelcast.jet</groupId>
             <artifactId>hazelcast-jet</artifactId>
-            <version>4.4</version>
+            <version>${jet.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast.jet</groupId>
+            <artifactId>hazelcast-jet-kafka</artifactId>
+            <version>${jet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slaq.slaqworx</groupId>
+            <artifactId>panoptes-core-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

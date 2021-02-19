@@ -17,6 +17,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
@@ -59,8 +60,8 @@ public class BenchmarkComparatorTest {
                 Map.of(EvaluationGroup.defaultGroup(), new ValueResult(Threshold.WITHIN, 1));
         EvaluationResult benchmarkResult =
                 new EvaluationResult(ruleKey, benchmarkEvaluationResults);
-        RuleEvaluationResult benchmarkResultInput =
-                new RuleEvaluationResult(0, benchmarkKey, null, false, null, null, benchmarkResult);
+        RuleEvaluationResult benchmarkResultInput = new RuleEvaluationResult(0, benchmarkKey, null,
+                EvaluationSource.BENCHMARK, false, null, null, benchmarkResult);
 
         PortfolioKey portfolioKey = new PortfolioKey("portfolio", 1);
         Map<EvaluationGroup, ValueResult> portfolioEvaluationResults =
@@ -68,7 +69,7 @@ public class BenchmarkComparatorTest {
         EvaluationResult portfolioResult =
                 new EvaluationResult(ruleKey, portfolioEvaluationResults);
         RuleEvaluationResult portfolioResultInput = new RuleEvaluationResult(0, portfolioKey,
-                benchmarkKey, true, 0d, 5d, portfolioResult);
+                benchmarkKey, EvaluationSource.PORTFOLIO, true, 0d, 5d, portfolioResult);
 
         harness.processElement2(benchmarkResultInput, 0L);
         harness.processElement1(portfolioResultInput, 1L);
@@ -78,8 +79,9 @@ public class BenchmarkComparatorTest {
 
         Queue<Object> expectedOutput = new LinkedList<>();
         StreamRecord<RuleEvaluationResult> expectedResult =
-                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, benchmarkKey, true, 0d,
-                        5d, new EvaluationResult(ruleKey, portfolioEvaluationResults)), 1L);
+                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, benchmarkKey,
+                        EvaluationSource.BENCHMARK_COMPARISON, true, 0d, 5d,
+                        new EvaluationResult(ruleKey, portfolioEvaluationResults)), 1L);
         expectedOutput.add(expectedResult);
 
         TestHarnessUtil.assertOutputEquals("actual output did not match expected output",
@@ -103,8 +105,8 @@ public class BenchmarkComparatorTest {
                 new ValueResult(Threshold.WITHIN, 2));
         EvaluationResult portfolioResult =
                 new EvaluationResult(ruleKey, portfolioEvaluationResults);
-        RuleEvaluationResult portfolioResultInput =
-                new RuleEvaluationResult(0, portfolioKey, null, true, 0d, 5d, portfolioResult);
+        RuleEvaluationResult portfolioResultInput = new RuleEvaluationResult(0, portfolioKey, null,
+                EvaluationSource.PORTFOLIO, true, 0d, 5d, portfolioResult);
 
         harness.processElement1(portfolioResultInput, 0L);
 
@@ -112,9 +114,10 @@ public class BenchmarkComparatorTest {
         Queue<Object> output = harness.getOutput();
 
         Queue<Object> expectedOutput = new LinkedList<>();
-        StreamRecord<RuleEvaluationResult> expectedResult =
-                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, null, true, 0d, 5d,
-                        new EvaluationResult(ruleKey, portfolioEvaluationResults)), 0L);
+        StreamRecord<RuleEvaluationResult> expectedResult = new StreamRecord<>(
+                new RuleEvaluationResult(0, portfolioKey, null, EvaluationSource.PORTFOLIO, true,
+                        0d, 5d, new EvaluationResult(ruleKey, portfolioEvaluationResults)),
+                0L);
         expectedOutput.add(expectedResult);
 
         TestHarnessUtil.assertOutputEquals("actual output did not match expected output",
@@ -136,8 +139,8 @@ public class BenchmarkComparatorTest {
                 Map.of(EvaluationGroup.defaultGroup(), new ValueResult(Threshold.WITHIN, 1));
         EvaluationResult benchmarkResult =
                 new EvaluationResult(ruleKey, benchmarkEvaluationResults);
-        RuleEvaluationResult benchmarkResultInput =
-                new RuleEvaluationResult(0, benchmarkKey, null, false, null, null, benchmarkResult);
+        RuleEvaluationResult benchmarkResultInput = new RuleEvaluationResult(0, benchmarkKey, null,
+                EvaluationSource.BENCHMARK, false, null, null, benchmarkResult);
 
         PortfolioKey portfolioKey = new PortfolioKey("portfolio", 1);
         Map<EvaluationGroup, ValueResult> portfolioEvaluationResults =
@@ -145,7 +148,7 @@ public class BenchmarkComparatorTest {
         EvaluationResult portfolioResult =
                 new EvaluationResult(ruleKey, portfolioEvaluationResults);
         RuleEvaluationResult portfolioResultInput = new RuleEvaluationResult(0, portfolioKey,
-                benchmarkKey, true, 0d, 5d, portfolioResult);
+                benchmarkKey, EvaluationSource.PORTFOLIO, true, 0d, 5d, portfolioResult);
 
         harness.processElement1(portfolioResultInput, 0L);
         harness.processElement2(benchmarkResultInput, 1L);
@@ -155,8 +158,9 @@ public class BenchmarkComparatorTest {
 
         Queue<Object> expectedOutput = new LinkedList<>();
         StreamRecord<RuleEvaluationResult> expectedResult =
-                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, benchmarkKey, true, 0d,
-                        5d, new EvaluationResult(ruleKey, portfolioEvaluationResults)), 1L);
+                new StreamRecord<>(new RuleEvaluationResult(0, portfolioKey, benchmarkKey,
+                        EvaluationSource.BENCHMARK_COMPARISON, true, 0d, 5d,
+                        new EvaluationResult(ruleKey, portfolioEvaluationResults)), 1L);
         expectedOutput.add(expectedResult);
 
         TestHarnessUtil.assertOutputEquals("actual output did not match expected output",

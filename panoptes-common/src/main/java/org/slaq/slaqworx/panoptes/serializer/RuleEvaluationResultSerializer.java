@@ -10,6 +10,7 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 
 /**
  * A {@code ProtobufSerializer} which (de)serializes the state of a {@code RuleEvaluationResult}.
@@ -49,14 +50,15 @@ public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEv
         } else {
             benchmarkKey = null;
         }
+        EvaluationSource source = msg.getSource();
         boolean isBenchmarkSupported = msg.getIsBenchmarkSupported();
         Double lowerLimit = (msg.hasLowerLimit() ? msg.getLowerLimit().getValue() : null);
         Double upperLimit = (msg.hasUpperLimit() ? msg.getUpperLimit().getValue() : null);
         EvaluationResult evaluationResult =
                 EvaluationResultSerializer.convert(msg.getEvaluationResult());
 
-        return new RuleEvaluationResult(eventId, portfolioKey, benchmarkKey, isBenchmarkSupported,
-                lowerLimit, upperLimit, evaluationResult);
+        return new RuleEvaluationResult(eventId, portfolioKey, benchmarkKey, source,
+                isBenchmarkSupported, lowerLimit, upperLimit, evaluationResult);
     }
 
     @Override

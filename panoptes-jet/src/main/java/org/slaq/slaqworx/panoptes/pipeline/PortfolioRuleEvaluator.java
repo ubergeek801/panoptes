@@ -1,14 +1,22 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
-import org.apache.flink.util.Collector;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import com.hazelcast.function.SupplierEx;
+import com.hazelcast.jet.Jet;
+import com.hazelcast.jet.Traverser;
+import com.hazelcast.jet.Traversers;
+import com.hazelcast.jet.function.TriFunction;
+import com.hazelcast.map.IMap;
+import com.hazelcast.multimap.MultiMap;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
+import org.slaq.slaqworx.panoptes.cache.AssetCacheFactory;
+import org.slaq.slaqworx.panoptes.event.HeldSecurityEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
@@ -22,8 +30,8 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResu
  *
  * @author jeremy
  */
-public class PortfolioRuleEvaluator extends KeyedBroadcastProcessFunction<PortfolioKey,
-        PortfolioEvent, Security, RuleEvaluationResult> {
+public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, TriFunction<
+        PortfolioTracker, PortfolioKey, PortfolioEvent, Traverser<RuleEvaluationResult>> {
     private static final long serialVersionUID = 1L;
 
     private transient PortfolioTracker portfolioTracker;
@@ -36,23 +44,31 @@ public class PortfolioRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
     }
 
     @Override
-    public void open(Configuration config) throws Exception {
-        portfolioTracker = new PortfolioTracker(getRuntimeContext(), EvaluationSource.PORTFOLIO);
+    public Traverser<RuleEvaluationResult> applyEx(PortfolioTracker processState,
+            PortfolioKey eventKey, PortfolioEvent event) {
+        portfolioTracker = processState;
+
+        ArrayList<RuleEvaluationResult> results = new ArrayList<>();
+        if (event instanceof HeldSecurityEvent) {
+            SecurityKey securityKey = ((HeldSecurityEvent)event).getSecurityKey();
+            IMap<SecurityKey, Security> securityMap = AssetCacheFactory
+                    .fromJetInstance(Jet.bootstrappedInstance()).getSecurityCache();
+            Security security = securityMap.get(securityKey);
+            processSecurity(security, results);
+        } else {
+            processPortfolioEvent(event, results);
+        }
+
+        return Traversers.traverseIterable(results);
     }
 
     @Override
-    public void processBroadcastElement(Security security,
-            KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
-                    RuleEvaluationResult>.Context context,
-            Collector<RuleEvaluationResult> out) throws Exception {
-        portfolioTracker.applySecurity(context, security, (p -> p.getRules()::iterator), out);
+    public PortfolioTracker getEx() {
+        return new PortfolioTracker(EvaluationSource.PORTFOLIO);
     }
 
-    @Override
-    public void processElement(PortfolioEvent portfolioEvent,
-            KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
-                    RuleEvaluationResult>.ReadOnlyContext context,
-            Collector<RuleEvaluationResult> out) throws Exception {
+    protected void processPortfolioEvent(PortfolioEvent portfolioEvent,
+            Collection<RuleEvaluationResult> results) {
         boolean isPortfolioProcessable;
         Portfolio portfolio;
         if (portfolioEvent instanceof PortfolioCommandEvent) {
@@ -64,7 +80,9 @@ public class PortfolioRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
             portfolio = ((PortfolioDataEvent)portfolioEvent).getPortfolio();
             // we shouldn't be seeing benchmarks, but ignore them if we do
             if (!portfolio.isAbstract()) {
-                portfolioTracker.trackPortfolio(portfolio);
+                MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap = AssetCacheFactory
+                        .fromJetInstance(Jet.bootstrappedInstance()).getHeldSecuritiesCache();
+                portfolioTracker.trackPortfolio(portfolio, heldSecuritiesMap);
                 isPortfolioProcessable = true;
             } else {
                 isPortfolioProcessable = false;
@@ -80,10 +98,14 @@ public class PortfolioRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
         }
 
         if (isPortfolioProcessable && portfolio != null) {
-            ReadOnlyBroadcastState<SecurityKey, Security> securityState =
-                    context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-            portfolioTracker.processPortfolio(out, portfolio, null, securityState,
+            // FIXME get security map
+            IMap<SecurityKey, Security> securityMap = null;
+            portfolioTracker.processPortfolio(results, portfolio, null, securityMap,
                     portfolio.getRules()::iterator);
         }
+    }
+
+    protected void processSecurity(Security security, Collection<RuleEvaluationResult> results) {
+        portfolioTracker.applySecurity(security, (p -> p.getRules()::iterator), results);
     }
 }

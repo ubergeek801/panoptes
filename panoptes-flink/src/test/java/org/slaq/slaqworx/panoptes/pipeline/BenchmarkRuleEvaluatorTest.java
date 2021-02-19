@@ -31,6 +31,7 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
@@ -142,8 +143,10 @@ public class BenchmarkRuleEvaluatorTest {
         @SuppressWarnings("unchecked") RuleEvaluationResult evaluationResult =
                 ((StreamRecord<RuleEvaluationResult>)output.element()).getValue();
         StreamRecord<RuleEvaluationResult> expectedResult =
-                new StreamRecord<>(new RuleEvaluationResult(evaluationResult.getEventId(),
-                        benchmarkKey, null, true, 0d, 0d, expectedEvaluationResult), 3L);
+                new StreamRecord<>(
+                        new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
+                                EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult),
+                        3L);
         expectedOutput.add(expectedResult);
         TestHarnessUtil.assertOutputEquals("unexpected output", expectedOutput, output);
     }
@@ -225,8 +228,10 @@ public class BenchmarkRuleEvaluatorTest {
         @SuppressWarnings("unchecked") RuleEvaluationResult evaluationResult =
                 ((StreamRecord<RuleEvaluationResult>)output.element()).getValue();
         StreamRecord<RuleEvaluationResult> expectedResult =
-                new StreamRecord<>(new RuleEvaluationResult(evaluationResult.getEventId(),
-                        benchmarkKey, null, true, 0d, 0d, expectedEvaluationResult), 3L);
+                new StreamRecord<>(
+                        new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
+                                EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult),
+                        3L);
         expectedOutput.add(expectedResult);
         TestHarnessUtil.assertOutputEquals("unexpected output", expectedOutput, output);
     }

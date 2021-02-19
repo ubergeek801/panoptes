@@ -153,11 +153,18 @@ message PortfolioEventMsg {
 }
 
 message RuleEvaluationResultMsg {
+    enum EvaluationSource {
+        BENCHMARK = 0;
+        PORTFOLIO = 1;
+        BENCHMARK_COMPARISON = 2;
+    }
+
     int64 eventId = 1;
     IdVersionKeyMsg portfolioKey = 2;
     IdVersionKeyMsg benchmarkKey = 3;
-    bool isBenchmarkSupported = 4;
-    google.protobuf.DoubleValue lowerLimit = 5;
-    google.protobuf.DoubleValue upperLimit = 6;
-    EvaluationResultMsg evaluationResult = 7;
+    EvaluationSource source = 4;
+    bool isBenchmarkSupported = 5;
+    google.protobuf.DoubleValue lowerLimit = 6;
+    google.protobuf.DoubleValue upperLimit = 7;
+    EvaluationResultMsg evaluationResult = 8;
 }
