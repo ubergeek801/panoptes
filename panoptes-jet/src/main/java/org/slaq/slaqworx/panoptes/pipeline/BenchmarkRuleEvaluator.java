@@ -3,8 +3,8 @@ package org.slaq.slaqworx.panoptes.pipeline;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import com.hazelcast.function.SupplierEx;
@@ -12,7 +12,6 @@ import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
 import com.hazelcast.map.IMap;
-import com.hazelcast.multimap.MultiMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ public class BenchmarkRuleEvaluator
         private static final long serialVersionUID = 1L;
 
         PortfolioTracker portfolioTracker;
-        HashMap<RuleKey, Rule> benchmarkRules;
+        ConcurrentHashMap<RuleKey, Rule> benchmarkRules;
     }
 
     private static final long serialVersionUID = 1L;
@@ -86,7 +85,7 @@ public class BenchmarkRuleEvaluator
     public BenchmarkRuleEvaluatorState getEx() {
         BenchmarkRuleEvaluatorState state = new BenchmarkRuleEvaluatorState();
         state.portfolioTracker = new PortfolioTracker(EvaluationSource.BENCHMARK);
-        state.benchmarkRules = new HashMap<>();
+        state.benchmarkRules = new ConcurrentHashMap<>();
 
         return state;
     }
@@ -101,14 +100,12 @@ public class BenchmarkRuleEvaluator
         Portfolio portfolio = ((PortfolioDataEvent)benchmarkEvent).getPortfolio();
 
         if (portfolio.isAbstract()) {
-            MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap =
-                    PanoptesApp.getAssetCache().getHeldSecuritiesCache();
-            processState.portfolioTracker.trackPortfolio(portfolio, heldSecuritiesMap);
+            processState.portfolioTracker.trackPortfolio(portfolio);
             // the portfolio is a benchmark, so try to process it
             IMap<SecurityKey, Security> securityMap =
                     PanoptesApp.getAssetCache().getSecurityCache();
             processState.portfolioTracker.processPortfolio(results, portfolio, null, securityMap,
-                    processState.benchmarkRules.values());
+                    () -> processState.benchmarkRules.values().stream());
         } else {
             // the portfolio is not a benchmark, but it may have rules that are of interest, so try
             // to extract and process them
@@ -117,13 +114,14 @@ public class BenchmarkRuleEvaluator
             IMap<SecurityKey, Security> securityMap =
                     PanoptesApp.getAssetCache().getSecurityCache();
             processState.portfolioTracker.processPortfolio(results,
-                    processState.portfolioTracker.getPortfolio(), null, securityMap, newRules);
+                    processState.portfolioTracker.getPortfolio(), null, securityMap,
+                    () -> newRules.stream());
         }
     }
 
     public void processSecurity(Security security, Collection<RuleEvaluationResult> results) {
         processState.portfolioTracker.applySecurity(security,
-                (p -> processState.benchmarkRules.values()), results);
+                () -> processState.benchmarkRules.values().stream(), results);
     }
 
     /**

@@ -8,7 +8,6 @@ import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
 import com.hazelcast.map.IMap;
-import com.hazelcast.multimap.MultiMap;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -77,13 +76,11 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, Tri
         } else if (portfolioEvent instanceof PortfolioDataEvent) {
             portfolio = ((PortfolioDataEvent)portfolioEvent).getPortfolio();
             // we shouldn't be seeing benchmarks, but ignore them if we do
-            if (!portfolio.isAbstract()) {
-                MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap =
-                        PanoptesApp.getAssetCache().getHeldSecuritiesCache();
-                portfolioTracker.trackPortfolio(portfolio, heldSecuritiesMap);
-                isPortfolioProcessable = true;
-            } else {
+            if (portfolio.isAbstract()) {
                 isPortfolioProcessable = false;
+            } else {
+                portfolioTracker.trackPortfolio(portfolio);
+                isPortfolioProcessable = true;
             }
         } else if (portfolioEvent instanceof TransactionEvent) {
             // FIXME implement; right now just process the portfolio
@@ -98,12 +95,11 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, Tri
         if (isPortfolioProcessable && portfolio != null) {
             IMap<SecurityKey, Security> securityMap =
                     PanoptesApp.getAssetCache().getSecurityCache();
-            portfolioTracker.processPortfolio(results, portfolio, null, securityMap,
-                    portfolio.getRules()::iterator);
+            portfolioTracker.processPortfolio(results, portfolio, null, securityMap, portfolio);
         }
     }
 
     protected void processSecurity(Security security, Collection<RuleEvaluationResult> results) {
-        portfolioTracker.applySecurity(security, (p -> p.getRules()::iterator), results);
+        portfolioTracker.applySecurity(security, portfolioTracker, results);
     }
 }

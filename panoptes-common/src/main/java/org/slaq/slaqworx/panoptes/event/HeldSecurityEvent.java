@@ -4,7 +4,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
- * A {@code PortfolioEvent} which indicates a change to a security held by the target portfolio.
+ * A {@code PortfolioEvent} which indicates a change to a security broadcast to each portfolio.
  *
  * @author jeremy
  */

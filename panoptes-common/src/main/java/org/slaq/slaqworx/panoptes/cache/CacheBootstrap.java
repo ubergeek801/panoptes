@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.cache;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import com.hazelcast.multimap.MultiMap;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -22,18 +21,6 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  * @author jeremy
  */
 class CacheBootstrap {
-    /**
-     * Obtains the held securities cache from the given {@code HazelcastInstance}.
-     *
-     * @param hazelcastInstance
-     *            the {@code HazelcastInstance} from which to obtain the cache
-     * @return the held securities cache
-     */
-    protected static MultiMap<SecurityKey, PortfolioKey>
-            getHeldSecuritiesCache(HazelcastInstance hazelcastInstance) {
-        return hazelcastInstance.getMultiMap(AssetCache.HELD_SECURITIES_CACHE_NAME);
-    }
-
     /**
      * Obtains the {@code Portfolio} cache from the given {@code HazelcastInstance}.
      *

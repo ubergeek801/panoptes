@@ -4,10 +4,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.hazelcast.map.IMap;
-import com.hazelcast.multimap.MultiMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.rule.RulesProvider;
 
 /**
  * A utility for determining whether a tracked portfolio is ready for evaluation (that is, all of
@@ -31,7 +31,7 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  *
  * @author jeremy
  */
-public class PortfolioTracker implements Serializable {
+public class PortfolioTracker implements Serializable, RulesProvider {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(PortfolioTracker.class);
@@ -57,17 +57,21 @@ public class PortfolioTracker implements Serializable {
      *
      * @param security
      *            the security currently being encountered
-     * @param ruleProvider
-     *            a {@code Function} which provides rules to be evaluated for a given
-     *            {@code Portfolio}
+     * @param rulesProvider
+     *            a {@code RulesProvider} providing rules to be evaluated
      * @param results
      *            a {@code Collection} to which rule evaluation results, if any, are output
      */
-    public void applySecurity(Security security, Function<Portfolio, Iterable<Rule>> ruleProvider,
+    public void applySecurity(Security security, RulesProvider rulesProvider,
             Collection<RuleEvaluationResult> results) {
+        if (portfolio == null) {
+            // nothing we can do yet
+            return;
+        }
+
         IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
 
-        processPortfolio(results, portfolio, security, securityMap, ruleProvider.apply(portfolio));
+        processPortfolio(results, portfolio, security, securityMap, rulesProvider);
     }
 
     /**
@@ -79,22 +83,19 @@ public class PortfolioTracker implements Serializable {
         return portfolio;
     }
 
+    @Override
+    public Stream<Rule> getRules() {
+        return (portfolio == null ? Stream.empty() : portfolio.getRules());
+    }
+
     /**
      * Registers the given portfolio for tracking in the current process state.
      *
      * @param portfolio
      *            the {@code Portfolio} to be tracked
-     * @param heldSecuritiesMap
-     *            a {@code MultiMap} mapping the key of a security to the keys of portfolios that
-     *            hold it
      */
-    public void trackPortfolio(Portfolio portfolio,
-            MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap) {
+    public void trackPortfolio(Portfolio portfolio) {
         this.portfolio = portfolio;
-
-        // FIXME possibly lock here
-        portfolio.getPositions()
-                .forEach(p -> heldSecuritiesMap.put(p.getSecurityKey(), portfolio.getKey()));
     }
 
     /**
@@ -106,11 +107,11 @@ public class PortfolioTracker implements Serializable {
      *            the portfolio being processed
      * @param securityMap
      *            an {@code IMap} containing known security information
-     * @param rules
-     *            the rules to be evaluated
+     * @param rulesProvider
+     *            the {@code RulesProvider} providing the rules to be evaluated
      */
     protected void evaluatePortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
-            IMap<SecurityKey, Security> securityMap, Iterable<Rule> rules) {
+            IMap<SecurityKey, Security> securityMap, RulesProvider rulesProvider) {
         // this is questionable but there shouldn't be any other portfolios queried
         PortfolioProvider portfolioProvider = (k -> portfolio);
         SecurityProvider securityProvider = (k, context) -> securityMap.get(k);
@@ -118,7 +119,7 @@ public class PortfolioTracker implements Serializable {
         LOG.info("processing rules for {} {} (\"{}\")", evaluationSource, portfolio.getKey(),
                 portfolio.getName());
         int[] numRules = new int[1];
-        rules.forEach(rule -> {
+        rulesProvider.getRules().forEach(rule -> {
             // FIXME get/generate eventId
             long eventId = System.currentTimeMillis();
 
@@ -150,18 +151,19 @@ public class PortfolioTracker implements Serializable {
      *            encountered
      * @param securityMap
      *            an {@code IMap} containing known security information
-     * @param rules
-     *            the rules to be evaluated; if {@code null} or empty, then nothing will be done
+     * @param rulesProvider
+     *            a {@code RulesProvider} providing the rules to be evaluated; if {@code null} or
+     *            empty, then nothing will be done
      */
     protected void processPortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
             Security currentSecurity, IMap<SecurityKey, Security> securityMap,
-            Iterable<Rule> rules) {
+            RulesProvider rulesProvider) {
         if (portfolio == null) {
             return;
         }
 
         // if there are no rules to be evaluated, then don't bother
-        if (!rules.iterator().hasNext()) {
+        if (rulesProvider == null || rulesProvider.getRules().count() == 0) {
             return;
         }
 
@@ -198,6 +200,6 @@ public class PortfolioTracker implements Serializable {
         }
 
         // portfolio is ready for evaluation; proceed
-        evaluatePortfolio(results, portfolio, securityMap, rules);
+        evaluatePortfolio(results, portfolio, securityMap, rulesProvider);
     }
 }

@@ -9,7 +9,6 @@ import javax.inject.Singleton;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.map.IMap;
-import com.hazelcast.multimap.MultiMap;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -40,7 +39,6 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 @Singleton
 public class AssetCache implements PortfolioProvider, PositionProvider, RuleProvider,
         SecurityProvider, TradeProvider {
-    public static final String HELD_SECURITIES_CACHE_NAME = "held-securities";
     public static final String PORTFOLIO_CACHE_NAME = "portfolio";
     public static final String POSITION_CACHE_NAME = "position";
     public static final String SECURITY_CACHE_NAME = "security";
@@ -86,7 +84,6 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     }
 
     private final HazelcastInstance hazelcastInstance;
-    private final MultiMap<SecurityKey, PortfolioKey> heldSecuritiesCache;
     private final IMap<PortfolioKey, Portfolio> portfolioCache;
     private final IMap<PositionKey, Position> positionCache;
     private final IMap<RuleKey, ConfigurableRule> ruleCache;
@@ -104,7 +101,6 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
      */
     protected AssetCache(HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
-        heldSecuritiesCache = CacheBootstrap.getHeldSecuritiesCache(hazelcastInstance);
         portfolioCache = CacheBootstrap.getPortfolioCache(hazelcastInstance);
         positionCache = CacheBootstrap.getPositionCache(hazelcastInstance);
         ruleCache = CacheBootstrap.getRuleCache(hazelcastInstance);
@@ -142,15 +138,6 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     public SortedSet<String> getCurrencies() {
         return getSecurityCache().aggregate(
                 new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
-    }
-
-    /**
-     * Obtains the held securities cache.
-     *
-     * @return the held securities cache
-     */
-    public MultiMap<SecurityKey, PortfolioKey> getHeldSecuritiesCache() {
-        return heldSecuritiesCache;
     }
 
     @Override

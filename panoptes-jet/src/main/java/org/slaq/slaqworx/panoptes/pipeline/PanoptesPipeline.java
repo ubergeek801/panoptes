@@ -74,7 +74,7 @@ public class PanoptesPipeline {
         StreamStage<Security> securitySource = pipeline.readFrom(securityKafkaSource)
                 .withIngestionTimestamps().setName("securitySource");
         StreamStage<HeldSecurityEvent> holdingPortfolioStream =
-                securitySource.flatMap(new HeldSecuritySplitter()).setName("holdingPortfolios");
+                securitySource.flatMap(new SecurityBroadcaster()).setName("holdingPortfolios");
 
         // obtain trades from Kafka
         StreamStage<Trade> tradeSource = pipeline.readFrom(tradeKafkaSource)

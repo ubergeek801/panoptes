@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -132,6 +133,8 @@ public class PanoptesPipelineConfig {
                 org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioEventSerializer.class);
         jobConfig.registerSerializer(PortfolioKey.class,
                 org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioKeySerializer.class);
+        jobConfig.registerSerializer(PortfolioRuleKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioRuleKeySerializer.class);
         jobConfig.registerSerializer(PortfolioSummarizer.class,
                 org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSummarizerSerializer.class);
         jobConfig.registerSerializer(PortfolioSummary.class,
