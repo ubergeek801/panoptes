@@ -73,13 +73,11 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
     protected PanoptesSerdeRegistry() {
         serdeMap = new HashMap<>();
 
-        // FIXME some of these need additional services
-        serdeMap.put(EvaluationContext.class, createSerde(new EvaluationContextSerializer(null)));
+        serdeMap.put(EvaluationContext.class, createSerde(new EvaluationContextSerializer()));
         serdeMap.put(Portfolio.class, createSerde(new PortfolioSerializer()));
         serdeMap.put(PortfolioEvent.class, createSerde(new PortfolioEventSerializer()));
         serdeMap.put(PortfolioKey.class, createSerde(new PortfolioKeySerializer()));
-        serdeMap.put(PortfolioSummarizer.class,
-                createSerde(new PortfolioSummarizerSerializer(null)));
+        serdeMap.put(PortfolioSummarizer.class, createSerde(new PortfolioSummarizerSerializer()));
         serdeMap.put(PortfolioSummary.class, createSerde(new PortfolioSummarySerializer()));
         serdeMap.put(PositionKey.class, createSerde(new PositionKeySerializer()));
         serdeMap.put(Position.class, createSerde(new PositionSerializer()));
@@ -91,7 +89,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
         serdeMap.put(SecurityKey.class, createSerde(new SecurityKeySerializer()));
         serdeMap.put(Security.class, createSerde(new SecuritySerializer()));
         serdeMap.put(TradeEvaluationRequest.class,
-                createSerde(new TradeEvaluationRequestSerializer(null)));
+                createSerde(new TradeEvaluationRequestSerializer()));
         serdeMap.put(TradeKey.class, createSerde(new TradeKeySerializer()));
         serdeMap.put(Trade.class, createSerde(new TradeSerializer()));
         serdeMap.put(TransactionKey.class, createSerde(new TransactionKeySerializer()));

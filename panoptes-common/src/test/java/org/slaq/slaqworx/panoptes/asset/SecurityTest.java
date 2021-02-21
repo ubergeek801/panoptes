@@ -27,8 +27,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  */
 @MicronautTest
 public class SecurityTest {
-    @Inject
-    private AssetCache assetCache;
+    @Inject private AssetCache assetCache;
 
     /**
      * Tests that {@code getAttributes()} behaves as expected.
@@ -82,8 +81,8 @@ public class SecurityTest {
         Map<SecurityKey, SecurityAttributes> overrides =
                 Map.of(security.getKey(), new SecurityAttributes(SecurityAttribute
                         .mapOf(SecurityAttribute.duration, 3d, SecurityAttribute.country, "US")));
-        EvaluationContext evaluationContext = new EvaluationContext(assetCache, assetCache,
-                EvaluationMode.FULL_EVALUATION, overrides);
+        EvaluationContext evaluationContext =
+                new EvaluationContext(EvaluationMode.FULL_EVALUATION, overrides);
         assertEquals(3d,
                 security.getEffectiveAttributeValue(SecurityAttribute.duration, evaluationContext),
                 "expected overridden value for duration");

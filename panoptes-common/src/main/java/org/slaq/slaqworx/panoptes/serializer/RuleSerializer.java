@@ -21,7 +21,6 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * method:
  *
  * <pre>
- *
  * public static SampleRule fromJson(String jsonConfiguration, RuleKey key, String description,
  *         String groovyFilter, EvaluationGroupClassifier groupClassifier)
  * </pre>
@@ -180,16 +179,6 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
      */
     public RuleSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.RULE.ordinal();
     }
 
     @Override

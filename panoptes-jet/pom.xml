@@ -15,6 +15,7 @@
     <name>panoptes-jet</name>
 
     <properties>
+        <exec.mainClass>org.slaq.slaqworx.panoptes.pipeline.PanoptesApp</exec.mainClass> 
         <jet.version>4.4</jet.version>
     </properties>
 

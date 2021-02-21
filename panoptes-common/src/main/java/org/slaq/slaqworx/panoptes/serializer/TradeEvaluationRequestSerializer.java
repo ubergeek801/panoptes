@@ -3,11 +3,6 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.inject.Provider;
-
-import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TradeEvaluationRequestMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -21,30 +16,11 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  */
 public class TradeEvaluationRequestSerializer
         implements ProtobufSerializer<TradeEvaluationRequest> {
-    private final Provider<? extends SecurityProvider> securityProvider;
-    private final Provider<? extends PortfolioProvider> portfolioProvider;
-
     /**
-     * Creates a new {@code TradeEvaluationRequestSerializer} which delegates to the given
-     * {@code AssetCache}.
-     *
-     * @param assetCacheProvider
-     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
-     *            circular initialization)
+     * Creates a new {@code TradeEvaluationRequestSerializer}.
      */
-    public TradeEvaluationRequestSerializer(Provider<AssetCache> assetCacheProvider) {
-        portfolioProvider = assetCacheProvider;
-        securityProvider = assetCacheProvider;
-    }
-
-    @Override
-    public void destroy() {
+    public TradeEvaluationRequestSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRADE_EVALUATION_REQUEST.ordinal();
     }
 
     @Override
@@ -54,8 +30,8 @@ public class TradeEvaluationRequestSerializer
         IdKeyMsg keyMsg = requestMsg.getTradeKey();
         TradeKey tradeKey = new TradeKey(keyMsg.getId());
 
-        EvaluationContext context = EvaluationContextSerializer.convert(
-                requestMsg.getEvaluationContext(), securityProvider.get(), portfolioProvider.get());
+        EvaluationContext context =
+                EvaluationContextSerializer.convert(requestMsg.getEvaluationContext());
 
         return new TradeEvaluationRequest(tradeKey, context);
     }

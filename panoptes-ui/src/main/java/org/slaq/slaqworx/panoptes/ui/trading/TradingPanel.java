@@ -122,18 +122,16 @@ public class TradingPanel extends VerticalLayout {
         CallbackDataProvider<PortfolioSummary,
                 Void> portfolioProvider =
                         DataProvider
-                                .fromCallbacks(
-                                        query -> portfolioCache.executeOnKeys(
+                                .fromCallbacks(query -> portfolioCache
+                                        .executeOnKeys(
                                                 new FakeSet<>(
                                                         portfolioKeys.subList(query.getOffset(),
                                                                 Math.min(
                                                                         query.getOffset()
                                                                                 + query.getLimit(),
                                                                         portfolioKeys.size()))),
-                                                new PortfolioSummarizer(new EvaluationContext(
-                                                        assetCache, assetCache)))
-                                                .values().stream(),
-                                        query -> portfolioKeys.size());
+                                                new PortfolioSummarizer(new EvaluationContext()))
+                                        .values().stream(), query -> portfolioKeys.size());
 
         Grid<PortfolioSummary> portfolioGrid = new Grid<>();
         portfolioGrid.setColumnReorderingAllowed(true);

@@ -153,16 +153,6 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.EVALUATION_RESULT.ordinal();
-    }
-
-    @Override
     public EvaluationResult read(byte[] buffer) throws IOException {
         EvaluationResultMsg evaluationResultMsg = EvaluationResultMsg.parseFrom(buffer);
 

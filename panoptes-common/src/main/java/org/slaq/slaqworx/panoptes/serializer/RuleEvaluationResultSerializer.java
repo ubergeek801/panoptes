@@ -19,20 +19,10 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResu
  */
 public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEvaluationResult> {
     /**
-     * Creates a new {@code TradeEvaluationResultSerializer}.
+     * Creates a new {@code RuleEvaluationResultSerializer}.
      */
     public RuleEvaluationResultSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.RULE_EVALUATION_RESULT.ordinal();
     }
 
     @Override

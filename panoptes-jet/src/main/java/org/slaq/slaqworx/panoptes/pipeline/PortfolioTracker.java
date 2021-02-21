@@ -65,8 +65,7 @@ public class PortfolioTracker implements Serializable {
      */
     public void applySecurity(Security security, Function<Portfolio, Iterable<Rule>> ruleProvider,
             Collection<RuleEvaluationResult> results) {
-        // FIXME get the security map
-        IMap<SecurityKey, Security> securityMap = null;
+        IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
 
         processPortfolio(results, portfolio, security, securityMap, ruleProvider.apply(portfolio));
     }
@@ -118,7 +117,7 @@ public class PortfolioTracker implements Serializable {
 
         LOG.info("processing rules for {} {} (\"{}\")", evaluationSource, portfolio.getKey(),
                 portfolio.getName());
-        int[] numRules = new int[0];
+        int[] numRules = new int[1];
         rules.forEach(rule -> {
             // FIXME get/generate eventId
             long eventId = System.currentTimeMillis();

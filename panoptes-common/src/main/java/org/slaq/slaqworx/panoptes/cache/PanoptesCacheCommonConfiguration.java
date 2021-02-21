@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.cache;
 
 import java.util.concurrent.ForkJoinPool;
 
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.hazelcast.config.ExecutorConfig;
@@ -24,25 +23,25 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
-import org.slaq.slaqworx.panoptes.serializer.EvaluationContextSerializer;
-import org.slaq.slaqworx.panoptes.serializer.EvaluationResultSerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioEvaluationRequestSerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioSummarizerSerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioSummarySerializer;
-import org.slaq.slaqworx.panoptes.serializer.PositionKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.PositionSerializer;
-import org.slaq.slaqworx.panoptes.serializer.RoomEvaluationRequestSerializer;
-import org.slaq.slaqworx.panoptes.serializer.RuleKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
-import org.slaq.slaqworx.panoptes.serializer.RuleSummarySerializer;
-import org.slaq.slaqworx.panoptes.serializer.SecurityKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeEvaluationRequestSerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeEvaluationResultSerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.EvaluationContextSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.EvaluationResultSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioEvaluationRequestSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSummarizerSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSummarySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PositionKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.PositionSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.RoomEvaluationRequestSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.RuleKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.RuleSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.RuleSummarySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.SecurityKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.SecuritySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeEvaluationRequestSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeEvaluationResultSerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeSerializer;
 import org.slaq.slaqworx.panoptes.trade.RoomEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
@@ -83,30 +82,27 @@ public class PanoptesCacheCommonConfiguration {
      * Provides a Hazelcast serialization configuration suitable for serializing Panoptes cached
      * objects.
      *
-     * @param assetCacheProvider
-     *            a {@code Provider} providing an {@code AssetCache} (used to avoid circular
-     *            injection dependencies)
      * @return a Hazelcast {@code SerializationConfig}
      */
     @Singleton
-    protected SerializationConfig serializationConfig(Provider<AssetCache> assetCacheProvider) {
+    protected SerializationConfig serializationConfig() {
         SerializationConfig config = new SerializationConfig();
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new EvaluationContextSerializer(assetCacheProvider))
-                .setTypeClass(EvaluationContext.class));
+        config.addSerializerConfig(
+                new SerializerConfig().setImplementation(new EvaluationContextSerializer())
+                        .setTypeClass(EvaluationContext.class));
         config.addSerializerConfig(
                 new SerializerConfig().setImplementation(new EvaluationResultSerializer())
                         .setTypeClass(EvaluationResult.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioEvaluationRequestSerializer(assetCacheProvider))
-                .setTypeClass(PortfolioEvaluationRequest.class));
+        config.addSerializerConfig(
+                new SerializerConfig().setImplementation(new PortfolioEvaluationRequestSerializer())
+                        .setTypeClass(PortfolioEvaluationRequest.class));
         config.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
         config.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new PortfolioSerializer()).setTypeClass(Portfolio.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioSummarizerSerializer(assetCacheProvider))
-                .setTypeClass(PortfolioSummarizer.class));
+        config.addSerializerConfig(
+                new SerializerConfig().setImplementation(new PortfolioSummarizerSerializer())
+                        .setTypeClass(PortfolioSummarizer.class));
         config.addSerializerConfig(
                 new SerializerConfig().setImplementation(new PortfolioSummarySerializer())
                         .setTypeClass(PortfolioSummary.class));
@@ -127,9 +123,9 @@ public class PanoptesCacheCommonConfiguration {
                 .setImplementation(new SecurityKeySerializer()).setTypeClass(SecurityKey.class));
         config.addSerializerConfig(new SerializerConfig()
                 .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new TradeEvaluationRequestSerializer(assetCacheProvider))
-                .setTypeClass(TradeEvaluationRequest.class));
+        config.addSerializerConfig(
+                new SerializerConfig().setImplementation(new TradeEvaluationRequestSerializer())
+                        .setTypeClass(TradeEvaluationRequest.class));
         config.addSerializerConfig(
                 new SerializerConfig().setImplementation(new TradeEvaluationResultSerializer())
                         .setTypeClass(TradeEvaluationResult.class));

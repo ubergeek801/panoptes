@@ -21,6 +21,6 @@ public class TradeEvaluationRequestDeserializationSchema
 
     @Override
     protected ProtobufSerializer<TradeEvaluationRequest> createSerializer() {
-        return new TradeEvaluationRequestSerializer(this);
+        return new TradeEvaluationRequestSerializer();
     }
 }

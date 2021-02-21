@@ -21,6 +21,6 @@ public class PortfolioEvaluationRequestDeserializationSchema
 
     @Override
     protected ProtobufSerializer<PortfolioEvaluationRequest> createSerializer() {
-        return new PortfolioEvaluationRequestSerializer(this);
+        return new PortfolioEvaluationRequestSerializer();
     }
 }

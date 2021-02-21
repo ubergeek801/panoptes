@@ -52,7 +52,7 @@ public class CompliancePanel extends VerticalLayout {
             // FIXME use a proper version
             PortfolioKey portfolioKey = new PortfolioKey(portfolioIdField.getValue(), 1);
             portfolio = assetCache.getPortfolioCache().executeOnKey(portfolioKey,
-                    new PortfolioSummarizer(new EvaluationContext(assetCache, assetCache)));
+                    new PortfolioSummarizer(new EvaluationContext()));
             if (portfolio == null) {
                 portfolioIdField.setErrorMessage("not found");
                 portfolioIdField.setInvalid(true);
@@ -77,8 +77,7 @@ public class CompliancePanel extends VerticalLayout {
             }
 
             resultPanel.setResult(portfolioEvaluator
-                    .evaluate(portfolio.getKey(), new EvaluationContext(assetCache, assetCache))
-                    .join());
+                    .evaluate(portfolio.getKey(), new EvaluationContext()).join());
         });
     }
 }

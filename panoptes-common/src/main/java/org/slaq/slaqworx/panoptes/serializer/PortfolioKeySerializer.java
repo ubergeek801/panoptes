@@ -20,16 +20,6 @@ public class PortfolioKeySerializer implements ProtobufSerializer<PortfolioKey> 
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_KEY.ordinal();
-    }
-
-    @Override
     public PortfolioKey read(byte[] buffer) throws IOException {
         IdVersionKeyMsg keyMsg = IdVersionKeyMsg.parseFrom(buffer);
         return new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());

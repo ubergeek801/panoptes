@@ -1,28 +1,18 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import java.util.Collection;
-
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import com.hazelcast.jet.Jet;
-import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sink;
 import com.hazelcast.jet.pipeline.SinkBuilder;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
-import com.hazelcast.map.IMap;
-import com.hazelcast.multimap.MultiMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
-import org.slaq.slaqworx.panoptes.cache.AssetCacheFactory;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.event.HeldSecurityEvent;
@@ -77,27 +67,14 @@ public class PanoptesPipeline {
                     TradeEvaluationResult> tradeResultSink) {
         LOG.info("initializing pipeline");
 
-        AssetCache assetCache = AssetCacheFactory.fromJetInstance(Jet.bootstrappedInstance());
-
         pipeline = Pipeline.create();
 
         // obtain securities from Kafka and put to the Security map, look up portfolios holding each
         // security and emit a HeldSecurityEvent for each
         StreamStage<Security> securitySource = pipeline.readFrom(securityKafkaSource)
                 .withIngestionTimestamps().setName("securitySource");
-        IMap<SecurityKey, Security> securityMap = assetCache.getSecurityCache();
-        StreamStage<HeldSecurityEvent> holdingPortfolioStream = securitySource.flatMap(s -> {
-            MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap =
-                    assetCache.getHeldSecuritiesCache();
-            // FIXME probably will want to use async versions here
-            securityMap.set(s.getKey(), s);
-            // FIXME maybe locking is necessary
-            Collection<PortfolioKey> holdingPortfolios = heldSecuritiesMap.get(s.getKey());
-
-            return (holdingPortfolios == null ? Traversers.empty()
-                    : Traversers.traverseStream(holdingPortfolios.stream()
-                            .map(k -> new HeldSecurityEvent(k, s.getKey()))));
-        }).setName("holdingPortfolios");
+        StreamStage<HeldSecurityEvent> holdingPortfolioStream =
+                securitySource.flatMap(new HeldSecuritySplitter()).setName("holdingPortfolios");
 
         // obtain trades from Kafka
         StreamStage<Trade> tradeSource = pipeline.readFrom(tradeKafkaSource)

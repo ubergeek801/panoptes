@@ -20,16 +20,6 @@ public class PositionKeySerializer implements ProtobufSerializer<PositionKey> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.POSITION_KEY.ordinal();
-    }
-
-    @Override
     public PositionKey read(byte[] buffer) throws IOException {
         IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new PositionKey(keyMsg.getId());

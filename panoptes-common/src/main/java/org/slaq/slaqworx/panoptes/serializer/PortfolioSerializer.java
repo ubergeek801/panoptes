@@ -79,16 +79,6 @@ public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO.ordinal();
-    }
-
-    @Override
     public Portfolio read(byte[] buffer) throws IOException {
         PortfolioMsg portfolioMsg = PortfolioMsg.parseFrom(buffer);
 

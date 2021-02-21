@@ -23,20 +23,10 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
 @Singleton
 public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEvent> {
     /**
-     * Creates a new {@code PortfolioSerializer}.
+     * Creates a new {@code PortfolioEventSerializer}.
      */
     public PortfolioEventSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_EVENT.ordinal();
     }
 
     @Override

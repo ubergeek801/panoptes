@@ -15,20 +15,45 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioEvaluationRequestSerializer;
-import org.slaq.slaqworx.panoptes.serializer.PortfolioEventSerializer;
-import org.slaq.slaqworx.panoptes.serializer.SecuritySerializer;
-import org.slaq.slaqworx.panoptes.serializer.TradeSerializer;
+import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.RuleKey;
+import org.slaq.slaqworx.panoptes.rule.RuleSummary;
+import org.slaq.slaqworx.panoptes.serializer.kafka.EvaluationResultSerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioEvaluationRequestSerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioEventSerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.RuleKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.SecurityKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.SecuritySerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.TradeEvaluationResultSerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.TradeKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.TradeSerializer;
+import org.slaq.slaqworx.panoptes.trade.RoomEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
+import org.slaq.slaqworx.panoptes.trade.TransactionKey;
 
 /**
  * A Micronaut {@code Factory} which configures and provides various beans to the
@@ -78,15 +103,20 @@ public class PanoptesPipelineConfig {
     protected StreamSource<PortfolioEvent> benchmarkSource() {
         LOG.info("using {} as benchmark topic", benchmarkTopic);
 
-        Properties benchmarkSourceProperties = new Properties(kafkaProperties);
-        benchmarkSourceProperties.setProperty("auto.offset.reset", "earliest");
+        Properties benchmarkSourceProperties = new Properties();
+        benchmarkSourceProperties.putAll(kafkaProperties);
+        benchmarkSourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        benchmarkSourceProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                PortfolioKeySerializer.class.getCanonicalName());
+        benchmarkSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                PortfolioEventSerializer.class.getCanonicalName());
 
         return KafkaSources.kafka(benchmarkSourceProperties,
-                (r -> new PortfolioEventSerializer().read((byte[])r.value())), benchmarkTopic);
+                ConsumerRecord<PortfolioKey, PortfolioEvent>::value, benchmarkTopic);
     }
 
     /**
-     * Configures and provides the Jet job configuration.
+     * Configures and provides a {@code JobConfig} suitable for executing the Panoptes pipeline.
      *
      * @return a {@code JobConfig}
      */
@@ -94,7 +124,44 @@ public class PanoptesPipelineConfig {
     protected JobConfig jobConfig() {
         JobConfig jobConfig = new JobConfig();
 
-        // register serializers here if necessary
+        jobConfig.registerSerializer(EvaluationContext.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.EvaluationContextSerializer.class);
+        jobConfig.registerSerializer(Portfolio.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSerializer.class);
+        jobConfig.registerSerializer(PortfolioEvent.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioEventSerializer.class);
+        jobConfig.registerSerializer(PortfolioKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioKeySerializer.class);
+        jobConfig.registerSerializer(PortfolioSummarizer.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSummarizerSerializer.class);
+        jobConfig.registerSerializer(PortfolioSummary.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioSummarySerializer.class);
+        jobConfig.registerSerializer(PositionKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PositionKeySerializer.class);
+        jobConfig.registerSerializer(Position.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.PositionSerializer.class);
+        jobConfig.registerSerializer(RoomEvaluationRequest.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.RoomEvaluationRequestSerializer.class);
+        jobConfig.registerSerializer(RuleKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.RuleKeySerializer.class);
+        jobConfig.registerSerializer(ConfigurableRule.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.RuleSerializer.class);
+        jobConfig.registerSerializer(RuleSummary.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.RuleSummarySerializer.class);
+        jobConfig.registerSerializer(SecurityKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.SecurityKeySerializer.class);
+        jobConfig.registerSerializer(Security.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.SecuritySerializer.class);
+        jobConfig.registerSerializer(TradeEvaluationRequest.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeEvaluationRequestSerializer.class);
+        jobConfig.registerSerializer(TradeKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeKeySerializer.class);
+        jobConfig.registerSerializer(Trade.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeSerializer.class);
+        jobConfig.registerSerializer(TransactionKey.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.TransactionKeySerializer.class);
+        jobConfig.registerSerializer(Transaction.class,
+                org.slaq.slaqworx.panoptes.serializer.hazelcast.TransactionSerializer.class);
 
         return jobConfig;
     }
@@ -113,12 +180,19 @@ public class PanoptesPipelineConfig {
             portfolioEvaluationRequestSource(Provider<AssetCache> assetCacheProvider) {
         LOG.info("using {} as portfolioEvaluationRequest topic", portfolioEvaluationRequestTopic);
 
-        Properties portfolioEvaluationRequestSourceProperties = new Properties(kafkaProperties);
-        portfolioEvaluationRequestSourceProperties.setProperty("auto.offset.reset", "earliest");
+        Properties portfolioEvaluationRequestSourceProperties = new Properties();
+        portfolioEvaluationRequestSourceProperties.putAll(kafkaProperties);
+        portfolioEvaluationRequestSourceProperties
+                .setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        portfolioEvaluationRequestSourceProperties.setProperty(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                PortfolioKeySerializer.class.getCanonicalName());
+        portfolioEvaluationRequestSourceProperties.setProperty(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                PortfolioEvaluationRequestSerializer.class.getCanonicalName());
 
         return KafkaSources.kafka(portfolioEvaluationRequestSourceProperties,
-                (r -> new PortfolioEvaluationRequestSerializer(assetCacheProvider)
-                        .read((byte[])r.value())),
+                ConsumerRecord<PortfolioKey, PortfolioEvaluationRequest>::value,
                 portfolioEvaluationRequestTopic);
     }
 
@@ -132,10 +206,17 @@ public class PanoptesPipelineConfig {
     protected Sink<EvaluationResult> portfolioEvaluationResultSink() {
         LOG.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
 
-        Properties portfolioEvaluationResultSinkProperties = new Properties(kafkaProperties);
+        Properties portfolioEvaluationResultSinkProperties = new Properties();
+        portfolioEvaluationResultSinkProperties.putAll(kafkaProperties);
+        portfolioEvaluationResultSinkProperties.setProperty(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                RuleKeySerializer.class.getCanonicalName());
+        portfolioEvaluationResultSinkProperties.setProperty(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                EvaluationResultSerializer.class.getCanonicalName());
 
         return KafkaSinks.kafka(portfolioEvaluationResultSinkProperties,
-                portfolioEvaluationResultTopic, EvaluationResult::getKey, r -> r);
+                portfolioEvaluationResultTopic, EvaluationResult::getRuleKey, r -> r);
     }
 
     /**
@@ -148,11 +229,16 @@ public class PanoptesPipelineConfig {
     protected StreamSource<PortfolioEvent> portfolioSource() {
         LOG.info("using {} as portfolio topic", portfolioTopic);
 
-        Properties portfolioSourceProperties = new Properties(kafkaProperties);
-        portfolioSourceProperties.setProperty("auto.offset.reset", "earliest");
+        Properties portfolioSourceProperties = new Properties();
+        portfolioSourceProperties.putAll(kafkaProperties);
+        portfolioSourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        portfolioSourceProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                PortfolioKeySerializer.class.getCanonicalName());
+        portfolioSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                PortfolioEventSerializer.class.getCanonicalName());
 
         return KafkaSources.kafka(portfolioSourceProperties,
-                (r -> new PortfolioEventSerializer().read((byte[])r.value())), portfolioTopic);
+                ConsumerRecord<PortfolioKey, PortfolioEvent>::value, portfolioTopic);
     }
 
     /**
@@ -165,11 +251,18 @@ public class PanoptesPipelineConfig {
     protected StreamSource<Security> securitySource() {
         LOG.info("using {} as security topic", securityTopic);
 
-        Properties securitySourceProperties = new Properties(kafkaProperties);
-        securitySourceProperties.setProperty("auto.offset.reset", "earliest");
+        LOG.info("using base properties {}", kafkaProperties);
+
+        Properties securitySourceProperties = new Properties();
+        securitySourceProperties.putAll(kafkaProperties);
+        securitySourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        securitySourceProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                SecurityKeySerializer.class.getCanonicalName());
+        securitySourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                SecuritySerializer.class.getCanonicalName());
 
         return KafkaSources.kafka(securitySourceProperties,
-                (r -> new SecuritySerializer().read((byte[])r.value())), securityTopic);
+                ConsumerRecord<SecurityKey, Security>::value, securityTopic);
     }
 
     /**
@@ -182,7 +275,11 @@ public class PanoptesPipelineConfig {
     protected Sink<TradeEvaluationResult> tradeEvaluationResultSink() {
         LOG.info("using {} as tradeEvaluationResult topic", tradeEvaluationResultTopic);
 
-        Properties tradeEvaluationResultSinkProperties = new Properties(kafkaProperties);
+        Properties tradeEvaluationResultSinkProperties = new Properties();
+        tradeEvaluationResultSinkProperties.putAll(kafkaProperties);
+        tradeEvaluationResultSinkProperties.setProperty(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                TradeEvaluationResultSerializer.class.getCanonicalName());
 
         return KafkaSinks.kafka(tradeEvaluationResultSinkProperties, tradeEvaluationResultTopic,
                 r -> null, r -> r);
@@ -198,10 +295,15 @@ public class PanoptesPipelineConfig {
     protected StreamSource<Trade> tradeSource() {
         LOG.info("using {} as trade topic", tradeTopic);
 
-        Properties tradeSourceProperties = new Properties(kafkaProperties);
-        tradeSourceProperties.setProperty("auto.offset.reset", "earliest");
+        Properties tradeSourceProperties = new Properties();
+        tradeSourceProperties.putAll(kafkaProperties);
+        tradeSourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        tradeSourceProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                TradeKeySerializer.class.getCanonicalName());
+        tradeSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                TradeSerializer.class.getCanonicalName());
 
-        return KafkaSources.kafka(tradeSourceProperties,
-                (r -> new TradeSerializer().read((byte[])r.value())), tradeTopic);
+        return KafkaSources.kafka(tradeSourceProperties, ConsumerRecord<TradeKey, Trade>::value,
+                tradeTopic);
     }
 }

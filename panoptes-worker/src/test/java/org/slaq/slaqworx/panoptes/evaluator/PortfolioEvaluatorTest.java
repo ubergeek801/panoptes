@@ -286,8 +286,8 @@ public class PortfolioEvaluatorTest {
         Portfolio portfolio = TestUtil.createTestPortfolio(assetCache, "test", "test", positions,
                 null, rules.values());
 
-        Map<RuleKey, EvaluationResult> results = evaluator
-                .evaluate(portfolio.getKey(), new EvaluationContext(assetCache, assetCache)).get();
+        Map<RuleKey, EvaluationResult> results =
+                evaluator.evaluate(portfolio.getKey(), new EvaluationContext()).get();
 
         // all rules should have entries
         assertEquals(rules.size(), results.size(),

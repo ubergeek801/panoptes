@@ -11,6 +11,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
@@ -44,6 +45,45 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
     private final Map<RuleKey, EvaluationResult> benchmarkResults = new ConcurrentHashMap<>(100);
     private final Map<MarketValued, Double> marketValues =
             Collections.synchronizedMap(new IdentityHashMap<>(10));
+
+    /**
+     * Creates a new {@code EvaluationContext} which uses the default {@code AssetCache} to resolve
+     * {@code Security} and {@code Portfolio} references, performs full (non-short-circuit)
+     * {@code Rule} evaluation, uses the given {@code SecurityProvider} to resolve {@code Security}
+     * references, and which supplies no {@code Security} attribute overrides.
+     */
+    public EvaluationContext() {
+        this(null, null, EvaluationMode.FULL_EVALUATION);
+    }
+
+    /**
+     * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the
+     * default {@code AssetCache} to resolve references, and which supplies no {@code Security}
+     * attribute overrides.
+     *
+     * @param evaluationMode
+     *            the evaluation mode in which to evaluate
+     */
+    public EvaluationContext(EvaluationMode evaluationMode) {
+        this(null, null, evaluationMode, null);
+    }
+
+    /**
+     * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the
+     * default {@code AssetCache} to resolve references, and which specifies attributes which should
+     * override current {@code Security} attribute values for the purposes of the current
+     * evaluation.
+     *
+     * @param evaluationMode
+     *            the evaluation mode in which to evaluate
+     * @param securityAttributeOverrides
+     *            a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a
+     *            {@code SecurityAttributes} which should override the current values
+     */
+    public EvaluationContext(EvaluationMode evaluationMode,
+            Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
+        this(null, null, evaluationMode, securityAttributeOverrides);
+    }
 
     /**
      * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
@@ -169,7 +209,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
      * @return a {@code PortfolioProvider}
      */
     public PortfolioProvider getPortfolioProvider() {
-        return portfolioProvider;
+        return (portfolioProvider != null ? portfolioProvider : AssetCache.getDefault());
     }
 
     /**
@@ -189,7 +229,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
      * @return a {@code SecurityProvider}
      */
     public SecurityProvider getSecurityProvider() {
-        return securityProvider;
+        return (securityProvider != null ? securityProvider : AssetCache.getDefault());
     }
 
     @Override

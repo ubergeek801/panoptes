@@ -20,16 +20,6 @@ public class TransactionKeySerializer implements ProtobufSerializer<TransactionK
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRANSACTION_KEY.ordinal();
-    }
-
-    @Override
     public TransactionKey read(byte[] buffer) throws IOException {
         IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new TransactionKey(keyMsg.getId());

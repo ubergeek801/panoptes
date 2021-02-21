@@ -67,6 +67,7 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
                         throw new RuntimeException(ex);
                     }
                 }));
+
         return attributes;
     }
 
@@ -75,16 +76,6 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
      */
     public SecuritySerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.SECURITY.ordinal();
     }
 
     @Override

@@ -4,6 +4,7 @@ import javax.inject.Singleton;
 
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
+import com.hazelcast.jet.config.JobConfig;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
@@ -70,12 +71,13 @@ public class PanoptesApp {
             LOG.info("configuring PanoptesPipeline");
 
             PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
+            JobConfig jobConfig = appContext.getBean(JobConfig.class);
 
             LOG.info("executing PanoptesPipeline");
 
             // FIXME this should only be performed once per cluster
             JetInstance jetInstance = Jet.newJetInstance();
-            jetInstance.newJob(pipeline.getJetPipeline()).join();
+            jetInstance.newJob(pipeline.getJetPipeline(), jobConfig).join();
         }
     }
 

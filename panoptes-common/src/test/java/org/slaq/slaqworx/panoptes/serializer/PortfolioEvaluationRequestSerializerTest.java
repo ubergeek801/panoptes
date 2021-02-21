@@ -2,7 +2,6 @@ package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
 
@@ -30,8 +29,8 @@ public class PortfolioEvaluationRequestSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        PortfolioEvaluationRequestSerializer serializer = new PortfolioEvaluationRequestSerializer(
-                TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
+        PortfolioEvaluationRequestSerializer serializer =
+                new PortfolioEvaluationRequestSerializer();
 
         TaxLot p1 = new TaxLot(100d, TestUtil.s1.getKey());
         TaxLot p2 = new TaxLot(200d, TestUtil.s2.getKey());
@@ -51,9 +50,6 @@ public class PortfolioEvaluationRequestSerializerTest {
 
         // note that EvaluationContext.equals() uses identity semantics, so an equals() test is
         // inappropriate
-        assertSame(evaluationContext.getSecurityProvider(),
-                deserialized.getEvaluationContext().getSecurityProvider(),
-                "deserialized EvaluationContext should have SecurityProvider from serializer");
         assertEquals(evaluationContext.getEvaluationMode(),
                 deserialized.getEvaluationContext().getEvaluationMode(),
                 "deserialized EvaluationContext should have evaluation mode equal to original");
@@ -71,9 +67,6 @@ public class PortfolioEvaluationRequestSerializerTest {
         assertEquals(request, deserialized, "deserialized value should equals() original value");
         assertEquals(request.getPortfolioKey(), deserialized.getPortfolioKey(),
                 "deserialized value should have same Portfolio key as original");
-        assertSame(evaluationContext.getSecurityProvider(),
-                deserialized.getEvaluationContext().getSecurityProvider(),
-                "deserialized EvaluationContext should have SecurityProvider from serializer");
         assertEquals(evaluationContext.getEvaluationMode(),
                 deserialized.getEvaluationContext().getEvaluationMode(),
                 "deserialized EvaluationContext should have evaluation mode equal to original");

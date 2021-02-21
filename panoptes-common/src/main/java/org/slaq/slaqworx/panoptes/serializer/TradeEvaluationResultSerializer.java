@@ -19,8 +19,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 /**
- * A {@code TradeEvaluationResultSerializer} which (de)serializes the state of a
- * {@code TradeEvaluationResult}.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code TradeEvaluationResult}.
  *
  * @author jeremy
  */
@@ -30,16 +29,6 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
      */
     public TradeEvaluationResultSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRADE_EVALUATION_RESULT.ordinal();
     }
 
     @Override

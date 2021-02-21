@@ -11,7 +11,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RoomEvaluationRequ
 import org.slaq.slaqworx.panoptes.trade.RoomEvaluationRequest;
 
 /**
- * A {@code ProtobufSerializer} wihch (de)serializes the state of a {@code RoomEvaluationRequest}.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code RoomEvaluationRequest}.
  *
  * @author jeremy
  */
@@ -21,16 +21,6 @@ public class RoomEvaluationRequestSerializer implements ProtobufSerializer<RoomE
      */
     public RoomEvaluationRequestSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.ROOM_EVALUATION_REQUEST.ordinal();
     }
 
     @Override

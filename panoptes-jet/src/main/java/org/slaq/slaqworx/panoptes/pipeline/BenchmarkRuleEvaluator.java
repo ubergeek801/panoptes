@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hazelcast.function.SupplierEx;
-import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
@@ -22,7 +21,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.cache.AssetCacheFactory;
 import org.slaq.slaqworx.panoptes.event.HeldSecurityEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
@@ -72,8 +70,9 @@ public class BenchmarkRuleEvaluator
         ArrayList<RuleEvaluationResult> results = new ArrayList<>();
         if (event instanceof HeldSecurityEvent) {
             SecurityKey securityKey = ((HeldSecurityEvent)event).getSecurityKey();
-            IMap<SecurityKey, Security> securityMap = AssetCacheFactory
-                    .fromJetInstance(Jet.bootstrappedInstance()).getSecurityCache();
+
+            IMap<SecurityKey, Security> securityMap =
+                    PanoptesApp.getAssetCache().getSecurityCache();
             Security security = securityMap.get(securityKey);
             processSecurity(security, results);
         } else {
@@ -102,12 +101,12 @@ public class BenchmarkRuleEvaluator
         Portfolio portfolio = ((PortfolioDataEvent)benchmarkEvent).getPortfolio();
 
         if (portfolio.isAbstract()) {
-            MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap = AssetCacheFactory
-                    .fromJetInstance(Jet.bootstrappedInstance()).getHeldSecuritiesCache();
+            MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap =
+                    PanoptesApp.getAssetCache().getHeldSecuritiesCache();
             processState.portfolioTracker.trackPortfolio(portfolio, heldSecuritiesMap);
             // the portfolio is a benchmark, so try to process it
-            // FIXME get security map
-            IMap<SecurityKey, Security> securityMap = null;
+            IMap<SecurityKey, Security> securityMap =
+                    PanoptesApp.getAssetCache().getSecurityCache();
             processState.portfolioTracker.processPortfolio(results, portfolio, null, securityMap,
                     processState.benchmarkRules.values());
         } else {
@@ -115,8 +114,8 @@ public class BenchmarkRuleEvaluator
             // to extract and process them
             Collection<Rule> newRules = extractRules(portfolio);
             // process any newly-encountered rules against the benchmark
-            // FIXME get security map
-            IMap<SecurityKey, Security> securityMap = null;
+            IMap<SecurityKey, Security> securityMap =
+                    PanoptesApp.getAssetCache().getSecurityCache();
             processState.portfolioTracker.processPortfolio(results,
                     processState.portfolioTracker.getPortfolio(), null, securityMap, newRules);
         }

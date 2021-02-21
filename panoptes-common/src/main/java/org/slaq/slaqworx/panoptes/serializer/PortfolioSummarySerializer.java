@@ -25,16 +25,6 @@ public class PortfolioSummarySerializer implements ProtobufSerializer<PortfolioS
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_SUMMARY.ordinal();
-    }
-
-    @Override
     public PortfolioSummary read(byte[] buffer) throws IOException {
         PortfolioSummaryMsg portfolioSummaryMsg = PortfolioSummaryMsg.parseFrom(buffer);
         IdVersionKeyMsg keyMsg = portfolioSummaryMsg.getKey();

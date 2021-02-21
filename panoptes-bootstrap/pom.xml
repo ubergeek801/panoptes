@@ -14,6 +14,10 @@
 
     <name>panoptes-bootstrap</name>
 
+    <properties>
+        <exec.mainClass>org.slaq.slaqworx.panoptes.mock.Bootstrapper</exec.mainClass>
+    </properties>
+
     <build>
         <plugins>
             <!-- enable Micronaut-related Maven actions -->

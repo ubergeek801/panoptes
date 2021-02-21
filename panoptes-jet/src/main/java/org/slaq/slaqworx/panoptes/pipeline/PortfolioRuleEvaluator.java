@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.hazelcast.function.SupplierEx;
-import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
@@ -15,7 +14,6 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.cache.AssetCacheFactory;
 import org.slaq.slaqworx.panoptes.event.HeldSecurityEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
@@ -51,8 +49,8 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, Tri
         ArrayList<RuleEvaluationResult> results = new ArrayList<>();
         if (event instanceof HeldSecurityEvent) {
             SecurityKey securityKey = ((HeldSecurityEvent)event).getSecurityKey();
-            IMap<SecurityKey, Security> securityMap = AssetCacheFactory
-                    .fromJetInstance(Jet.bootstrappedInstance()).getSecurityCache();
+            IMap<SecurityKey, Security> securityMap =
+                    PanoptesApp.getAssetCache().getSecurityCache();
             Security security = securityMap.get(securityKey);
             processSecurity(security, results);
         } else {
@@ -80,8 +78,8 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, Tri
             portfolio = ((PortfolioDataEvent)portfolioEvent).getPortfolio();
             // we shouldn't be seeing benchmarks, but ignore them if we do
             if (!portfolio.isAbstract()) {
-                MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap = AssetCacheFactory
-                        .fromJetInstance(Jet.bootstrappedInstance()).getHeldSecuritiesCache();
+                MultiMap<SecurityKey, PortfolioKey> heldSecuritiesMap =
+                        PanoptesApp.getAssetCache().getHeldSecuritiesCache();
                 portfolioTracker.trackPortfolio(portfolio, heldSecuritiesMap);
                 isPortfolioProcessable = true;
             } else {
@@ -98,8 +96,8 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, Tri
         }
 
         if (isPortfolioProcessable && portfolio != null) {
-            // FIXME get security map
-            IMap<SecurityKey, Security> securityMap = null;
+            IMap<SecurityKey, Security> securityMap =
+                    PanoptesApp.getAssetCache().getSecurityCache();
             portfolioTracker.processPortfolio(results, portfolio, null, securityMap,
                     portfolio.getRules()::iterator);
         }

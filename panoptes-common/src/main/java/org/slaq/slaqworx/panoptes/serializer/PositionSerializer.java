@@ -82,16 +82,6 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.POSITION.ordinal();
-    }
-
-    @Override
     public Position read(byte[] buffer) throws IOException {
         PositionMsg positionMsg = PositionMsg.parseFrom(buffer);
         return convert(positionMsg);

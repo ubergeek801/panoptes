@@ -20,16 +20,6 @@ public class TradeKeySerializer implements ProtobufSerializer<TradeKey> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRADE_KEY.ordinal();
-    }
-
-    @Override
     public TradeKey read(byte[] buffer) throws IOException {
         IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new TradeKey(keyMsg.getId());

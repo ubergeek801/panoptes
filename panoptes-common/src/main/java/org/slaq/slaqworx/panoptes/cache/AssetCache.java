@@ -52,6 +52,17 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
     private static final ForkJoinPool localExecutorThreadPool = ForkJoinPoolFactory
             .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "local-executor");
 
+    private static AssetCache defaultAssetCache;
+
+    /**
+     * Obtains the default {@code AssetCache} instance, to be used "in case of emergency."
+     *
+     * @return the default {@code AssetCache} instance
+     */
+    public static AssetCache getDefault() {
+        return defaultAssetCache;
+    }
+
     /**
      * Obtains the {@code ExecutorService} used to perform local computations (typically
      * {@code Portfolio} and {@code Trade} evaluations). Callers may use this to submit processing
@@ -64,12 +75,24 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
         return localExecutorThreadPool;
     }
 
+    /**
+     * Sets the default {@code AssetCache} instance, to be used "in case of emergency."
+     *
+     * @param assetCache
+     *            the default {@code AssetCache} instance
+     */
+    public static void setDefault(AssetCache assetCache) {
+        defaultAssetCache = assetCache;
+    }
+
     private final HazelcastInstance hazelcastInstance;
     private final MultiMap<SecurityKey, PortfolioKey> heldSecuritiesCache;
     private final IMap<PortfolioKey, Portfolio> portfolioCache;
     private final IMap<PositionKey, Position> positionCache;
     private final IMap<RuleKey, ConfigurableRule> ruleCache;
+
     private final IMap<SecurityKey, Security> securityCache;
+
     private final IMap<TradeKey, Trade> tradeCache;
 
     /**
@@ -87,6 +110,8 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
         ruleCache = CacheBootstrap.getRuleCache(hazelcastInstance);
         securityCache = CacheBootstrap.getSecurityCache(hazelcastInstance);
         tradeCache = CacheBootstrap.getTradeCache(hazelcastInstance);
+
+        defaultAssetCache = this;
     }
 
     /**

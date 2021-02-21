@@ -114,7 +114,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                 // FIXME use a proper version
                 portfolio = assetCache.getPortfolioCache().executeOnKey(
                         new PortfolioKey(portfolioIdField.getValue(), 1),
-                        new PortfolioSummarizer(new EvaluationContext(assetCache, assetCache)));
+                        new PortfolioSummarizer(new EvaluationContext()));
                 if (portfolio == null) {
                     portfolioIdField.setErrorMessage("not found");
                     portfolioIdField.setInvalid(true);
@@ -220,9 +220,9 @@ public class FixedIncomeTradePanel extends FormLayout {
             roomEvaluatorExecutor
                     .submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
                         try {
-                            PortfolioSummary portfolio = assetCache.getPortfolioCache()
-                                    .executeOnKey(portfolioKey, new PortfolioSummarizer(
-                                            new EvaluationContext(assetCache, assetCache)));
+                            PortfolioSummary portfolio =
+                                    assetCache.getPortfolioCache().executeOnKey(portfolioKey,
+                                            new PortfolioSummarizer(new EvaluationContext()));
                             if (portfolio.isAbstract()) {
                                 // don't evaluate benchmarks
                                 updateNumRemaining(event);

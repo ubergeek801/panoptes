@@ -1,7 +1,6 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Map;
 
@@ -28,14 +27,12 @@ public class EvaluationContextSerializerTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        EvaluationContextSerializer serializer = new EvaluationContextSerializer(
-                TestUtil.testSecurityProvider(), TestUtil.testPortfolioProvider());
+        EvaluationContextSerializer serializer = new EvaluationContextSerializer();
 
         Map<SecurityKey, SecurityAttributes> securityAttributeOverrides =
                 Map.of(TestUtil.s1.getKey(), TestUtil.s1.getAttributes(), TestUtil.s2.getKey(),
                         TestUtil.s2.getAttributes());
-        EvaluationContext context = new EvaluationContext(TestUtil.testSecurityProvider(),
-                TestUtil.testPortfolioProvider(), EvaluationMode.SHORT_CIRCUIT_EVALUATION,
+        EvaluationContext context = new EvaluationContext(EvaluationMode.SHORT_CIRCUIT_EVALUATION,
                 securityAttributeOverrides);
 
         byte[] buffer = serializer.write(context);
@@ -44,8 +41,6 @@ public class EvaluationContextSerializerTest {
         // note that EvaluationContext.equals() uses identity semantics, so an equals() test is
         // inappropriate
 
-        assertSame(TestUtil.testSecurityProvider(), deserialized.getSecurityProvider(),
-                "deserialized value should have SecurityProvider from serializer");
         assertEquals(context.getEvaluationMode(), deserialized.getEvaluationMode(),
                 "deserialized value should have evaluation mode equal to original");
         Map<SecurityKey, SecurityAttributes> deserializedOverrides =

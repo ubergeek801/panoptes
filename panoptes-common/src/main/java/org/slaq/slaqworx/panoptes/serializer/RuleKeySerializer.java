@@ -20,16 +20,6 @@ public class RuleKeySerializer implements ProtobufSerializer<RuleKey> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.RULE_KEY.ordinal();
-    }
-
-    @Override
     public RuleKey read(byte[] buffer) throws IOException {
         IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new RuleKey(keyMsg.getId());

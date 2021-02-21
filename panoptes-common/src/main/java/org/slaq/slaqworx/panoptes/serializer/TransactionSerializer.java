@@ -86,16 +86,6 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRADE.ordinal();
-    }
-
-    @Override
     public Transaction read(byte[] buffer) throws IOException {
         TransactionMsg transactionMsg = TransactionMsg.parseFrom(buffer);
 

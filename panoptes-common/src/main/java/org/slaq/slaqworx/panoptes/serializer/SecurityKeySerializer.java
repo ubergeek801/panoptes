@@ -20,16 +20,6 @@ public class SecurityKeySerializer implements ProtobufSerializer<SecurityKey> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.SECURITY_KEY.ordinal();
-    }
-
-    @Override
     public SecurityKey read(byte[] buffer) throws IOException {
         IdKeyMsg keyMsg = IdKeyMsg.parseFrom(buffer);
         return new SecurityKey(keyMsg.getId());

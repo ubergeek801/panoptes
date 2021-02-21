@@ -31,16 +31,6 @@ public class TradeSerializer implements ProtobufSerializer<Trade> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRADE.ordinal();
-    }
-
-    @Override
     public Trade read(byte[] buffer) throws IOException {
         TradeMsg tradeMsg = TradeMsg.parseFrom(buffer);
         IdKeyMsg tradeKeyMsg = tradeMsg.getKey();

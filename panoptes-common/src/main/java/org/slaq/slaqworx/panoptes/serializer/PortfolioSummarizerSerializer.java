@@ -3,18 +3,14 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A {@code ProtobufSerializer} which for(de)serializes the state of a {@code PortfolioSummarizer}.
+ * A {@code ProtobufSerializer} which (de)serializes the state of a {@code PortfolioSummarizer}.
  *
  * @author jeremy
  */
@@ -40,52 +36,19 @@ public class PortfolioSummarizerSerializer implements ProtobufSerializer<Portfol
         return evaluationContextBuilder.build();
     }
 
-    private final Provider<? extends SecurityProvider> securityProvider;
-    private final Provider<? extends PortfolioProvider> portfolioProvider;
-
     /**
-     * Creates a new {@code PortfolioSummarizerSerializer} which delegates to the given
-     * {@code AssetCache}.
-     *
-     * @param assetCacheProvider
-     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
-     *            circular initialization)
+     * Creates a new {@code PortfolioSummarizerSerializer}.
      */
-    public PortfolioSummarizerSerializer(Provider<AssetCache> assetCacheProvider) {
-        securityProvider = assetCacheProvider;
-        portfolioProvider = assetCacheProvider;
-    }
-
-    /**
-     * Creates a new {@code PortfolioSummarizerSerializer} which delegates to the given providers.
-     *
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Security} data
-     * @param portfolioProvider
-     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} data
-     */
-    public PortfolioSummarizerSerializer(SecurityProvider securityProvider,
-            PortfolioProvider portfolioProvider) {
-        this.securityProvider = () -> securityProvider;
-        this.portfolioProvider = () -> portfolioProvider;
-    }
-
-    @Override
-    public void destroy() {
+    public PortfolioSummarizerSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_SUMMARIZER.ordinal();
     }
 
     @Override
     public PortfolioSummarizer read(byte[] buffer) throws IOException {
         EvaluationContextMsg evaluationContextMsg = EvaluationContextMsg.parseFrom(buffer);
 
-        EvaluationContext evaluationContext = EvaluationContextSerializer
-                .convert(evaluationContextMsg, securityProvider.get(), portfolioProvider.get());
+        EvaluationContext evaluationContext =
+                EvaluationContextSerializer.convert(evaluationContextMsg);
         return new PortfolioSummarizer(evaluationContext);
     }
 

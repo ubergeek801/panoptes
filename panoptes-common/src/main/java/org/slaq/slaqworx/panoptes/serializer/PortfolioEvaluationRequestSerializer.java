@@ -3,13 +3,9 @@ package org.slaq.slaqworx.panoptes.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
@@ -27,43 +23,11 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 @Singleton
 public class PortfolioEvaluationRequestSerializer
         implements ProtobufSerializer<PortfolioEvaluationRequest> {
-    private final Provider<? extends PortfolioProvider> portfolioProvider;
-    private final Provider<? extends SecurityProvider> securityProvider;
-
     /**
-     * Creates a new {@code PortfolioSerializer} which delegates to the given providers.
-     *
-     * @param portfolioProvider
-     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Security} references
+     * Creates a new {@code PortfolioEvaluationRequestSerializer}.
      */
-    public PortfolioEvaluationRequestSerializer(PortfolioProvider portfolioProvider,
-            SecurityProvider securityProvider) {
-        this.portfolioProvider = () -> portfolioProvider;
-        this.securityProvider = () -> securityProvider;
-    }
-
-    /**
-     * Creates a new {@code PortfolioSerializer} which delegates to the given {@code AssetCache}.
-     *
-     * @param assetCacheProvider
-     *            a {@code Provider} which provides an {@code AssetCache} reference (to avoid
-     *            circular initialization)
-     */
-    public PortfolioEvaluationRequestSerializer(Provider<AssetCache> assetCacheProvider) {
-        portfolioProvider = assetCacheProvider;
-        securityProvider = assetCacheProvider;
-    }
-
-    @Override
-    public void destroy() {
+    public PortfolioEvaluationRequestSerializer() {
         // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_EVALUATION_REQUEST.ordinal();
     }
 
     @Override
@@ -72,8 +36,8 @@ public class PortfolioEvaluationRequestSerializer
         IdVersionKeyMsg keyMsg = requestMsg.getPortfolioKey();
         PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
         EvaluationContextMsg evaluationContextMsg = requestMsg.getEvaluationContext();
-        EvaluationContext evaluationContext = EvaluationContextSerializer
-                .convert(evaluationContextMsg, securityProvider.get(), portfolioProvider.get());
+        EvaluationContext evaluationContext =
+                EvaluationContextSerializer.convert(evaluationContextMsg);
 
         Transaction transaction;
         if (requestMsg.hasTransaction()) {

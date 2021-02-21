@@ -17,20 +17,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  */
 public class PortfolioRuleKeySerializer implements ProtobufSerializer<PortfolioRuleKey> {
     /**
-     * Creates a new {@code PortfolioKeySerializer}.
+     * Creates a new {@code PortfolioEventSerializer}.
      */
     public PortfolioRuleKeySerializer() {
         // nothing to do
-    }
-
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.PORTFOLIO_RULE_KEY.ordinal();
     }
 
     @Override

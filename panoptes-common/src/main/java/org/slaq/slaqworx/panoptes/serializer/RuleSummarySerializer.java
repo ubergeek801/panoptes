@@ -22,16 +22,6 @@ public class RuleSummarySerializer implements ProtobufSerializer<RuleSummary> {
     }
 
     @Override
-    public void destroy() {
-        // nothing to do
-    }
-
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.RULE_SUMMARY.ordinal();
-    }
-
-    @Override
     public RuleSummary read(byte[] buffer) throws IOException {
         RuleSummaryMsg ruleMsg = RuleSummaryMsg.parseFrom(buffer);
         IdKeyMsg keyMsg = ruleMsg.getKey();

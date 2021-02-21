@@ -75,7 +75,7 @@ public class ComplianceService {
 
             portfolioKeys.forEach(key -> {
                 CompletableFuture<Map<RuleKey, EvaluationResult>> futureResult =
-                        evaluator.evaluate(key, new EvaluationContext(assetCache, assetCache));
+                        evaluator.evaluate(key, new EvaluationContext());
                 futureResult.whenComplete((result, exception) -> {
                     synchronized (emitter) {
                         if (emitter.isCancelled()) {
