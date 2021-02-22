@@ -13,11 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.Security;
-import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
-import org.slaq.slaqworx.panoptes.event.HeldSecurityEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
+import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
@@ -59,7 +58,7 @@ public class PanoptesPipeline {
             @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_REQUEST_SOURCE) StreamSource<
                     PortfolioEvaluationRequest> portfolioRequestSource,
             @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_RESULT_SINK) Sink<
-                    EvaluationResult> portfolioResultSink,
+                    RuleEvaluationResult> portfolioResultSink,
             @Named(PanoptesPipelineConfig.SECURITY_SOURCE) StreamSource<
                     Security> securityKafkaSource,
             @Named(PanoptesPipelineConfig.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource,
@@ -73,13 +72,12 @@ public class PanoptesPipeline {
         // security and emit a HeldSecurityEvent for each
         StreamStage<Security> securitySource = pipeline.readFrom(securityKafkaSource)
                 .withIngestionTimestamps().setName("securitySource");
-        StreamStage<HeldSecurityEvent> holdingPortfolioStream =
-                securitySource.flatMap(new SecurityBroadcaster()).setName("holdingPortfolios");
+        StreamStage<SecurityUpdateEvent> securityUpdateStream =
+                securitySource.flatMap(new SecurityBroadcaster()).setName("securityUpdates");
 
-        // obtain trades from Kafka
+        // obtain trades from Kafka and split each into its constituent transactions
         StreamStage<Trade> tradeSource = pipeline.readFrom(tradeKafkaSource)
                 .withIngestionTimestamps().setName("tradeSource");
-        // split each trade into its constituent transactions
         StreamStage<PortfolioEvent> transactionStream =
                 tradeSource.flatMap(new TradeSplitter()).setName("tradeTransactions");
 
@@ -89,7 +87,7 @@ public class PanoptesPipeline {
                 .withIngestionTimestamps().setName("portfolioSource");
         PortfolioRuleEvaluator portfolioRuleEvaluator = new PortfolioRuleEvaluator();
         StreamStage<RuleEvaluationResult> portfolioResultStream =
-                portfolioSource.merge(holdingPortfolioStream).merge(transactionStream)
+                portfolioSource.merge(securityUpdateStream).merge(transactionStream)
                         .groupingKey(PortfolioEvent::getPortfolioKey)
                         .flatMapStateful(portfolioRuleEvaluator, portfolioRuleEvaluator)
                         .setName("portfolioEvaluator");
@@ -101,7 +99,7 @@ public class PanoptesPipeline {
                 .withIngestionTimestamps().setName("benchmarkSource").merge(portfolioSource);
         BenchmarkRuleEvaluator benchmarkRuleEvaluator = new BenchmarkRuleEvaluator();
         StreamStage<RuleEvaluationResult> benchmarkResultStream =
-                benchmarkSource.merge(holdingPortfolioStream)
+                benchmarkSource.merge(securityUpdateStream)
                         .groupingKey(p -> p.getBenchmarkKey() != null ? p.getBenchmarkKey()
                                 : p.getPortfolioKey())
                         .flatMapStateful(benchmarkRuleEvaluator, benchmarkRuleEvaluator)
@@ -117,6 +115,7 @@ public class PanoptesPipeline {
                         .flatMapStateful(benchmarkComparator, benchmarkComparator)
                         .setName("benchmarkComparator");
 
+        resultStream.writeTo(portfolioResultSink);
         resultStream.writeTo(SinkBuilder.sinkBuilder("evaluationResultSink", c -> c)
                 .receiveFn(new EvaluationResultPublisher()).build());
 

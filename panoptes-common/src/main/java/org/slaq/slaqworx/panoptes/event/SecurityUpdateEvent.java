@@ -8,19 +8,19 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  *
  * @author jeremy
  */
-public class HeldSecurityEvent extends PortfolioEvent {
+public class SecurityUpdateEvent extends PortfolioEvent {
     private final PortfolioKey portfolioKey;
     private final SecurityKey securityKey;
 
     /**
-     * Creates a new {@code HeldSecurityEvent}.
+     * Creates a new {@code SecurityUpdateEvent}.
      *
      * @param portfolioKey
      *            the portfolio which is the target of this event
      * @param securityKey
      *            a key identifying the {@code Security} that was changed
      */
-    public HeldSecurityEvent(PortfolioKey portfolioKey, SecurityKey securityKey) {
+    public SecurityUpdateEvent(PortfolioKey portfolioKey, SecurityKey securityKey) {
         this.portfolioKey = portfolioKey;
         this.securityKey = securityKey;
     }
@@ -38,7 +38,7 @@ public class HeldSecurityEvent extends PortfolioEvent {
     /**
      * Obtains a key identifying the changed {@code Security}.
      *
-     * @return a {@code SecurityKey} indentifying the security that was changed
+     * @return a {@code SecurityKey} identifying the security that was changed
      */
     public SecurityKey getSecurityKey() {
         return securityKey;

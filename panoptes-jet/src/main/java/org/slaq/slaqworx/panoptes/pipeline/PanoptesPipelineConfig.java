@@ -31,18 +31,17 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
-import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
+import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
-import org.slaq.slaqworx.panoptes.serializer.kafka.EvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioEvaluationRequestSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioEventSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioKeySerializer;
-import org.slaq.slaqworx.panoptes.serializer.kafka.RuleKeySerializer;
+import org.slaq.slaqworx.panoptes.serializer.kafka.RuleEvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.SecurityKeySerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.SecuritySerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.TradeEvaluationResultSerializer;
@@ -206,20 +205,20 @@ public class PanoptesPipelineConfig {
      */
     @Singleton
     @Named(PORTFOLIO_EVALUATION_RESULT_SINK)
-    protected Sink<EvaluationResult> portfolioEvaluationResultSink() {
+    protected Sink<RuleEvaluationResult> portfolioEvaluationResultSink() {
         LOG.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
 
         Properties portfolioEvaluationResultSinkProperties = new Properties();
         portfolioEvaluationResultSinkProperties.putAll(kafkaProperties);
         portfolioEvaluationResultSinkProperties.setProperty(
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                RuleKeySerializer.class.getCanonicalName());
+                PortfolioKeySerializer.class.getCanonicalName());
         portfolioEvaluationResultSinkProperties.setProperty(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                EvaluationResultSerializer.class.getCanonicalName());
+                RuleEvaluationResultSerializer.class.getCanonicalName());
 
         return KafkaSinks.kafka(portfolioEvaluationResultSinkProperties,
-                portfolioEvaluationResultTopic, EvaluationResult::getRuleKey, r -> r);
+                portfolioEvaluationResultTopic, RuleEvaluationResult::getPortfolioKey, r -> r);
     }
 
     /**
@@ -280,12 +279,14 @@ public class PanoptesPipelineConfig {
 
         Properties tradeEvaluationResultSinkProperties = new Properties();
         tradeEvaluationResultSinkProperties.putAll(kafkaProperties);
+        tradeEvaluationResultSinkProperties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                TradeKeySerializer.class.getCanonicalName());
         tradeEvaluationResultSinkProperties.setProperty(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 TradeEvaluationResultSerializer.class.getCanonicalName());
 
         return KafkaSinks.kafka(tradeEvaluationResultSinkProperties, tradeEvaluationResultTopic,
-                r -> null, r -> r);
+                TradeEvaluationResult::getTradeKey, r -> r);
     }
 
     /**

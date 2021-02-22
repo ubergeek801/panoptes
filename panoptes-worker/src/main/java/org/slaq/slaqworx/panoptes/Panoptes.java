@@ -1,9 +1,6 @@
 package org.slaq.slaqworx.panoptes;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,20 +65,6 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
      *            the program arguments
      */
     public static void main(String[] args) {
-        InputStream bannerStream =
-                Panoptes.class.getClassLoader().getResourceAsStream("banner.txt");
-        if (bannerStream != null) {
-            try (BufferedReader bannerReader =
-                    new BufferedReader(new InputStreamReader(bannerStream))) {
-                String line;
-                while ((line = bannerReader.readLine()) != null) {
-                    System.out.println(line);
-                }
-            } catch (IOException e) {
-                // never mind
-            }
-        }
-
         Micronaut.run(Panoptes.class, args);
     }
 

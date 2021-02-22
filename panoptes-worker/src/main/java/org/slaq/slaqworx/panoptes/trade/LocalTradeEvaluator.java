@@ -97,8 +97,8 @@ public class LocalTradeEvaluator implements TradeEvaluator {
                         // FIXME throw a better exception
                         throw new RuntimeException("could not evaluate trade", e);
                     }
-                }).collect(TradeEvaluationResult::new, TradeEvaluationResult::addImpacts,
-                        TradeEvaluationResult::merge))
+                }).collect(() -> new TradeEvaluationResult(trade.getKey()),
+                        TradeEvaluationResult::addImpacts, TradeEvaluationResult::merge))
                 .get());
     }
 

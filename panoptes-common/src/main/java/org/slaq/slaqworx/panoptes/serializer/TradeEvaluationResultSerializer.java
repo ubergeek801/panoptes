@@ -17,6 +17,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
  * A {@code ProtobufSerializer} which (de)serializes the state of a {@code TradeEvaluationResult}.
@@ -35,7 +36,9 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
     public TradeEvaluationResult read(byte[] buffer) throws IOException {
         TradeEvaluationResultMsg evaluationResultMsg = TradeEvaluationResultMsg.parseFrom(buffer);
 
-        TradeEvaluationResult result = new TradeEvaluationResult();
+        IdKeyMsg tradeKey = evaluationResultMsg.getTradeKey();
+
+        TradeEvaluationResult result = new TradeEvaluationResult(new TradeKey(tradeKey.getId()));
         evaluationResultMsg.getPortfolioRuleImpactList().forEach(ruleImpact -> {
             PortfolioKey portfolioKey = new PortfolioKey(ruleImpact.getPortfolioKey().getId(),
                     ruleImpact.getPortfolioKey().getVersion());
@@ -56,7 +59,12 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
 
     @Override
     public byte[] write(TradeEvaluationResult result) throws IOException {
+        IdKeyMsg.Builder tradeKeyBuilder = IdKeyMsg.newBuilder();
+        tradeKeyBuilder.setId(result.getTradeKey().getId());
+
         TradeEvaluationResultMsg.Builder resultBuilder = TradeEvaluationResultMsg.newBuilder();
+
+        resultBuilder.setTradeKey(tradeKeyBuilder);
 
         result.getImpacts().entrySet().forEach(impactMapEntry -> {
             PortfolioRuleKey portfolioRuleKey = impactMapEntry.getKey();

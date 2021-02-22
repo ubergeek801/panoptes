@@ -15,12 +15,106 @@
     <name>panoptes-jet</name>
 
     <properties>
-        <exec.mainClass>org.slaq.slaqworx.panoptes.pipeline.PanoptesApp</exec.mainClass> 
+        <exec.mainClass>org.slaq.slaqworx.panoptes.pipeline.PanoptesApp</exec.mainClass>
+        <globalJvmArgs>-XX:+UseG1GC -XX:+UseStringDeduplication
+            -XX:MaxGCPauseMillis=5000
+            -XX:+DisableExplicitGC --add-modules java.se
+            --add-exports
+            java.base/jdk.internal.ref=ALL-UNNAMED
+            --add-opens
+            java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/java.nio=ALL-UNNAMED
+            --add-opens
+            java.base/sun.nio.ch=ALL-UNNAMED
+            --add-opens
+            java.management/sun.management=ALL-UNNAMED
+            --add-opens
+            jdk.management/com.sun.management.internal=ALL-UNNAMED
+            -Xms2560m -Xmx2560m</globalJvmArgs>
         <jet.version>4.4</jet.version>
     </properties>
 
     <build>
         <plugins>
+            <!-- create a Docker image for the application -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jib-amd64</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+                            <from>
+                                <!-- :14.0.2-amd64 -->
+                                <image>bellsoft/liberica-openjdk-alpine@sha256:027616c557b84556bbb88c9d08b992714c30f5eeef642aacf2bdf5c4ef6e1f47</image>
+                            </from>
+                            <to>
+                                <image>uberkube01.slaq.org:5000/slaqworx/panoptes-jet:amd64</image>
+                            </to>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jib-arm64</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+                            <from>
+                                <!-- :20.2.0-java11-arm64 -->
+                                <image>oracle/graalvm-ce@sha256:494222b828e6096bd00b16b9626b54665546fc5b60a8080c99be8d29af829638</image>
+                                <!-- :11.0.7-aarch64 -->
+                                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->
+                                <!-- :14.0.1-8-aarch64 -->
+                                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:70fcbb909ade5160c7d26cf798ee1e3af2d2d1bb4cde25aaaa4ff4b9d4f196c0</image> -->
+                            </from>
+                            <to>
+                                <image>uberkube01.slaq.org:5000/slaqworx/panoptes-jet:arm64</image>
+                            </to>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <allowInsecureRegistries>true</allowInsecureRegistries>
+                    <container>
+                        <!-- TODO figure out a way to DRY the global JVM flags -->
+                        <jvmFlags>
+                            <jvmFlag>-XX:+UseG1GC</jvmFlag>
+                            <jvmFlag>-XX:+UseStringDeduplication</jvmFlag>
+                            <jvmFlag>-XX:MaxGCPauseMillis=5000</jvmFlag>
+                            <jvmFlag>-XX:+DisableExplicitGC</jvmFlag>
+                            <jvmFlag>--add-modules</jvmFlag>
+                            <jvmFlag>java.se</jvmFlag>
+                            <jvmFlag>--add-exports</jvmFlag>
+                            <jvmFlag>java.base/jdk.internal.ref=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.base/java.lang=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.base/java.nio=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.base/sun.nio.ch=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>--add-opens</jvmFlag>
+                            <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
+                            <jvmFlag>-Xms2560m</jvmFlag>
+                            <jvmFlag>-Xmx2560m</jvmFlag>
+
+                            <jvmFlag>-noverify</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote=true</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.port=8000</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.ssl=false</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.authenticate=false</jvmFlag>
+                            <jvmFlag>-Dcom.sun.management.jmxremote.local.only=false</jvmFlag>
+                        </jvmFlags>
+                    </container>
+                </configuration>
+            </plugin>
             <!-- enable Micronaut-related Maven actions -->
             <plugin>
                 <groupId>io.micronaut.build</groupId>

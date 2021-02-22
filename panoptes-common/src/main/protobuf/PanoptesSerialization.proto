@@ -136,7 +136,8 @@ message RoomEvaluationRequestMsg {
 }
 
 message TradeEvaluationResultMsg {
-    repeated PortfolioRuleImpactMsg portfolioRuleImpact = 1;
+    IdKeyMsg tradeKey = 1;
+    repeated PortfolioRuleImpactMsg portfolioRuleImpact = 2;
 }
 
 // the following are used by Flink operators; maybe this will become a distinct package

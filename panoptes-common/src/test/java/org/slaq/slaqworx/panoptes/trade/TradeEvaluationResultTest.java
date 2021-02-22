@@ -29,6 +29,8 @@ public class TradeEvaluationResultTest {
      */
     @Test
     public void testAddImpacts() {
+        TradeKey tradeKey = new TradeKey("trade1");
+
         // Portfolios, Rules and EvaluationGroups can be bogus for this test
         PortfolioKey portfolioKey = new PortfolioKey("test", 1);
         RuleKey rule1Key = new RuleKey("rule1");
@@ -49,7 +51,7 @@ public class TradeEvaluationResultTest {
                 Map.of(rule1Key, rule1Results, rule2Key, rule2Results);
 
         // Portfolio was compliant before and after, which implies Trade compliance
-        TradeEvaluationResult tradeResult = new TradeEvaluationResult();
+        TradeEvaluationResult tradeResult = new TradeEvaluationResult(tradeKey);
         tradeResult.addImpacts(portfolioKey, ruleResults);
         assertTrue(tradeResult.isCompliant(), "pass->pass should be compliant");
 
@@ -58,7 +60,7 @@ public class TradeEvaluationResultTest {
         rule1Results =
                 new EvaluationResult(rule1Key, Map.of(evalGroup1, FAIL), Map.of(evalGroup2, PASS));
         ruleResults = Map.of(rule1Key, rule1Results, rule2Key, rule2Results);
-        tradeResult = new TradeEvaluationResult();
+        tradeResult = new TradeEvaluationResult(tradeKey);
         tradeResult.addImpacts(portfolioKey, ruleResults);
         assertTrue(tradeResult.isCompliant(), "fail->pass should be compliant");
 
@@ -67,7 +69,7 @@ public class TradeEvaluationResultTest {
         rule1Results =
                 new EvaluationResult(rule1Key, Map.of(evalGroup1, PASS), Map.of(evalGroup2, FAIL));
         ruleResults = Map.of(rule1Key, rule1Results, rule2Key, rule2Results);
-        tradeResult = new TradeEvaluationResult();
+        tradeResult = new TradeEvaluationResult(tradeKey);
         tradeResult.addImpacts(portfolioKey, ruleResults);
         assertFalse(tradeResult.isCompliant(), "pass->fail should be compliant");
     }
@@ -77,6 +79,8 @@ public class TradeEvaluationResultTest {
      */
     @Test
     public void testEquals() {
+        TradeKey tradeKey = new TradeKey("trade1");
+
         // Portfolios, Rules and EvaluationGroups can be bogus for this test
         PortfolioKey portfolio1Key = new PortfolioKey("test1", 1);
         PortfolioKey portfolio2Key = new PortfolioKey("test2", 1);
@@ -85,17 +89,17 @@ public class TradeEvaluationResultTest {
         EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
         EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
 
-        TradeEvaluationResult result1 = new TradeEvaluationResult();
+        TradeEvaluationResult result1 = new TradeEvaluationResult(tradeKey);
         result1.addImpact(portfolio1Key, rule1Key, evalGroup1, Impact.POSITIVE);
         result1.addImpact(portfolio1Key, rule1Key, evalGroup2, Impact.NEGATIVE);
         result1.addImpact(portfolio2Key, rule2Key, evalGroup1, Impact.POSITIVE);
         result1.addImpact(portfolio2Key, rule2Key, evalGroup2, Impact.NEGATIVE);
-        TradeEvaluationResult result1a = new TradeEvaluationResult();
+        TradeEvaluationResult result1a = new TradeEvaluationResult(tradeKey);
         result1a.addImpact(portfolio1Key, rule1Key, evalGroup1, Impact.POSITIVE);
         result1a.addImpact(portfolio1Key, rule1Key, evalGroup2, Impact.NEGATIVE);
         result1a.addImpact(portfolio2Key, rule2Key, evalGroup1, Impact.POSITIVE);
         result1a.addImpact(portfolio2Key, rule2Key, evalGroup2, Impact.NEGATIVE);
-        TradeEvaluationResult result2 = new TradeEvaluationResult();
+        TradeEvaluationResult result2 = new TradeEvaluationResult(tradeKey);
         result2.addImpact(portfolio1Key, rule2Key, evalGroup1, Impact.POSITIVE);
         result2.addImpact(portfolio1Key, rule2Key, evalGroup2, Impact.NEGATIVE);
         result2.addImpact(portfolio2Key, rule1Key, evalGroup1, Impact.POSITIVE);
@@ -112,7 +116,9 @@ public class TradeEvaluationResultTest {
      */
     @Test
     public void testIsCompliant() {
-        TradeEvaluationResult result = new TradeEvaluationResult();
+        TradeKey tradeKey = new TradeKey("trade1");
+
+        TradeEvaluationResult result = new TradeEvaluationResult(tradeKey);
 
         assertTrue(result.isCompliant(), "empty result should be compliant");
 
@@ -141,6 +147,8 @@ public class TradeEvaluationResultTest {
      */
     @Test
     public void testMerge() {
+        TradeKey tradeKey = new TradeKey("trade1");
+
         // Portfolios, Rules and EvaluationGroups can be bogus for this test
         PortfolioKey portfolio1Key = new PortfolioKey("test1", 1);
         PortfolioKey portfolio2Key = new PortfolioKey("test2", 1);
@@ -149,12 +157,12 @@ public class TradeEvaluationResultTest {
         EvaluationGroup evalGroup1 = new EvaluationGroup("group1", "1");
         EvaluationGroup evalGroup2 = new EvaluationGroup("group2", "2");
 
-        TradeEvaluationResult result1 = new TradeEvaluationResult();
+        TradeEvaluationResult result1 = new TradeEvaluationResult(tradeKey);
         result1.addImpact(portfolio1Key, rule1Key, evalGroup1, Impact.POSITIVE);
         result1.addImpact(portfolio1Key, rule1Key, evalGroup2, Impact.NEGATIVE);
         result1.addImpact(portfolio2Key, rule2Key, evalGroup1, Impact.POSITIVE);
         result1.addImpact(portfolio2Key, rule2Key, evalGroup2, Impact.NEGATIVE);
-        TradeEvaluationResult result2 = new TradeEvaluationResult();
+        TradeEvaluationResult result2 = new TradeEvaluationResult(tradeKey);
         result2.addImpact(portfolio1Key, rule2Key, evalGroup1, Impact.POSITIVE);
         result2.addImpact(portfolio1Key, rule2Key, evalGroup2, Impact.NEGATIVE);
         result2.addImpact(portfolio2Key, rule1Key, evalGroup1, Impact.POSITIVE);

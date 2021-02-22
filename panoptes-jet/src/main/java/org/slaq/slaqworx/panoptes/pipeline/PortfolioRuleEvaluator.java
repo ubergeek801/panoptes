@@ -13,7 +13,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.event.HeldSecurityEvent;
+import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
@@ -46,8 +46,8 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>, Tri
         portfolioTracker = processState;
 
         ArrayList<RuleEvaluationResult> results = new ArrayList<>();
-        if (event instanceof HeldSecurityEvent) {
-            SecurityKey securityKey = ((HeldSecurityEvent)event).getSecurityKey();
+        if (event instanceof SecurityUpdateEvent) {
+            SecurityKey securityKey = ((SecurityUpdateEvent)event).getSecurityKey();
             IMap<SecurityKey, Security> securityMap =
                     PanoptesApp.getAssetCache().getSecurityCache();
             Security security = securityMap.get(securityKey);

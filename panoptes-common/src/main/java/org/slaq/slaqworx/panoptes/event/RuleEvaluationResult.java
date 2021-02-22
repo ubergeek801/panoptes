@@ -17,11 +17,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  */
 public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerializable {
     private final long eventId;
-
     private final PortfolioKey portfolioKey;
-
     private final PortfolioKey benchmarkKey;
-
     private final EvaluationSource source;
     private final boolean isBenchmarkSupported;
     private final Double lowerLimit;

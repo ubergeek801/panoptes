@@ -2,8 +2,11 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
@@ -16,21 +19,28 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * Encapsulates the results of a {@code Trade} evaluation. For a given {@code Portfolio} and
- * {@code Rule}, impacts on the proposed {@code Trade} are recorded by {@code EvaluationGroup}.
+ * {@code Rule}, impacts by the proposed {@code Trade} are recorded by {@code EvaluationGroup}.
  *
  * @author jeremy
  */
 public class TradeEvaluationResult implements ProtobufSerializable {
+    private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluationResult.class);
+
     private Impact aggregateImpact = Impact.POSITIVE;
+
+    private final TradeKey tradeKey;
 
     private final HashMap<PortfolioRuleKey, Map<EvaluationGroup, Impact>> ruleImpactMap =
             new HashMap<>(100);
 
     /**
      * Creates a new, empty {@code TradeEvaluationResult}.
+     *
+     * @param tradeKey
+     *            a key identifying the {@code Trade} giving rise to this result
      */
-    public TradeEvaluationResult() {
-        // nothing to do
+    public TradeEvaluationResult(TradeKey tradeKey) {
+        this.tradeKey = tradeKey;
     }
 
     /**
@@ -111,18 +121,10 @@ public class TradeEvaluationResult implements ProtobufSerializable {
             return false;
         }
         TradeEvaluationResult other = (TradeEvaluationResult)obj;
-        if (aggregateImpact != other.aggregateImpact) {
-            return false;
-        }
-        if (ruleImpactMap == null) {
-            if (other.ruleImpactMap != null) {
-                return false;
-            }
-        } else if (!ruleImpactMap.equals(other.ruleImpactMap)) {
-            return false;
-        }
 
-        return true;
+        return aggregateImpact == other.aggregateImpact
+                && Objects.equals(ruleImpactMap, other.ruleImpactMap)
+                && Objects.equals(tradeKey, other.tradeKey);
     }
 
     /**
@@ -136,14 +138,18 @@ public class TradeEvaluationResult implements ProtobufSerializable {
         return ruleImpactMap;
     }
 
+    /**
+     * Obtains this result's key.
+     *
+     * @return a {@code TradeKey}
+     */
+    public TradeKey getTradeKey() {
+        return tradeKey;
+    }
+
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((aggregateImpact == null) ? 0 : aggregateImpact.hashCode());
-        result = prime * result + ((ruleImpactMap == null) ? 0 : ruleImpactMap.hashCode());
-
-        return result;
+        return Objects.hash(tradeKey);
     }
 
     /**
@@ -166,6 +172,11 @@ public class TradeEvaluationResult implements ProtobufSerializable {
      * @return the merged {@code TradeEvaluationResult}
      */
     public TradeEvaluationResult merge(TradeEvaluationResult otherResult) {
+        if (!Objects.equals(tradeKey, otherResult.getTradeKey())) {
+            LOG.warn("merging results for unequal TradeKeys {}, {}", tradeKey,
+                    otherResult.getTradeKey());
+        }
+
         otherResult.getImpacts().entrySet()
                 .forEach(tradeEntry -> tradeEntry.getValue().entrySet()
                         .forEach(portfolioEntry -> addImpact(tradeEntry.getKey().getPortfolioKey(),

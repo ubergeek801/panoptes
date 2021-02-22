@@ -51,6 +51,10 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
             Collection<TaxLot> allocations) {
         this.key = (key == null ? new TransactionKey(null) : key);
         this.portfolioKey = portfolioKey;
+        if (allocations.isEmpty()) {
+            throw new IllegalArgumentException("cannot create Transaction with no allocations");
+        }
+
         positions = new PositionSet<>(allocations, portfolioKey);
     }
 
@@ -92,6 +96,18 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
     @Override
     public Stream<TaxLot> getPositions() {
         return positions.getPositions();
+    }
+
+    /**
+     * Obtains the {@code TradeKey} corresponding to this {@code Trade} owning this
+     * {@code Transaction}.
+     *
+     * @return a {@code TradeKey}
+     */
+    public TradeKey getTradeKey() {
+        // there is always at least one allocation/TaxLot; all will have the same TradeKey so just
+        // grab one
+        return getPositions().findAny().get().getTradeKey();
     }
 
     @Override

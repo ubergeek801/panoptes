@@ -91,7 +91,8 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
                 isPassed = result.isPassed();
             } else {
                 // stop when a non-compliant impact is encountered
-                TradeEvaluationResult tradeResult = new TradeEvaluationResult();
+                TradeEvaluationResult tradeResult =
+                        new TradeEvaluationResult(transaction.getTradeKey());
                 tradeResult.addImpacts(portfolioKey, Map.of(result.getRuleKey(), result));
                 isPassed = tradeResult.isCompliant();
             }

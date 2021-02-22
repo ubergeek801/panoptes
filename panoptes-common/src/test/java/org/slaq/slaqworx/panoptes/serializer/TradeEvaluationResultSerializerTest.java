@@ -9,6 +9,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
  * {@code TradeEvaluationResultSerializerTest} tests the functionality of the
@@ -19,13 +20,15 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 public class TradeEvaluationResultSerializerTest {
     /**
      * Tests that (de)serialization works as expected.
-     * 
+     *
      * @throws Exception
      *             if an unexpected error occurs
      */
     @Test
     public void testSerialization() throws Exception {
         TradeEvaluationResultSerializer serializer = new TradeEvaluationResultSerializer();
+
+        TradeKey tradeKey = new TradeKey("trade1");
 
         PortfolioKey portfolio1Key = new PortfolioKey(null, 1);
         RuleKey rule1aKey = new RuleKey(null);
@@ -39,7 +42,7 @@ public class TradeEvaluationResultSerializerTest {
         EvaluationGroup group1 = new EvaluationGroup("group1", "group1Key");
         EvaluationGroup group2 = new EvaluationGroup("group2", "group2Key");
 
-        TradeEvaluationResult result = new TradeEvaluationResult();
+        TradeEvaluationResult result = new TradeEvaluationResult(tradeKey);
         result.addImpact(portfolio1Key, rule1aKey, defaultGroup, Impact.NEGATIVE);
         result.addImpact(portfolio1Key, rule1aKey, group1, Impact.NEUTRAL);
         result.addImpact(portfolio1Key, rule1aKey, group2, Impact.POSITIVE);
@@ -52,6 +55,8 @@ public class TradeEvaluationResultSerializerTest {
         byte[] buffer = serializer.write(result);
         TradeEvaluationResult deserialized = serializer.read(buffer);
 
+        assertEquals(tradeKey, deserialized.getTradeKey(),
+                "deserialized key should equals() original");
         assertEquals(result.getImpacts(), deserialized.getImpacts(),
                 "deserialized impacts should equals() original");
     }
