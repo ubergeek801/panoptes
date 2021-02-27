@@ -7,13 +7,14 @@ package org.slaq.slaqworx.panoptes.rule;
  */
 @FunctionalInterface
 public interface RuleProvider {
-    /**
-     * Obtains the {@code Rule} corresponding to the given key.
-     *
-     * @param key
-     *            the key identifying the {@code Rule} to be obtained
-     * @return the {@code Rule} corresponding to the given key, or {@code null} if it could not be
-     *         located
-     */
-    public Rule getRule(RuleKey key);
+  /**
+   * Obtains the {@code Rule} corresponding to the given key.
+   *
+   * @param key
+   *     the key identifying the {@code Rule} to be obtained
+   *
+   * @return the {@code Rule} corresponding to the given key, or {@code null} if it could not be
+   *     located
+   */
+  Rule getRule(RuleKey key);
 }

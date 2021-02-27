@@ -8,11 +8,11 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
  * @author jeremy
  */
 public class EvaluationResultSerializer extends KafkaSerializer<EvaluationResult> {
-    /**
-     * Creates a new {@code EvaluationResultSerializer}. Kafka requires a public default
-     * constructor.
-     */
-    public EvaluationResultSerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.EvaluationResultSerializer());
-    }
+  /**
+   * Creates a new {@code EvaluationResultSerializer}. Kafka requires a public default
+   * constructor.
+   */
+  public EvaluationResultSerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.EvaluationResultSerializer());
+  }
 }

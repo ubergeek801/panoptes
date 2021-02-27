@@ -8,11 +8,11 @@ import org.slaq.slaqworx.panoptes.trade.RoomEvaluationRequest;
  * @author jeremy
  */
 public class RoomEvaluationRequestSerializer extends KafkaSerializer<RoomEvaluationRequest> {
-    /**
-     * Creates a new {@code RoomEvaluationRequestSerializer}. Kafka requires a public default
-     * constructor.
-     */
-    public RoomEvaluationRequestSerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.RoomEvaluationRequestSerializer());
-    }
+  /**
+   * Creates a new {@code RoomEvaluationRequestSerializer}. Kafka requires a public default
+   * constructor.
+   */
+  public RoomEvaluationRequestSerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.RoomEvaluationRequestSerializer());
+  }
 }

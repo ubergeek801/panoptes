@@ -9,12 +9,13 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  * @author jeremy
  */
 public interface MarketValued {
-    /**
-     * Obtains the market value of this holding.
-     *
-     * @param evaluationContext
-     *            the {@code EvaluationContext} in which to perform the evaluation
-     * @return the total market value of whatever comprises this holding
-     */
-    public double getMarketValue(EvaluationContext evaluationContext);
+  /**
+   * Obtains the market value of this holding.
+   *
+   * @param evaluationContext
+   *     the {@code EvaluationContext} in which to perform the evaluation
+   *
+   * @return the total market value of whatever comprises this holding
+   */
+  double getMarketValue(EvaluationContext evaluationContext);
 }

@@ -8,11 +8,11 @@ import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
  * @author jeremy
  */
 public class RuleEvaluationResultSerializer extends KafkaSerializer<RuleEvaluationResult> {
-    /**
-     * Creates a new {@code RuleEvaluationResultSerializer}. Kafka requires a public default
-     * constructor.
-     */
-    public RuleEvaluationResultSerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.RuleEvaluationResultSerializer());
-    }
+  /**
+   * Creates a new {@code RuleEvaluationResultSerializer}. Kafka requires a public default
+   * constructor.
+   */
+  public RuleEvaluationResultSerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.RuleEvaluationResultSerializer());
+  }
 }

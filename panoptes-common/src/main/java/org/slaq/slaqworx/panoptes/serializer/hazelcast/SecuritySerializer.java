@@ -8,15 +8,15 @@ import org.slaq.slaqworx.panoptes.asset.Security;
  * @author jeremy
  */
 public class SecuritySerializer extends HazelcastStreamSerializer<Security> {
-    /**
-     * Creates a new {@code SecuritySerializer}. Hazelcast requires a public default constructor.
-     */
-    public SecuritySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.SecuritySerializer());
-    }
+  /**
+   * Creates a new {@code SecuritySerializer}. Hazelcast requires a public default constructor.
+   */
+  public SecuritySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.SecuritySerializer());
+  }
 
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.SECURITY.ordinal();
-    }
+  @Override
+  public int getTypeId() {
+    return SerializerTypeId.SECURITY.ordinal();
+  }
 }

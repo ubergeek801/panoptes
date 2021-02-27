@@ -5,21 +5,21 @@ import org.slaq.slaqworx.panoptes.serializer.TradeEvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 
 public class TradeEvaluationResultSerializationSchema
-        extends ProtobufSerializationSchema<TradeEvaluationResult> {
-    private static final long serialVersionUID = 1L;
+    extends ProtobufSerializationSchema<TradeEvaluationResult> {
+  private static final long serialVersionUID = 1L;
 
-    public TradeEvaluationResultSerializationSchema(String topic) {
-        super(topic);
-    }
+  public TradeEvaluationResultSerializationSchema(String topic) {
+    super(topic);
+  }
 
-    @Override
-    protected ProtobufSerializer<TradeEvaluationResult> createSerializer() {
-        return new TradeEvaluationResultSerializer();
-    }
+  @Override
+  protected ProtobufSerializer<TradeEvaluationResult> createSerializer() {
+    return new TradeEvaluationResultSerializer();
+  }
 
-    @Override
-    protected byte[] serializeKey(TradeEvaluationResult result) {
-        // not currently needed
-        return null;
-    }
+  @Override
+  protected byte[] serializeKey(TradeEvaluationResult result) {
+    // not currently needed
+    return null;
+  }
 }

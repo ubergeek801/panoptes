@@ -9,15 +9,17 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  */
 @FunctionalInterface
 public interface SecurityProvider {
-    /**
-     * Obtains the {@code Security} corresponding to the given ID.
-     *
-     * @param key
-     *            the key identifying the {@code Security} to be obtained
-     * @param evaluationContext
-     *            the {@code EvaluationContext} in which an evaluation is occurring
-     * @return the {@code Security} corresponding to the given key, or {@code null} if it could not
-     *         be located
-     */
-    public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext);
+  /**
+   * Obtains the {@code Security} corresponding to the given ID.
+   *
+   * @param key
+   *     the key identifying the {@code Security} to be obtained
+   * @param evaluationContext
+   *     the {@code EvaluationContext} in which an evaluation is occurring
+   *
+   * @return the {@code Security} corresponding to the given key, or {@code null} if it could
+   * not be
+   *     located
+   */
+  Security getSecurity(SecurityKey key, EvaluationContext evaluationContext);
 }

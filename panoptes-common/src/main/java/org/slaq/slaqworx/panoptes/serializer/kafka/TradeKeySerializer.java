@@ -8,10 +8,10 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  * @author jeremy
  */
 public class TradeKeySerializer extends KafkaSerializer<TradeKey> {
-    /**
-     * Creates a new {@code TradeKeySerializer}. Kafka requires a public default constructor.
-     */
-    public TradeKeySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.TradeKeySerializer());
-    }
+  /**
+   * Creates a new {@code TradeKeySerializer}. Kafka requires a public default constructor.
+   */
+  public TradeKeySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.TradeKeySerializer());
+  }
 }

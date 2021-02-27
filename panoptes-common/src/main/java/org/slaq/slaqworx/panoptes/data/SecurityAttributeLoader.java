@@ -6,8 +6,8 @@ package org.slaq.slaqworx.panoptes.data;
  * @author jeremy
  */
 public interface SecurityAttributeLoader {
-    /**
-     * Initializes the {@code SecurityAttribute}s from persistent data.
-     */
-    public void loadSecurityAttributes();
+  /**
+   * Initializes the {@code SecurityAttribute}s from persistent data.
+   */
+  void loadSecurityAttributes();
 }

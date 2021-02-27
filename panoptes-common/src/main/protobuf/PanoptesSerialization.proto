@@ -140,16 +140,27 @@ message TradeEvaluationResultMsg {
     repeated PortfolioRuleImpactMsg portfolioRuleImpact = 2;
 }
 
-// the following are used by Flink operators; maybe this will become a distinct package
+// the following are used by Flink/Jet operators; maybe this will become a distinct package
 
 message PortfolioEventMsg {
     message PortfolioCommandMsg {
         int64 eventId = 1;
         IdVersionKeyMsg portfolioKey = 2;
     }
+    message TransactionEventMsg {
+        int64 eventId = 1;
+        IdVersionKeyMsg portfolioKey = 2;
+        TransactionMsg transaction = 3;
+    }
+    message SecurityUpdateMsg {
+        IdVersionKeyMsg portfolioKey = 1;
+        IdKeyMsg securityKey = 2;
+    }
     oneof content {
-        PortfolioCommandMsg command = 1;
-        PortfolioMsg portfolio = 2;
+        PortfolioCommandMsg portfolioCommand = 1;
+        PortfolioMsg portfolioData = 2;
+        SecurityUpdateMsg securityUpdate = 3;
+        TransactionEventMsg transactionEvent = 4;
     }
 }
 

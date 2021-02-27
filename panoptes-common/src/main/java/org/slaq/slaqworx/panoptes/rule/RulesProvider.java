@@ -9,10 +9,10 @@ import java.util.stream.Stream;
  */
 @FunctionalInterface
 public interface RulesProvider {
-    /**
-     * Obtains the {@code Rules} furnished by this {@code RulesProvider}.
-     *
-     * @return the {@code Rules} furnished by this {@code RulesProvider}
-     */
-    public Stream<Rule> getRules();
+  /**
+   * Obtains the {@code Rules} furnished by this {@code RulesProvider}.
+   *
+   * @return the {@code Rules} furnished by this {@code RulesProvider}
+   */
+  Stream<Rule> getRules();
 }

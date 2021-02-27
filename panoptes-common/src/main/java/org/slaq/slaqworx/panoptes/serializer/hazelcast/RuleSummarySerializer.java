@@ -8,15 +8,15 @@ import org.slaq.slaqworx.panoptes.rule.RuleSummary;
  * @author jeremy
  */
 public class RuleSummarySerializer extends HazelcastStreamSerializer<RuleSummary> {
-    /**
-     * Creates a new {@code RuleSummarySerializer}. Hazelcast requires a public default constructor.
-     */
-    public RuleSummarySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.RuleSummarySerializer());
-    }
+  /**
+   * Creates a new {@code RuleSummarySerializer}. Hazelcast requires a public default constructor.
+   */
+  public RuleSummarySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.RuleSummarySerializer());
+  }
 
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.RULE_SUMMARY.ordinal();
-    }
+  @Override
+  public int getTypeId() {
+    return SerializerTypeId.RULE_SUMMARY.ordinal();
+  }
 }

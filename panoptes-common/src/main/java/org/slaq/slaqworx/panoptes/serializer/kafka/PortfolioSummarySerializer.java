@@ -8,11 +8,11 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
  * @author jeremy
  */
 public class PortfolioSummarySerializer extends KafkaSerializer<PortfolioSummary> {
-    /**
-     * Creates a new {@code PortfolioSummarySerializer}. Kafka requires a public default
-     * constructor.
-     */
-    public PortfolioSummarySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.PortfolioSummarySerializer());
-    }
+  /**
+   * Creates a new {@code PortfolioSummarySerializer}. Kafka requires a public default
+   * constructor.
+   */
+  public PortfolioSummarySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.PortfolioSummarySerializer());
+  }
 }

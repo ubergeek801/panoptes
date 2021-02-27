@@ -8,49 +8,49 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  * @author jeremy
  */
 public class PositionKey implements ProtobufSerializable {
-    private final String id;
+  private final String id;
 
-    /**
-     * Creates a new {@code PositionKey} with the given ID.
-     *
-     * @param id
-     *            the ID to assign to the key, or {@code null} to generate one
-     */
-    public PositionKey(String id) {
-        this.id = (id == null ? IdVersionKey.generateId() : id);
-    }
+  /**
+   * Creates a new {@code PositionKey} with the given ID.
+   *
+   * @param id
+   *     the ID to assign to the key, or {@code null} to generate one
+   */
+  public PositionKey(String id) {
+    this.id = (id == null ? IdVersionKey.generateId() : id);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        PositionKey other = (PositionKey)obj;
-        return id.equals(other.id);
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    PositionKey other = (PositionKey) obj;
+    return id.equals(other.id);
+  }
 
-    /**
-     * Obtains this {@code PositionKey}'s ID.
-     *
-     * @return the ID underlying this key
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Obtains this {@code PositionKey}'s ID.
+   *
+   * @return the ID underlying this key
+   */
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
 
-    @Override
-    public String toString() {
-        return id;
-    }
+  @Override
+  public String toString() {
+    return id;
+  }
 }

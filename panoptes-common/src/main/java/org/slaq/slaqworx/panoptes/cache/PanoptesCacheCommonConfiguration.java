@@ -1,15 +1,11 @@
 package org.slaq.slaqworx.panoptes.cache;
 
-import java.util.concurrent.ForkJoinPool;
-
-import javax.inject.Singleton;
-
 import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
-
 import io.micronaut.context.annotation.Factory;
-
+import java.util.concurrent.ForkJoinPool;
+import javax.inject.Singleton;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
@@ -56,84 +52,84 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  */
 @Factory
 public class PanoptesCacheCommonConfiguration {
-    /**
-     * Creates a new {@code PanoptesCacheCommonConfiguration}. Restricted because instances of this
-     * class should be obtained through the {@code ApplicationContext} (if it is needed at all).
-     */
-    protected PanoptesCacheCommonConfiguration() {
-        // nothing to do
-    }
+  /**
+   * Creates a new {@code PanoptesCacheCommonConfiguration}. Restricted because instances of this
+   * class should be obtained through the {@code ApplicationContext} (if it is needed at all).
+   */
+  protected PanoptesCacheCommonConfiguration() {
+    // nothing to do
+  }
 
-    /**
-     * Provides a Hazelcast {@code ExecutorConfig} suitable for executing computations on the
-     * cluster.
-     *
-     * @return a Hazelcast {@code ExecutorConfig}
-     */
-    @Singleton
-    protected ExecutorConfig clusterExecutorConfig() {
-        ExecutorConfig config = new ExecutorConfig(AssetCache.CLUSTER_EXECUTOR_NAME,
-                ForkJoinPool.getCommonPoolParallelism());
+  /**
+   * Provides a Hazelcast {@code ExecutorConfig} suitable for executing computations on the
+   * cluster.
+   *
+   * @return a Hazelcast {@code ExecutorConfig}
+   */
+  @Singleton
+  protected ExecutorConfig clusterExecutorConfig() {
+    ExecutorConfig config = new ExecutorConfig(AssetCache.CLUSTER_EXECUTOR_NAME,
+        ForkJoinPool.getCommonPoolParallelism());
 
-        return config;
-    }
+    return config;
+  }
 
-    /**
-     * Provides a Hazelcast serialization configuration suitable for serializing Panoptes cached
-     * objects.
-     *
-     * @return a Hazelcast {@code SerializationConfig}
-     */
-    @Singleton
-    protected SerializationConfig serializationConfig() {
-        SerializationConfig config = new SerializationConfig();
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new EvaluationContextSerializer())
-                        .setTypeClass(EvaluationContext.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new EvaluationResultSerializer())
-                        .setTypeClass(EvaluationResult.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new PortfolioEvaluationRequestSerializer())
-                        .setTypeClass(PortfolioEvaluationRequest.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PortfolioSerializer()).setTypeClass(Portfolio.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new PortfolioSummarizerSerializer())
-                        .setTypeClass(PortfolioSummarizer.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new PortfolioSummarySerializer())
-                        .setTypeClass(PortfolioSummary.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PositionKeySerializer()).setTypeClass(PositionKey.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new PositionSerializer()).setTypeClass(Position.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new RoomEvaluationRequestSerializer())
-                        .setTypeClass(RoomEvaluationRequest.class));
-        config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleKeySerializer())
-                .setTypeClass(RuleKey.class));
-        config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleSerializer())
-                .setTypeClass(ConfigurableRule.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new RuleSummarySerializer()).setTypeClass(RuleSummary.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new SecurityKeySerializer()).setTypeClass(SecurityKey.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new TradeEvaluationRequestSerializer())
-                        .setTypeClass(TradeEvaluationRequest.class));
-        config.addSerializerConfig(
-                new SerializerConfig().setImplementation(new TradeEvaluationResultSerializer())
-                        .setTypeClass(TradeEvaluationResult.class));
-        config.addSerializerConfig(new SerializerConfig()
-                .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
-        config.addSerializerConfig(new SerializerConfig().setImplementation(new TradeSerializer())
-                .setTypeClass(Trade.class));
+  /**
+   * Provides a Hazelcast serialization configuration suitable for serializing Panoptes cached
+   * objects.
+   *
+   * @return a Hazelcast {@code SerializationConfig}
+   */
+  @Singleton
+  protected SerializationConfig serializationConfig() {
+    SerializationConfig config = new SerializationConfig();
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new EvaluationContextSerializer())
+            .setTypeClass(EvaluationContext.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new EvaluationResultSerializer())
+            .setTypeClass(EvaluationResult.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new PortfolioEvaluationRequestSerializer())
+            .setTypeClass(PortfolioEvaluationRequest.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new PortfolioKeySerializer()).setTypeClass(PortfolioKey.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new PortfolioSerializer()).setTypeClass(Portfolio.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new PortfolioSummarizerSerializer())
+            .setTypeClass(PortfolioSummarizer.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new PortfolioSummarySerializer())
+            .setTypeClass(PortfolioSummary.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new PositionKeySerializer()).setTypeClass(PositionKey.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new PositionSerializer()).setTypeClass(Position.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new RoomEvaluationRequestSerializer())
+            .setTypeClass(RoomEvaluationRequest.class));
+    config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleKeySerializer())
+        .setTypeClass(RuleKey.class));
+    config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleSerializer())
+        .setTypeClass(ConfigurableRule.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new RuleSummarySerializer()).setTypeClass(RuleSummary.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new SecurityKeySerializer()).setTypeClass(SecurityKey.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new SecuritySerializer()).setTypeClass(Security.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new TradeEvaluationRequestSerializer())
+            .setTypeClass(TradeEvaluationRequest.class));
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new TradeEvaluationResultSerializer())
+            .setTypeClass(TradeEvaluationResult.class));
+    config.addSerializerConfig(new SerializerConfig()
+        .setImplementation(new TradeKeySerializer()).setTypeClass(TradeKey.class));
+    config.addSerializerConfig(new SerializerConfig().setImplementation(new TradeSerializer())
+        .setTypeClass(Trade.class));
 
-        return config;
-    }
+    return config;
+  }
 }

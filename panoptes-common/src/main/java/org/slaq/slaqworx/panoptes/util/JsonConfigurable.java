@@ -8,21 +8,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author jeremy
  */
 public interface JsonConfigurable {
-    static ObjectMapper objectMapper = new ObjectMapper();
+  ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * Provides a default {@code ObjectMapper} suitable for (de)serializing JSON.
-     *
-     * @return an ObjectMapper
-     */
-    public static ObjectMapper defaultObjectMapper() {
-        return objectMapper;
-    }
+  /**
+   * Provides a default {@code ObjectMapper} suitable for (de)serializing JSON.
+   *
+   * @return an ObjectMapper
+   */
+  static ObjectMapper defaultObjectMapper() {
+    return objectMapper;
+  }
 
-    /**
-     * Obtains the component configuration as JSON.
-     *
-     * @return the current configuration as JSON
-     */
-    public String getJsonConfiguration();
+  /**
+   * Obtains the component configuration as JSON.
+   *
+   * @return the current configuration as JSON
+   */
+  String getJsonConfiguration();
 }

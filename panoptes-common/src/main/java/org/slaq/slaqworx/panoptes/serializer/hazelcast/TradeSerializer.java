@@ -8,15 +8,15 @@ import org.slaq.slaqworx.panoptes.trade.Trade;
  * @author jeremy
  */
 public class TradeSerializer extends HazelcastStreamSerializer<Trade> {
-    /**
-     * Creates a new {@code TradeSerializer}. Hazelcast requires a public default constructor.
-     */
-    public TradeSerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.TradeSerializer());
-    }
+  /**
+   * Creates a new {@code TradeSerializer}. Hazelcast requires a public default constructor.
+   */
+  public TradeSerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.TradeSerializer());
+  }
 
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.TRADE.ordinal();
-    }
+  @Override
+  public int getTypeId() {
+    return SerializerTypeId.TRADE.ordinal();
+  }
 }

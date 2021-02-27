@@ -9,44 +9,44 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
  * @author jeremy
  */
 public class PortfolioState {
-    private final Portfolio portfolio;
-    private boolean isPublished;
+  private final Portfolio portfolio;
+  private boolean isPublished;
 
-    /**
-     * Creates a new {@code PortfolioState} representing the given portfolio.
-     *
-     * @param portfolio
-     *            the {@code Portfolio} for which state is held
-     */
-    public PortfolioState(Portfolio portfolio) {
-        this.portfolio = portfolio;
-    }
+  /**
+   * Creates a new {@code PortfolioState} representing the given portfolio.
+   *
+   * @param portfolio
+   *     the {@code Portfolio} for which state is held
+   */
+  public PortfolioState(Portfolio portfolio) {
+    this.portfolio = portfolio;
+  }
 
-    /**
-     * Obtains the {@code Portfolio} for which state is held.
-     *
-     * @return a {@code Portfolio}
-     */
-    public Portfolio getPortfolio() {
-        return portfolio;
-    }
+  /**
+   * Obtains the {@code Portfolio} for which state is held.
+   *
+   * @return a {@code Portfolio}
+   */
+  public Portfolio getPortfolio() {
+    return portfolio;
+  }
 
-    /**
-     * Indicates whether the {@code Portfolio} has been published.
-     *
-     * @return {@code true} if the portfolio has been published, {@code false} otherwise
-     */
-    public boolean isPublished() {
-        return isPublished;
-    }
+  /**
+   * Indicates whether the {@code Portfolio} has been published.
+   *
+   * @return {@code true} if the portfolio has been published, {@code false} otherwise
+   */
+  public boolean isPublished() {
+    return isPublished;
+  }
 
-    /**
-     * Specifies whether the {@code Portfolio} has been published.
-     *
-     * @param isPublished
-     *            {@code true} if the portfolio has been published, {@code false} otherwise
-     */
-    public void setPublished(boolean isPublished) {
-        this.isPublished = isPublished;
-    }
+  /**
+   * Specifies whether the {@code Portfolio} has been published.
+   *
+   * @param isPublished
+   *     {@code true} if the portfolio has been published, {@code false} otherwise
+   */
+  public void setPublished(boolean isPublished) {
+    this.isPublished = isPublished;
+  }
 }

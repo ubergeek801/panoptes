@@ -7,13 +7,14 @@ package org.slaq.slaqworx.panoptes.asset;
  */
 @FunctionalInterface
 public interface PortfolioProvider {
-    /**
-     * Obtains the {@code Portfolio} corresponding to the given key.
-     *
-     * @param key
-     *            the key identifying the {@code Portfolio} to be obtained
-     * @return the {@code Portfolio} corresponding to the given key, or {@code null} if it could not
-     *         be located
-     */
-    public Portfolio getPortfolio(PortfolioKey key);
+  /**
+   * Obtains the {@code Portfolio} corresponding to the given key.
+   *
+   * @param key
+   *     the key identifying the {@code Portfolio} to be obtained
+   *
+   * @return the {@code Portfolio} corresponding to the given key, or {@code null} if it could not
+   *     be located
+   */
+  Portfolio getPortfolio(PortfolioKey key);
 }

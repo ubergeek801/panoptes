@@ -10,11 +10,11 @@ import io.micronaut.context.ApplicationContext;
  * @author jeremy
  */
 public interface ApplicationContextAware {
-    /**
-     * Injects the {@code ApplicationContext} into the object state.
-     *
-     * @param applicationContext
-     *            the {@code ApplicationContext} to be injected
-     */
-    public void setApplicationContext(ApplicationContext applicationContext);
+  /**
+   * Injects the {@code ApplicationContext} into the object state.
+   *
+   * @param applicationContext
+   *     the {@code ApplicationContext} to be injected
+   */
+  void setApplicationContext(ApplicationContext applicationContext);
 }

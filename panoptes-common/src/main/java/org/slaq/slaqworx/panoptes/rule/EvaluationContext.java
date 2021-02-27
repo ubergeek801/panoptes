@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.slaq.slaqworx.panoptes.asset.MarketValueProvider;
 import org.slaq.slaqworx.panoptes.asset.MarketValued;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -24,221 +23,225 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  * @author jeremy
  */
 public class EvaluationContext implements MarketValueProvider, ProtobufSerializable {
+  /**
+   * {@code EvaluationMode} specifies behaviors to be observed during evaluation.
+   */
+  public enum EvaluationMode {
     /**
-     * {@code EvaluationMode} specifies behaviors to be observed during evaluation.
+     * all {@code Rule}s are evaluated regardless of outcome
      */
-    public enum EvaluationMode {
-        /**
-         * all {@code Rule}s are evaluated regardless of outcome
-         */
-        FULL_EVALUATION,
-        /**
-         * {@code Rule} evaluation may be short-circuited if an evaluation fails
-         */
-        SHORT_CIRCUIT_EVALUATION
-    }
-
-    private final SecurityProvider securityProvider;
-    private final PortfolioProvider portfolioProvider;
-    private final EvaluationMode evaluationMode;
-    private final Map<SecurityKey, SecurityAttributes> securityOverrides;
-    private final Map<RuleKey, EvaluationResult> benchmarkResults = new ConcurrentHashMap<>(100);
-    private final Map<MarketValued, Double> marketValues =
-            Collections.synchronizedMap(new IdentityHashMap<>(10));
-
+    FULL_EVALUATION,
     /**
-     * Creates a new {@code EvaluationContext} which uses the default {@code AssetCache} to resolve
-     * {@code Security} and {@code Portfolio} references, performs full (non-short-circuit)
-     * {@code Rule} evaluation, uses the given {@code SecurityProvider} to resolve {@code Security}
-     * references, and which supplies no {@code Security} attribute overrides.
+     * {@code Rule} evaluation may be short-circuited if an evaluation fails
      */
-    public EvaluationContext() {
-        this(null, null, EvaluationMode.FULL_EVALUATION);
-    }
+    SHORT_CIRCUIT_EVALUATION
+  }
 
-    /**
-     * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the
-     * default {@code AssetCache} to resolve references, and which supplies no {@code Security}
-     * attribute overrides.
-     *
-     * @param evaluationMode
-     *            the evaluation mode in which to evaluate
-     */
-    public EvaluationContext(EvaluationMode evaluationMode) {
-        this(null, null, evaluationMode, null);
-    }
+  private final SecurityProvider securityProvider;
+  private final PortfolioProvider portfolioProvider;
+  private final EvaluationMode evaluationMode;
+  private final Map<SecurityKey, SecurityAttributes> securityOverrides;
+  private final Map<RuleKey, EvaluationResult> benchmarkResults = new ConcurrentHashMap<>(100);
+  private final Map<MarketValued, Double> marketValues =
+      Collections.synchronizedMap(new IdentityHashMap<>(10));
 
-    /**
-     * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the
-     * default {@code AssetCache} to resolve references, and which specifies attributes which should
-     * override current {@code Security} attribute values for the purposes of the current
-     * evaluation.
-     *
-     * @param evaluationMode
-     *            the evaluation mode in which to evaluate
-     * @param securityAttributeOverrides
-     *            a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a
-     *            {@code SecurityAttributes} which should override the current values
-     */
-    public EvaluationContext(EvaluationMode evaluationMode,
-            Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
-        this(null, null, evaluationMode, securityAttributeOverrides);
-    }
+  /**
+   * Creates a new {@code EvaluationContext} which uses the default {@code AssetCache} to resolve
+   * {@code Security} and {@code Portfolio} references, performs full (non-short-circuit) {@code
+   * Rule} evaluation, uses the given {@code SecurityProvider} to resolve {@code Security}
+   * references, and which supplies no {@code Security} attribute overrides.
+   */
+  public EvaluationContext() {
+    this(null, null, EvaluationMode.FULL_EVALUATION);
+  }
 
-    /**
-     * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
-     * evaluation, uses the given {@code SecurityProvider} to resolve {@code Security} references,
-     * and which supplies no {@code Security} attribute overrides.
-     *
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Security} references
-     * @param portfolioProvider
-     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
-     */
-    public EvaluationContext(SecurityProvider securityProvider,
-            PortfolioProvider portfolioProvider) {
-        this(securityProvider, portfolioProvider, EvaluationMode.FULL_EVALUATION);
-    }
+  /**
+   * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the
+   * default
+   * {@code AssetCache} to resolve references, and which supplies no {@code Security} attribute
+   * overrides.
+   *
+   * @param evaluationMode
+   *     the evaluation mode in which to evaluate
+   */
+  public EvaluationContext(EvaluationMode evaluationMode) {
+    this(null, null, evaluationMode, null);
+  }
 
-    /**
-     * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the given
-     * providers to resolve references, and which supplies no {@code Security} attribute overrides.
-     *
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Security} references
-     * @param portfolioProvider
-     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
-     * @param evaluationMode
-     *            the evaluation mode in which to evaluate
-     */
-    public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
-            EvaluationMode evaluationMode) {
-        this(securityProvider, portfolioProvider, evaluationMode, null);
-    }
+  /**
+   * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the
+   * default
+   * {@code AssetCache} to resolve references, and which specifies attributes which should
+   * override
+   * current {@code Security} attribute values for the purposes of the current evaluation.
+   *
+   * @param evaluationMode
+   *     the evaluation mode in which to evaluate
+   * @param securityAttributeOverrides
+   *     a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a {@code
+   *     SecurityAttributes} which should override the current values
+   */
+  public EvaluationContext(EvaluationMode evaluationMode,
+                           Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
+    this(null, null, evaluationMode, securityAttributeOverrides);
+  }
 
-    /**
-     * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the given
-     * providers to resolve references, and which specifies attributes which should override current
-     * {@code Security} attribute values for the purposes of the current evaluation.
-     *
-     * @param securityProvider
-     *            the {@code SecurityProvider} to use to resolve {@code Security} references
-     * @param portfolioProvider
-     *            the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
-     * @param evaluationMode
-     *            the evaluation mode in which to evaluate
-     * @param securityAttributeOverrides
-     *            a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a
-     *            {@code SecurityAttributes} which should override the current values
-     */
-    public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
-            EvaluationMode evaluationMode,
-            Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
-        this.securityProvider = securityProvider;
-        this.portfolioProvider = portfolioProvider;
-        this.evaluationMode = evaluationMode;
-        securityOverrides = (securityAttributeOverrides == null ? Collections.emptyMap()
-                : securityAttributeOverrides);
-    }
+  /**
+   * Creates a new {@code EvaluationContext} which performs full (non-short-circuit) {@code Rule}
+   * evaluation, uses the given {@code SecurityProvider} to resolve {@code Security}
+   * references, and
+   * which supplies no {@code Security} attribute overrides.
+   *
+   * @param securityProvider
+   *     the {@code SecurityProvider} to use to resolve {@code Security} references
+   * @param portfolioProvider
+   *     the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
+   */
+  public EvaluationContext(SecurityProvider securityProvider,
+                           PortfolioProvider portfolioProvider) {
+    this(securityProvider, portfolioProvider, EvaluationMode.FULL_EVALUATION);
+  }
 
-    /**
-     * Caches the benchmark value for the specified {@code Rule}
-     *
-     * @param ruleKey
-     *            the {@code RuleKey} identifying the currently evaluating {@code Rule}
-     * @param result
-     *            the benchmark result corresponding to the {@code Rule}
-     */
-    public void cacheBenchmarkValue(RuleKey ruleKey, EvaluationResult result) {
-        benchmarkResults.put(ruleKey, result);
-    }
+  /**
+   * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the given
+   * providers to resolve references, and which supplies no {@code Security} attribute overrides.
+   *
+   * @param securityProvider
+   *     the {@code SecurityProvider} to use to resolve {@code Security} references
+   * @param portfolioProvider
+   *     the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
+   * @param evaluationMode
+   *     the evaluation mode in which to evaluate
+   */
+  public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
+                           EvaluationMode evaluationMode) {
+    this(securityProvider, portfolioProvider, evaluationMode, null);
+  }
 
-    /**
-     * Clears the current context state. Note that it is preferable to use a new
-     * {@code EvaluationContext} whenever possible.
-     */
-    public void clear() {
-        benchmarkResults.clear();
-        marketValues.clear();
-    }
+  /**
+   * Creates a new {@code EvaluationContext} which uses the given evaluation mode, uses the given
+   * providers to resolve references, and which specifies attributes which should override current
+   * {@code Security} attribute values for the purposes of the current evaluation.
+   *
+   * @param securityProvider
+   *     the {@code SecurityProvider} to use to resolve {@code Security} references
+   * @param portfolioProvider
+   *     the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
+   * @param evaluationMode
+   *     the evaluation mode in which to evaluate
+   * @param securityAttributeOverrides
+   *     a (possibly {@code null} or empty) {@code Map} relating a {@code SecurityKey} to a {@code
+   *     SecurityAttributes} which should override the current values
+   */
+  public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
+                           EvaluationMode evaluationMode,
+                           Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
+    this.securityProvider = securityProvider;
+    this.portfolioProvider = portfolioProvider;
+    this.evaluationMode = evaluationMode;
+    securityOverrides = (securityAttributeOverrides == null ? Collections.emptyMap()
+        : securityAttributeOverrides);
+  }
 
-    /**
-     * Provides a copy of this {@code EvaluationContext}.
-     *
-     * @return a new {@code EvaluationContext} copying this one
-     */
-    public EvaluationContext copy() {
-        return new EvaluationContext(securityProvider, portfolioProvider, evaluationMode,
-                securityOverrides);
-    }
+  /**
+   * Caches the benchmark value for the specified {@code Rule}
+   *
+   * @param ruleKey
+   *     the {@code RuleKey} identifying the currently evaluating {@code Rule}
+   * @param result
+   *     the benchmark result corresponding to the {@code Rule}
+   */
+  public void cacheBenchmarkValue(RuleKey ruleKey, EvaluationResult result) {
+    benchmarkResults.put(ruleKey, result);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        return (this == obj);
-    }
+  /**
+   * Clears the current context state. Note that it is preferable to use a new {@code
+   * EvaluationContext} whenever possible.
+   */
+  public void clear() {
+    benchmarkResults.clear();
+    marketValues.clear();
+  }
 
-    /**
-     * Obtains the currently cached benchmark value corresponding to the specified {@code Rule}.
-     *
-     * @param ruleKey
-     *            the {@code RuleKey} identifying the currently evaluating {@code Rule}
-     * @return the cached benchmark value if present, or {@code null} otherwise
-     */
-    public EvaluationResult getBenchmarkResult(RuleKey ruleKey) {
-        return benchmarkResults.get(ruleKey);
-    }
+  /**
+   * Provides a copy of this {@code EvaluationContext}.
+   *
+   * @return a new {@code EvaluationContext} copying this one
+   */
+  public EvaluationContext copy() {
+    return new EvaluationContext(securityProvider, portfolioProvider, evaluationMode,
+        securityOverrides);
+  }
 
-    /**
-     * Obtains the {@code EvaluationMode} in effect for this context.
-     *
-     * @return a {@code EvaluationMode}
-     */
-    public EvaluationMode getEvaluationMode() {
-        return evaluationMode;
-    }
+  @Override
+  public boolean equals(Object obj) {
+    return (this == obj);
+  }
 
-    @Override
-    public double getMarketValue(MarketValued holding) {
-        // compute/cache the market value of this holding
-        return marketValues.computeIfAbsent(holding, k -> holding.getMarketValue(this));
-    }
+  /**
+   * Obtains the currently cached benchmark value corresponding to the specified {@code Rule}.
+   *
+   * @param ruleKey
+   *     the {@code RuleKey} identifying the currently evaluating {@code Rule}
+   *
+   * @return the cached benchmark value if present, or {@code null} otherwise
+   */
+  public EvaluationResult getBenchmarkResult(RuleKey ruleKey) {
+    return benchmarkResults.get(ruleKey);
+  }
 
-    /**
-     * Obtains the {@code PortfolioProvider} in effect for the current evaluation.
-     *
-     * @return a {@code PortfolioProvider}
-     */
-    public PortfolioProvider getPortfolioProvider() {
-        return (portfolioProvider != null ? portfolioProvider : AssetCache.getDefault());
-    }
+  /**
+   * Obtains the {@code EvaluationMode} in effect for this context.
+   *
+   * @return a {@code EvaluationMode}
+   */
+  public EvaluationMode getEvaluationMode() {
+    return evaluationMode;
+  }
 
-    /**
-     * Obtains the {@code Security} overrides in effect for the current evaluation.
-     *
-     * @return a (possibly empty but never {@code null}) {@code Map} relating a {@code SecurityKey}
-     *         to a {@code SecurityAttributes} which should override the current values for the
-     *         purposes of this evaluation
-     */
-    public Map<SecurityKey, SecurityAttributes> getSecurityOverrides() {
-        return securityOverrides;
-    }
+  @Override
+  public double getMarketValue(MarketValued holding) {
+    // compute/cache the market value of this holding
+    return marketValues.computeIfAbsent(holding, k -> holding.getMarketValue(this));
+  }
 
-    /**
-     * Obtains the {@code SecurityProvider} in effect for the current evaluation.
-     *
-     * @return a {@code SecurityProvider}
-     */
-    public SecurityProvider getSecurityProvider() {
-        return (securityProvider != null ? securityProvider : AssetCache.getDefault());
-    }
+  /**
+   * Obtains the {@code PortfolioProvider} in effect for the current evaluation.
+   *
+   * @return a {@code PortfolioProvider}
+   */
+  public PortfolioProvider getPortfolioProvider() {
+    return (portfolioProvider != null ? portfolioProvider : AssetCache.getDefault());
+  }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((evaluationMode == null) ? 0 : evaluationMode.hashCode());
-        result = prime * result + ((securityOverrides == null) ? 0 : securityOverrides.hashCode());
+  /**
+   * Obtains the {@code Security} overrides in effect for the current evaluation.
+   *
+   * @return a (possibly empty but never {@code null}) {@code Map} relating a {@code SecurityKey} to
+   *     a {@code SecurityAttributes} which should override the current values for the purposes of
+   *     this evaluation
+   */
+  public Map<SecurityKey, SecurityAttributes> getSecurityOverrides() {
+    return securityOverrides;
+  }
 
-        return result;
-    }
+  /**
+   * Obtains the {@code SecurityProvider} in effect for the current evaluation.
+   *
+   * @return a {@code SecurityProvider}
+   */
+  public SecurityProvider getSecurityProvider() {
+    return (securityProvider != null ? securityProvider : AssetCache.getDefault());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((evaluationMode == null) ? 0 : evaluationMode.hashCode());
+    result = prime * result + ((securityOverrides == null) ? 0 : securityOverrides.hashCode());
+
+    return result;
+  }
 }

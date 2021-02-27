@@ -4,12 +4,12 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
 
 public class PortfolioKeyKryoSerializer extends ProtobufKryoSerializer<PortfolioKey> {
-    public PortfolioKeyKryoSerializer() {
-        // nothing to do
-    }
+  public PortfolioKeyKryoSerializer() {
+    // nothing to do
+  }
 
-    @Override
-    protected PortfolioKeySerializer createProtobufSerializer() {
-        return new PortfolioKeySerializer();
-    }
+  @Override
+  protected PortfolioKeySerializer createProtobufSerializer() {
+    return new PortfolioKeySerializer();
+  }
 }

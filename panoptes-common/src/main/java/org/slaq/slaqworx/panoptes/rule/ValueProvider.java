@@ -5,109 +5,112 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.function.BiFunction;
-
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
 
 /**
- * A {@code BiFunction} that converts a value of a specified type (within a given
- * {@code EvaluationContext}) to a {@code Double}, to facilitate calculations on various types of
- * {@code SecurityAttribute}s. Implements {@code Serializable} for convenience of implementing
+ * A {@code BiFunction} that converts a value of a specified type (within a given {@code
+ * EvaluationContext}) to a {@code Double}, to facilitate calculations on various types of {@code
+ * SecurityAttribute}s. Implements {@code Serializable} for convenience of implementing
  * cluster-friendly {@code Security} filters.
  *
- * @author jeremy
  * @param <T>
- *            the type that can be converted by the {@code ValueProvider}
+ *     the type that can be converted by the {@code ValueProvider}
+ *
+ * @author jeremy
  */
 public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Double>, Serializable {
-    /**
-     * Produces a {@code ValueProvider} that converts from {@code BigDecimal}.
-     *
-     * @return a {@code ValueProvider} for converting {@code BigDecimal} values
-     */
-    public static ValueProvider<BigDecimal> forBigDecimal() {
-        return (v, c) -> (v == null ? null : v.doubleValue());
+  /**
+   * Produces a {@code ValueProvider} that converts from {@code BigDecimal}.
+   *
+   * @return a {@code ValueProvider} for converting {@code BigDecimal} values
+   */
+  static ValueProvider<BigDecimal> forBigDecimal() {
+    return (v, c) -> (v == null ? null : v.doubleValue());
+  }
+
+  /**
+   * Produces a {@code ValueProvider} that converts from values of the given {@code Class}.
+   *
+   * @param <T>
+   *     the class type of values to be converted
+   * @param clazz
+   *     the {@code Class} of values to be converted
+   *
+   * @return a {@code ValueProvider} of the requested type, if available
+   *
+   * @throws IllegalArgumentException
+   *     if a {@code ValueProvider} is not available for the requested type
+   */
+  static <T> ValueProvider<T> forClass(Class<T> clazz) {
+    ValueProvider<T> provider = forClassIfAvailable(clazz);
+    if (provider != null) {
+      return provider;
     }
 
-    /**
-     * Produces a {@code ValueProvider} that converts from values of the given {@code Class}.
-     *
-     * @param <T>
-     *            the class type of values to be converted
-     * @param clazz
-     *            the {@code Class} of values to be converted
-     * @return a {@code ValueProvider} of the requested type, if available
-     * @throws IllegalArgumentException
-     *             if a {@code ValueProvider} is not available for the requested type
-     */
-    public static <T> ValueProvider<T> forClass(Class<T> clazz) {
-        ValueProvider<T> provider = forClassIfAvailable(clazz);
-        if (provider != null) {
-            return provider;
-        }
+    throw new IllegalArgumentException("unsupported ValueProvider class: " + clazz);
+  }
 
-        throw new IllegalArgumentException("unsupported ValueProvider class: " + clazz);
+  /**
+   * Produces, if available, a {@code ValueProvider} that converts from values of the given {@code
+   * Class}.
+   *
+   * @param <T>
+   *     the class type of values to be converted
+   * @param clazz
+   *     the {@code Class} of values to be converted
+   *
+   * @return a {@code ValueProvider} of the requested type, or {@code null} if not available
+   */
+  @SuppressWarnings("unchecked")
+  static <T> ValueProvider<T> forClassIfAvailable(Class<T> clazz) {
+    if (Double.class.isAssignableFrom(clazz)) {
+      return (ValueProvider<T>) forDouble();
+    }
+    if (BigDecimal.class.isAssignableFrom(clazz)) {
+      return (ValueProvider<T>) forBigDecimal();
+    }
+    if (LocalDate.class.isAssignableFrom(clazz)) {
+      // currently this is the only thing we know how to do with dates
+      return (ValueProvider<T>) forDaysUntilDate();
+    }
+    if (String.class.isAssignableFrom(clazz)) {
+      // currently this is the only thing we know how to do with strings
+      return (ValueProvider<T>) forRatingSymbol();
     }
 
-    /**
-     * Produces, if available, a {@code ValueProvider} that converts from values of the given
-     * {@code Class}.
-     *
-     * @param <T>
-     *            the class type of values to be converted
-     * @param clazz
-     *            the {@code Class} of values to be converted
-     * @return a {@code ValueProvider} of the requested type, or {@code null} if not available
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> ValueProvider<T> forClassIfAvailable(Class<T> clazz) {
-        if (Double.class.isAssignableFrom(clazz)) {
-            return (ValueProvider<T>)forDouble();
-        }
-        if (BigDecimal.class.isAssignableFrom(clazz)) {
-            return (ValueProvider<T>)forBigDecimal();
-        }
-        if (LocalDate.class.isAssignableFrom(clazz)) {
-            // currently this is the only thing we know how to do with dates
-            return (ValueProvider<T>)forDaysUntilDate();
-        }
-        if (String.class.isAssignableFrom(clazz)) {
-            // currently this is the only thing we know how to do with strings
-            return (ValueProvider<T>)forRatingSymbol();
-        }
+    return null;
+  }
 
-        return null;
-    }
+  /**
+   * Produces a {@code ValueProvider} that converts a {@code LocalDate} into the number of days
+   * between the effective current date (as supplied by the {@code EvaluationContext}) and that
+   * date.
+   *
+   * @return a {@code ValueProvider} for converting {@code LocalDate} values
+   */
+  static ValueProvider<LocalDate> forDaysUntilDate() {
+    // TODO get the effective current date from the EvaluationContext
+    return (v, c) -> (v == null ? null : (double) LocalDate.now().until(v, ChronoUnit.DAYS));
+  }
 
-    /**
-     * Produces a {@code ValueProvider} that converts a {@code LocalDate} into the number of days
-     * between the effective current date (as supplied by the {@code EvaluationContext}) and that
-     * date.
-     *
-     * @return a {@code ValueProvider} for converting {@code LocalDate} values
-     */
-    public static ValueProvider<LocalDate> forDaysUntilDate() {
-        // TODO get the effective current date from the EvaluationContext
-        return (v, c) -> (v == null ? null : (double)LocalDate.now().until(v, ChronoUnit.DAYS));
-    }
+  /**
+   * Produces a {@code ValueProvider} that trivially "converts" a {@code Double}.
+   *
+   * @return a {@code ValueProvider} for handling {@code Double} values
+   */
+  static ValueProvider<Double> forDouble() {
+    return (v, c) -> v;
+  }
 
-    /**
-     * Produces a {@code ValueProvider} that trivially "converts" a {@code Double}.
-     *
-     * @return a {@code ValueProvider} for handling {@code Double} values
-     */
-    public static ValueProvider<Double> forDouble() {
-        return (v, c) -> v;
-    }
-
-    /**
-     * Produces a {@code ValueProvider} that converts a rating symbol to the ordinal of its
-     * corresponding {@code RatingNotch}.
-     *
-     * @return a {@code ValueProvider} for handling rating symbol values
-     */
-    public static ValueProvider<String> forRatingSymbol() {
-        // TODO support other RatingScales
-        return (v, c) -> (v == null ? null
-                : (double)RatingScale.defaultScale().getRatingNotch(v).getOrdinal());
-    }
+  /**
+   * Produces a {@code ValueProvider} that converts a rating symbol to the ordinal of its
+   * corresponding {@code RatingNotch}.
+   *
+   * @return a {@code ValueProvider} for handling rating symbol values
+   */
+  static ValueProvider<String> forRatingSymbol() {
+    // TODO support other RatingScales
+    return (v, c) -> (v == null ? null
+        : (double) RatingScale.defaultScale().getRatingNotch(v).getOrdinal());
+  }
 }

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panoptes-jet
+  labels:
+    app: panoptes
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: panoptes
+  template:
+    metadata:
+      labels:
+        app: panoptes
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - uberkube01
+                - uberkube06
+                - uberkube07
+      containers:
+      - name: panoptes-jet
+        image: uberkube01.slaq.org:5000/slaqworx/panoptes-jet:arm64
+        imagePullPolicy: Always
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: JAVA_TOOL_OPTIONS
+          # number of CPUs isn't detected properly on Odroid N2
+          value: "-Djava.rmi.server.hostname=$(HOST_IP) -XX:ActiveProcessorCount=6"
+        ports:
+        - containerPort: 8080
+          hostPort: 8080
+        - containerPort: 8090
+          hostPort: 8090
+        - containerPort: 8000
+          hostPort: 8000
+        - containerPort: 5701
+          hostPort: 5701

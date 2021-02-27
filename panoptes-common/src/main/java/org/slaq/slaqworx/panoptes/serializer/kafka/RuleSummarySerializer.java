@@ -8,10 +8,10 @@ import org.slaq.slaqworx.panoptes.rule.RuleSummary;
  * @author jeremy
  */
 public class RuleSummarySerializer extends KafkaSerializer<RuleSummary> {
-    /**
-     * Creates a new {@code RuleSummarySerializer}. Kafka requires a public default constructor.
-     */
-    public RuleSummarySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.RuleSummarySerializer());
-    }
+  /**
+   * Creates a new {@code RuleSummarySerializer}. Kafka requires a public default constructor.
+   */
+  public RuleSummarySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.RuleSummarySerializer());
+  }
 }

@@ -8,5 +8,5 @@ package org.slaq.slaqworx.panoptes.serializer;
  * @author jeremy
  */
 public interface ProtobufSerializable {
-    // marker interface only
+  // marker interface only
 }

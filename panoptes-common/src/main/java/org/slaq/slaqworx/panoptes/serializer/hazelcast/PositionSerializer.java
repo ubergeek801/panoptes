@@ -8,15 +8,15 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * @author jeremy
  */
 public class PositionSerializer extends HazelcastStreamSerializer<Position> {
-    /**
-     * Creates a new {@code PositionSerializer}. Hazelcast requires a public default constructor.
-     */
-    public PositionSerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.PositionSerializer());
-    }
+  /**
+   * Creates a new {@code PositionSerializer}. Hazelcast requires a public default constructor.
+   */
+  public PositionSerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.PositionSerializer());
+  }
 
-    @Override
-    public int getTypeId() {
-        return SerializerTypeId.POSITION.ordinal();
-    }
+  @Override
+  public int getTypeId() {
+    return SerializerTypeId.POSITION.ordinal();
+  }
 }

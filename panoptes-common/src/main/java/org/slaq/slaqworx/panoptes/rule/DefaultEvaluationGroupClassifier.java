@@ -9,15 +9,15 @@ import java.util.function.Supplier;
  * @author jeremy
  */
 public class DefaultEvaluationGroupClassifier implements EvaluationGroupClassifier {
-    /**
-     * Creates a new {@code DefaultEvaluationGroupClassifier}.
-     */
-    public DefaultEvaluationGroupClassifier() {
-        // nothing to do
-    }
+  /**
+   * Creates a new {@code DefaultEvaluationGroupClassifier}.
+   */
+  public DefaultEvaluationGroupClassifier() {
+    // nothing to do
+  }
 
-    @Override
-    public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier) {
-        return EvaluationGroup.defaultGroup();
-    }
+  @Override
+  public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier) {
+    return EvaluationGroup.defaultGroup();
+  }
 }

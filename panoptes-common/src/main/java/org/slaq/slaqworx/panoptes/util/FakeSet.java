@@ -11,30 +11,31 @@ import java.util.Set;
  * user's responsibility to ensure either that the provided collection has the necessary uniqueness
  * characteristics, or that uniqueness is unimportant for the usage at hand.
  *
- * @author jeremy
  * @param <E>
- *            the type of element contained by this set
+ *     the type of element contained by this set
+ *
+ * @author jeremy
  */
 public class FakeSet<E> extends AbstractCollection<E> implements Set<E> {
-    private final Collection<E> collection;
+  private final Collection<E> collection;
 
-    /**
-     * Creates a new {@code FakeSet} that wraps the given {@code Collection}.
-     *
-     * @param collection
-     *            the collection to wrap
-     */
-    public FakeSet(Collection<E> collection) {
-        this.collection = collection;
-    }
+  /**
+   * Creates a new {@code FakeSet} that wraps the given {@code Collection}.
+   *
+   * @param collection
+   *     the collection to wrap
+   */
+  public FakeSet(Collection<E> collection) {
+    this.collection = collection;
+  }
 
-    @Override
-    public Iterator<E> iterator() {
-        return collection.iterator();
-    }
+  @Override
+  public Iterator<E> iterator() {
+    return collection.iterator();
+  }
 
-    @Override
-    public int size() {
-        return collection.size();
-    }
+  @Override
+  public int size() {
+    return collection.size();
+  }
 }

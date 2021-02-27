@@ -8,10 +8,10 @@ import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
  * @author jeremy
  */
 public class PortfolioEventSerializer extends KafkaSerializer<PortfolioEvent> {
-    /**
-     * Creates a new {@code PortfolioEventSerializer}. Kafka requires a public default constructor.
-     */
-    public PortfolioEventSerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.PortfolioEventSerializer());
-    }
+  /**
+   * Creates a new {@code PortfolioEventSerializer}. Kafka requires a public default constructor.
+   */
+  public PortfolioEventSerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.PortfolioEventSerializer());
+  }
 }

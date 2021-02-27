@@ -8,10 +8,10 @@ import org.slaq.slaqworx.panoptes.asset.PositionKey;
  * @author jeremy
  */
 public class PositionKeySerializer extends KafkaSerializer<PositionKey> {
-    /**
-     * Creates a new {@code PositionKeySerializer}. Kafka requires a public default constructor.
-     */
-    public PositionKeySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.PositionKeySerializer());
-    }
+  /**
+   * Creates a new {@code PositionKeySerializer}. Kafka requires a public default constructor.
+   */
+  public PositionKeySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.PositionKeySerializer());
+  }
 }

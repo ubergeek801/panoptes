@@ -9,6 +9,10 @@ target/
 .project
 .settings/
 
+# ignore IDEA artifacts
+.idea/
+*.iml
+
 # ignore Vaadin artifacts which can be regenerated
 package-lock.json
 package.json

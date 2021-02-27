@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.asset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
-
 import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
@@ -24,85 +23,85 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  * depend on uniqueness, any calculations based on the {@code Position}s may be skewed if duplicate
  * {@code Position}s are present.
  *
- * @author jeremy
  * @param <P>
- *            the concrete {@code Position} type provided by this {@code PositionSet}
+ *     the concrete {@code Position} type provided by this {@code PositionSet}
+ *
+ * @author jeremy
  */
 public class PositionSet<P extends Position> implements HierarchicalPositionSupplier {
-    // even though we assume Set semantics, keeping positions in contiguous memory improves
-    // calculation performance by 20%
-    private final ArrayList<P> positions;
-    private final PortfolioKey portfolioKey;
-    private Double totalMarketValue;
+  // even though we assume Set semantics, keeping positions in contiguous memory improves
+  // calculation performance by 20%
+  private final ArrayList<P> positions;
+  private final PortfolioKey portfolioKey;
+  private final Double totalMarketValue;
 
-    /**
-     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with no
-     * container {@code Portfolio}.
-     *
-     * @param positions
-     *            the {@code Position}s that will comprise this {@code PositionSet}
-     */
-    public PositionSet(Collection<P> positions) {
-        this(positions, null);
+  /**
+   * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with no
+   * container
+   * {@code Portfolio}.
+   *
+   * @param positions
+   *     the {@code Position}s that will comprise this {@code PositionSet}
+   */
+  public PositionSet(Collection<P> positions) {
+    this(positions, null);
+  }
+
+  /**
+   * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
+   * container {@code Portfolio}.
+   *
+   * @param positions
+   *     the {@code Position}s that will comprise this {@code PositionSet}
+   * @param portfolioKey
+   *     the (possibly {@code null}) {@code PortfolioKey} associated with this {@code PositionSet}
+   */
+  public PositionSet(Collection<P> positions, PortfolioKey portfolioKey) {
+    this(positions, portfolioKey, null);
+  }
+
+  /**
+   * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
+   * containing {@code Portfolio} and portfolio market value.
+   *
+   * @param positions
+   *     the {@code Position}s that will comprise this {@code PositionSet}
+   * @param portfolioKey
+   *     the (possibly {@code null}) {@code PortfolioKey} associated with this {@code PositionSet}
+   * @param portfolioMarketValue
+   *     the (possibly {@code null} portfolio market value to use
+   */
+  public PositionSet(Collection<P> positions, PortfolioKey portfolioKey,
+                     Double portfolioMarketValue) {
+    this.positions = new ArrayList<>(positions);
+    this.portfolioKey = portfolioKey;
+    totalMarketValue = portfolioMarketValue;
+  }
+
+  @Override
+  public double getMarketValue(EvaluationContext evaluationContext) {
+    // if a market value override is supplied, use it
+    if (totalMarketValue != null) {
+      return totalMarketValue;
     }
 
-    /**
-     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
-     * container {@code Portfolio}.
-     *
-     * @param positions
-     *            the {@code Position}s that will comprise this {@code PositionSet}
-     * @param portfolioKey
-     *            the (possibly {@code null}) {@code PortfolioKey} associated with this
-     *            {@code PositionSet}
-     */
-    public PositionSet(Collection<P> positions, PortfolioKey portfolioKey) {
-        this(positions, portfolioKey, null);
-    }
+    // otherwise calculate the market value
+    return new TotalMarketValuePositionCalculator()
+        .calculate(getPositionsWithContext(evaluationContext));
+  }
 
-    /**
-     * Creates a new {@code PositionSet} consisting of the given {@code Position}s, with the given
-     * containing {@code Portfolio} and portfolio market value.
-     *
-     * @param positions
-     *            the {@code Position}s that will comprise this {@code PositionSet}
-     * @param portfolioKey
-     *            the (possibly {@code null}) {@code PortfolioKey} associated with this
-     *            {@code PositionSet}
-     * @param portfolioMarketValue
-     *            the (possibly {@code null} portfolio market value to use
-     */
-    public PositionSet(Collection<P> positions, PortfolioKey portfolioKey,
-            Double portfolioMarketValue) {
-        this.positions = new ArrayList<>(positions);
-        this.portfolioKey = portfolioKey;
-        totalMarketValue = portfolioMarketValue;
-    }
+  @Override
+  public PortfolioKey getPortfolioKey() {
+    return portfolioKey;
+  }
 
-    @Override
-    public double getMarketValue(EvaluationContext evaluationContext) {
-        // if a market value override is supplied, use it
-        if (totalMarketValue != null) {
-            return totalMarketValue;
-        }
+  @Override
+  public Stream<P> getPositions() {
+    return positions.stream();
+  }
 
-        // otherwise calculate the market value
-        return new TotalMarketValuePositionCalculator()
-                .calculate(getPositionsWithContext(evaluationContext));
-    }
-
-    @Override
-    public PortfolioKey getPortfolioKey() {
-        return portfolioKey;
-    }
-
-    @Override
-    public Stream<P> getPositions() {
-        return positions.stream();
-    }
-
-    @Override
-    public int size() {
-        return positions.size();
-    }
+  @Override
+  public int size() {
+    return positions.size();
+  }
 }

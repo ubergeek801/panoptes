@@ -10,34 +10,35 @@ import java.util.function.Supplier;
  */
 @FunctionalInterface
 public interface EvaluationGroupClassifier {
-    /**
-     * Obtains the default ({@code Portfolio}-level) classifier.
-     *
-     * @return the default classifier
-     */
-    public static EvaluationGroupClassifier defaultClassifier() {
-        return new DefaultEvaluationGroupClassifier();
-    }
+  /**
+   * Obtains the default ({@code Portfolio}-level) classifier.
+   *
+   * @return the default classifier
+   */
+  static EvaluationGroupClassifier defaultClassifier() {
+    return new DefaultEvaluationGroupClassifier();
+  }
 
-    /**
-     * Classifies the specified {@code Position} into an {@code EvaluationGroup}.
-     *
-     * @param positionContext
-     *            a {@code PositionEvaluationContext} specifying the {@code Position} to be
-     *            classified
-     * @return the {@code EvaluationGroup} to be applied to the {@code Position}
-     */
-    public default EvaluationGroup classify(PositionEvaluationContext positionContext) {
-        return classify(() -> positionContext);
-    }
+  /**
+   * Classifies the specified {@code Position} into an {@code EvaluationGroup}.
+   *
+   * @param positionContext
+   *     a {@code PositionEvaluationContext} specifying the {@code Position} to be classified
+   *
+   * @return the {@code EvaluationGroup} to be applied to the {@code Position}
+   */
+  default EvaluationGroup classify(PositionEvaluationContext positionContext) {
+    return classify(() -> positionContext);
+  }
 
-    /**
-     * Classifies the specified {@code Position} into an {@code EvaluationGroup}.
-     *
-     * @param positionContextSupplier
-     *            a {@code Supplier} providing a {@code PositionEvaluationContext} specifying the
-     *            {@code Position} to be classified
-     * @return the {@code EvaluationGroup} to be applied to the {@code Position}
-     */
-    public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier);
+  /**
+   * Classifies the specified {@code Position} into an {@code EvaluationGroup}.
+   *
+   * @param positionContextSupplier
+   *     a {@code Supplier} providing a {@code PositionEvaluationContext} specifying the {@code
+   *     Position} to be classified
+   *
+   * @return the {@code EvaluationGroup} to be applied to the {@code Position}
+   */
+  EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier);
 }

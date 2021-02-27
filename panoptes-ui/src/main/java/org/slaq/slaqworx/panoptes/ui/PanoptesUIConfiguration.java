@@ -1,14 +1,11 @@
 package org.slaq.slaqworx.panoptes.ui;
 
-import javax.inject.Named;
-
 import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.VaadinServlet;
-
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-
+import javax.inject.Named;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -27,55 +24,57 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
  */
 @Factory
 public class PanoptesUIConfiguration {
-    /**
-     * Creates a new {@code PanoptesUIConfiguration}. Restricted because instances of this class
-     * should be obtained through the {@code ApplicationContext} (if it is needed at all).
-     */
-    protected PanoptesUIConfiguration() {
-        // nothing to do
-    }
+  /**
+   * Creates a new {@code PanoptesUIConfiguration}. Restricted because instances of this class
+   * should be obtained through the {@code ApplicationContext} (if it is needed at all).
+   */
+  protected PanoptesUIConfiguration() {
+    // nothing to do
+  }
 
-    /**
-     * Provides a Jetty {@code Server} to host the Vaadin interface, running alongside the Micronaut
-     * server.
-     *
-     * @param vaadinServlet
-     *            {@code VaadinServlet} to host in the server
-     * @return a {@code Server}
-     */
-    @Bean
-    @Named("vaadinServer")
-    protected Server servletServer(VaadinServlet vaadinServlet) {
-        Server server = new Server(9090);
+  /**
+   * Provides a Jetty {@code Server} to host the Vaadin interface, running alongside the Micronaut
+   * server.
+   *
+   * @param vaadinServlet
+   *     {@code VaadinServlet} to host in the server
+   *
+   * @return a {@code Server}
+   */
+  @Bean
+  @Named("vaadinServer")
+  protected Server servletServer(VaadinServlet vaadinServlet) {
+    Server server = new Server(9090);
 
-        WebAppContext context = new WebAppContext();
-        context.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
-        context.setContextPath("/");
-        context.setBaseResource(
-                Resource.newResource(getClass().getClassLoader().getResource("ui")));
-        context.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
-        context.setConfigurationDiscovered(true);
-        context.setConfigurations(new Configuration[] { new AnnotationConfiguration(),
-                new WebInfConfiguration(), new WebXmlConfiguration(), new MetaInfConfiguration() });
-        context.getServletContext().setExtendedListenerTypes(true);
-        context.addServlet(new ServletHolder(vaadinServlet), "/*");
+    WebAppContext context = new WebAppContext();
+    context.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
+    context.setContextPath("/");
+    context.setBaseResource(
+        Resource.newResource(getClass().getClassLoader().getResource("ui")));
+    context.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
+    context.setConfigurationDiscovered(true);
+    context.setConfigurations(new Configuration[] {new AnnotationConfiguration(),
+        new WebInfConfiguration(), new WebXmlConfiguration(), new MetaInfConfiguration()});
+    context.getServletContext().setExtendedListenerTypes(true);
+    context.addServlet(new ServletHolder(vaadinServlet), "/*");
 
-        server.setHandler(context);
+    server.setHandler(context);
 
-        return server;
-    }
+    return server;
+  }
 
-    /**
-     * Obtains a {@code VaadinServlet} instance.
-     *
-     * @param applicationContext
-     *            the {@code ApplicationContext} to provide to the created servlet
-     * @return a {@code VaadinServlet}
-     */
-    @Bean
-    protected VaadinServlet vaadinServlet(ApplicationContext applicationContext) {
-        MicronautVaadinServlet servlet = new MicronautVaadinServlet(applicationContext);
+  /**
+   * Obtains a {@code VaadinServlet} instance.
+   *
+   * @param applicationContext
+   *     the {@code ApplicationContext} to provide to the created servlet
+   *
+   * @return a {@code VaadinServlet}
+   */
+  @Bean
+  protected VaadinServlet vaadinServlet(ApplicationContext applicationContext) {
+    MicronautVaadinServlet servlet = new MicronautVaadinServlet(applicationContext);
 
-        return servlet;
-    }
+    return servlet;
+  }
 }

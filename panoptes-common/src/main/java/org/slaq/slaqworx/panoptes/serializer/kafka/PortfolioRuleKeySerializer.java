@@ -8,11 +8,11 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
  * @author jeremy
  */
 public class PortfolioRuleKeySerializer extends KafkaSerializer<PortfolioRuleKey> {
-    /**
-     * Creates a new {@code PortfolioRuleKeySerializer}. Kafka requires a public default
-     * constructor.
-     */
-    public PortfolioRuleKeySerializer() {
-        super(new org.slaq.slaqworx.panoptes.serializer.PortfolioRuleKeySerializer());
-    }
+  /**
+   * Creates a new {@code PortfolioRuleKeySerializer}. Kafka requires a public default
+   * constructor.
+   */
+  public PortfolioRuleKeySerializer() {
+    super(new org.slaq.slaqworx.panoptes.serializer.PortfolioRuleKeySerializer());
+  }
 }

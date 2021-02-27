@@ -1,9 +1,11 @@
 # panoptes
+
 Panoptes is an experimental investment portfolio compliance assurance engine. Its primary purpose is
 to validate assumptions about how such an engine could operate, and to explore a possible
 architecture to support realtime processing and cloud deployment.
 
 ## Overview
+
 Panoptes is built around the notion of a _portfolio_, which is essentially a collection of
 _positions_ (which themselves are holdings of individual _securities_). The owner of a portfolio
 typically specifies guidelines which govern its investments; these are translated into a set of
