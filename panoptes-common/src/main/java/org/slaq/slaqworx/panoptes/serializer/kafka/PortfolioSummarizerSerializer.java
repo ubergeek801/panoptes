@@ -3,13 +3,13 @@ package org.slaq.slaqworx.panoptes.serializer.kafka;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
 
 /**
- * A {@code KafkaSerializer} which (de)serializes the state of a {@code PortfolioSummarizer}.
+ * A {@link KafkaSerializer} which (de)serializes the state of a {@link PortfolioSummarizer}.
  *
  * @author jeremy
  */
 public class PortfolioSummarizerSerializer extends KafkaSerializer<PortfolioSummarizer> {
   /**
-   * Creates a new {@code PortfolioSummarizerSerializer}. Kafka requires a public default
+   * Creates a new {@link PortfolioSummarizerSerializer}. Kafka requires a public default
    * constructor.
    */
   public PortfolioSummarizerSerializer() {

@@ -2,70 +2,60 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.function.Supplier;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * An {@code EvaluationGroupClassifier} which classifies {@code Position}s based on the value of a
- * specified {@code SecurityAttribute}.
+ * An {@link EvaluationGroupClassifier} which classifies {@link Position}s based on the value of a
+ * specified {@link SecurityAttribute}.
  *
  * @author jeremy
  */
 public class SecurityAttributeGroupClassifier
     implements EvaluationGroupClassifier, JsonConfigurable {
+  private final SecurityAttribute<?> securityAttribute;
+
   /**
-   * {@code Configuration} mirrors the structure of the JSON configuration (which currently is
-   * trivial).
+   * Creates a new {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based
+   * on the specified {@link SecurityAttribute}.
+   *
+   * @param securityAttribute
+   *     the {@link SecurityAttribute} on which to classify {@link Position}s
    */
-  static class Configuration {
-    public String attribute;
+  public SecurityAttributeGroupClassifier(SecurityAttribute<?> securityAttribute) {
+    this.securityAttribute = securityAttribute;
   }
 
   /**
-   * Creates a new {@code SecurityAttributeGroupClassifier} which classifies {@code Position}s
-   * based
-   * on the {@code SecurityAttribute} specified in the JSON configuration.
+   * Creates a new {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based
+   * on the {@link SecurityAttribute} specified in the JSON configuration.
    *
    * @param jsonConfiguration
-   *     a JSON configuration specifying the {@code SecurityAttribute} on which to classify {@code
+   *     a JSON configuration specifying the {@link SecurityAttribute} on which to classify {@link
    *     Position}s
    *
-   * @return a {@code SecurityAttributeGroupClassifier} with the specified configuration
+   * @return a {@link SecurityAttributeGroupClassifier} with the specified configuration
    */
   public static SecurityAttributeGroupClassifier fromJson(String jsonConfiguration) {
     Configuration configuration;
     try {
-      configuration = JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration,
-          Configuration.class);
+      configuration =
+          JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration, Configuration.class);
     } catch (Exception e) {
       // TODO throw a better exception
-      throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration,
-          e);
+      throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration, e);
     }
 
     return new SecurityAttributeGroupClassifier(SecurityAttribute.of(configuration.attribute));
-  }
-
-  private final SecurityAttribute<?> securityAttribute;
-
-  /**
-   * Creates a new {@code SecurityAttributeGroupClassifier} which classifies {@code Position}s
-   * based
-   * on the specified {@code SecurityAttribute}.
-   *
-   * @param securityAttribute
-   *     the {@code SecurityAttribute} on which to classify {@code Position}s
-   */
-  public SecurityAttributeGroupClassifier(SecurityAttribute<?> securityAttribute) {
-    this.securityAttribute = securityAttribute;
   }
 
   @Override
   public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier) {
     PositionEvaluationContext positionContext = positionContextSupplier.get();
 
-    Object attributeValue = positionContext.getPosition().getAttributeValue(securityAttribute,
-        false, positionContext.getEvaluationContext());
+    Object attributeValue = positionContext.getPosition()
+        .getAttributeValue(securityAttribute, false, positionContext.getEvaluationContext());
     // TODO maybe implement special handling for null attribute values
     return new EvaluationGroup(String.valueOf(attributeValue), securityAttribute.getName());
   }
@@ -84,11 +74,18 @@ public class SecurityAttributeGroupClassifier
   }
 
   /**
-   * Obtains the {@code SecurityAttribute} on which this classifier aggregates.
+   * Obtains the {@link SecurityAttribute} on which this classifier aggregates.
    *
-   * @return the {@code SecurityAttribute}
+   * @return the {@link SecurityAttribute}
    */
   public SecurityAttribute<?> getSecurityAttribute() {
     return securityAttribute;
+  }
+
+  /**
+   * Mirrors the structure of the JSON configuration.
+   */
+  static class Configuration {
+    public String attribute;
   }
 }

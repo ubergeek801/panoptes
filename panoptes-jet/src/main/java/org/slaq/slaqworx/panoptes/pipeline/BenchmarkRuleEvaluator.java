@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A process function which, similarly to {@code PortfolioRuleEvaluator}, collects security and
+ * A process function which, similarly to {@link PortfolioRuleEvaluator}, collects security and
  * portfolio position data. However, this class evaluates rules only against benchmarks (which are
  * merely portfolios that are specially designated as such). The rules to be evaluated against a
  * particular benchmark are obtained by collecting rules from non-benchmark portfolios which are
@@ -35,24 +35,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author jeremy
  */
-public class BenchmarkRuleEvaluator
-    implements SupplierEx<BenchmarkRuleEvaluatorState>, TriFunction<BenchmarkRuleEvaluatorState,
-    PortfolioKey, PortfolioEvent, Traverser<RuleEvaluationResult>> {
-  static class BenchmarkRuleEvaluatorState implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    PortfolioTracker portfolioTracker;
-    ConcurrentHashMap<RuleKey, Rule> benchmarkRules;
-  }
-
+public class BenchmarkRuleEvaluator implements SupplierEx<BenchmarkRuleEvaluatorState>,
+    TriFunction<BenchmarkRuleEvaluatorState, PortfolioKey, PortfolioEvent,
+        Traverser<RuleEvaluationResult>> {
   private static final long serialVersionUID = 1L;
-
   private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRuleEvaluator.class);
-
   private transient BenchmarkRuleEvaluatorState processState;
 
   /**
-   * Creates a new {@code BenchmarkRuleEvaluator}.
+   * Creates a new {@link BenchmarkRuleEvaluator}.
    */
   public BenchmarkRuleEvaluator() {
     // nothing to do
@@ -60,19 +51,18 @@ public class BenchmarkRuleEvaluator
 
   @Override
   public Traverser<RuleEvaluationResult> applyEx(BenchmarkRuleEvaluatorState processState,
-                                                 PortfolioKey eventKey, PortfolioEvent event) {
+      PortfolioKey eventKey, PortfolioEvent event) {
     this.processState = processState;
 
     ArrayList<RuleEvaluationResult> results = new ArrayList<>();
     if (event instanceof SecurityUpdateEvent) {
       SecurityKey securityKey = ((SecurityUpdateEvent) event).getSecurityKey();
 
-      IMap<SecurityKey, Security> securityMap =
-          PanoptesApp.getAssetCache().getSecurityCache();
+      IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
       Security security = securityMap.get(securityKey);
-      processSecurity(security, results);
+      handleSecurityEvent(security, results);
     } else {
-      processBenchmarkEvent(event, results);
+      handleBenchmarkEvent(event, results);
     }
 
     return Traversers.traverseIterable(results);
@@ -87,8 +77,16 @@ public class BenchmarkRuleEvaluator
     return state;
   }
 
-  public void processBenchmarkEvent(PortfolioEvent benchmarkEvent,
-                                    Collection<RuleEvaluationResult> results) {
+  /**
+   * Handles a benchmark event, which is expected to be a {@link PortfolioDataEvent}.
+   *
+   * @param benchmarkEvent
+   *     an event containing benchmark constituent data
+   * @param results
+   *     a {@link Collection} into which evaluation results, if any, are published
+   */
+  public void handleBenchmarkEvent(PortfolioEvent benchmarkEvent,
+      Collection<RuleEvaluationResult> results) {
     if (!(benchmarkEvent instanceof PortfolioDataEvent)) {
       // not interesting to us
       return;
@@ -99,8 +97,7 @@ public class BenchmarkRuleEvaluator
     if (portfolio.isAbstract()) {
       processState.portfolioTracker.trackPortfolio(portfolio);
       // the portfolio is a benchmark, so try to process it
-      IMap<SecurityKey, Security> securityMap =
-          PanoptesApp.getAssetCache().getSecurityCache();
+      IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
       processState.portfolioTracker.processPortfolio(results, portfolio, null, securityMap,
           () -> processState.benchmarkRules.values().stream());
     } else {
@@ -108,26 +105,33 @@ public class BenchmarkRuleEvaluator
       // to extract and process them
       Collection<Rule> newRules = extractRules(portfolio);
       // process any newly-encountered rules against the benchmark
-      IMap<SecurityKey, Security> securityMap =
-          PanoptesApp.getAssetCache().getSecurityCache();
-      processState.portfolioTracker.processPortfolio(results,
-          processState.portfolioTracker.getPortfolio(), null, securityMap,
-          () -> newRules.stream());
+      IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
+      processState.portfolioTracker
+          .processPortfolio(results, processState.portfolioTracker.getPortfolio(), null,
+              securityMap, () -> newRules.stream());
     }
   }
 
-  public void processSecurity(Security security, Collection<RuleEvaluationResult> results) {
-    processState.portfolioTracker.applySecurity(security,
-        () -> processState.benchmarkRules.values().stream(), results);
+  /**
+   * Handles a security event.
+   *
+   * @param security
+   *     the {@link Security} update information obtained from the event
+   * @param results
+   *     a {@link Collection} into which evaluation results, if any, are published
+   */
+  public void handleSecurityEvent(Security security, Collection<RuleEvaluationResult> results) {
+    processState.portfolioTracker
+        .applySecurity(security, () -> processState.benchmarkRules.values().stream(), results);
   }
 
   /**
    * Extracts benchmark-enabled rules from the given portfolio.
    *
    * @param portfolio
-   *     the {@code Portfolio} from which to extract rules
+   *     the {@link Portfolio} from which to extract rules
    *
-   * @return a {@code Collection} of rules which are benchmark-enabled
+   * @return a {@link Collection} of rules which are benchmark-enabled
    */
   protected Collection<Rule> extractRules(Portfolio portfolio) {
     ArrayList<Rule> newRules = new ArrayList<>();
@@ -135,12 +139,11 @@ public class BenchmarkRuleEvaluator
     // since our input stream is keyed on the portfolio's benchmark, any portfolio that we
     // encounter should have its (benchmark-enabled) rules evaluated against the benchmark
     if (portfolio.getBenchmarkKey() != null) {
-      List<Rule> benchmarkEnabledRules = portfolio.getRules()
-          .filter(Rule::isBenchmarkSupported).collect(Collectors.toList());
+      List<Rule> benchmarkEnabledRules =
+          portfolio.getRules().filter(Rule::isBenchmarkSupported).collect(Collectors.toList());
       if (!benchmarkEnabledRules.isEmpty()) {
-        LOG.info("adding {} rules to benchmark {} from portfolio {}",
-            benchmarkEnabledRules.size(), portfolio.getBenchmarkKey(),
-            portfolio.getKey());
+        LOG.info("adding {} rules to benchmark {} from portfolio {}", benchmarkEnabledRules.size(),
+            portfolio.getBenchmarkKey(), portfolio.getKey());
         benchmarkEnabledRules.forEach(r -> {
           if (!processState.benchmarkRules.containsKey(r.getKey())) {
             // we haven't seen this rule before
@@ -152,5 +155,15 @@ public class BenchmarkRuleEvaluator
     }
 
     return newRules;
+  }
+
+  /**
+   * Contains the benchmark rule evaluation process state.
+   */
+  static class BenchmarkRuleEvaluatorState implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    PortfolioTracker portfolioTracker;
+    ConcurrentHashMap<RuleKey, Rule> benchmarkRules;
   }
 }

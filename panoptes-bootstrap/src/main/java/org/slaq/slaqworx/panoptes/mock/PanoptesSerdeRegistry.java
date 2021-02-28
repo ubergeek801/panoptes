@@ -52,8 +52,8 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.trade.TransactionKey;
 
 /**
- * A {@code SerdeRegistry} that provides {@code Serde}s for Panoptes-specific classes, falling back
- * to the default provided by {@code Serdes} for non-Panoptes types.
+ * A {@link SerdeRegistry} that provides {@link Serde}s for Panoptes-specific classes, falling back
+ * to the default provided by {@link Serdes} for non-Panoptes types.
  *
  * @author jeremy
  */
@@ -63,7 +63,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
   private final Map<Class<?>, Serde<?>> serdeMap;
 
   /**
-   * Creates a new {@code PanoptesSerdeRegistry}. Restricted because this class is managed through
+   * Creates a new {@link PanoptesSerdeRegistry}. Restricted because this class is managed through
    * Micronaut.
    */
   protected PanoptesSerdeRegistry() {
@@ -77,15 +77,13 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
     serdeMap.put(PortfolioSummary.class, createSerde(new PortfolioSummarySerializer()));
     serdeMap.put(PositionKey.class, createSerde(new PositionKeySerializer()));
     serdeMap.put(Position.class, createSerde(new PositionSerializer()));
-    serdeMap.put(RoomEvaluationRequest.class,
-        createSerde(new RoomEvaluationRequestSerializer()));
+    serdeMap.put(RoomEvaluationRequest.class, createSerde(new RoomEvaluationRequestSerializer()));
     serdeMap.put(RuleKey.class, createSerde(new RuleKeySerializer()));
     serdeMap.put(Rule.class, createSerde(new RuleSerializer()));
     serdeMap.put(RuleSummary.class, createSerde(new RuleSummarySerializer()));
     serdeMap.put(SecurityKey.class, createSerde(new SecurityKeySerializer()));
     serdeMap.put(Security.class, createSerde(new SecuritySerializer()));
-    serdeMap.put(TradeEvaluationRequest.class,
-        createSerde(new TradeEvaluationRequestSerializer()));
+    serdeMap.put(TradeEvaluationRequest.class, createSerde(new TradeEvaluationRequestSerializer()));
     serdeMap.put(TradeKey.class, createSerde(new TradeKeySerializer()));
     serdeMap.put(Trade.class, createSerde(new TradeSerializer()));
     serdeMap.put(TransactionKey.class, createSerde(new TransactionKeySerializer()));
@@ -95,8 +93,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
   @Override
   public <T> Serde<T> getSerde(Class<T> type) {
     try {
-      @SuppressWarnings("unchecked") Serde<T> serde =
-          (Serde<T>) serdeMap.computeIfAbsent(type, Serdes::serdeFrom);
+      Serde<T> serde = (Serde<T>) serdeMap.computeIfAbsent(type, Serdes::serdeFrom);
 
       return serde;
     } catch (IllegalArgumentException e) {
@@ -107,17 +104,17 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
   }
 
   /**
-   * Creates a {@code Serde} that delegates to the given {@code ProtobufSerializer}.
+   * Creates a {@link Serde} that delegates to the given {@link ProtobufSerializer}.
    *
    * @param <T>
    *     the type to be (de)serialized
    * @param protobufSerializer
-   *     a {@code ProtobufSerializer} that can (de)serialize the given type
+   *     a {@link ProtobufSerializer} that can (de)serialize the given type
    *
-   * @return a {@code Serde} that can (de)serialize the given type
+   * @return a {@link Serde} that can (de)serialize the given type
    */
-  protected <T extends ProtobufSerializable> Serde<T>
-  createSerde(ProtobufSerializer<T> protobufSerializer) {
+  protected <T extends ProtobufSerializable> Serde<T> createSerde(
+      ProtobufSerializer<T> protobufSerializer) {
     return new Serde<>() {
       @Override
       public Deserializer<T> deserializer() {
@@ -126,8 +123,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
             return protobufSerializer.read(data);
           } catch (IOException e) {
             // FIXME throw a better exception
-            throw new RuntimeException("could not deserialize data for topic " + topic,
-                e);
+            throw new RuntimeException("could not deserialize data for topic " + topic, e);
           }
         };
       }
@@ -139,8 +135,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
             return protobufSerializer.write(data);
           } catch (IOException e) {
             // FIXME throw a better exception
-            throw new RuntimeException("could not serialize data for topic " + topic,
-                e);
+            throw new RuntimeException("could not serialize data for topic " + topic, e);
           }
         };
       }

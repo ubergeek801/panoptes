@@ -7,16 +7,16 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * An investable instrument. Unlike most other asset-related entities, a {@code Security} is
+ * An investable instrument. Unlike most other asset-related entities, a {@link Security} is
  * implicitly "versioned" by hashing its attributes: the resulting hash is used as an alternate key.
- * Thus when a {@code Security} changes (due to a change in some analytic field such as yield or
+ * Thus when a {@link Security} changes (due to a change in some analytic field such as yield or
  * rating), the new version will use a different hash as the alternate key.
  * <p>
- * In order to support hypothetical scenarios, the value of any {@code SecurityAttribute} may be
- * overridden in an {@code EvaluationContext}. The attribute value with overrides considered is
+ * In order to support hypothetical scenarios, the value of any {@link SecurityAttribute} may be
+ * overridden in an {@link EvaluationContext}. The attribute value with overrides considered is
  * known as the <i>effective</i> attribute value, and is obtained through the {@code
  * getEffectiveAttributeValue()} methods. For situations which don't require the effective value
- * (for example, to display a table of current {@code Security} data), the {@code getAttribute()}
+ * (for example, to display a table of current {@link Security} data), the {@code getAttribute()}
  * methods may be used.
  *
  * @author jeremy
@@ -26,11 +26,11 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
   private final SecurityAttributes attributes;
 
   /**
-   * Creates a new {@code Security} with the given {@code SecurityAttribute} values. The key is
+   * Creates a new {@link Security} with the given {@link SecurityAttribute} values. The key is
    * taken from the attribute containing the ISIN; this is the only attribute that is required.
    *
    * @param attributes
-   *     a {@code Map} of {@code SecurityAttribute} to attribute value
+   *     a {@link Map} of {@link SecurityAttribute} to attribute value
    */
   public Security(Map<SecurityAttribute<?>, ? super Object> attributes) {
     this.attributes = new SecurityAttributes(attributes);
@@ -58,9 +58,9 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
   }
 
   /**
-   * Obtains the {@code Security}'s attributes.
+   * Obtains the {@link Security}'s attributes.
    *
-   * @return a {@code SecurityAttributes} comprising this {@code Security}'s attributes
+   * @return a {@link SecurityAttributes} comprising this {@link Security}'s attributes
    */
   public SecurityAttributes getAttributes() {
     return attributes;
@@ -71,7 +71,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * getAttributeValue()} is intended for the rare cases when the index is already known.
    *
    * @param attributeIndex
-   *     the index corresponding to the associated {@code SecurityAttribute}
+   *     the index corresponding to the associated {@link SecurityAttribute}
    *
    * @return the base value of the given attribute
    *
@@ -87,7 +87,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * getAttributeValue()} is intended for the rare cases when the index is already known.
    *
    * @param attributeIndex
-   *     the index corresponding to the associated {@code SecurityAttribute}
+   *     the index corresponding to the associated {@link SecurityAttribute}
    * @param isRequired
    *     {@code true} if a return value is required, {@code false} otherwise
    *
@@ -112,7 +112,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @param <T>
    *     the expected type of the attribute value
    * @param attribute
-   *     the {@code SecurityAttribute} identifying the attribute
+   *     the {@link SecurityAttribute} identifying the attribute
    *
    * @return the value of the given attribute
    *
@@ -140,8 +140,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
   public <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired) {
-    @SuppressWarnings("unchecked") T value =
-        (T) getAttributeValue(attribute.getIndex(), isRequired);
+    T value = (T) getAttributeValue(attribute.getIndex(), isRequired);
 
     return value;
   }
@@ -151,21 +150,20 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * getAttributeValue()} is intended for the rare cases when the index is already known.
    *
    * @param attributeIndex
-   *     the index corresponding to the associated {@code SecurityAttribute}
+   *     the index corresponding to the associated {@link SecurityAttribute}
    * @param isRequired
    *     {@code true} if a return value is required, {@code false} otherwise
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the attribute value is being retrieved
+   *     the {@link EvaluationContext} in which the attribute value is being retrieved
    *
-   * @return the effective value of the given attribute, or {@code null} if not assigned and
-   * {@code
+   * @return the effective value of the given attribute, or {@code null} if not assigned and {@code
    *     isRequired} is {@code false}
    *
    * @throws NoDataException
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
   public Object getEffectiveAttributeValue(int attributeIndex, boolean isRequired,
-                                           EvaluationContext evaluationContext) {
+      EvaluationContext evaluationContext) {
     SecurityAttributes overrideAttributes = evaluationContext.getSecurityOverrides().get(key);
     if (overrideAttributes != null) {
       Object overrideValue = overrideAttributes.getValue(attributeIndex);
@@ -182,9 +180,9 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * getAttributeValue()} is intended for the rare cases when the index is already known.
    *
    * @param attributeIndex
-   *     the index corresponding to the associated {@code SecurityAttribute}
+   *     the index corresponding to the associated {@link SecurityAttribute}
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the attribute value is being retrieved
+   *     the {@link EvaluationContext} in which the attribute value is being retrieved
    *
    * @return the effective value of the given attribute
    *
@@ -192,7 +190,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned
    */
   public Object getEffectiveAttributeValue(int attributeIndex,
-                                           EvaluationContext evaluationContext) {
+      EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attributeIndex, true, evaluationContext);
   }
 
@@ -202,11 +200,11 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @param <T>
    *     the expected type of the attribute value
    * @param attribute
-   *     the {@code SecurityAttribute} identifying the attribute
+   *     the {@link SecurityAttribute} identifying the attribute
    * @param isRequired
    *     {@code true} if a return value is required, {@code false} otherwise
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the attribute value is being retrieved
+   *     the {@link EvaluationContext} in which the attribute value is being retrieved
    *
    * @return the effective value of the given attribute, or {@code null} if not assigned and {@code
    *     isRequired} is {@code false}
@@ -215,9 +213,8 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
   public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
-                                          EvaluationContext evaluationContext) {
-    @SuppressWarnings("unchecked") T value =
-        (T) getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
+      EvaluationContext evaluationContext) {
+    T value = (T) getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
 
     return value;
   }
@@ -228,9 +225,9 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @param <T>
    *     the expected type of the attribute value
    * @param attribute
-   *     the {@code SecurityAttribute} identifying the attribute
+   *     the {@link SecurityAttribute} identifying the attribute
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the attribute value is being retrieved
+   *     the {@link EvaluationContext} in which the attribute value is being retrieved
    *
    * @return the effective value of the given attribute
    *
@@ -238,7 +235,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned
    */
   public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
-                                          EvaluationContext evaluationContext) {
+      EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attribute, true, evaluationContext);
   }
 

@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+
 /**
  * A value type used as a key when classifying rule evaluation results.
  *
@@ -10,31 +12,30 @@ public class EvaluationGroup {
 
   private static final EvaluationGroup DEFAULT_GROUP =
       new EvaluationGroup(DEFAULT_EVALUATION_GROUP_ID, null);
-
-  /**
-   * Obtains the default ({@code Portfolio}-level) {@code EvaluationGroup}.
-   *
-   * @return the default {@code EvaluationGroup}
-   */
-  public static EvaluationGroup defaultGroup() {
-    return DEFAULT_GROUP;
-  }
-
   private final String id;
   private final String aggregationKey;
 
   /**
-   * Creates a new {@code EvaluationGroup} with the given ID and aggregation key.
+   * Creates a new {@link EvaluationGroup} with the given ID and aggregation key.
    *
    * @param id
-   *     the unique ID of the {@code EvaluationGroup}
+   *     the unique ID of the {@link EvaluationGroup}
    * @param aggregationKey
-   *     the aggregation key used to define this {@code valuationGroup}, or {@code null} for the
+   *     the aggregation key used to define this {@link EvaluationGroup}, or {@code null} for the
    *     default
    */
   public EvaluationGroup(String id, String aggregationKey) {
     this.id = id;
     this.aggregationKey = aggregationKey;
+  }
+
+  /**
+   * Obtains the default ({@link Portfolio}-level) {@link EvaluationGroup}.
+   *
+   * @return the default {@link EvaluationGroup}
+   */
+  public static EvaluationGroup defaultGroup() {
+    return DEFAULT_GROUP;
   }
 
   @Override
@@ -54,19 +55,19 @@ public class EvaluationGroup {
   }
 
   /**
-   * Obtains the aggregation key on which this {@code EvaluationGroup} is classified, or {@code
+   * Obtains the aggregation key on which this {@link EvaluationGroup} is classified, or {@code
    * null} if this is the default (unclassified) group.
    *
-   * @return this {@code EvalulationGroup}'s aggregation key
+   * @return this {@link EvaluationGroup}'s aggregation key
    */
   public String getAggregationKey() {
     return aggregationKey;
   }
 
   /**
-   * Obtains the ID of this {@code EvaluationGroup}.
+   * Obtains the ID of this {@link EvaluationGroup}.
    *
-   * @return the {@code EvaluationGroup} ID
+   * @return the {@link EvaluationGroup} ID
    */
   public String getId() {
     return id;

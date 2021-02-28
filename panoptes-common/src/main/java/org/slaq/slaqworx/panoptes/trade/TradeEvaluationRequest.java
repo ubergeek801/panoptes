@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * A {@code Callable} which facilitates clustered {@code Trade} evaluation by serializing the
+ * A {@link Callable} which facilitates clustered {@link Trade} evaluation by serializing the
  * evaluation parameters for execution on a remote cluster node.
  *
  * @author jeremy
@@ -22,12 +22,12 @@ public class TradeEvaluationRequest
   private ApplicationContext applicationContext;
 
   /**
-   * Creates a new {@code TradeEvaluationRequest} with the given parameters.
+   * Creates a new {@link TradeEvaluationRequest} with the given parameters.
    *
    * @param tradeKey
-   *     the {@code TradeKey} identifying the {@code Trade} to be evaluated
+   *     the {@link TradeKey} identifying the {@link Trade} to be evaluated
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to evaluate
+   *     the {@link EvaluationContext} under which to evaluate
    */
   public TradeEvaluationRequest(TradeKey tradeKey, EvaluationContext evaluationContext) {
     this.tradeKey = tradeKey;
@@ -49,9 +49,9 @@ public class TradeEvaluationRequest
   }
 
   /**
-   * Obtains the {@code TradeKey} identifying the {@code Trade} to be evaluated.
+   * Obtains the {@link TradeKey} identifying the {@link Trade} to be evaluated.
    *
-   * @return a {@code TradeKey}
+   * @return a {@link TradeKey}
    */
   public TradeKey getTradeKey() {
     return tradeKey;

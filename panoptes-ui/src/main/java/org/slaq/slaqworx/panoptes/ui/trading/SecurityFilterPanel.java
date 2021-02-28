@@ -10,6 +10,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.SecurityFilter;
@@ -17,8 +18,8 @@ import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 import org.slaq.slaqworx.panoptes.ui.MinMaxField;
 
 /**
- * {@code SecurityFilterPanel} is a component of the experimental user interface, providing the
- * means to filter the master {@code Security} list by a variety of attributes.
+ * A component of the experimental user interface, providing the means to filter the master {@link
+ * Security} list by a variety of attributes.
  *
  * @author jeremy
  */
@@ -45,12 +46,12 @@ public class SecurityFilterPanel extends FormLayout {
   private final MinMaxField<BigDecimal> priceMinMaxField;
 
   /**
-   * Creates a new {@code SecurityFilterPanel}.
+   * Creates a new {@link SecurityFilterPanel}.
    *
    * @param securityProvider
-   *     the {@code SecurityDataProvider} to use to query {@code Security} data
+   *     the {@link SecurityDataProvider} to use to query {@link Security} data
    * @param assetCache
-   *     the {@code AssetCache} to use to obtain other data
+   *     the {@link AssetCache} to use to obtain other data
    */
   public SecurityFilterPanel(SecurityDataProvider securityProvider, AssetCache assetCache) {
     this.securityProvider = securityProvider;
@@ -69,8 +70,7 @@ public class SecurityFilterPanel extends FormLayout {
     add(regionTextField);
     sectorTextField = ComponentUtil.createSelect("Sector", true, assetCache.getSectors());
     add(sectorTextField);
-    currencyTextField =
-        ComponentUtil.createSelect("Currency", true, assetCache.getCurrencies());
+    currencyTextField = ComponentUtil.createSelect("Currency", true, assetCache.getCurrencies());
     add(currencyTextField);
     couponMinMaxField = ComponentUtil.createMinMaxNumberField("Coupon");
     add(couponMinMaxField, 2);
@@ -87,9 +87,7 @@ public class SecurityFilterPanel extends FormLayout {
     priceMinMaxField = ComponentUtil.createMinMaxNumberField("Price");
     add(priceMinMaxField, 2);
 
-    Button filterButton = ComponentUtil.createButton("Filter", event -> {
-      filter();
-    });
+    Button filterButton = ComponentUtil.createButton("Filter", event -> filter());
     Button resetButton = ComponentUtil.createButton("Reset", event -> {
       // clear the value of every child element that has a value
       getElement().getChildren().forEach(e -> e.getComponent().ifPresent(c -> {
@@ -118,8 +116,8 @@ public class SecurityFilterPanel extends FormLayout {
   }
 
   /**
-   * Creates a {@code SecurityFilter} based on the currently chosen parameters and instructs the
-   * {@code SecurityDataProvider} to apply that filter.
+   * Creates a {@link SecurityFilter} based on the currently chosen parameters and instructs the
+   * {@link SecurityDataProvider} to apply that filter.
    */
   protected void filter() {
     SecurityFilter filter = new SecurityFilter();
@@ -149,12 +147,12 @@ public class SecurityFilterPanel extends FormLayout {
   }
 
   /**
-   * Converts a {@code BigDecimal} to a {@code Double}, allowing for {@code null} values.
+   * Converts a {@link BigDecimal} to a {@link Double}, allowing for {@code null} values.
    *
    * @param bigDecimal
-   *     the {@code BigDecimal} value to be converted
+   *     the {@link BigDecimal} value to be converted
    *
-   * @return a {@code Double} representation of the given {@code BigDecimal}, or {@code null} if
+   * @return a {@link Double} representation of the given {@link BigDecimal}, or {@code null} if
    *     given {@code null}
    */
   protected Double toDouble(BigDecimal bigDecimal) {

@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code ConcentrationRuleTest} tests the functionality of the {@code ConcentrationRule}.
+ * Tests the functionality of the {@link ConcentrationRule}.
  *
  * @author jeremy
  */
@@ -25,20 +25,20 @@ public class ConcentrationRuleTest {
   private final TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
   /**
-   * Tests that absolute {@code ConcentrationRule} evaluation behaves as expected.
+   * Tests that absolute {@link ConcentrationRule} evaluation behaves as expected.
    */
   @Test
   public void testEvaluate() {
     // the Rule tests that the concentration of region = "Emerging Markets" <= 10%
-    ConcentrationRule rule = new ConcentrationRule(null, "test rule",
-        c -> "Emerging Markets".equals(c.getPosition().getAttributeValue(
-            SecurityAttribute.region, TestUtil.defaultTestEvaluationContext())),
+    ConcentrationRule rule = new ConcentrationRule(null, "test rule", c -> "Emerging Markets"
+        .equals(c.getPosition()
+            .getAttributeValue(SecurityAttribute.region, TestUtil.defaultTestEvaluationContext())),
         null, 0.1, null);
 
     Security emergingMarketSecurity = securityProvider.newSecurity("em", SecurityAttribute
         .mapOf(SecurityAttribute.region, "Emerging Markets", SecurityAttribute.price, 1d));
-    Security usSecurity = securityProvider.newSecurity("us", SecurityAttribute
-        .mapOf(SecurityAttribute.region, "US", SecurityAttribute.price, 1d));
+    Security usSecurity = securityProvider.newSecurity("us",
+        SecurityAttribute.mapOf(SecurityAttribute.region, "US", SecurityAttribute.price, 1d));
 
     // create a Portfolio with 50% concentration in Emerging Markets
     HashSet<Position> positions = new HashSet<>();
@@ -46,8 +46,7 @@ public class ConcentrationRuleTest {
     positions.add(new SimplePosition(100, usSecurity.getKey()));
     Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-    assertFalse(
-        rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
+    assertFalse(rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
         "portfolio with > 10% concentration should have failed");
 
     // create a Portfolio with 10% concentration
@@ -56,10 +55,10 @@ public class ConcentrationRuleTest {
     positions.add(new SimplePosition(900, usSecurity.getKey()));
     portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-    assertNull(rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext())
-        .getException(), "rule should not have thrown exception");
-    assertTrue(
-        rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
+    assertNull(
+        rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).getException(),
+        "rule should not have thrown exception");
+    assertTrue(rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
         "portfolio with == 10% concentration should have passed");
 
     // create a Portfolio with 5% concentration
@@ -68,8 +67,7 @@ public class ConcentrationRuleTest {
     positions.add(new SimplePosition(950, usSecurity.getKey()));
     portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-    assertTrue(
-        rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
+    assertTrue(rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
         "portfolio with == 5% concentration should have passed");
 
     // repeat the first test with a GroovyPositionFilter
@@ -83,8 +81,7 @@ public class ConcentrationRuleTest {
     positions.add(new SimplePosition(100, usSecurity.getKey()));
     portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-    ValueResult result =
-        rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext());
+    ValueResult result = rule.evaluate(portfolio, null, TestUtil.defaultTestEvaluationContext());
     assertFalse(result.isPassed(), "portfolio with > 10% concentration should have failed");
     assertNull(result.getException(), "rule should not have failed with exception");
 

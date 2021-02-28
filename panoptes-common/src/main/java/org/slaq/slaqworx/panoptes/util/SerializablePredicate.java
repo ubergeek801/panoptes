@@ -5,13 +5,13 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * A {@code Predicate} which is also {@code Serializable}; can be helpful in coercing certain
+ * A {@link Predicate} which is also {@link Serializable}; can be helpful in coercing certain
  * functional constructs (particularly lambdas) into behaving nicely with serialization mechanisms
- * employed by Flink, Hazelcast, etc. More or less duplicates the operations of {@code Predicate}
- * but substituting {@code SerializablePredicate}.
+ * employed by Flink, Hazelcast, etc. More or less duplicates the operations of {@link Predicate}
+ * but substituting {@link SerializablePredicate}.
  *
  * @param <T>
- *     the type that serves as the target of the {@code Predicate}
+ *     the type that serves as the target of the {@link Predicate}
  *
  * @author jeremy
  */
@@ -29,8 +29,8 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    * @return a predicate that tests if two arguments are equal according to {@link
    *     Objects#equals(Object, Object)}
    */
-  static <T> SerializablePredicate<T> isEqual(Object targetRef) {
-    return (null == targetRef) ? Objects::isNull : object -> targetRef.equals(object);
+  public static <T> SerializablePredicate<T> isEqual(Object targetRef) {
+    return (null == targetRef) ? Objects::isNull : targetRef::equals;
   }
 
   /**
@@ -48,8 +48,7 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    *     if target is null
    * @since 11
    */
-  @SuppressWarnings("unchecked")
-  static <T> SerializablePredicate<T> not(Predicate<? super T> target) {
+  public static <T> SerializablePredicate<T> not(Predicate<? super T> target) {
     Objects.requireNonNull(target);
     return (SerializablePredicate<T>) target.negate();
   }
@@ -66,15 +65,14 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    * @param other
    *     a predicate that will be logically-ANDed with this predicate
    *
-   * @return a composed predicate that represents the short-circuiting logical AND of this
-   * predicate
+   * @return a composed predicate that represents the short-circuiting logical AND of this predicate
    *     and the {@code other} predicate
    *
    * @throws NullPointerException
    *     if other is null
    */
   @Override
-  default SerializablePredicate<T> and(Predicate<? super T> other) {
+  public default SerializablePredicate<T> and(Predicate<? super T> other) {
     Objects.requireNonNull(other);
     return t -> test(t) && other.test(t);
   }
@@ -85,7 +83,7 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    * @return a predicate that represents the logical negation of this predicate
    */
   @Override
-  default SerializablePredicate<T> negate() {
+  public default SerializablePredicate<T> negate() {
     return t -> !test(t);
   }
 
@@ -108,7 +106,7 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    *     if other is null
    */
   @Override
-  default SerializablePredicate<T> or(Predicate<? super T> other) {
+  public default SerializablePredicate<T> or(Predicate<? super T> other) {
     Objects.requireNonNull(other);
     return t -> test(t) || other.test(t);
   }

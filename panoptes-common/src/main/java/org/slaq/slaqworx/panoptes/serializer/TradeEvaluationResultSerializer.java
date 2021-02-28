@@ -18,13 +18,13 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code TradeEvaluationResult}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link TradeEvaluationResult}.
  *
  * @author jeremy
  */
 public class TradeEvaluationResultSerializer implements ProtobufSerializer<TradeEvaluationResult> {
   /**
-   * Creates a new {@code TradeEvaluationResultSerializer}.
+   * Creates a new {@link TradeEvaluationResultSerializer}.
    */
   public TradeEvaluationResultSerializer() {
     // nothing to do
@@ -43,10 +43,8 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
       RuleKey ruleKey = new RuleKey(ruleImpact.getRuleKey().getId());
       ruleImpact.getRuleImpactList().forEach(impactMsg -> {
         String aggregationKey =
-            (impactMsg.hasAggregationKey() ? impactMsg.getAggregationKey().getValue()
-                : null);
-        EvaluationGroup evaluationGroup =
-            new EvaluationGroup(impactMsg.getId(), aggregationKey);
+            (impactMsg.hasAggregationKey() ? impactMsg.getAggregationKey().getValue() : null);
+        EvaluationGroup evaluationGroup = new EvaluationGroup(impactMsg.getId(), aggregationKey);
         result.addImpact(portfolioKey, ruleKey, evaluationGroup,
             Impact.valueOf(impactMsg.getImpact()));
       });

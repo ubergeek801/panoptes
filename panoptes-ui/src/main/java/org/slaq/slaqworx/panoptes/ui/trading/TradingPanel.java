@@ -28,7 +28,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
 import org.slaq.slaqworx.panoptes.util.FakeSet;
 
 /**
- * {@code TradingPanel} is a container providing tools for entering trade information.
+ * A container providing tools for entering trade information.
  *
  * @author jeremy
  */
@@ -36,26 +36,26 @@ public class TradingPanel extends VerticalLayout {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Creates a new {@code TradingPanel}.
+   * Creates a new {@link TradingPanel}.
    *
    * @param tradeEvaluator
-   *     the {@code TradeEvaluator} to use to perform compliance evaluation
+   *     the {@link TradeEvaluator} to use to perform compliance evaluation
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve cached entities
+   *     the {@link AssetCache} to use to resolve cached entities
    */
   public TradingPanel(TradeEvaluator tradeEvaluator, AssetCache assetCache) {
     FixedIncomeTradePanel tradePanel = new FixedIncomeTradePanel(tradeEvaluator, assetCache);
     Details tradePanelDetail = new Details("Trade Fixed Income", tradePanel);
-    tradePanelDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
-        DetailsVariant.SMALL);
+    tradePanelDetail
+        .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED, DetailsVariant.SMALL);
     add(tradePanelDetail);
 
     SecurityDataProvider securityProvider = new SecurityDataProvider(assetCache);
 
     SecurityFilterPanel securityFilter = new SecurityFilterPanel(securityProvider, assetCache);
     Details securityFilterDetail = new Details("Security Filter", securityFilter);
-    securityFilterDetail.addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED,
-        DetailsVariant.SMALL);
+    securityFilterDetail
+        .addThemeVariants(DetailsVariant.REVERSE, DetailsVariant.FILLED, DetailsVariant.SMALL);
     add(securityFilterDetail);
 
     Grid<Security> securityGrid = new Grid<>();
@@ -78,36 +78,32 @@ public class TradingPanel extends VerticalLayout {
         .setAutoWidth(true).setHeader("Sector");
     securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.currency, false))
         .setAutoWidth(true).setHeader("Currency");
-    securityGrid
-        .addColumn(new NumberRenderer<>(
-            s -> s.getAttributeValue(SecurityAttribute.coupon, false), "%(,.3f"))
+    securityGrid.addColumn(
+        new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.coupon, false), "%(,.3f"))
         .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Coupon");
-    securityGrid
-        .addColumn(new LocalDateRenderer<>(
-            s -> s.getAttributeValue(SecurityAttribute.maturityDate, false),
-            DateTimeFormatter.ISO_LOCAL_DATE))
-        .setAutoWidth(true).setHeader("Maturity Date");
-    securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating1Symbol,
-        SecurityAttribute.rating1Value)).setAutoWidth(true).setHeader("Rating 1");
-    securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating2Symbol,
-        SecurityAttribute.rating2Value)).setAutoWidth(true).setHeader("Rating 2");
-    securityGrid.addColumn(s -> getRatingText(s, SecurityAttribute.rating3Symbol,
-        SecurityAttribute.rating3Value)).setAutoWidth(true).setHeader("Rating 3");
-    securityGrid
-        .addColumn(new NumberRenderer<>(
-            s -> s.getAttributeValue(SecurityAttribute.yield, false), "%(,.2f"))
+    securityGrid.addColumn(
+        new LocalDateRenderer<>(s -> s.getAttributeValue(SecurityAttribute.maturityDate, false),
+            DateTimeFormatter.ISO_LOCAL_DATE)).setAutoWidth(true).setHeader("Maturity Date");
+    securityGrid.addColumn(
+        s -> getRatingText(s, SecurityAttribute.rating1Symbol, SecurityAttribute.rating1Value))
+        .setAutoWidth(true).setHeader("Rating 1");
+    securityGrid.addColumn(
+        s -> getRatingText(s, SecurityAttribute.rating2Symbol, SecurityAttribute.rating2Value))
+        .setAutoWidth(true).setHeader("Rating 2");
+    securityGrid.addColumn(
+        s -> getRatingText(s, SecurityAttribute.rating3Symbol, SecurityAttribute.rating3Value))
+        .setAutoWidth(true).setHeader("Rating 3");
+    securityGrid.addColumn(
+        new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.yield, false), "%(,.2f"))
         .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Yield");
-    securityGrid
-        .addColumn(new NumberRenderer<>(
-            s -> s.getAttributeValue(SecurityAttribute.duration, false), "%(,.3f"))
+    securityGrid.addColumn(
+        new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.duration, false), "%(,.3f"))
         .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Duration");
     securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.issuer, false))
         .setAutoWidth(true).setHeader("Issuer");
-    securityGrid
-        .addColumn(new NumberRenderer<>(
-            s -> s.getAttributeValue(SecurityAttribute.price, false), "$%(,.4f",
-            Locale.US))
-        .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Price");
+    securityGrid.addColumn(
+        new NumberRenderer<>(s -> s.getAttributeValue(SecurityAttribute.price, false), "$%(,.4f",
+            Locale.US)).setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Price");
 
     add(securityGrid);
 
@@ -117,32 +113,23 @@ public class TradingPanel extends VerticalLayout {
     List<PortfolioKey> portfolioKeys = new ArrayList<>(portfolioCache.keySet());
     Collections.sort(portfolioKeys, PortfolioKey::compareTo);
 
-    CallbackDataProvider<PortfolioSummary,
-        Void> portfolioProvider =
-        DataProvider
-            .fromCallbacks(query -> portfolioCache
-                .executeOnKeys(
-                    new FakeSet<>(
-                        portfolioKeys.subList(query.getOffset(),
-                            Math.min(
-                                query.getOffset()
-                                    + query.getLimit(),
-                                portfolioKeys.size()))),
-                    new PortfolioSummarizer(new EvaluationContext()))
-                .values().stream(), query -> portfolioKeys.size());
+    CallbackDataProvider<PortfolioSummary, Void> portfolioProvider = DataProvider.fromCallbacks(
+        query -> portfolioCache.executeOnKeys(new FakeSet<>(portfolioKeys.subList(query.getOffset(),
+            Math.min(query.getOffset() + query.getLimit(), portfolioKeys.size()))),
+            new PortfolioSummarizer(new EvaluationContext())).values().stream(),
+        query -> portfolioKeys.size());
 
     Grid<PortfolioSummary> portfolioGrid = new Grid<>();
     portfolioGrid.setColumnReorderingAllowed(true);
-    portfolioGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES,
-        GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_COMPACT);
+    portfolioGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_NO_ROW_BORDERS,
+        GridVariant.LUMO_COMPACT);
     portfolioGrid.setItems(portfolioProvider);
 
     portfolioGrid.addColumn(p -> p.getKey().getId()).setAutoWidth(true).setFrozen(true)
         .setHeader("ID");
     portfolioGrid.addColumn(PortfolioSummary::getName).setAutoWidth(true).setHeader("Name");
-    portfolioGrid
-        .addColumn(new NumberRenderer<>(PortfolioSummary::getTotalMarketValue, "$%(,.2f",
-            Locale.US))
+    portfolioGrid.addColumn(
+        new NumberRenderer<>(PortfolioSummary::getTotalMarketValue, "$%(,.2f", Locale.US))
         .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Market Value");
     portfolioGrid.addColumn(PortfolioSummary::getBenchmarkKey).setAutoWidth(true)
         .setHeader("Benchmark");
@@ -154,21 +141,19 @@ public class TradingPanel extends VerticalLayout {
    * Formats the given rating information for table display.
    *
    * @param security
-   *     the {@code Security} from which to obtain rating information
+   *     the {@link Security} from which to obtain rating information
    * @param symbolAttribute
-   *     the {@code SecurityAttribute} corresponding to the desired rating symbol
+   *     the {@link SecurityAttribute} corresponding to the desired rating symbol
    * @param valueAttribute
-   *     the {@code SecurityAttribute} corresponding to the desired rating value
+   *     the {@link SecurityAttribute} corresponding to the desired rating value
    *
-   * @return a {@code String} representing the specified rating data, or {@code null} if the value
+   * @return a {@link String} representing the specified rating data, or {@code null} if the value
    *     of the specified symbol attribute is {@code null}
    */
   protected String getRatingText(Security security, SecurityAttribute<String> symbolAttribute,
-                                 SecurityAttribute<Double> valueAttribute) {
+      SecurityAttribute<Double> valueAttribute) {
     String symbol = security.getAttributeValue(symbolAttribute, false);
-    return (symbol == null ? null
-        : symbol + " ["
-        + String.format("%(,.4f", security.getAttributeValue(valueAttribute))
-        + "]");
+    return (symbol == null ? null :
+        symbol + " [" + String.format("%(,.4f", security.getAttributeValue(valueAttribute)) + "]");
   }
 }

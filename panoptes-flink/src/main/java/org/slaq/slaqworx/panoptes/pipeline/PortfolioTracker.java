@@ -52,12 +52,11 @@ public class PortfolioTracker implements Serializable {
   private final transient ValueState<Portfolio> portfolioState;
 
   /**
-   * Creates a new {@code PortfolioTracker} using the given {@code RuntimeContext} to create
-   * process
+   * Creates a new {@link PortfolioTracker} using the given {@link RuntimeContext} to create process
    * state.
    *
    * @param context
-   *     the {@code RuntimeContext} in which to create process state
+   *     the {@link RuntimeContext} in which to create process state
    * @param evaluationSource
    *     the type of source portfolio (portfolio or benchmark) being tracked
    */
@@ -74,16 +73,15 @@ public class PortfolioTracker implements Serializable {
    * @param security
    *     the security currently being encountered
    * @param ruleProvider
-   *     a {@code Function} which provides rules to be evaluated for a given {@code Portfolio}
+   *     a {@link Function} which provides rules to be evaluated for a given {@link Portfolio}
    * @param out
-   *     a {@code Collector} to which rule evaluation results, if any, are output
+   *     a {@link Collector} to which rule evaluation results, if any, are output
    *
    * @throws Exception
    *     if a state-related operation fails
    */
   public void applySecurity(
-      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
-          RuleEvaluationResult>.Context context,
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.Context context,
       Security security, Function<Portfolio, Iterable<Rule>> ruleProvider,
       Collector<RuleEvaluationResult> out) throws Exception {
     BroadcastState<SecurityKey, Security> securityState =
@@ -92,15 +90,14 @@ public class PortfolioTracker implements Serializable {
 
     context.applyToKeyedState(PORTFOLIO_STATE_DESCRIPTOR, (portfolioKey, state) -> {
       Portfolio portfolio = state.value();
-      processPortfolio(out, portfolio, security, securityState,
-          ruleProvider.apply(portfolio));
+      processPortfolio(out, portfolio, security, securityState, ruleProvider.apply(portfolio));
     });
   }
 
   /**
    * Obtains the portfolio being tracked in the current process state.
    *
-   * @return a {@code Portfolio}
+   * @return a {@link Portfolio}
    *
    * @throws IOException
    *     if the state operation fails
@@ -113,7 +110,7 @@ public class PortfolioTracker implements Serializable {
    * Register the given portfolio for tracking in the current process state.
    *
    * @param portfolio
-   *     the {@code Portfolio} to be tracked
+   *     the {@link Portfolio} to be tracked
    *
    * @throws IOException
    *     if the state operation fails
@@ -126,7 +123,7 @@ public class PortfolioTracker implements Serializable {
    * Performs a portfolio evaluation and publishes the result.
    *
    * @param out
-   *     the {@code Collector} to which to output compliance results
+   *     the {@link Collector} to which to output compliance results
    * @param portfolio
    *     the portfolio being processed
    * @param securityState
@@ -135,8 +132,7 @@ public class PortfolioTracker implements Serializable {
    *     the rules to be evaluated
    */
   protected void evaluatePortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
-                                   ReadOnlyBroadcastState<SecurityKey, Security> securityState,
-                                   Collection<Rule> rules) {
+      ReadOnlyBroadcastState<SecurityKey, Security> securityState, Collection<Rule> rules) {
     // this is questionable but there shouldn't be any other portfolios queried
     PortfolioProvider portfolioProvider = (k -> portfolio);
     SecurityProvider securityProvider = (k, context) -> {
@@ -158,10 +154,10 @@ public class PortfolioTracker implements Serializable {
           new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
               new EvaluationContext(securityProvider, portfolioProvider)).call();
       // enrich the result with some other essential information
-      RuleEvaluationResult ruleEvaluationResult = new RuleEvaluationResult(eventId,
-          portfolio.getKey(), portfolio.getBenchmarkKey(), evaluationSource,
-          rule.isBenchmarkSupported(), rule.getLowerLimit(), rule.getUpperLimit(),
-          evaluationResult);
+      RuleEvaluationResult ruleEvaluationResult =
+          new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),
+              evaluationSource, rule.isBenchmarkSupported(), rule.getLowerLimit(),
+              rule.getUpperLimit(), evaluationResult);
       out.collect(ruleEvaluationResult);
     });
     LOG.info("processed {} rules for {} {} (\"{}\")", rules.size(), evaluationSource,
@@ -173,7 +169,7 @@ public class PortfolioTracker implements Serializable {
    * provided) and performs a compliance evaluation if so.
    *
    * @param out
-   *     the {@code Collector} to which to output compliance results
+   *     the {@link Collector} to which to output compliance results
    * @param portfolio
    *     the portfolio being processed; if {@code null}, then nothing will be done
    * @param currentSecurity
@@ -187,9 +183,8 @@ public class PortfolioTracker implements Serializable {
    *     if an error occurs during processing
    */
   protected void processPortfolio(Collector<RuleEvaluationResult> out, Portfolio portfolio,
-                                  Security currentSecurity, ReadOnlyBroadcastState<SecurityKey,
-      Security> securityState,
-                                  Iterable<Rule> rules) throws Exception {
+      Security currentSecurity, ReadOnlyBroadcastState<SecurityKey, Security> securityState,
+      Iterable<Rule> rules) throws Exception {
     if (portfolio == null) {
       return;
     }
@@ -216,8 +211,7 @@ public class PortfolioTracker implements Serializable {
           isComplete = false;
           break;
         }
-        if (currentSecurity != null
-            && position.getSecurityKey().equals(currentSecurity.getKey())) {
+        if (currentSecurity != null && position.getSecurityKey().equals(currentSecurity.getKey())) {
           isCurrentSecurityHeld = true;
         }
       }

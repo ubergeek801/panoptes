@@ -29,12 +29,19 @@ public class SerializerUtil {
   private static final JdkSerializer defaultJdkSerializer = new JdkSerializer();
 
   /**
-   * Serializes the given {@code SecurityAttribute}s values to JSON.
+   * Creates a new {@link SerializerUtil}. Restricted to enforce class utility semantics.
+   */
+  private SerializerUtil() {
+    // nothing to do
+  }
+
+  /**
+   * Serializes the given {@link SecurityAttribute}s values to JSON.
    *
    * @param attributes
-   *     the {@code SecurityAttribute}s to be serialized
+   *     the {@link SecurityAttribute}s to be serialized
    *
-   * @return a JSON representation of the {@code SecurityAttribute}s
+   * @return a JSON representation of the {@link SecurityAttribute}s
    *
    * @throws JsonProcessingException
    *     if the attributes could not be serialized
@@ -45,7 +52,7 @@ public class SerializerUtil {
   }
 
   /**
-   * Attempts to coerce the given value into the type specified by the given {@code
+   * Attempts to coerce the given value into the type specified by the given {@link
    * SecurityAttribute}.
    *
    * @param attribute
@@ -58,7 +65,6 @@ public class SerializerUtil {
    * @throws RuntimeException
    *     if the value could not be coerced
    */
-  @SuppressWarnings("unchecked")
   public static <T> T coerce(SecurityAttribute<T> attribute, Object value) {
     if (value == null) {
       return null;
@@ -93,14 +99,13 @@ public class SerializerUtil {
       } else if (Temporal.class.isAssignableFrom(attributeType)) {
         // probably one of the java.time classes; give it a try
         if (value instanceof String) {
-          return (T) SerializerUtil.defaultJsonMapper().readValue("\"" + value + "\"",
-              attributeType);
+          return (T) SerializerUtil.defaultJsonMapper()
+              .readValue("\"" + value + "\"", attributeType);
         }
       }
 
       // do whatever the JSON mapper would do
-      return (T) SerializerUtil.defaultJsonMapper().readValue(String.valueOf(value),
-          attributeType);
+      return (T) SerializerUtil.defaultJsonMapper().readValue(String.valueOf(value), attributeType);
     } catch (Exception e) {
       // TODO throw a better exception
       throw new RuntimeException("could not parse value " + value, e);
@@ -108,33 +113,32 @@ public class SerializerUtil {
   }
 
   /**
-   * Obtains a {@code JdkSerializer} suitable for most purposes.
+   * Obtains a {@link JdkSerializer} suitable for most purposes.
    *
-   * @return a {@code JdkSerializer}
+   * @return a {@link JdkSerializer}
    */
   public static JdkSerializer defaultJdkSerializer() {
     return defaultJdkSerializer;
   }
 
   /**
-   * Obtains a JSON {@code ObjectMapper} suitable for most purposes.
+   * Obtains a JSON {@link ObjectMapper} suitable for most purposes.
    *
-   * @return an {@code ObjectMapper}
+   * @return an {@link ObjectMapper}
    */
   public static ObjectMapper defaultJsonMapper() {
     return defaultJsonMapper;
   }
 
   /**
-   * Deserializes the given JSON to a {@code Map} of {@code SecurityAttribute} values.
+   * Deserializes the given JSON to a {@link Map} of {@link SecurityAttribute} values.
    *
    * @param jsonAttributes
    *     a JSON representation of the attributes to be deserialized
    *
-   * @return a {@code Map} correlating a {@code SecurityAttribute} to its value
+   * @return a {@link Map} correlating a {@link SecurityAttribute} to its value
    */
-  public static Map<SecurityAttribute<?>, ? super Object>
-  jsonToAttributes(String jsonAttributes) {
+  public static Map<SecurityAttribute<?>, ? super Object> jsonToAttributes(String jsonAttributes) {
     // first let the JSON parser do the best it can, but it will default some types incorrectly
     // (e.g. Double when we want BigDecimal)
 
@@ -152,14 +156,7 @@ public class SerializerUtil {
 
     // now coerce the values into their expected types based on the corresponding
     // SecurityAttributes
-    return jsonMap.entrySet().stream().collect(Collectors.toMap(Entry::getKey,
-        e -> SerializerUtil.coerce(e.getKey(), e.getValue())));
-  }
-
-  /**
-   * Creates a new {@code SerializerUtil}. Restricted to enforce class utility semantics.
-   */
-  private SerializerUtil() {
-    // nothing to do
+    return jsonMap.entrySet().stream().collect(
+        Collectors.toMap(Entry::getKey, e -> SerializerUtil.coerce(e.getKey(), e.getValue())));
   }
 }

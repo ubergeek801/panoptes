@@ -38,6 +38,13 @@ import java.util.concurrent.TimeUnit;
 @NonNullApi
 @NonNullFields
 public class Hazelcast4CacheMetrics extends CacheMeterBinder {
+  private final IMap<?, ?> cache;
+
+  public <K, V, C extends IMap<K, V>> Hazelcast4CacheMetrics(C cache, Iterable<Tag> tags) {
+    super(cache, cache.getName(), tags);
+    this.cache = cache;
+  }
+
   /**
    * Record metrics on a Hazelcast cache.
    *
@@ -58,7 +65,7 @@ public class Hazelcast4CacheMetrics extends CacheMeterBinder {
    *     way.
    */
   public static <K, V, C extends IMap<K, V>> C monitor(MeterRegistry registry, C cache,
-                                                       Iterable<Tag> tags) {
+      Iterable<Tag> tags) {
     new Hazelcast4CacheMetrics(cache, tags).bindTo(registry);
     return cache;
   }
@@ -84,45 +91,32 @@ public class Hazelcast4CacheMetrics extends CacheMeterBinder {
    *     way.
    */
   public static <K, V, C extends IMap<K, V>> C monitor(MeterRegistry registry, C cache,
-                                                       String... tags) {
+      String... tags) {
     return monitor(registry, cache, Tags.of(tags));
-  }
-
-  private final IMap<?, ?> cache;
-
-  public <K, V, C extends IMap<K, V>> Hazelcast4CacheMetrics(C cache, Iterable<Tag> tags) {
-    super(cache, cache.getName(), tags);
-    this.cache = cache;
   }
 
   @Override
   protected void bindImplementationSpecificMetrics(MeterRegistry registry) {
-    Gauge.builder("cache.entries", cache,
-        cache -> cache.getLocalMapStats().getBackupEntryCount())
+    Gauge.builder("cache.entries", cache, cache -> cache.getLocalMapStats().getBackupEntryCount())
         .tags(getTagsWithCacheName()).tag("ownership", "backup")
         .description("The number of backup entries held by this member").register(registry);
 
-    Gauge.builder("cache.entries", cache,
-        cache -> cache.getLocalMapStats().getOwnedEntryCount()).tags(getTagsWithCacheName())
-        .tag("ownership", "owned")
+    Gauge.builder("cache.entries", cache, cache -> cache.getLocalMapStats().getOwnedEntryCount())
+        .tags(getTagsWithCacheName()).tag("ownership", "owned")
         .description("The number of owned entries held by this member").register(registry);
 
     Gauge.builder("cache.entry.memory", cache,
-        cache -> cache.getLocalMapStats().getBackupEntryMemoryCost())
-        .tags(getTagsWithCacheName()).tag("ownership", "backup")
-        .description("Memory cost of backup entries held by this member")
+        cache -> cache.getLocalMapStats().getBackupEntryMemoryCost()).tags(getTagsWithCacheName())
+        .tag("ownership", "backup").description("Memory cost of backup entries held by this member")
         .baseUnit(BaseUnits.BYTES).register(registry);
 
     Gauge.builder("cache.entry.memory", cache,
-        cache -> cache.getLocalMapStats().getOwnedEntryMemoryCost())
-        .tags(getTagsWithCacheName()).tag("ownership", "owned")
-        .description("Memory cost of owned entries held by this member")
+        cache -> cache.getLocalMapStats().getOwnedEntryMemoryCost()).tags(getTagsWithCacheName())
+        .tag("ownership", "owned").description("Memory cost of owned entries held by this member")
         .baseUnit(BaseUnits.BYTES).register(registry);
 
-    FunctionCounter
-        .builder("cache.partition.gets", cache,
-            cache -> cache.getLocalMapStats().getGetOperationCount())
-        .tags(getTagsWithCacheName())
+    FunctionCounter.builder("cache.partition.gets", cache,
+        cache -> cache.getLocalMapStats().getGetOperationCount()).tags(getTagsWithCacheName())
         .description("The total number of get operations executed against this partition")
         .register(registry);
 
@@ -137,10 +131,8 @@ public class Hazelcast4CacheMetrics extends CacheMeterBinder {
   }
 
   /**
-   * @return The number of hits against cache entries held in this local partition. Not all
-   * gets had
-   *     to result from a get operation against {@link #cache}. If a get operation elsewhere in
-   *     the
+   * @return The number of hits against cache entries held in this local partition. Not all gets had
+   *     to result from a get operation against {@link #cache}. If a get operation elsewhere in the
    *     cluster caused a lookup against an entry held in this partition, the hit will be recorded
    *     against map stats in this partition and not in the map stats of the calling {@link IMap}.
    */
@@ -162,29 +154,25 @@ public class Hazelcast4CacheMetrics extends CacheMeterBinder {
       Gauge.builder("cache.near.requests", cache,
           cache -> cache.getLocalMapStats().getNearCacheStats().getHits())
           .tags(getTagsWithCacheName()).tag("result", "hit")
-          .description(
-              "The number of hits (reads) of near cache entries owned by this member")
+          .description("The number of hits (reads) of near cache entries owned by this member")
           .register(registry);
 
       Gauge.builder("cache.near.requests", cache,
           cache -> cache.getLocalMapStats().getNearCacheStats().getMisses())
           .tags(getTagsWithCacheName()).tag("result", "miss")
-          .description(
-              "The number of hits (reads) of near cache entries owned by this member")
+          .description("The number of hits (reads) of near cache entries owned by this member")
           .register(registry);
 
       Gauge.builder("cache.near.evictions", cache,
           cache -> cache.getLocalMapStats().getNearCacheStats().getEvictions())
           .tags(getTagsWithCacheName())
-          .description(
-              "The number of evictions of near cache entries owned by this member")
+          .description("The number of evictions of near cache entries owned by this member")
           .register(registry);
 
       Gauge.builder("cache.near.persistences", cache,
           cache -> cache.getLocalMapStats().getNearCacheStats().getPersistenceCount())
-          .tags(getTagsWithCacheName())
-          .description(
-              "The number of Near Cache key persistences (when the pre-load feature is enabled)")
+          .tags(getTagsWithCacheName()).description(
+          "The number of Near Cache key persistences (when the pre-load feature is enabled)")
           .register(registry);
     }
   }

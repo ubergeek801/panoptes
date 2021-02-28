@@ -3,13 +3,13 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
- * A {@code HazelcastStreamSerializer} which (de)serializes the state of a {@code SecurityKey}.
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link SecurityKey}.
  *
  * @author jeremy
  */
 public class SecurityKeySerializer extends HazelcastStreamSerializer<SecurityKey> {
   /**
-   * Creates a new {@code SecurityKeySerializer}. Hazelcast requires a public default constructor.
+   * Creates a new {@link SecurityKeySerializer}. Hazelcast requires a public default constructor.
    */
   public SecurityKeySerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.SecurityKeySerializer());

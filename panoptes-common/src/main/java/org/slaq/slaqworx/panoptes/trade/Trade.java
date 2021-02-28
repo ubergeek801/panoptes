@@ -2,14 +2,16 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * An aggregate of {@code Transaction}s that modify one or more {@code Portfolio}s by altering
- * (increasing or decreasing) the net position of one or more {@code Security} holdings.
+ * An aggregate of {@link Transaction}s that modify one or more {@link Portfolio}s by altering
+ * (increasing or decreasing) the net position of one or more {@link Security} holdings.
  *
  * @author jeremy
  */
@@ -20,36 +22,36 @@ public class Trade implements ProtobufSerializable {
   private final Map<PortfolioKey, Transaction> transactions;
 
   /**
-   * Creates a new {@code Trade} with a generated key and consisting of the given {@code
+   * Creates a new {@link Trade} with a generated key and consisting of the given {@link
    * Transaction}s.
    *
    * @param tradeDate
-   *     the date on which the {@code Trade} is effective
+   *     the date on which the {@link Trade} is effective
    * @param settlementDate
-   *     the date on which the {@code Trade} settles
+   *     the date on which the {@link Trade} settles
    * @param transactions
-   *     the {@code Transaction}s comprising this {@code Trade}, mapped by {@code PortfolioKey}
+   *     the {@link Transaction}s comprising this {@link Trade}, mapped by {@link PortfolioKey}
    */
   public Trade(LocalDate tradeDate, LocalDate settlementDate,
-               Map<PortfolioKey, Transaction> transactions) {
+      Map<PortfolioKey, Transaction> transactions) {
     this(null, tradeDate, settlementDate, transactions);
   }
 
   /**
-   * Creates a new {@code Trade} with the given key and consisting of the given {@code
+   * Creates a new {@link Trade} with the given key and consisting of the given {@link
    * Transaction}s.
    *
    * @param key
-   *     the unique key to assign to this {@code Trade}, or {@code null} to generate one
+   *     the unique key to assign to this {@link Trade}, or {@code null} to generate one
    * @param tradeDate
-   *     the date on which the {@code Trade} is effective
+   *     the date on which the {@link Trade} is effective
    * @param settlementDate
-   *     the date on which the {@code Trade} settles
+   *     the date on which the {@link Trade} settles
    * @param transactions
-   *     the {@code Transaction}s comprising this {@code Trade}, mapped by {@code PortfolioKey}
+   *     the {@link Transaction}s comprising this {@link Trade}, mapped by {@link PortfolioKey}
    */
   public Trade(TradeKey key, LocalDate tradeDate, LocalDate settlementDate,
-               Map<PortfolioKey, Transaction> transactions) {
+      Map<PortfolioKey, Transaction> transactions) {
     this.key = (key == null ? new TradeKey(null) : key);
     this.tradeDate = tradeDate;
     this.settlementDate = settlementDate;
@@ -78,23 +80,22 @@ public class Trade implements ProtobufSerializable {
   }
 
   /**
-   * Obtains the total number of allocations over all {@code Transaction}s.
+   * Obtains the total number of allocations over all {@link Transaction}s.
    *
    * @return the total allocation count
    */
   public int getAllocationCount() {
-    return transactions.values().stream().collect(Collectors.summingInt(Transaction::size));
+    return transactions.values().stream().mapToInt(Transaction::size).sum();
   }
 
   /**
-   * Obtains allocations of this {@code Trade} corresponding to the specified {@code Portfolio}.
+   * Obtains allocations of this {@link Trade} corresponding to the specified {@link Portfolio}.
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} for which to obtain
-   *     allocations
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} for which to obtain allocations
    *
-   * @return a {@code Stream} of {@code Position}s representing the allocations for the specified
-   *     {@code Portfolio}
+   * @return a {@link Stream} of {@link Position}s representing the allocations for the specified
+   *     {@link Portfolio}
    */
   public Stream<TaxLot> getAllocations(PortfolioKey portfolioKey) {
     Transaction transaction = transactions.get(portfolioKey);
@@ -107,7 +108,7 @@ public class Trade implements ProtobufSerializable {
   }
 
   /**
-   * Obtains this {@code Trade}'s unique key.
+   * Obtains this {@link Trade}'s unique key.
    *
    * @return the key
    */
@@ -116,7 +117,7 @@ public class Trade implements ProtobufSerializable {
   }
 
   /**
-   * Obtains the date on which this {@code Trade} settles.
+   * Obtains the date on which this {@link Trade} settles.
    *
    * @return the settlement date
    */
@@ -125,7 +126,7 @@ public class Trade implements ProtobufSerializable {
   }
 
   /**
-   * Obtains the date on which this {@code Trade} is effective.
+   * Obtains the date on which this {@link Trade} is effective.
    *
    * @return the trade date
    */
@@ -134,13 +135,13 @@ public class Trade implements ProtobufSerializable {
   }
 
   /**
-   * Obtains the {@code Transaction} corresponding to the specified {@code Portfolio}.
+   * Obtains the {@link Transaction} corresponding to the specified {@link Portfolio}.
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} for which to obtain the
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} for which to obtain the
    *     transaction
    *
-   * @return the {@code Transaction} corresponding to the specified {@code Portfolio}, or {@code
+   * @return the {@link Transaction} corresponding to the specified {@link Portfolio}, or {@code
    *     null} if it does not exist
    */
   public Transaction getTransaction(PortfolioKey portfolioKey) {
@@ -148,9 +149,9 @@ public class Trade implements ProtobufSerializable {
   }
 
   /**
-   * Obtains all {@code Transactions} of this {@code Trade} grouped by impacted {@code Portfolio}.
+   * Obtains all {@link Transaction}s of this {@link Trade} grouped by impacted {@link Portfolio}.
    *
-   * @return a {@code Map} of {@code PortfolioKey} to the {@code Transaction} impacting it
+   * @return a {@link Map} of {@link PortfolioKey} to the {@link Transaction} impacting it
    */
   public Map<PortfolioKey, Transaction> getTransactions() {
     return transactions;

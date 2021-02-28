@@ -5,60 +5,60 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * Supplies {@code Position}s. An implementor might be a customer {@code Portfolio} or a "raw" set
- * of {@code Position}s. A {@code PositionSupplier} may provide access to a related {@code
- * Portfolio} (which may be the supplier itself), but note that the {@code PositionSupplier}'s
- * members may not be the same as the related {@code Portfolio}'s (the supplier may, for example,
+ * Supplies {@link Position}s. An implementor might be a customer {@link Portfolio} or a "raw" set
+ * of {@link Position}s. A {@link PositionSupplier} may provide access to a related {@link
+ * Portfolio} (which may be the supplier itself), but note that the {@link PositionSupplier}'s
+ * members may not be the same as the related {@link Portfolio}'s (the supplier may, for example,
  * provide access to a filtered set).
  *
  * @author jeremy
  */
 public interface PositionSupplier extends MarketValued {
   /**
-   * "Concatenates" the given {@code PositionSupplier}s into a single logical {@code
+   * "Concatenates" the given {@link PositionSupplier}s into a single logical {@link
    * PositionSupplier}.
    *
    * @param suppliers
-   *     the {@code PositionSupplier}s to be concatenated
+   *     the {@link PositionSupplier}s to be concatenated
    *
-   * @return a {@code PositionSupplier} representing the concatenation of the suppliers
+   * @return a {@link PositionSupplier} representing the concatenation of the suppliers
    */
   static PositionSupplier concat(PositionSupplier... suppliers) {
     return new CompoundPositionSupplier(suppliers);
   }
 
   /**
-   * Obtains the key of this {@code PositionSupplier}'s related {@code Portfolio}, if any.
+   * Obtains the key of this {@link PositionSupplier}'s related {@link Portfolio}, if any.
    *
-   * @return the related {@code Portfolio}, or {@code null} if none is associated
+   * @return the related {@link Portfolio}, or {@code null} if none is associated
    */
   PortfolioKey getPortfolioKey();
 
   /**
-   * Obtains this {@code PositionSupplier}'s {@code Position}s as a (new) {@code Stream}.
+   * Obtains this {@link PositionSupplier}'s {@link Position}s as a (new) {@link Stream}.
    *
-   * @return a {@code Stream} of {@code Position}s
+   * @return a {@link Stream} of {@link Position}s
    */
   Stream<? extends Position> getPositions();
 
   /**
-   * Given an {@code EvaluationContext}, obtains this {@code PositionSupplier}'s {@code Position}s
-   * as a (new) {@code Stream} of {@code PositionEvaluationContext}s.
+   * Given an {@link EvaluationContext}, obtains this {@link PositionSupplier}'s {@link Position}s
+   * as a (new) {@link Stream} of {@link PositionEvaluationContext}s.
    *
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which to perform the evaluation
+   *     the {@link EvaluationContext} in which to perform the evaluation
    *
-   * @return a {@code Stream} of {@code PositionEvaluationContext}s
+   * @return a {@link Stream} of {@link PositionEvaluationContext}s
    */
-  default Stream<PositionEvaluationContext>
-  getPositionsWithContext(EvaluationContext evaluationContext) {
+  default Stream<PositionEvaluationContext> getPositionsWithContext(
+      EvaluationContext evaluationContext) {
     return getPositions().map(p -> new PositionEvaluationContext(p, evaluationContext));
   }
 
   /**
-   * Obtains the number of {@code Position}s in this {@code PositionSupplier}.
+   * Obtains the number of {@link Position}s in this {@link PositionSupplier}.
    *
-   * @return the number of {@code Position}s
+   * @return the number of {@link Position}s
    */
   int size();
 }

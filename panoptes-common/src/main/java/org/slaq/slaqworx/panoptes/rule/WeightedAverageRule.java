@@ -3,21 +3,23 @@ package org.slaq.slaqworx.panoptes.rule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.calc.WeightedAveragePositionCalculator;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A {@code LimitRule} which stipulates limits on a calculated value, based on its weighted average
- * within a {@code Portfolio}'s composition, either in absolute terms or relative to a benchmark.
+ * A {@link LimitRule} which stipulates limits on a calculated value, based on its weighted average
+ * within a {@link Portfolio}'s composition, either in absolute terms or relative to a benchmark.
  * Examples of absolute rules include:
  * <ul>
- * <li>the weighted average of a {@code Portfolio}'s duration may not exceed 5.0
+ * <li>the weighted average of a {@link Portfolio}'s duration may not exceed 5.0
  * </ul>
  * Examples of benchmark-relative rules include:
  * <ul>
- * <li>the (weighted) average quality of a {@code Portfolio} must be at least 90% of the benchmark's
+ * <li>the (weighted) average quality of a {@link Portfolio} must be at least 90% of the benchmark's
  * </ul>
  *
  * @param <T>
@@ -26,18 +28,37 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * @author jeremy
  */
 public class WeightedAverageRule<T> extends LimitRule {
+  private final SecurityAttribute<T> calculationAttribute;
+
   /**
-   * {@code Configuration} mirrors the structure of the JSON configuration.
+   * Creates a new {@link WeightedAverageRule} with the given parameters.
+   *
+   * @param key
+   *     the unique key of this rule, or {@code null} to generate one
+   * @param description
+   *     the rule description
+   * @param positionFilter
+   *     the (possibly {@code null}) filter to be applied to {@link Position}s
+   * @param calculationAttribute
+   *     the attribute on which to calculate
+   * @param lowerLimit
+   *     the lower limit of acceptable concentration values
+   * @param upperLimit
+   *     the upper limit of acceptable concentration values
+   * @param groupClassifier
+   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
+   *     implement {@link GroupAggregator}
    */
-  static class Configuration {
-    public String attribute;
-    public Double lowerLimit;
-    public Double upperLimit;
+  public WeightedAverageRule(RuleKey key, String description,
+      Predicate<PositionEvaluationContext> positionFilter,
+      SecurityAttribute<T> calculationAttribute, Double lowerLimit, Double upperLimit,
+      EvaluationGroupClassifier groupClassifier) {
+    super(key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
+    this.calculationAttribute = calculationAttribute;
   }
 
   /**
-   * Creates a new {@code WeightedAverageRule} with the given JSON configuration, key,
-   * description,
+   * Creates a new {@link WeightedAverageRule} with the given JSON configuration, key, description,
    * filter and classifier.
    *
    * @param jsonConfiguration
@@ -47,64 +68,30 @@ public class WeightedAverageRule<T> extends LimitRule {
    * @param description
    *     the rule description
    * @param groovyFilter
-   *     a (possibly {@code null}) Groovy expression to be used as a {@code Position} filter
+   *     a (possibly {@code null}) Groovy expression to be used as a {@link Position} filter
    * @param groupClassifier
-   *     the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may also
-   *     implement {@code GroupAggregator}
+   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
+   *     implement {@link GroupAggregator}
    *
-   * @return a {@code WeightedAverageRule} with the specified configuration
+   * @return a {@link WeightedAverageRule} with the specified configuration
    */
   public static WeightedAverageRule<?> fromJson(String jsonConfiguration, RuleKey key,
-                                                String description, String groovyFilter,
-                                                EvaluationGroupClassifier groupClassifier) {
+      String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
     Configuration configuration;
     try {
-      configuration = JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration,
-          Configuration.class);
+      configuration =
+          JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration, Configuration.class);
     } catch (Exception e) {
       // TODO throw a better exception
-      throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration,
-          e);
+      throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration, e);
     }
 
     SecurityAttribute<?> calculationAttribute = SecurityAttribute.of(configuration.attribute);
 
-    @SuppressWarnings({"rawtypes", "unchecked"}) WeightedAverageRule<?> rule =
-        new WeightedAverageRule(key, description,
-            (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
-            calculationAttribute, configuration.lowerLimit, configuration.upperLimit,
-            groupClassifier);
+    WeightedAverageRule<?> rule = new WeightedAverageRule(key, description,
+        (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)), calculationAttribute,
+        configuration.lowerLimit, configuration.upperLimit, groupClassifier);
     return rule;
-  }
-
-  private final SecurityAttribute<T> calculationAttribute;
-
-  /**
-   * Creates a new {@code WeightedAverageRule} with the given parameters.
-   *
-   * @param key
-   *     the unique key of this rule, or {@code null} to generate one
-   * @param description
-   *     the rule description
-   * @param positionFilter
-   *     the (possibly {@code null}) filter to be applied to {@code Position}s
-   * @param calculationAttribute
-   *     the attribute on which to calculate
-   * @param lowerLimit
-   *     the lower limit of acceptable concentration values
-   * @param upperLimit
-   *     the upper limit of acceptable concentration values
-   * @param groupClassifier
-   *     the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may also
-   *     implement {@code GroupAggregator}
-   */
-  public WeightedAverageRule(RuleKey key, String description,
-                             Predicate<PositionEvaluationContext> positionFilter,
-                             SecurityAttribute<T> calculationAttribute, Double lowerLimit,
-                             Double upperLimit,
-                             EvaluationGroupClassifier groupClassifier) {
-    super(key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
-    this.calculationAttribute = calculationAttribute;
   }
 
   @Override
@@ -137,9 +124,9 @@ public class WeightedAverageRule<T> extends LimitRule {
   }
 
   /**
-   * Obtains this {@code Rule}'s (possibly {@code null}) calculation attribute.
+   * Obtains this {@link Rule}'s (possibly {@code null}) calculation attribute.
    *
-   * @return the {@code SecurityAttribute} on which to perform calculations
+   * @return the {@link SecurityAttribute} on which to perform calculations
    */
   protected SecurityAttribute<T> getCalculationAttribute() {
     return calculationAttribute;
@@ -151,5 +138,14 @@ public class WeightedAverageRule<T> extends LimitRule {
         new WeightedAveragePositionCalculator<>(calculationAttribute);
 
     return calculator.calculate(positions.getPositionsWithContext(evaluationContext));
+  }
+
+  /**
+   * Mirrors the structure of the JSON configuration.
+   */
+  static class Configuration {
+    public String attribute;
+    public Double lowerLimit;
+    public Double upperLimit;
   }
 }

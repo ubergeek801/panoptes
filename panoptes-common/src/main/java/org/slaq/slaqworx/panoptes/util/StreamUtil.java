@@ -7,24 +7,31 @@ import java.util.Spliterator;
 import java.util.stream.Stream;
 
 /**
- * Provides utilities for manipulating {@code Stream}s.
+ * Provides utilities for manipulating {@link Stream}s.
  *
  * @author jeremy
  */
 public class StreamUtil {
   /**
-   * Splits the given {@code Stream} into partitions that are (estimated to be) no larger than the
+   * Creates a new {@link StreamUtil}. Restricted to enforce class utility semantics.
+   */
+  private StreamUtil() {
+    // nothing to do
+  }
+
+  /**
+   * Splits the given {@link Stream} into partitions that are (estimated to be) no larger than the
    * specified maximum size. While not enforced, this is likely to be useful only on {@code SIZED}
    * streams.
    *
    * @param <T>
-   *     the type of elements in the {@code Stream}
+   *     the type of elements in the {@link Stream}
    * @param stream
-   *     the {@code Stream} to be partitioned
+   *     the {@link Stream} to be partitioned
    * @param maxPartitionSize
    *     the maximum desired size of an individual partition
    *
-   * @return a {@code List} of {@code Spliterator}s which comprise the individual partitions
+   * @return a {@link List} of {@link Spliterator}s which comprise the individual partitions
    */
   public static <T> List<Spliterator<T>> partition(Stream<T> stream, int maxPartitionSize) {
     maxPartitionSize = Math.max(1, maxPartitionSize);
@@ -50,12 +57,5 @@ public class StreamUtil {
     }
 
     return partitions;
-  }
-
-  /**
-   * Creates a new {@code StreamUtil}. Restricted to enforce class utility semantics.
-   */
-  private StreamUtil() {
-    // nothing to do
   }
 }

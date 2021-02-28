@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * {@code RuleSerializerTest} tests the functionality of the {@code RuleSerializer}.
+ * Tests the functionality of the {@link RuleSerializer}.
  *
  * @author jeremy
  */
@@ -46,8 +46,8 @@ public class RuleSerializerTest {
         "deserialized value should have same filter as original");
     assertEquals(rule.getJsonConfiguration(), deserialized.getJsonConfiguration(),
         "deserialized value should have same configuration as original");
-    if (rule.getGroupClassifier() != null
-        && rule.getGroupClassifier() instanceof JsonConfigurable) {
+    if (rule.getGroupClassifier() != null &&
+        rule.getGroupClassifier() instanceof JsonConfigurable) {
       assertNotNull(deserialized.getGroupClassifier(),
           "deserialized value should have group classifier");
       assertTrue(deserialized.getGroupClassifier() instanceof JsonConfigurable,
@@ -57,9 +57,9 @@ public class RuleSerializerTest {
           "deserialized group classifier should have same configuration as original");
     }
 
-    rule = new WeightedAverageRule<>(new RuleKey("foo"), "test rule", null,
-        SecurityAttribute.duration, 1d, 2d,
-        new TopNSecurityAttributeAggregator(SecurityAttribute.duration, 10));
+    rule =
+        new WeightedAverageRule<>(new RuleKey("foo"), "test rule", null, SecurityAttribute.duration,
+            1d, 2d, new TopNSecurityAttributeAggregator(SecurityAttribute.duration, 10));
 
     buffer = serializer.write(rule);
     deserialized = serializer.read(buffer);
@@ -70,8 +70,8 @@ public class RuleSerializerTest {
     assertNull(deserialized.getGroovyFilter(), "deserialized value should have null filter");
     assertEquals(rule.getJsonConfiguration(), deserialized.getJsonConfiguration(),
         "deserialized value should have same configuration as original");
-    if (rule.getGroupClassifier() != null
-        && rule.getGroupClassifier() instanceof JsonConfigurable) {
+    if (rule.getGroupClassifier() != null &&
+        rule.getGroupClassifier() instanceof JsonConfigurable) {
       assertNotNull(deserialized.getGroupClassifier(),
           "deserialized value should have group classifier");
       assertTrue(deserialized.getGroupClassifier() instanceof JsonConfigurable,

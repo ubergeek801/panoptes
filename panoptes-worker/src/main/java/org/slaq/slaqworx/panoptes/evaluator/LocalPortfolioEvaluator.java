@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@code PortfolioEvaluator} which performs processing on the local node. {@code Rule}s are
+ * A {@link PortfolioEvaluator} which performs processing on the local node. {@link Rule}s are
  * evaluated sequentially (although in no particular order); any desired processing concurrency is
  * expected to be provided at a higher layer of abstraction.
  *
@@ -30,19 +30,94 @@ import org.slf4j.LoggerFactory;
 @Prototype
 @Named("local")
 public class LocalPortfolioEvaluator implements PortfolioEvaluator {
+  private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
+  private final PortfolioProvider portfolioProvider;
+
   /**
-   * A {@code Predicate} and {@code Consumer} intended for use with on a {@code Stream} of {@code
-   * Rule}s. The {@code Stream} is "short-circuited" by {@code takeWhile()} after a failed
-   * result is
+   * Creates a new {@link LocalPortfolioEvaluator}.
+   *
+   * @param portfolioProvider
+   *     the {@link PortfolioProvider} to use to resolve {@link Portfolio} references
+   */
+  public LocalPortfolioEvaluator(PortfolioProvider portfolioProvider) {
+    this.portfolioProvider = portfolioProvider;
+  }
+
+  @Override
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+      EvaluationContext evaluationContext) {
+    return evaluate(portfolioKey, null, evaluationContext);
+  }
+
+  @Override
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+      Transaction transaction, EvaluationContext evaluationContext) {
+    Portfolio portfolio = portfolioProvider.getPortfolio(portfolioKey);
+
+    return CompletableFuture
+        .completedFuture(evaluate(portfolio.getRules(), portfolio, transaction, evaluationContext));
+  }
+
+  /**
+   * Evaluates the given {@link Rule}s against the given {@link Portfolio}.
+   *
+   * @param rules
+   *     the {@link Rule}s to be evaluated
+   * @param portfolio
+   *     the {@link Portfolio} against which to evaluate the {@link Rule}s
+   * @param transaction
+   *     a (possibly {@code null} {@link Transaction} to optionally evaluate with the {@link
+   *     Portfolio}
+   * @param evaluationContext
+   *     the {@link EvaluationContext} under which to evaluate
+   *
+   * @return a {@link Map} associating each evaluated {@link Rule} with its result
+   */
+  protected Map<RuleKey, EvaluationResult> evaluate(Stream<Rule> rules, Portfolio portfolio,
+      Transaction transaction, EvaluationContext evaluationContext) {
+    LOG.info("locally evaluating Portfolio {} (\"{}\")", portfolio.getKey(), portfolio.getName());
+    long startTime = System.currentTimeMillis();
+
+    ShortCircuiter shortCircuiter = new ShortCircuiter(portfolio.getKey(), transaction,
+        evaluationContext.getEvaluationMode() == EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+
+    // evaluate the Rules
+    Map<RuleKey, EvaluationResult> results = rules.takeWhile(shortCircuiter).map(r -> {
+      EvaluationResult baseResult =
+          new RuleEvaluator(r, portfolio, transaction, evaluationContext).call();
+      Portfolio benchmark = portfolio.getBenchmark(portfolioProvider);
+      EvaluationResult benchmarkResult;
+      if (benchmark != null && r.isBenchmarkSupported()) {
+        // attempt to get from cache first
+        benchmarkResult = evaluationContext.getBenchmarkResult(r.getKey());
+        if (benchmarkResult == null) {
+          benchmarkResult = new RuleEvaluator(r, benchmark, transaction, evaluationContext).call();
+          evaluationContext.cacheBenchmarkValue(r.getKey(), benchmarkResult);
+        }
+      } else {
+        benchmarkResult = null;
+      }
+
+      return new BenchmarkComparator().compare(baseResult, benchmarkResult, r);
+    }).peek(shortCircuiter)
+        .collect(Collectors.toMap(EvaluationResult::getRuleKey, result -> result));
+
+    LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms", results.size(),
+        (shortCircuiter.isShortCircuited() ? "short-circuited" : "full"), portfolio.size(),
+        portfolio.getKey(), System.currentTimeMillis() - startTime);
+
+    return results;
+  }
+
+  /**
+   * A {@link Predicate} and {@link Consumer} intended for use with on a {@link Stream} of {@link
+   * Rule}s. The {@link Stream} is "short-circuited" by {@code takeWhile()} after a failed result is
    * encountered by {@code peek()}.
    * <p>
-   * Note that a {@code Predicate} used by {@code takeWhile()} is expected to be stateless; we
-   * bend
+   * Note that a {@link Predicate} used by {@code takeWhile()} is expected to be stateless; we bend
    * that definition somewhat by maintaining state (specifically, whether a failed result has
-   * already been seen). However, this is consistent with the semantics of short-circuit
-   * evaluation,
-   * which allow any number of results to be returned when an evaluation is short-circuited, as
-   * long
+   * already been seen). However, this is consistent with the semantics of short-circuit evaluation,
+   * which allow any number of results to be returned when an evaluation is short-circuited, as long
    * as at least one of them indicates a failure.
    *
    * @author jeremy
@@ -55,19 +130,18 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
     private EvaluationResult failedResult;
 
     /**
-     * Creates a new {@code ShortCircuiter}.
+     * Creates a new {@link ShortCircuiter}.
      *
      * @param portfolioKey
-     *     a {@code PortfolioKey} identifying the {@code Portfolio} being evaluated
+     *     a {@link PortfolioKey} identifying the {@link Portfolio} being evaluated
      * @param transaction
-     *     a (possibly {@code null} {@code Transaction} being evaluated with the {@code
-     *     Portfolio}
+     *     a (possibly {@code null} {@link Transaction} being evaluated with the {@link Portfolio}
      * @param isShortCircuiting
      *     {@code true} if short-circuiting is to be activated, {@code false} to allow all
      *     evaluations to pass through
      */
     public ShortCircuiter(PortfolioKey portfolioKey, Transaction transaction,
-                          boolean isShortCircuiting) {
+        boolean isShortCircuiting) {
       this.portfolioKey = portfolioKey;
       this.transaction = transaction;
       this.isShortCircuiting = isShortCircuiting;
@@ -91,8 +165,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
         isPassed = result.isPassed();
       } else {
         // stop when a non-compliant impact is encountered
-        TradeEvaluationResult tradeResult =
-            new TradeEvaluationResult(transaction.getTradeKey());
+        TradeEvaluationResult tradeResult = new TradeEvaluationResult(transaction.getTradeKey());
         tradeResult.addImpacts(portfolioKey, Map.of(result.getRuleKey(), result));
         isPassed = tradeResult.isCompliant();
       }
@@ -117,89 +190,5 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
       // if a failed result has been encountered already, remaining Rules can be filtered
       return (failedResult == null);
     }
-  }
-
-  private static final Logger LOG = LoggerFactory.getLogger(LocalPortfolioEvaluator.class);
-
-  private final PortfolioProvider portfolioProvider;
-
-  /**
-   * Creates a new {@code LocalPortfolioEvaluator}.
-   *
-   * @param portfolioProvider
-   *     the {@code PortfolioProvider} to use to resolve {@code Portfolio} references
-   */
-  public LocalPortfolioEvaluator(PortfolioProvider portfolioProvider) {
-    this.portfolioProvider = portfolioProvider;
-  }
-
-  @Override
-  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-                                                                    EvaluationContext evaluationContext) {
-    return evaluate(portfolioKey, null, evaluationContext);
-  }
-
-  @Override
-  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-                                                                    Transaction transaction,
-                                                                    EvaluationContext evaluationContext) {
-    Portfolio portfolio = portfolioProvider.getPortfolio(portfolioKey);
-
-    return CompletableFuture.completedFuture(
-        evaluate(portfolio.getRules(), portfolio, transaction, evaluationContext));
-  }
-
-  /**
-   * Evaluates the given {@code Rule}s against the given {@code Portfolio}.
-   *
-   * @param rules
-   *     the {@code Rule}s to be evaluated
-   * @param portfolio
-   *     the {@code Portfolio} against which to evaluate the {@code Rule}s
-   * @param transaction
-   *     a (possibly {@code null} {@code Transaction} to optionally evaluate with the {@code
-   *     Portfolio}
-   * @param evaluationContext
-   *     the {@code EvaluationContext} under which to evaluate
-   *
-   * @return a {@code Map} associating each evaluated {@code Rule} with its result
-   */
-  protected Map<RuleKey, EvaluationResult> evaluate(Stream<Rule> rules, Portfolio portfolio,
-                                                    Transaction transaction,
-                                                    EvaluationContext evaluationContext) {
-    LOG.info("locally evaluating Portfolio {} (\"{}\")", portfolio.getKey(),
-        portfolio.getName());
-    long startTime = System.currentTimeMillis();
-
-    ShortCircuiter shortCircuiter = new ShortCircuiter(portfolio.getKey(), transaction,
-        evaluationContext.getEvaluationMode() == EvaluationMode.SHORT_CIRCUIT_EVALUATION);
-
-    // evaluate the Rules
-    Map<RuleKey, EvaluationResult> results = rules.takeWhile(shortCircuiter).map(r -> {
-      EvaluationResult baseResult =
-          new RuleEvaluator(r, portfolio, transaction, evaluationContext).call();
-      Portfolio benchmark = portfolio.getBenchmark(portfolioProvider);
-      EvaluationResult benchmarkResult;
-      if (benchmark != null && r.isBenchmarkSupported()) {
-        // attempt to get from cache first
-        benchmarkResult = evaluationContext.getBenchmarkResult(r.getKey());
-        if (benchmarkResult == null) {
-          benchmarkResult =
-              new RuleEvaluator(r, benchmark, transaction, evaluationContext).call();
-          evaluationContext.cacheBenchmarkValue(r.getKey(), benchmarkResult);
-        }
-      } else {
-        benchmarkResult = null;
-      }
-
-      return new BenchmarkComparator().compare(baseResult, benchmarkResult, r);
-    }).peek(shortCircuiter)
-        .collect(Collectors.toMap(EvaluationResult::getRuleKey, result -> result));
-
-    LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms",
-        results.size(), (shortCircuiter.isShortCircuited() ? "short-circuited" : "full"),
-        portfolio.size(), portfolio.getKey(), System.currentTimeMillis() - startTime);
-
-    return results;
   }
 }

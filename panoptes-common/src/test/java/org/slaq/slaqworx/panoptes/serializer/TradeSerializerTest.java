@@ -16,7 +16,7 @@ import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code TradeSerializerTest} tests the functionality of the {@code TradeSerializer}.
+ * Tests the functionality of the {@link TradeSerializer}.
  *
  * @author jeremy
  */
@@ -83,8 +83,7 @@ public class TradeSerializerTest {
           deserializedTransaction.getPositions().count(),
           "deserialized Transaction should have same number of allocations as original");
 
-      Iterator<? extends Position> tradeAllocationIter =
-          transaction.getPositions().iterator();
+      Iterator<? extends Position> tradeAllocationIter = transaction.getPositions().iterator();
       Iterator<? extends Position> deserializedAllocationIter =
           deserializedTransaction.getPositions().iterator();
       while (tradeAllocationIter.hasNext()) {
@@ -95,8 +94,7 @@ public class TradeSerializerTest {
             "deserialized allocation should equals() original");
         assertEquals(allocation.getKey(), deserializedAllocation.getKey(),
             "deserialized allocation should have same key as original");
-        assertEquals(allocation.getAmount(), deserializedAllocation.getAmount(),
-            TestUtil.EPSILON,
+        assertEquals(allocation.getAmount(), deserializedAllocation.getAmount(), TestUtil.EPSILON,
             "deserialized allocation should have same amount as original");
         assertEquals(allocation.getSecurityKey(), deserializedAllocation.getSecurityKey(),
             "deserialized allocation should have same SecurityKey as original");

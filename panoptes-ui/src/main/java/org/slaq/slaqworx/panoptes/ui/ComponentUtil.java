@@ -16,35 +16,42 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * {@code ComponentUtil} provides utilities for managing UI components with consistency.
+ * Provides utilities for managing UI components with consistency.
  *
  * @author jeremy
  */
 public class ComponentUtil {
   /**
-   * Creates a new {@code Button}.
+   * Creates a new {@link ComponentUtil}. Restricted to enforce class utility semantics.
+   */
+  protected ComponentUtil() {
+    // nothing to do
+  }
+
+  /**
+   * Creates a new {@link Button}.
    *
    * @param labelText
    *     the text to be used as the button label
    *
-   * @return a {@code Button}
+   * @return a {@link Button}
    */
   public static Button createButton(String labelText) {
     return createButton(labelText, null);
   }
 
   /**
-   * Creates a new {@code Button}.
+   * Creates a new {@link Button}.
    *
    * @param labelText
    *     the text to be used as the button label
    * @param clickListener
    *     the listener to be invoked when the button is clicked
    *
-   * @return a {@code Button}
+   * @return a {@link Button}
    */
   public static Button createButton(String labelText,
-                                    ComponentEventListener<ClickEvent<Button>> clickListener) {
+      ComponentEventListener<ClickEvent<Button>> clickListener) {
     Button button = new Button(labelText);
     if (clickListener != null) {
       button.addClickListener(clickListener);
@@ -55,33 +62,33 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@code DatePicker} with no date initially populated.
+   * Creates a new {@link DatePicker} with no date initially populated.
    *
    * @param labelText
    *     the text to be used to label the component
    *
-   * @return a {@code DatePicker}
+   * @return a {@link DatePicker}
    */
   public static DatePicker createDatePicker(String labelText) {
     return createDatePicker(labelText, null);
   }
 
   /**
-   * Creates a new {@code DatePicker} with no date initially populated.
+   * Creates a new {@link DatePicker} with no date initially populated.
    *
    * @param labelText
    *     the text to be used to label the component
    * @param placeholderText
    *     the placeholder text to appear in the date field
    *
-   * @return a {@code DatePicker}
+   * @return a {@link DatePicker}
    */
   public static DatePicker createDatePicker(String labelText, String placeholderText) {
     return createDatePicker(labelText, placeholderText, null);
   }
 
   /**
-   * Creates a new {@code DatePicker} with an initially populated date.
+   * Creates a new {@link DatePicker} with an initially populated date.
    *
    * @param labelText
    *     the text to be used to label the component
@@ -90,10 +97,10 @@ public class ComponentUtil {
    * @param initialDate
    *     the date to initially appear in the date picker
    *
-   * @return a {@code DatePicker}
+   * @return a {@link DatePicker}
    */
   public static DatePicker createDatePicker(String labelText, String placeholderText,
-                                            LocalDate initialDate) {
+      LocalDate initialDate) {
     DatePicker datePicker = new DatePicker(labelText, initialDate);
     datePicker.setPlaceholder(placeholderText);
     datePicker.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
@@ -102,12 +109,12 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@code Label}.
+   * Creates a new {@link Label}.
    *
    * @param labelText
    *     the text of the label
    *
-   * @return a {@code Label}
+   * @return a {@link Label}
    */
   public static Label createLabel(String labelText) {
     Label label = new Label(labelText);
@@ -117,12 +124,12 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@code MinMaxField} for setting dates.
+   * Creates a new {@link MinMaxField} for setting dates.
    *
    * @param labelText
    *     the label to be applied to the layout
    *
-   * @return a {@code MinMaxField}
+   * @return a {@link MinMaxField}
    */
   public static MinMaxField<LocalDate> createMinMaxDateField(String labelText) {
     DatePicker minDate = createDatePicker(null, "Min");
@@ -132,12 +139,12 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@code MinMaxField} for setting numeric values.
+   * Creates a new {@link MinMaxField} for setting numeric values.
    *
    * @param labelText
    *     the name of the attribute for which the values apply
    *
-   * @return a {@code MinMaxField}
+   * @return a {@link MinMaxField}
    */
   public static MinMaxField<BigDecimal> createMinMaxNumberField(String labelText) {
     BigDecimalField minField = createNumberField("Min");
@@ -147,25 +154,24 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@code BigDecimalField}.
+   * Creates a new {@link BigDecimalField}.
    *
    * @param placeholderText
    *     the placeholder text to appear in the number field
    *
-   * @return a {@code BigDecimalField}
+   * @return a {@link BigDecimalField}
    */
   public static BigDecimalField createNumberField(String placeholderText) {
     BigDecimalField numberField = new BigDecimalField();
     numberField.setPlaceholder(placeholderText);
     numberField.setClearButtonVisible(true);
-    numberField.addThemeVariants(TextFieldVariant.LUMO_SMALL,
-        TextFieldVariant.LUMO_ALIGN_RIGHT);
+    numberField.addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
 
     return numberField;
   }
 
   /**
-   * Creates a new {@code Select}.
+   * Creates a new {@link Select}.
    *
    * @param placeholderText
    *     the placeholder text to appear in the select field
@@ -174,11 +180,10 @@ public class ComponentUtil {
    * @param items
    *     the items to be populated in the select
    *
-   * @return a {@code Select}
+   * @return a {@link Select}
    */
-  public static Select<String> createSelect(String placeholderText,
-                                            boolean isEmptySelectionAllowed,
-                                            Collection<String> items) {
+  public static Select<String> createSelect(String placeholderText, boolean isEmptySelectionAllowed,
+      Collection<String> items) {
     Select<String> select = new Select<>();
     select.setPlaceholder(placeholderText);
     select.setItems(items);
@@ -189,7 +194,7 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@code Select}.
+   * Creates a new {@link Select}.
    *
    * @param placeholderText
    *     the placeholder text to appear in the select field
@@ -198,20 +203,20 @@ public class ComponentUtil {
    * @param items
    *     the items to be populated in the select
    *
-   * @return a {@code Select}
+   * @return a {@link Select}
    */
-  public static Select<String> createSelect(String placeholderText,
-                                            boolean isEmptySelectionAllowed, String... items) {
+  public static Select<String> createSelect(String placeholderText, boolean isEmptySelectionAllowed,
+      String... items) {
     return createSelect(placeholderText, isEmptySelectionAllowed, Arrays.asList(items));
   }
 
   /**
-   * Creates a new {@code TextField}.
+   * Creates a new {@link TextField}.
    *
    * @param placeholderText
    *     the placeholder text to appear in the text field
    *
-   * @return a {@code TextField}
+   * @return a {@link TextField}
    */
   public static TextField createTextField(String placeholderText) {
     TextField textField = new TextField();
@@ -220,12 +225,5 @@ public class ComponentUtil {
     textField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
 
     return textField;
-  }
-
-  /**
-   * Creates a new {@code ComponentUtil}. Restricted to enforce class utility semantics.
-   */
-  protected ComponentUtil() {
-    // nothing to do
   }
 }

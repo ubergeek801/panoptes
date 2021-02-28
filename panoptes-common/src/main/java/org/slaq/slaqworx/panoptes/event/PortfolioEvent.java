@@ -16,19 +16,18 @@ public interface PortfolioEvent extends Keyed<PortfolioKey>, ProtobufSerializabl
    * <p>
    * FIXME it's not clear that this belongs at the PortfolioEvent level
    *
-   * @return a key identifying the portfolio's benchmark, or {@code null} if there is no
-   * associated
+   * @return a key identifying the portfolio's benchmark, or {@code null} if there is no associated
    *     benchmark
    */
-  PortfolioKey getBenchmarkKey();
+  public PortfolioKey getBenchmarkKey();
 
   /**
-   * Synonymous with {@code getKey()}. Exists because Flink can't figure out {@code Keyed<T>} even
-   * when given type information.
+   * Synonymous with {@code getKey()}. Exists because Flink can't figure out {@link Keyed} even when
+   * given type information.
    *
    * @return the event/portfolio key
    */
-  default PortfolioKey getPortfolioKey() {
+  public default PortfolioKey getPortfolioKey() {
     return getKey();
   }
 }

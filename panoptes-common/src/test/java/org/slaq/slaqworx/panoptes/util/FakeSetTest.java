@@ -8,13 +8,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@code FakeSetTest} tests the functionality of {@code FakeSet}.
+ * Tests the functionality of {@link FakeSet}.
  *
  * @author jeremy
  */
 public class FakeSetTest {
   /**
-   * Tests that {@code FakeSet} behaves as expected.
+   * Tests that {@link FakeSet} behaves as expected.
    */
   @Test
   public void testFakeSet() {

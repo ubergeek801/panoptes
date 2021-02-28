@@ -17,8 +17,7 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 
 /**
- * {@code EvaluationResultPanel} presents the results of portfolio compliance evaluation. This is
- * very much a work in progress.
+ * Presents the results of portfolio compliance evaluation. This is very much a work in progress.
  *
  * @author jeremy
  */
@@ -38,10 +37,10 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
   private List<EvaluationResultRow> portfolioResults = Collections.emptyList();
 
   /**
-   * Creates a new {@code EvaluationResultPanel}.
+   * Creates a new {@link EvaluationResultPanel}.
    *
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve cached entities
+   *     the {@link AssetCache} to use to resolve cached entities
    */
   public EvaluationResultPanel(AssetCache assetCache) {
     this.assetCache = assetCache;
@@ -82,8 +81,8 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
       }
 
       @Override
-      protected Stream<EvaluationResultRow>
-      fetchChildrenFromBackEnd(HierarchicalQuery<EvaluationResultRow, Void> query) {
+      protected Stream<EvaluationResultRow> fetchChildrenFromBackEnd(
+          HierarchicalQuery<EvaluationResultRow, Void> query) {
         if (query.getParent() == null) {
           return portfolioResults.stream();
         }
@@ -97,14 +96,14 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
    * Sets the result to be displayed by this panel.
    *
    * @param evaluationResult
-   *     a {@code Map} of {@code RuleKey}-related {@code EvaluationResult}s to be displayed
+   *     a {@link Map} of {@link RuleKey}-related {@link EvaluationResult}s to be displayed
    */
   public void setResult(Map<RuleKey, EvaluationResult> evaluationResult) {
     Comparator<? super EvaluationResultRow> comparator =
         (r1, r2) -> r1.getRuleDescription().compareTo(r2.getRuleDescription());
-    portfolioResults = evaluationResult.entrySet().stream()
-        .map(e -> new PortfolioRuleResultAdapter(e, assetCache)).sorted(comparator)
-        .collect(Collectors.toList());
+    portfolioResults =
+        evaluationResult.entrySet().stream().map(e -> new PortfolioRuleResultAdapter(e, assetCache))
+            .sorted(comparator).collect(Collectors.toList());
 
     dataProvider.refreshAll();
   }

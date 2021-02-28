@@ -6,13 +6,13 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code SecurityKey}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link SecurityKey}.
  *
  * @author jeremy
  */
 public class SecurityKeySerializer implements ProtobufSerializer<SecurityKey> {
   /**
-   * Creates a new {@code SecurityKeySerializer}.
+   * Creates a new {@link SecurityKeySerializer}.
    */
   public SecurityKeySerializer() {
     // nothing to do

@@ -1,9 +1,10 @@
 package org.slaq.slaqworx.panoptes.ui.trading;
 
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.AbstractBackEndDataProvider;
+import com.vaadin.flow.data.provider.BackEndDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -14,7 +15,7 @@ import org.slaq.slaqworx.panoptes.cache.SecurityFilter;
 import org.slaq.slaqworx.panoptes.util.FakeSet;
 
 /**
- * A {@code BackEndDataProvider} that provides {@code Security} data, typically for {@code Grid}
+ * A {@link BackEndDataProvider} that provides {@link Security} data, typically for {@link Grid}
  * consumption, allowing the application of a user-specified filter.
  *
  * @author jeremy
@@ -27,10 +28,10 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
   private List<SecurityKey> securityKeys;
 
   /**
-   * Creates a new {@code SecurityDataProvider} using the given {@code AssetCache} to obtain data.
+   * Creates a new {@link SecurityDataProvider} using the given {@link AssetCache} to obtain data.
    *
    * @param assetCache
-   *     the {@code AssetCache} from which to obtain {@code Security} data
+   *     the {@link AssetCache} from which to obtain {@link Security} data
    */
   public SecurityDataProvider(AssetCache assetCache) {
     this.assetCache = assetCache;
@@ -38,11 +39,11 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
   }
 
   /**
-   * Specifies a filter to be used when querying {@code Security} data, and signals consumers of a
+   * Specifies a filter to be used when querying {@link Security} data, and signals consumers of a
    * refresh event.
    *
    * @param filter
-   *     the filter to be used in the {@code Security} query, or {@code null} to return all results
+   *     the filter to be used in the {@link Security} query, or {@code null} to return all results
    */
   public void setFilter(SecurityFilter filter) {
     Set<SecurityKey> matchingKeys;
@@ -53,16 +54,16 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
       matchingKeys = assetCache.getSecurityCache().keySet(filter);
     }
     securityKeys = new ArrayList<>(matchingKeys);
-    Collections.sort(securityKeys, SecurityKey::compareTo);
+    securityKeys.sort(SecurityKey::compareTo);
     refreshAll();
   }
 
   @Override
   protected Stream<Security> fetchFromBackEnd(Query<Security, Void> query) {
-    return assetCache.getSecurityCache()
-        .getAll(new FakeSet<>(securityKeys.subList(query.getOffset(),
-            Math.min(query.getOffset() + query.getLimit(), securityKeys.size()))))
-        .values().stream();
+    return assetCache.getSecurityCache().getAll(new FakeSet<>(securityKeys
+        .subList(query.getOffset(),
+            Math.min(query.getOffset() + query.getLimit(), securityKeys.size())))).values()
+        .stream();
   }
 
   @Override

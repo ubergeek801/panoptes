@@ -18,14 +18,14 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * A no-op SQL {@code Connection} that exists merely to make transaction-management code happy in
+ * A no-op SQL {@link Connection} that exists merely to make transaction-management code happy in
  * test and standalone environments.
  *
  * @author jeremy
  */
 public class DummyConnection implements Connection {
   /**
-   * Creates a new {@code DummyConnection}.
+   * Creates a new {@link DummyConnection}.
    */
   public DummyConnection() {
     // nothing to do
@@ -88,7 +88,7 @@ public class DummyConnection implements Connection {
 
   @Override
   public Statement createStatement(int resultSetType, int resultSetConcurrency,
-                                   int resultSetHoldability) {
+      int resultSetHoldability) {
     return null;
   }
 
@@ -103,13 +103,28 @@ public class DummyConnection implements Connection {
   }
 
   @Override
+  public void setAutoCommit(boolean autoCommit) {
+    // nothing to do
+  }
+
+  @Override
   public String getCatalog() {
     return null;
   }
 
   @Override
+  public void setCatalog(String catalog) {
+    // nothing to do
+  }
+
+  @Override
   public Properties getClientInfo() {
     return null;
+  }
+
+  @Override
+  public void setClientInfo(Properties properties) {
+    // nothing to do
   }
 
   @Override
@@ -120,6 +135,11 @@ public class DummyConnection implements Connection {
   @Override
   public int getHoldability() {
     return 0;
+  }
+
+  @Override
+  public void setHoldability(int holdability) {
+    // nothing to do
   }
 
   @Override
@@ -138,13 +158,28 @@ public class DummyConnection implements Connection {
   }
 
   @Override
+  public void setSchema(String schema) {
+    // nothing to do
+  }
+
+  @Override
   public int getTransactionIsolation() {
     return 0;
   }
 
   @Override
+  public void setTransactionIsolation(int level) {
+    // nothing to do
+  }
+
+  @Override
   public Map<String, Class<?>> getTypeMap() {
     return null;
+  }
+
+  @Override
+  public void setTypeMap(Map<String, Class<?>> map) {
+    // nothing to do
   }
 
   @Override
@@ -160,6 +195,11 @@ public class DummyConnection implements Connection {
   @Override
   public boolean isReadOnly() {
     return false;
+  }
+
+  @Override
+  public void setReadOnly(boolean readOnly) {
+    // nothing to do
   }
 
   @Override
@@ -189,7 +229,7 @@ public class DummyConnection implements Connection {
 
   @Override
   public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
-                                       int resultSetHoldability) {
+      int resultSetHoldability) {
     return null;
   }
 
@@ -205,13 +245,13 @@ public class DummyConnection implements Connection {
 
   @Override
   public PreparedStatement prepareStatement(String sql, int resultSetType,
-                                            int resultSetConcurrency) {
+      int resultSetConcurrency) {
     return null;
   }
 
   @Override
-  public PreparedStatement prepareStatement(String sql, int resultSetType,
-                                            int resultSetConcurrency, int resultSetHoldability) {
+  public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
+      int resultSetHoldability) {
     return null;
   }
 
@@ -241,37 +281,12 @@ public class DummyConnection implements Connection {
   }
 
   @Override
-  public void setAutoCommit(boolean autoCommit) {
-    // nothing to do
-  }
-
-  @Override
-  public void setCatalog(String catalog) {
-    // nothing to do
-  }
-
-  @Override
-  public void setClientInfo(Properties properties) {
-    // nothing to do
-  }
-
-  @Override
   public void setClientInfo(String name, String value) {
     // nothing to do
   }
 
   @Override
-  public void setHoldability(int holdability) {
-    // nothing to do
-  }
-
-  @Override
   public void setNetworkTimeout(Executor executor, int milliseconds) {
-    // nothing to do
-  }
-
-  @Override
-  public void setReadOnly(boolean readOnly) {
     // nothing to do
   }
 
@@ -283,21 +298,6 @@ public class DummyConnection implements Connection {
   @Override
   public Savepoint setSavepoint(String name) {
     return null;
-  }
-
-  @Override
-  public void setSchema(String schema) {
-    // nothing to do
-  }
-
-  @Override
-  public void setTransactionIsolation(int level) {
-    // nothing to do
-  }
-
-  @Override
-  public void setTypeMap(Map<String, Class<?>> map) {
-    // nothing to do
   }
 
   @Override

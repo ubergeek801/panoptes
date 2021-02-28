@@ -2,16 +2,19 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.Collection;
 import java.util.stream.Stream;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A component of a {@code Trade} which modifies a single {@code Portfolio} by altering (increasing
- * or decreasing) the net position of one or more of its {@code Security} holdings. The {@code
- * Positions} of a {@code Trade} are also known as allocations.
+ * A component of a {@link Trade} which modifies a single {@link Portfolio} by altering (increasing
+ * or decreasing) the net position of one or more of its {@link Security} holdings. The {@link
+ * Position}s of a {@link Trade} are also known as allocations.
  *
  * @author jeremy
  */
@@ -21,34 +24,33 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
   private final PositionSet<TaxLot> positions;
 
   /**
-   * Creates a new {@code Transaction}, with a generated ID, acting on the given {@code Portfolio}
+   * Creates a new {@link Transaction}, with a generated ID, acting on the given {@link Portfolio}
    * with the given allocations.
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} affected by this {@code
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} affected by this {@link
    *     Transaction}
    * @param allocations
-   *     the allocations of the {@code Transaction}
+   *     the allocations of the {@link Transaction}
    */
   public Transaction(PortfolioKey portfolioKey, Collection<TaxLot> allocations) {
     this(null, portfolioKey, allocations);
   }
 
   /**
-   * Creates a new {@code Transaction} with the given ID, acting on the given {@code Portfolio}
-   * with
+   * Creates a new {@link Transaction} with the given ID, acting on the given {@link Portfolio} with
    * the given allocations.
    *
    * @param key
-   *     the unique key of the {@code Transaction}
+   *     the unique key of the {@link Transaction}
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} affected by this {@code
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} affected by this {@link
    *     Transaction}
    * @param allocations
-   *     the allocations of the {@code Transaction}
+   *     the allocations of the {@link Transaction}
    */
   public Transaction(TransactionKey key, PortfolioKey portfolioKey,
-                     Collection<TaxLot> allocations) {
+      Collection<TaxLot> allocations) {
     this.key = (key == null ? new TransactionKey(null) : key);
     this.portfolioKey = portfolioKey;
     if (allocations.isEmpty()) {
@@ -75,7 +77,7 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
   }
 
   /**
-   * Obtains this {@code Transaction}'s unique key.
+   * Obtains this {@link Transaction}'s unique key.
    *
    * @return the key
    */
@@ -99,10 +101,10 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
   }
 
   /**
-   * Obtains the {@code TradeKey} corresponding to this {@code Trade} owning this {@code
+   * Obtains the {@link TradeKey} corresponding to this {@link Trade} owning this {@link
    * Transaction}.
    *
-   * @return a {@code TradeKey}
+   * @return a {@link TradeKey}
    */
   public TradeKey getTradeKey() {
     // there is always at least one allocation/TaxLot; all will have the same TradeKey so just

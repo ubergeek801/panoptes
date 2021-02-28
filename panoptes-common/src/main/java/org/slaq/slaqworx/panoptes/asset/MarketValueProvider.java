@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * The interface for a service that can determine the market value of some {@code MarketValued}
+ * The interface for a service that can determine the market value of some {@link MarketValued}
  * item.
  *
  * @author jeremy
@@ -9,9 +9,8 @@ package org.slaq.slaqworx.panoptes.asset;
 public interface MarketValueProvider {
 
   /**
-   * Obtains the market value of the given holding (generally a {@code Portfolio} or a subset
-   * of its
-   * {@code Position}s). Once calculated, the value may be cached depending on implementation and
+   * Obtains the market value of the given holding (generally a {@link Portfolio} or a subset of its
+   * {@link Position}s). Once calculated, the value may be cached depending on implementation and
    * context.
    *
    * @param holding

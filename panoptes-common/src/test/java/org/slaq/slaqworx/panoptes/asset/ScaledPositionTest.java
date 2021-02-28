@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code ScaledPositionTest} tests the functionality of {@code ScaledPosition}.
+ * Tests the functionality of {@link ScaledPosition}.
  *
  * @author jeremy
  */
 public class ScaledPositionTest {
   /**
-   * Tests that {@code Position} scaling behaves as expected.
+   * Tests that {@link Position} scaling behaves as expected.
    */
   @Test
   public void testScaling() {

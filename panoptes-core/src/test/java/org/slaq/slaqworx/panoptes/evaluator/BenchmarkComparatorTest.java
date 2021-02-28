@@ -21,7 +21,7 @@ import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * Tests the functionality of the {@code BenchmarkComparator}.
+ * Tests the functionality of the {@link BenchmarkComparator}.
  *
  * @author jeremy
  */
@@ -29,7 +29,7 @@ public class BenchmarkComparatorTest {
   private final TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
   /**
-   * Tests that benchmark-relative {@code ConcentrationRule} comparison behaves as expected.
+   * Tests that benchmark-relative {@link ConcentrationRule} comparison behaves as expected.
    */
   @Test
   public void testCompare_benchmarkRelativeConcentration() {
@@ -38,20 +38,19 @@ public class BenchmarkComparatorTest {
     // the Rule tests that the concentration of currency = BRL is between 95% and 105% of the
     // benchmark
     ConcentrationRule rule = new ConcentrationRule(null, "test rule",
-        c -> "BRL".equals(
-            c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
+        c -> "BRL".equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
         0.95, 1.05, null);
 
-    Security brlSecurity = securityProvider.newSecurity("brl", SecurityAttribute
-        .mapOf(SecurityAttribute.currency, "BRL", SecurityAttribute.price, 1d));
-    Security nzdSecurity = securityProvider.newSecurity("nzd", SecurityAttribute
-        .mapOf(SecurityAttribute.currency, "NZD", SecurityAttribute.price, 1d));
+    Security brlSecurity = securityProvider.newSecurity("brl",
+        SecurityAttribute.mapOf(SecurityAttribute.currency, "BRL", SecurityAttribute.price, 1d));
+    Security nzdSecurity = securityProvider.newSecurity("nzd",
+        SecurityAttribute.mapOf(SecurityAttribute.currency, "NZD", SecurityAttribute.price, 1d));
 
     // create a benchmark with 50% concentration in BRL
     HashSet<Position> benchmarkPositions = new HashSet<>();
     benchmarkPositions.add(new SimplePosition(100, brlSecurity.getKey()));
     benchmarkPositions.add(new SimplePosition(100, nzdSecurity.getKey()));
-    final Portfolio benchmark1 =
+    Portfolio benchmark1 =
         new Portfolio(new PortfolioKey("testBenchmark", 1), "test", benchmarkPositions);
 
     // create a Portfolio with 56% concentration in BRL
@@ -64,8 +63,7 @@ public class BenchmarkComparatorTest {
     EvaluationResult benchmarkResult = new RuleEvaluator(rule, benchmark1, context).call();
     EvaluationResult finalResult =
         new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);
-    assertFalse(finalResult.isPassed(),
-        "portfolio with == 56% concentration should have failed");
+    assertFalse(finalResult.isPassed(), "portfolio with == 56% concentration should have failed");
 
     // create a Portfolio with 44% concentration in BRL
     positions = new HashSet<>();
@@ -77,8 +75,7 @@ public class BenchmarkComparatorTest {
     benchmarkResult = new RuleEvaluator(rule, benchmark1, context).call();
     finalResult = new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);
 
-    assertFalse(finalResult.isPassed(),
-        "portfolio with == 44% concentration should have failed");
+    assertFalse(finalResult.isPassed(), "portfolio with == 44% concentration should have failed");
 
     // create a Portfolio with 52.5% (50% * 105%) concentration in BRL
     positions = new HashSet<>();
@@ -90,8 +87,7 @@ public class BenchmarkComparatorTest {
     benchmarkResult = new RuleEvaluator(rule, benchmark1, context).call();
     finalResult = new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);
 
-    assertTrue(finalResult.isPassed(),
-        "portfolio with == 52.5% concentration should have passed");
+    assertTrue(finalResult.isPassed(), "portfolio with == 52.5% concentration should have passed");
 
     // create a Portfolio with 47.5% (50% * 95%) concentration in BRL
     positions = new HashSet<>();
@@ -103,13 +99,12 @@ public class BenchmarkComparatorTest {
     benchmarkResult = new RuleEvaluator(rule, benchmark1, context).call();
     finalResult = new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);
 
-    assertTrue(finalResult.isPassed(),
-        "portfolio with == 52.5% concentration should have passed");
+    assertTrue(finalResult.isPassed(), "portfolio with == 52.5% concentration should have passed");
 
     // create a benchmark with 0% concentration in BRL
     benchmarkPositions = new HashSet<>();
     benchmarkPositions.add(new SimplePosition(100, nzdSecurity.getKey()));
-    final Portfolio benchmark2 =
+    Portfolio benchmark2 =
         new Portfolio(new PortfolioKey("testBenchmark", 1), "test", benchmarkPositions);
 
     baseResult = new RuleEvaluator(rule, portfolio, context).call();
@@ -122,8 +117,7 @@ public class BenchmarkComparatorTest {
     // the Rule tests that the concentration of currency = BRL is at least 95% of the
     // benchmark
     rule = new ConcentrationRule(null, "test rule",
-        c -> "BRL".equals(
-            c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
+        c -> "BRL".equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
         0.95, null, null);
 
     // create a portfolio with 0% concentration in BRL
@@ -155,8 +149,7 @@ public class BenchmarkComparatorTest {
     // the Rule tests that the concentration of currency = BRL is at most 105% of the
     // benchmark
     rule = new ConcentrationRule(null, "test rule",
-        c -> "BRL".equals(
-            c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
+        c -> "BRL".equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
         null, 1.05, null);
 
     baseResult = new RuleEvaluator(rule, portfolio, context).call();
@@ -168,7 +161,7 @@ public class BenchmarkComparatorTest {
   }
 
   /**
-   * Tests that comparison behaves as expected with a benchmark-relative {@code
+   * Tests that comparison behaves as expected with a benchmark-relative {@link
    * WeightedAverageRule}.
    */
   @Test
@@ -184,16 +177,15 @@ public class BenchmarkComparatorTest {
     // of s3 (200 * 80), for a weighted moovyRating of (45_000 + 16_000) / 700 = 87.142857143.
     // Thus p1's weighted average is 1.032786885 * p3's.
 
-    LimitRule rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating,
-        1.035, null, null);
+    LimitRule rule =
+        new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.035, null, null);
     EvaluationResult baseResult = new RuleEvaluator(rule, TestUtil.p1, context).call();
     EvaluationResult benchmarkResult = new RuleEvaluator(rule, TestUtil.p3, context).call();
     EvaluationResult finalResult =
         new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);
     assertFalse(finalResult.isPassed(), "rule with 103.5% lower limit should have failed");
 
-    rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.03, null,
-        null);
+    rule = new WeightedAverageRule<>(null, "test", filter, TestUtil.moovyRating, 1.03, null, null);
     baseResult = new RuleEvaluator(rule, TestUtil.p1, context).call();
     benchmarkResult = new RuleEvaluator(rule, TestUtil.p3, context).call();
     finalResult = new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);

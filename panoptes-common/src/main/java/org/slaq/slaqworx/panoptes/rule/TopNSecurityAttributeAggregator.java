@@ -14,60 +14,52 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A {@code SecurityAttributeGroupClassifier} which classifies {@code Positions} based on a
- * specified {@code SecurityAttribute}, and also (as a {@code GroupAggregator}) aggregates the "top
- * n" resulting groups into a composite group. The number of classified groups is limited to n + 1
- * (and will be smaller if the number of distinct attribute values is smaller than n).
+ * A {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based on a
+ * specified {@link SecurityAttribute}, and also (as a {@link GroupAggregator}) aggregates the "top
+ * n" resulting groups into a composite group. The number of classified groups, including this
+ * composite group, is limited to n + 1 (and will be smaller if the number of distinct attribute
+ * values is smaller than n).
  *
  * @author jeremy
  */
 public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClassifier
     implements GroupAggregator {
-  static class Configuration {
-    public String attribute;
-    public int count;
-  }
-
-  /**
-   * Creates a new {@code TopNSecurityAttributeAggregator} which aggregates {@code Position}s
-   * on the
-   * {@code SecurityAttribute} specified in the JSON configuration.
-   *
-   * @param jsonConfiguration
-   *     a JSON configuration specifying the {@code SecurityAttribute} on which to aggregate
-   *     {@code
-   *     Position}s
-   */
-  public static TopNSecurityAttributeAggregator fromJson(String jsonConfiguration) {
-    Configuration configuration;
-    try {
-      configuration = JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration,
-          Configuration.class);
-    } catch (Exception e) {
-      // TODO throw a better exception
-      throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration,
-          e);
-    }
-
-    return new TopNSecurityAttributeAggregator(SecurityAttribute.of(configuration.attribute),
-        configuration.count);
-  }
-
   private final int count;
 
   /**
-   * Creates a new {@code TopNSecurityAttributeAggregator} which aggregates {@code Position}s
-   * on the
-   * given {@code SecurityAttribute}.
+   * Creates a new {@link TopNSecurityAttributeAggregator} which aggregates {@link Position}s on the
+   * given {@link SecurityAttribute}.
    *
    * @param securityAttribute
-   *     the {@code SecurityAttribute} on which to aggregate {@code Position}s
+   *     the {@link SecurityAttribute} on which to aggregate {@link Position}s
    * @param count
    *     the number of groups to collect into the "top n" metagroup
    */
   public TopNSecurityAttributeAggregator(SecurityAttribute<?> securityAttribute, int count) {
     super(securityAttribute);
     this.count = count;
+  }
+
+  /**
+   * Creates a new {@link TopNSecurityAttributeAggregator} which aggregates {@link Position}s on the
+   * {@link SecurityAttribute} specified in the JSON configuration.
+   *
+   * @param jsonConfiguration
+   *     a JSON configuration specifying the {@link SecurityAttribute} on which to aggregate {@link
+   *     Position}s
+   */
+  public static TopNSecurityAttributeAggregator fromJson(String jsonConfiguration) {
+    Configuration configuration;
+    try {
+      configuration =
+          JsonConfigurable.defaultObjectMapper().readValue(jsonConfiguration, Configuration.class);
+    } catch (Exception e) {
+      // TODO throw a better exception
+      throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration, e);
+    }
+
+    return new TopNSecurityAttributeAggregator(SecurityAttribute.of(configuration.attribute),
+        configuration.count);
   }
 
   @Override
@@ -85,8 +77,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     // if we already have fewer groups than the desired, then just collect it all
     if (classifiedPositions.size() <= count) {
       filteredClassifiedPositions.putAll(classifiedPositions);
-      classifiedPositions.values().forEach(
-          positions -> positions.getPositions().forEach(p -> aggregatePositions.add(p)));
+      classifiedPositions.values()
+          .forEach(positions -> positions.getPositions().forEach(aggregatePositions::add));
     } else {
       // create a list of PositionSuppliers and sort it by total amount, descending; also
       // build an IdentityHashMap to relate the PositionSuppliers to their EvaluationGroups
@@ -98,18 +90,15 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
         sortedClassifiedPositions.add(positions);
         supplierGroupMap.put(positions, g);
       });
-      Collections.sort(sortedClassifiedPositions,
-          (s1, s2) -> Double.compare(evaluationContext.getMarketValue(s2),
-              evaluationContext.getMarketValue(s1)));
+      sortedClassifiedPositions.sort((s1, s2) -> Double
+          .compare(evaluationContext.getMarketValue(s2), evaluationContext.getMarketValue(s1)));
 
       // collect the first "count" PositionSuppliers into a single supplier, and also into the
       // filtered map
       for (int i = 0; i < count; i++) {
         PositionSupplier positionSupplier = sortedClassifiedPositions.get(i);
-        aggregatePositions
-            .addAll(positionSupplier.getPositions().collect(Collectors.toList()));
-        filteredClassifiedPositions.put(supplierGroupMap.get(positionSupplier),
-            positionSupplier);
+        aggregatePositions.addAll(positionSupplier.getPositions().collect(Collectors.toList()));
+        filteredClassifiedPositions.put(supplierGroupMap.get(positionSupplier), positionSupplier);
       }
     }
 
@@ -137,5 +126,13 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
       // TODO throw a better exception
       throw new RuntimeException("could not serialize JSON configuration", e);
     }
+  }
+
+  /**
+   * Mirrors the JSON configuration.
+   */
+  static class Configuration {
+    public String attribute;
+    public int count;
   }
 }

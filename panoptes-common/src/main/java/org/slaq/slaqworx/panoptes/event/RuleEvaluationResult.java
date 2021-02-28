@@ -25,15 +25,14 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
   private final EvaluationResult evaluationResult;
 
   /**
-   * Creates a new {@code RuleEvaluationResult}.
+   * Creates a new {@link RuleEvaluationResult}.
    *
    * @param eventId
    *     an ID uniquely identifying the result event
    * @param portfolioKey
    *     a key identifying the portfolio/benchmark that this rule was evaluated against
    * @param benchmarkKey
-   *     a key identifying the benchmark associated with the evaluated portoflio, or {@code
-   *     null} if
+   *     a key identifying the benchmark associated with the evaluated portoflio, or {@code null} if
    *     the portfolio has no benchmark (or is itself a benchmark)
    * @param source
    *     the type of entity which was the source of the evaluation result
@@ -48,9 +47,8 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
    *     the result of evaluating the rule against the portfolio/benchmark
    */
   public RuleEvaluationResult(long eventId, PortfolioKey portfolioKey, PortfolioKey benchmarkKey,
-                              EvaluationSource source, boolean isBenchmarkSupported,
-                              Double lowerLimit,
-                              Double upperLimit, EvaluationResult evaluationResult) {
+      EvaluationSource source, boolean isBenchmarkSupported, Double lowerLimit, Double upperLimit,
+      EvaluationResult evaluationResult) {
     this.eventId = eventId;
     this.portfolioKey = portfolioKey;
     this.benchmarkKey = benchmarkKey;
@@ -73,11 +71,11 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
       return false;
     }
     RuleEvaluationResult other = (RuleEvaluationResult) obj;
-    return Objects.equals(benchmarkKey, other.benchmarkKey) && eventId == other.eventId
-        && isBenchmarkSupported == other.isBenchmarkSupported
-        && Objects.equals(lowerLimit, other.lowerLimit)
-        && Objects.equals(portfolioKey, other.portfolioKey) && source == other.source
-        && Objects.equals(upperLimit, other.upperLimit);
+    return Objects.equals(benchmarkKey, other.benchmarkKey) && eventId == other.eventId &&
+        isBenchmarkSupported == other.isBenchmarkSupported &&
+        Objects.equals(lowerLimit, other.lowerLimit) &&
+        Objects.equals(portfolioKey, other.portfolioKey) && source == other.source &&
+        Objects.equals(upperLimit, other.upperLimit);
   }
 
   public PortfolioRuleKey getBenchmarkEvaluationKey() {
@@ -117,8 +115,9 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
 
   @Override
   public int hashCode() {
-    return Objects.hash(benchmarkKey, eventId, isBenchmarkSupported, lowerLimit, portfolioKey,
-        source, upperLimit);
+    return Objects
+        .hash(benchmarkKey, eventId, isBenchmarkSupported, lowerLimit, portfolioKey, source,
+            upperLimit);
   }
 
   @Override
@@ -128,9 +127,8 @@ public class RuleEvaluationResult implements BenchmarkComparable, ProtobufSerial
 
   @Override
   public String toString() {
-    return "RuleEvaluationResult [eventId=" + eventId + ", portfolioKey=" + portfolioKey
-        + ", benchmarkKey=" + benchmarkKey + ", source=" + source
-        + ", isBenchmarkSupported=" + isBenchmarkSupported + ", lowerLimit=" + lowerLimit
-        + ", upperLimit=" + upperLimit + "]";
+    return "RuleEvaluationResult [eventId=" + eventId + ", portfolioKey=" + portfolioKey +
+        ", benchmarkKey=" + benchmarkKey + ", source=" + source + ", isBenchmarkSupported=" +
+        isBenchmarkSupported + ", lowerLimit=" + lowerLimit + ", upperLimit=" + upperLimit + "]";
   }
 }

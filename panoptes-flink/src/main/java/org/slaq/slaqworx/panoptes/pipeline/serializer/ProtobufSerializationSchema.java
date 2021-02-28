@@ -16,16 +16,17 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
 /**
- * A convenient base class for implementing {@code KafkaSerializationSchema}e that delegate to a
- * {@code ProtobufSerializer}.
+ * A convenient base class for implementing {@link KafkaSerializationSchema}e that delegate to a
+ * {@link ProtobufSerializer}.
  *
  * @param <T>
  *     the type to be serialized
  *
  * @author jeremy
  */
-public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable> implements
-    KafkaSerializationSchema<T>, Provider<AssetCache>, PortfolioProvider, SecurityProvider {
+public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable>
+    implements KafkaSerializationSchema<T>, Provider<AssetCache>, PortfolioProvider,
+    SecurityProvider {
   private static final long serialVersionUID = 1L;
 
   private final String topic;
@@ -35,7 +36,7 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
   private transient ProtobufSerializer<T> serializer;
 
   /**
-   * Creates a new {@code ProtobufSerializationSchema} for the given topic.
+   * Creates a new {@link ProtobufSerializationSchema} for the given topic.
    *
    * @param topic
    *     the topic to which this serialization schema is to be applied
@@ -77,19 +78,18 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
   }
 
   /**
-   * Creates a {@code ProtobufSerializer} that can handle this {@code
-   * ProtobufSerializationSchema}'s
+   * Creates a {@link ProtobufSerializer} that can handle this {@link ProtobufSerializationSchema}'s
    * associated type.
    *
-   * @return a {@code ProtobufSerializer}
+   * @return a {@link ProtobufSerializer}
    */
   protected abstract ProtobufSerializer<T> createSerializer();
 
   /**
-   * Obtains (creating, if necessary) a {@code ProtobufSerializer} that can handle this {@code
+   * Obtains (creating, if necessary) a {@link ProtobufSerializer} that can handle this {@link
    * ProtobufSerializationSchema}'s associated type.
    *
-   * @return a {@code ProtobufSerializer}
+   * @return a {@link ProtobufSerializer}
    */
   protected final ProtobufSerializer<T> getSerializer() {
     if (serializer == null) {

@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A key used to reference {@code Position}s.
+ * A key used to reference {@link Position}s.
  *
  * @author jeremy
  */
@@ -11,7 +11,7 @@ public class PositionKey implements ProtobufSerializable {
   private final String id;
 
   /**
-   * Creates a new {@code PositionKey} with the given ID.
+   * Creates a new {@link PositionKey} with the given ID.
    *
    * @param id
    *     the ID to assign to the key, or {@code null} to generate one
@@ -36,7 +36,7 @@ public class PositionKey implements ProtobufSerializable {
   }
 
   /**
-   * Obtains this {@code PositionKey}'s ID.
+   * Obtains this {@link PositionKey}'s ID.
    *
    * @return the ID underlying this key
    */

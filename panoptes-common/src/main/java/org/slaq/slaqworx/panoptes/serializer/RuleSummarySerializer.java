@@ -8,13 +8,13 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code RuleSummary}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link RuleSummary}.
  *
  * @author jeremy
  */
 public class RuleSummarySerializer implements ProtobufSerializer<RuleSummary> {
   /**
-   * Creates a new {@code RuleSummarySerializer}.
+   * Creates a new {@link RuleSummarySerializer}.
    */
   public RuleSummarySerializer() {
     // nothing to do

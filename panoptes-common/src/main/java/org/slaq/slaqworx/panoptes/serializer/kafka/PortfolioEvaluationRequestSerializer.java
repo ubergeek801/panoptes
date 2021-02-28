@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.serializer.kafka;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 
 /**
- * A {@code KafkaSerializer} which (de)serializes the state of a {@code
+ * A {@link KafkaSerializer} which (de)serializes the state of a {@link
  * PortfolioEvaluationRequest}.
  *
  * @author jeremy
@@ -11,7 +11,7 @@ import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 public class PortfolioEvaluationRequestSerializer
     extends KafkaSerializer<PortfolioEvaluationRequest> {
   /**
-   * Creates a new {@code PortfolioEvaluationRequestSerializer}. Kafka requires a public default
+   * Creates a new {@link PortfolioEvaluationRequestSerializer}. Kafka requires a public default
    * constructor.
    */
   public PortfolioEvaluationRequestSerializer() {

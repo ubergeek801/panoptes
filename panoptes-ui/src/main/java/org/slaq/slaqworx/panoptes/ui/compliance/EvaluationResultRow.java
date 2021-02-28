@@ -1,13 +1,16 @@
 package org.slaq.slaqworx.panoptes.ui.compliance;
 
 import java.util.stream.Stream;
+import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
+import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
- * {@code EvaluationResultRow} is an interface that facilitates adaptation of {@code
- * EvaluationResult}s into a tabular (or hierarchical/tabular hybrid) projection. Note that any data
- * accessor method may return {@code null} if the value is not appropriate for the current hierarchy
- * level, in addition to the usual reasons.
+ * An interface that facilitates adaptation of {@link EvaluationResult}s into a tabular (or
+ * hierarchical/tabular hybrid) projection. Note that any data accessor method may return {@code
+ * null} if the value is not appropriate for the current hierarchy level, in addition to the usual
+ * reasons.
  *
  * @author jeremy
  */
@@ -18,44 +21,44 @@ public interface EvaluationResultRow {
    * @return the value associated with this row's result (if value-based), or {@code null} if it
    *     does not exist (Boolean-based or value-based with no benchmark specified)
    */
-  Double getBenchmarkValue();
+  public Double getBenchmarkValue();
 
   /**
    * Obtains the number of children of this row.
    *
    * @return this row's number of children
    */
-  int getChildCount();
+  public int getChildCount();
 
   /**
-   * Obtains this row's children as a {@code Stream}.
+   * Obtains this row's children as a {@link Stream}.
    *
-   * @return a {@code Stream} of this row's children
+   * @return a {@link Stream} of this row's children
    */
-  Stream<EvaluationResultRow> getChildren();
+  public Stream<EvaluationResultRow> getChildren();
 
   /**
-   * Obtains the {@code EvaluationGroup} corresponding to this row's result, in {@code String}
+   * Obtains the {@link EvaluationGroup} corresponding to this row's result, in {@link String}
    * form.
    *
-   * @return a {@code String} representation of this row's {@code EvaluationGroup}
+   * @return a {@link String} representation of this row's {@link EvaluationGroup}
    */
-  String getGroup();
+  public String getGroup();
 
   /**
-   * Obtains a (more or less) human-readable description of the {@code Rule} that produced this
+   * Obtains a (more or less) human-readable description of the {@link Rule} that produced this
    * row's result.
    *
-   * @return the {@code Rule} description
+   * @return the {@link Rule} description
    */
-  String getRuleDescription();
+  public String getRuleDescription();
 
   /**
-   * Obtains the {@code Threshold} associated with this row's result.
+   * Obtains the {@link Threshold} associated with this row's result.
    *
-   * @return the {@code Threshold} applied by the {@code Rule} that generated this row's result
+   * @return the {@link Threshold} applied by the {@link Rule} that generated this row's result
    */
-  Threshold getThreshold();
+  public Threshold getThreshold();
 
   /**
    * Obtains the value associated with this row's result.
@@ -63,12 +66,12 @@ public interface EvaluationResultRow {
    * @return the value associated with this row's result (if value-based), or {@code null} if it
    *     does not exist (Boolean-based)
    */
-  Double getValue();
+  public Double getValue();
 
   /**
-   * Indicates whether the {@code Rule} evaluation associated with this row passed.
+   * Indicates whether the {@link Rule} evaluation associated with this row passed.
    *
    * @return {@code true} if the evaluation passed, {@code false} otherwise
    */
-  Boolean isPassed();
+  public Boolean isPassed();
 }

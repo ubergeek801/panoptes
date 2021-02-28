@@ -1,16 +1,22 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapLoader;
+import com.hazelcast.map.MapStore;
 import com.hazelcast.map.MapStoreFactory;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import java.util.Properties;
 import javax.inject.Singleton;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
- * A {@code MapStoreFactory} that provides {@code MapStore}s for the cached {@code Map}s (e.g.
- * {@code Portfolio}, {@code Position}, {@code Rule}, {@code Security}).
+ * A {@link MapStoreFactory} that provides {@link MapStore}s for the cached {@link IMap}s (e.g.
+ * {@link Portfolio}, {@link Position}, {@link Rule}, {@link Security}).
  *
  * @author jeremy
  */
@@ -23,39 +29,38 @@ public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object>
   private final SecurityMapStore securityMapStore;
 
   /**
-   * Creates a new {@code HazelcastMapStoreFactory}. Restricted because instances of this class
-   * should be obtained from the {@code ApplicationContext}.
+   * Creates a new {@link HazelcastMapStoreFactory}. Restricted because instances of this class
+   * should be obtained from the {@link ApplicationContext}.
    *
    * @param portfolioMapStore
-   *     the {@code MapStore} to use for the {@code Portfolio} cache
+   *     the {@link MapStore} to use for the {@link Portfolio} cache
    * @param positionMapStore
-   *     the {@code MapStore} to use for the {@code Position} cache
+   *     the {@link MapStore} to use for the {@link Position} cache
    * @param ruleMapStore
-   *     the {@code MapStore} to use for the {@code Rule} cache
+   *     the {@link MapStore} to use for the {@link Rule} cache
    * @param securityMapStore
-   *     the {@code MapStore} to use for the {@code Security} cache
+   *     the {@link MapStore} to use for the {@link Security} cache
    */
   protected HazelcastMapStoreFactory(PortfolioMapStore portfolioMapStore,
-                                     PositionMapStore positionMapStore, RuleMapStore ruleMapStore,
-                                     SecurityMapStore securityMapStore) {
+      PositionMapStore positionMapStore, RuleMapStore ruleMapStore,
+      SecurityMapStore securityMapStore) {
     this.portfolioMapStore = portfolioMapStore;
     this.positionMapStore = positionMapStore;
     this.ruleMapStore = ruleMapStore;
     this.securityMapStore = securityMapStore;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public MapLoader newMapStore(String mapName, Properties properties) {
     switch (mapName) {
-      case AssetCache.PORTFOLIO_CACHE_NAME:
-        return portfolioMapStore;
-      case AssetCache.POSITION_CACHE_NAME:
-        return positionMapStore;
-      case AssetCache.RULE_CACHE_NAME:
-        return ruleMapStore;
-      case AssetCache.SECURITY_CACHE_NAME:
-        return securityMapStore;
+    case AssetCache.PORTFOLIO_CACHE_NAME:
+      return portfolioMapStore;
+    case AssetCache.POSITION_CACHE_NAME:
+      return positionMapStore;
+    case AssetCache.RULE_CACHE_NAME:
+      return ruleMapStore;
+    case AssetCache.SECURITY_CACHE_NAME:
+      return securityMapStore;
     }
 
     // TODO throw a better exception

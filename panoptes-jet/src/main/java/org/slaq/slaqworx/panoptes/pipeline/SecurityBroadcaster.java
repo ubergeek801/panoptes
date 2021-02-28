@@ -8,8 +8,8 @@ import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 
 /**
- * A {@code FunctionEx} which broadcasts {@code Security} updates as {@code HeldSecurityEvent}s, one
- * for each known portfolio.
+ * A {@link FunctionEx} which broadcasts {@link Security} updates as {@link SecurityUpdateEvent}s,
+ * one for each known portfolio.
  *
  * @author jeremy
  */

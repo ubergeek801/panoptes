@@ -14,8 +14,7 @@ import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code TotalMarketValuePositionCalculatorTest} tests the functionality of the {@code
- * TotalMarketValuePositionCalculator}.
+ * Tests the functionality of the {@link TotalMarketValuePositionCalculator}.
  *
  * @author jeremy
  */
@@ -28,8 +27,8 @@ public class TotalMarketValuePositionCalculatorTest {
     TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
     TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
-    Security dummySecurity = securityProvider.newSecurity("dummy",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 2d));
+    Security dummySecurity =
+        securityProvider.newSecurity("dummy", SecurityAttribute.mapOf(SecurityAttribute.price, 2d));
 
     HashSet<Position> positions = new HashSet<>();
     positions.add(new SimplePosition(100, dummySecurity.getKey()));
@@ -37,8 +36,8 @@ public class TotalMarketValuePositionCalculatorTest {
     positions.add(new SimplePosition(300, dummySecurity.getKey()));
     Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
 
-    double totalMarketValue = calculator.calculate(
-        portfolio.getPositionsWithContext(TestUtil.defaultTestEvaluationContext()));
+    double totalMarketValue = calculator
+        .calculate(portfolio.getPositionsWithContext(TestUtil.defaultTestEvaluationContext()));
     // the total should merely be the sum of the (amounts * price)
     assertEquals(1200, totalMarketValue, TestUtil.EPSILON, "unexpected total market value");
   }

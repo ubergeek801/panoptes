@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.data;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,12 +15,13 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroupClassifier;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.serializer.RuleSerializer;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 
 /**
- * A Hazelcast {@code MapStore} that provides {@code Rule} persistence services.
+ * A {@link HazelcastMapStore} that provides {@link Rule} persistence services.
  *
  * @author jeremy
  */
@@ -27,16 +29,15 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
 @Requires(notEnv = {Environment.TEST, "offline"})
 public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
   /**
-   * Creates a new {@code RuleMapStore}. Restricted because instances of this class should be
-   * created through the {@code HazelcastMapStoreFactory}.
+   * Creates a new {@link RuleMapStore}. Restricted because instances of this class should be
+   * created through the {@link HazelcastMapStoreFactory}.
    *
    * @param transactionManager
-   *     the {@code TransactionManager} to use for {@code loadAllKeys()}
+   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
    * @param jdbi
-   *     the {@code Jdbi} instance through which to access the database
+   *     the {@link Jdbi} instance through which to access the database
    */
-  protected RuleMapStore(SynchronousTransactionManager<Connection> transactionManager,
-                         Jdbi jdbi) {
+  protected RuleMapStore(SynchronousTransactionManager<Connection> transactionManager, Jdbi jdbi) {
     super(transactionManager, jdbi);
   }
 
@@ -59,8 +60,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     String classifierTypeName = rs.getString(6);
     String classifierConfiguration = rs.getString(7);
 
-    return RuleSerializer.constructRule(id, description, ruleTypeName, configuration,
-        groovyFilter, classifierTypeName, classifierConfiguration);
+    return RuleSerializer.constructRule(id, description, ruleTypeName, configuration, groovyFilter,
+        classifierTypeName, classifierConfiguration);
   }
 
   @Override
@@ -73,9 +74,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
       classifierConfiguration = null;
     } else {
       classifierType = classifier.getClass().getName();
-      classifierConfiguration = (classifier instanceof JsonConfigurable
-          ? ((JsonConfigurable) classifier).getJsonConfiguration()
-          : null);
+      classifierConfiguration = (classifier instanceof JsonConfigurable ?
+          ((JsonConfigurable) classifier).getJsonConfiguration() : null);
     }
 
     batch.bind(1, rule.getKey().getId());
@@ -104,20 +104,20 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
 
   @Override
   protected String getLoadSelect() {
-    return "select id, description, type, configuration, filter, classifier_type,"
-        + " classifier_configuration from " + getTableName();
+    return "select id, description, type, configuration, filter, classifier_type," +
+        " classifier_configuration from " + getTableName();
   }
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName()
-        + " (id, description, type, configuration, filter, classifier_type,"
-        + " classifier_configuration, partition_id) values (?, ?, ?, ?::json, ?, ?,"
-        + " ?::json, 0) on conflict on constraint rule_pk do update"
-        + " set description = excluded.description, type = excluded.type,"
-        + " configuration = excluded.configuration, filter = excluded.filter,"
-        + " classifier_type = excluded.classifier_type,"
-        + " classifier_configuration = excluded.classifier_configuration";
+    return "insert into " + getTableName() +
+        " (id, description, type, configuration, filter, classifier_type," +
+        " classifier_configuration, partition_id) values (?, ?, ?, ?::json, ?, ?," +
+        " ?::json, 0) on conflict on constraint rule_pk do update" +
+        " set description = excluded.description, type = excluded.type," +
+        " configuration = excluded.configuration, filter = excluded.filter," +
+        " classifier_type = excluded.classifier_type," +
+        " classifier_configuration = excluded.classifier_configuration";
   }
 
   @Override

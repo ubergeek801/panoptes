@@ -11,8 +11,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * {@code TradeEvaluationResultSerializerTest} tests the functionality of the {@code
- * TradeEvaluationResultSerializer}.
+ * Tests the functionality of the {@link TradeEvaluationResultSerializer}.
  *
  * @author jeremy
  */
@@ -54,8 +53,7 @@ public class TradeEvaluationResultSerializerTest {
     byte[] buffer = serializer.write(result);
     TradeEvaluationResult deserialized = serializer.read(buffer);
 
-    assertEquals(tradeKey, deserialized.getTradeKey(),
-        "deserialized key should equals() original");
+    assertEquals(tradeKey, deserialized.getTradeKey(), "deserialized key should equals() original");
     assertEquals(result.getImpacts(), deserialized.getImpacts(),
         "deserialized impacts should equals() original");
   }

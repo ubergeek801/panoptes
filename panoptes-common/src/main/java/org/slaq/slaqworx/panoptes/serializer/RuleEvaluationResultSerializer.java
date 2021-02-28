@@ -11,13 +11,13 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResu
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code RuleEvaluationResult}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link RuleEvaluationResult}.
  *
  * @author jeremy
  */
 public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEvaluationResult> {
   /**
-   * Creates a new {@code RuleEvaluationResultSerializer}.
+   * Creates a new {@link RuleEvaluationResultSerializer}.
    */
   public RuleEvaluationResultSerializer() {
     // nothing to do

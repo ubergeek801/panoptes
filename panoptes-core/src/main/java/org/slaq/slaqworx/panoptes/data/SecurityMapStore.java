@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.data;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * A Hazelcast {@code MapStore} that provides {@code Security} persistence services.
+ * A {@link HazelcastMapStore} that provides {@link Security} persistence services.
  *
  * @author jeremy
  */
@@ -25,24 +26,24 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 @Requires(notEnv = {Environment.TEST, "offline"})
 public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
   /**
-   * Creates a new {@code SecurityMapStore}. Restricted because instances of this class should be
-   * created through the {@code HazelcastMapStoreFactory}.
+   * Creates a new {@link SecurityMapStore}. Restricted because instances of this class should be
+   * created through the {@link HazelcastMapStoreFactory}.
    *
    * @param transactionManager
-   *     the {@code TransactionManager} to use for {@code loadAllKeys()}
+   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
    * @param jdbi
-   *     the {@code Jdbi} instance through which to access the database
+   *     the {@link Jdbi} instance through which to access the database
    */
   protected SecurityMapStore(SynchronousTransactionManager<Connection> transactionManager,
-                             Jdbi jdbi) {
+      Jdbi jdbi) {
     super(transactionManager, jdbi);
   }
 
   @Override
   @Transactional
   public void delete(SecurityKey key) {
-    getJdbi().withHandle(handle -> handle
-        .execute("delete from " + getTableName() + " where id = ?", key.getId()));
+    getJdbi().withHandle(
+        handle -> handle.execute("delete from " + getTableName() + " where id = ?", key.getId()));
   }
 
   @Override
@@ -61,8 +62,8 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
       jsonAttributes = SerializerUtil.attributesToJson(security.getAttributes().asMap());
     } catch (Exception e) {
       // TODO throw a better exception
-      throw new RuntimeException(
-          "could not serialize SecurityAttributes for " + security.getKey(), e);
+      throw new RuntimeException("could not serialize SecurityAttributes for " + security.getKey(),
+          e);
     }
 
     batch.bind(1, security.getKey().getId());
@@ -92,9 +93,9 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() + " (id, hash, attributes, partition_id)"
-        + " values (?, ?, ?::json, 0) on conflict on constraint security_pk do update"
-        + " set hash = excluded.hash, attributes = excluded.attributes";
+    return "insert into " + getTableName() + " (id, hash, attributes, partition_id)" +
+        " values (?, ?, ?::json, 0) on conflict on constraint security_pk do update" +
+        " set hash = excluded.hash, attributes = excluded.attributes";
   }
 
   @Override

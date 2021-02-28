@@ -1,7 +1,9 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import com.hazelcast.map.MapLoader;
 import io.micronaut.transaction.SynchronousTransactionManager;
 import io.micronaut.transaction.TransactionDefinition;
+import io.micronaut.transaction.TransactionManager;
 import io.micronaut.transaction.TransactionStatus;
 import java.io.Closeable;
 import java.io.IOException;
@@ -13,10 +15,10 @@ import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 
 /**
- * A {@code Closeable} {@code ResultIterable} that retrieves keys on behalf of a Hazelcast {@code
+ * A {@link Closeable} {@link ResultIterable} that retrieves keys on behalf of a Hazelcast {@link
  * MapLoader} (for use with the {@code loadAllKeys()} method) and performs post-query cleanup.
  * Hazelcast promises to call {@code close()} when it completes iterating through the results, at
- * which time the open transaction is completed and the {@code Jdbi} handle is closed.
+ * which time the open transaction is completed and the {@link Jdbi} handle is closed.
  *
  * @param <K>
  *     the type of the keys to be loaded
@@ -33,19 +35,19 @@ public class KeyIterable<K> implements ResultIterable<K>, Closeable {
   private Handle jdbiHandle;
 
   /**
-   * Creates a new {@code KeyIterable}.
+   * Creates a new {@link KeyIterable}.
    *
    * @param transactionManager
-   *     the {@code TransactionManager} to use for {@code loadAllKeys()}
+   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
    * @param jdbi
-   *     the {@code Jdbi} instance to use for database operations
+   *     the {@link Jdbi} instance to use for database operations
    * @param query
    *     the key retrieval query to be used
    * @param keyMapper
-   *     the {@code RowMapper} to be used to map key results
+   *     the {@link RowMapper} to be used to map key results
    */
   public KeyIterable(SynchronousTransactionManager<Connection> transactionManager, Jdbi jdbi,
-                     String query, RowMapper<K> keyMapper) {
+      String query, RowMapper<K> keyMapper) {
     this.transactionManager = transactionManager;
     this.jdbi = jdbi;
     this.query = query;

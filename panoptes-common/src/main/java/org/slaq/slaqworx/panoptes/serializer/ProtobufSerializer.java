@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * A simple (de)serializer interface which enforces that serializable types are marked with the
- * {@code ProtobufSerializable} interface.
+ * {@link ProtobufSerializable} interface.
  *
  * @param <T>
  *     the type of serialized object

@@ -6,8 +6,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
 /**
- * A convenient base class for implementing {@code KafkaDeserializationSchema}e that delegate to a
- * {@code ProtobufSerializer}.
+ * A convenient base class for implementing {@link KafkaDeserializationSchema}e that delegate to a
+ * {@link ProtobufSerializer}.
  *
  * @param <T>
  *     the type to be deserialized
@@ -21,7 +21,7 @@ public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializab
   private transient ProtobufSerializer<T> serializer;
 
   /**
-   * Creates a new {@code ProtobufDeserializationSchema}.
+   * Creates a new {@link ProtobufDeserializationSchema}.
    */
   protected ProtobufDeserializationSchema() {
     // nothing to do
@@ -38,17 +38,17 @@ public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializab
   }
 
   /**
-   * Creates a {@code ProtobufSerializer} instance appropriate for the handled type.
+   * Creates a {@link ProtobufSerializer} instance appropriate for the handled type.
    *
-   * @return a {@code ProtobufSerializer}
+   * @return a {@link ProtobufSerializer}
    */
   protected abstract ProtobufSerializer<T> createSerializer();
 
   /**
-   * Obtains the singleton {@code ProtobufSerializer}, creating it if necessary using {@code
-   * createProtobufSerializer()}.
+   * Obtains the singleton {@link ProtobufSerializer}, creating it if necessary using {@link
+   * #createSerializer()}.
    *
-   * @return a {@code ProtobufSerializer}
+   * @return a {@link ProtobufSerializer}
    */
   protected final ProtobufSerializer<T> getSerializer() {
     if (serializer == null) {

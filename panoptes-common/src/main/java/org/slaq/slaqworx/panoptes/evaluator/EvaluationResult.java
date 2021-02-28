@@ -5,14 +5,16 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * Aggregates {@code RuleResult}s for a single {@code Rule} evaluation.
+ * Aggregates {@link ValueResult}s for a single {@link Rule} evaluation.
  *
  * @author jeremy
  */
@@ -23,32 +25,32 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
   private final Map<EvaluationGroup, ValueResult> proposedResults;
 
   /**
-   * Creates a new {@code EvaluationResult} for the specified {@code Rule} using the given grouped
-   * {@code RuleResult}s.
+   * Creates a new {@link EvaluationResult} for the specified {@link Rule} using the given grouped
+   * {@link ValueResult}s.
    *
    * @param ruleKey
-   *     the key indicating the {@code Rule} for which the results were produced
+   *     the key indicating the {@link Rule} for which the results were produced
    * @param results
-   *     a {@code Map} containing the grouped evaluation results
+   *     a {@link Map} containing the grouped evaluation results
    */
   public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, ValueResult> results) {
     this(ruleKey, results, null);
   }
 
   /**
-   * Creates a new {@code EvaluationResult} for the specified {@code Rule} using the given grouped
-   * {@code RuleResult}s and proposed {@code RuleResult}s.
+   * Creates a new {@link EvaluationResult} for the specified {@link Rule} using the given grouped
+   * {@link ValueResult}s and proposed {@link ValueResult}s.
    *
    * @param ruleKey
-   *     the key indicating the {@code Rule} for which the results were produced
+   *     the key indicating the {@link Rule} for which the results were produced
    * @param results
-   *     a {@code Map} containing the grouped evaluation results
+   *     a {@link Map} containing the grouped evaluation results
    * @param proposedResults
-   *     a (possibly {@code null} {@code Map} containing the grouped evaluation results of a
-   *     proposed set of {@code Position}s, if requested
+   *     a (possibly {@code null} {@link Map} containing the grouped evaluation results of a
+   *     proposed set of {@link Position}s, if requested
    */
   public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, ValueResult> results,
-                          Map<EvaluationGroup, ValueResult> proposedResults) {
+      Map<EvaluationGroup, ValueResult> proposedResults) {
     this.ruleKey = ruleKey;
     this.results = results;
     this.proposedResults = (proposedResults == null ? Collections.emptyMap() : proposedResults);
@@ -67,8 +69,8 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
     }
     EvaluationResult other = (EvaluationResult) obj;
 
-    return Objects.equals(proposedResults, other.proposedResults)
-        && Objects.equals(results, other.results) && Objects.equals(ruleKey, other.ruleKey);
+    return Objects.equals(proposedResults, other.proposedResults) &&
+        Objects.equals(results, other.results) && Objects.equals(ruleKey, other.ruleKey);
   }
 
   @Override
@@ -82,7 +84,7 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
    * @param group
    *     the group for which to obtain proposed results
    *
-   * @return a {@code RuleResult} describing the requested proposed results, or {@code null} if
+   * @return a {@link ValueResult} describing the requested proposed results, or {@code null} if
    *     there were no proposed results for the specified group
    */
   public ValueResult getProposedResult(EvaluationGroup group) {
@@ -90,9 +92,10 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
   }
 
   /**
-   * Obtains the proposed results aggregated by this {@code EvaluationResult}.
+   * Obtains the proposed results aggregated by this {@link EvaluationResult}.
    *
-   * @return a {@code Map} of {@code EvaluationGroup} to its corresponding proposed result
+   * @return a {@link Map} relating each {@link EvaluationGroup} to its corresponding proposed
+   *     result
    */
   public Map<EvaluationGroup, ValueResult> getProposedResults() {
     return proposedResults;
@@ -104,26 +107,26 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
    * @param group
    *     the group for which to obtain results
    *
-   * @return a {@code RuleResult} describing the requested results, or {@code null} if there were no
-   *     results for the specified group
+   * @return a {@link ValueResult} describing the requested results, or {@code null} if there were
+   *     no results for the specified group
    */
   public ValueResult getResult(EvaluationGroup group) {
     return results.get(group);
   }
 
   /**
-   * Obtains the results aggregated by this {@code EvaluationResult}.
+   * Obtains the results aggregated by this {@link EvaluationResult}.
    *
-   * @return a {@code Map} of {@code EvaluationGroup} to its corresponding result
+   * @return a {@link Map} relating each {@link EvaluationGroup} to its corresponding result
    */
   public Map<EvaluationGroup, ValueResult> getResults() {
     return results;
   }
 
   /**
-   * Obtains the key identifying the {@code Rule} for which these results were produced.
+   * Obtains the key identifying the {@link Rule} for which these results were produced.
    *
-   * @return a {@code RuleKey}
+   * @return a {@link RuleKey}
    */
   public RuleKey getRuleKey() {
     return ruleKey;
@@ -147,7 +150,7 @@ public class EvaluationResult implements Keyed<RuleKey>, ProtobufSerializable {
   /**
    * Obtains the number of aggregated groups/results.
    *
-   * @return the number of results in this {@code EvaluationResult}
+   * @return the number of results in this {@link EvaluationResult}
    */
   public int size() {
     return results.size();

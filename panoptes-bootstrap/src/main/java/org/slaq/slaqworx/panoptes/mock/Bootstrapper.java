@@ -31,9 +31,20 @@ import org.slf4j.LoggerFactory;
 @Requires(env = {"bootstrap"})
 public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(Bootstrapper.class);
+  private final KafkaProducer kafkaProducer;
 
   /**
-   * Executes the {@code Bootstrapper} application.
+   * Creates a {@link Bootstrapper} that publishes using the given {@link KafkaProducer}.
+   *
+   * @param kafkaProducer
+   *     the {@link KafkaProducer} with which to publish events to Kafka
+   */
+  protected Bootstrapper(KafkaProducer kafkaProducer) {
+    this.kafkaProducer = kafkaProducer;
+  }
+
+  /**
+   * Executes the {@link Bootstrapper} application.
    *
    * @param args
    *     the program arguments (unused)
@@ -43,18 +54,6 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
         .environments("bootstrap", "offline").args(args).start()) {
       // nothing else to do
     }
-  }
-
-  private final KafkaProducer kafkaProducer;
-
-  /**
-   * Creates a {@code Bootstrapper} that publishes using the given {@code KafkaProducer}.
-   *
-   * @param kafkaProducer
-   *     the {@code KafkaProducer} with which to publish events to Kafka
-   */
-  protected Bootstrapper(KafkaProducer kafkaProducer) {
-    this.kafkaProducer = kafkaProducer;
   }
 
   /**
@@ -92,8 +91,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
         PimcoBenchmarkDataSource.getInstance().getBenchmarkMap();
 
     LOG.info("publishing {} benchmarks", benchmarks.size());
-    benchmarks.forEach(
-        (k, b) -> kafkaProducer.publishBenchmarkEvent(k, new PortfolioDataEvent(b)));
+    benchmarks.forEach((k, b) -> kafkaProducer.publishBenchmarkEvent(k, new PortfolioDataEvent(b)));
     LOG.info("published benchmarks");
   }
 
@@ -117,8 +115,8 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     }
 
     LOG.info("publishing {} portfolios", portfolios.size());
-    portfolios.forEach(
-        p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
+    portfolios
+        .forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
     LOG.info("published portfolios");
   }
 
@@ -130,8 +128,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
    */
   protected void bootstrapSecurities() throws IOException {
     // simply publish all known securities to Kafka
-    Map<SecurityKey, Security> securities =
-        PimcoBenchmarkDataSource.getInstance().getSecurityMap();
+    Map<SecurityKey, Security> securities = PimcoBenchmarkDataSource.getInstance().getSecurityMap();
 
     LOG.info("publishing {} securities", securities.size());
     securities.forEach((k, s) -> kafkaProducer.publishSecurity(k, s));

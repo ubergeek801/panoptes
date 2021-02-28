@@ -17,29 +17,29 @@ import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
 /**
- * {@code PanoptesUIConfiguration} is a Micronaut {@code Factory} that provides {@code Bean}s
- * related to the experimental Vaadin user interface.
+ * A Micronaut {@link Factory} that provides {@link Bean}s related to the experimental Vaadin user
+ * interface.
  *
  * @author jeremy
  */
 @Factory
 public class PanoptesUIConfiguration {
   /**
-   * Creates a new {@code PanoptesUIConfiguration}. Restricted because instances of this class
-   * should be obtained through the {@code ApplicationContext} (if it is needed at all).
+   * Creates a new {@link PanoptesUIConfiguration}. Restricted because instances of this class
+   * should be obtained through the {@link ApplicationContext} (if it is needed at all).
    */
   protected PanoptesUIConfiguration() {
     // nothing to do
   }
 
   /**
-   * Provides a Jetty {@code Server} to host the Vaadin interface, running alongside the Micronaut
+   * Provides a Jetty {@link Server} to host the Vaadin interface, running alongside the Micronaut
    * server.
    *
    * @param vaadinServlet
-   *     {@code VaadinServlet} to host in the server
+   *     the {@link VaadinServlet} to host in the server
    *
-   * @return a {@code Server}
+   * @return a {@link Server}
    */
   @Bean
   @Named("vaadinServer")
@@ -49,12 +49,12 @@ public class PanoptesUIConfiguration {
     WebAppContext context = new WebAppContext();
     context.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
     context.setContextPath("/");
-    context.setBaseResource(
-        Resource.newResource(getClass().getClassLoader().getResource("ui")));
+    context.setBaseResource(Resource.newResource(getClass().getClassLoader().getResource("ui")));
     context.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
     context.setConfigurationDiscovered(true);
-    context.setConfigurations(new Configuration[] {new AnnotationConfiguration(),
-        new WebInfConfiguration(), new WebXmlConfiguration(), new MetaInfConfiguration()});
+    context.setConfigurations(
+        new Configuration[] {new AnnotationConfiguration(), new WebInfConfiguration(),
+            new WebXmlConfiguration(), new MetaInfConfiguration()});
     context.getServletContext().setExtendedListenerTypes(true);
     context.addServlet(new ServletHolder(vaadinServlet), "/*");
 
@@ -64,12 +64,12 @@ public class PanoptesUIConfiguration {
   }
 
   /**
-   * Obtains a {@code VaadinServlet} instance.
+   * Obtains a {@link VaadinServlet} instance.
    *
    * @param applicationContext
-   *     the {@code ApplicationContext} to provide to the created servlet
+   *     the {@link ApplicationContext} to provide to the created servlet
    *
-   * @return a {@code VaadinServlet}
+   * @return a {@link VaadinServlet}
    */
   @Bean
   protected VaadinServlet vaadinServlet(ApplicationContext applicationContext) {

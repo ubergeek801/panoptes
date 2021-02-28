@@ -3,16 +3,16 @@ package org.slaq.slaqworx.panoptes.rule;
 import java.util.stream.Stream;
 
 /**
- * The interface for a service that provides a predetermined set of {@code Rule}s.
+ * The interface for a service that provides a predetermined set of {@link Rule}s.
  *
  * @author jeremy
  */
 @FunctionalInterface
 public interface RulesProvider {
   /**
-   * Obtains the {@code Rules} furnished by this {@code RulesProvider}.
+   * Obtains the {@link Rule}s furnished by this {@link RulesProvider}.
    *
-   * @return the {@code Rules} furnished by this {@code RulesProvider}
+   * @return the {@link Rule}s furnished by this {@link RulesProvider}
    */
-  Stream<Rule> getRules();
+  public Stream<Rule> getRules();
 }

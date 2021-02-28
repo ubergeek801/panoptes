@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
- * {@code SecurityKeySerializerTest} tests the functionality of the {@code SecurityKeySerializer}.
+ * {@link SecurityKeySerializerTest} tests the functionality of the {@link SecurityKeySerializer}.
  *
  * @author jeremy
  */

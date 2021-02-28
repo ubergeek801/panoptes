@@ -2,11 +2,13 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
- * A {@code Rule} which stipulates limits on values that can be calculated on a {@code Portfolio}'s
+ * A {@link Rule} which stipulates limits on values that can be calculated on a {@link Portfolio}'s
  * composition, either in absolute terms or relative to a benchmark.
  *
  * @author jeremy
@@ -18,27 +20,26 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   private final Double upperLimit;
 
   /**
-   * Creates a new {@code LimitRule} with the given parameters.
+   * Creates a new {@link LimitRule} with the given parameters.
    *
    * @param key
-   *     the unique key of this {@code Rule}, or {@code null} to generate one
+   *     the unique key of this {@link Rule}, or {@code null} to generate one
    * @param description
-   *     the {@code Rule} description
+   *     the {@link Rule} description
    * @param positionFilter
-   *     the (possibly {@code null}) filter to be applied to {@code Position}s during
-   *     evaluation of
-   *     the {@code Rule}
+   *     the (possibly {@code null}) filter to be applied to {@link Position}s during evaluation of
+   *     the {@link Rule}
    * @param lowerLimit
-   *     the lower limit of acceptable concentration values
+   *     the (inclusive) lower limit of acceptable concentration values
    * @param upperLimit
-   *     the upper limit of acceptable concentration values
+   *     the (inclusive) upper limit of acceptable concentration values
    * @param groupClassifier
-   *     the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may also
-   *     implement {@code GroupAggregator}
+   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
+   *     implement {@link GroupAggregator}
    */
   protected LimitRule(RuleKey key, String description,
-                      Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
-                      Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+      Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit,
+      EvaluationGroupClassifier groupClassifier) {
     super(key, description, groupClassifier);
     this.positionFilter = (positionFilter == null ? (p -> true) : positionFilter);
     this.lowerLimit = lowerLimit;
@@ -59,12 +60,6 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   }
 
   @Override
-  public String getJsonConfiguration() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public Double getLowerLimit() {
     return lowerLimit;
   }
@@ -73,8 +68,8 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   public String getParameterDescription() {
     ArrayList<String> descriptions = new ArrayList<>();
     if (positionFilter != null && positionFilter instanceof GroovyPositionFilter) {
-      descriptions.add(
-          "filter=\"" + ((GroovyPositionFilter) positionFilter).getExpression() + "\"");
+      descriptions
+          .add("filter=\"" + ((GroovyPositionFilter) positionFilter).getExpression() + "\"");
     }
     if (lowerLimit != null) {
       descriptions.add("lower=" + lowerLimit);
@@ -103,17 +98,17 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
 
   @Override
   protected final ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-                                   EvaluationContext evaluationContext) {
+      EvaluationContext evaluationContext) {
     double value = getValue(positions, evaluationContext);
 
     // note that for a rule that compares against a benchmark, this will not be the "final
     // answer"; that will be determined by e.g. a BenchmarkComparator
 
-    if (lowerLimit != null && (value != Double.NaN && value < lowerLimit)) {
+    if (lowerLimit != null && (!Double.isNaN(value) && value < lowerLimit)) {
       return new ValueResult(Threshold.BELOW, value);
     }
 
-    if (upperLimit != null && (value == Double.NaN || value > upperLimit)) {
+    if (upperLimit != null && (Double.isNaN(value) || value > upperLimit)) {
       return new ValueResult(Threshold.ABOVE, value);
     }
 
@@ -121,17 +116,16 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   }
 
   /**
-   * Evaluates the {@code Rule} calculation on the given {@code Position}s (which may be the
-   * {@code
+   * Evaluates the {@link Rule} calculation on the given {@link Position}s (which may be the {@link
    * Portfolio} being evaluated, or its related benchmark).
    *
    * @param positions
-   *     a supplier of the {@code Position}s on which to perform the appropriate calculations
+   *     a supplier of the {@link Position}s on which to perform the appropriate calculations
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to calculate
+   *     the {@link EvaluationContext} under which to calculate
    *
    * @return the calculation result
    */
   protected abstract double getValue(PositionSupplier positions,
-                                     EvaluationContext evaluationContext);
+      EvaluationContext evaluationContext);
 }

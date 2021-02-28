@@ -4,24 +4,26 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.RuleSummarizer;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
- * Adapts {@code Portfolio}-level results to a tabular representation. Its children are typically
- * {@code GroupResultAdapter}s.
+ * Adapts {@link Portfolio}-level results to a tabular representation. Its children are typically
+ * {@link GroupResultAdapter}s.
  *
  * @author jeremy
  */
 public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   /**
-   * A {@code Comparator} that compares {@code EvaluationGroup}s lexically by ID.
+   * A {@link Comparator} that compares {@link EvaluationGroup}s lexically by ID.
    */
   private static final Comparator<? super Entry<EvaluationGroup, ValueResult>> groupComparator =
       ((e1, o2) -> e1.getKey().getId().compareTo(o2.getKey().getId()));
@@ -30,16 +32,16 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   private final AssetCache assetCache;
 
   /**
-   * Creates a new {@code PortfolioRuleResultAdapter} adapting the given portfolio-level result and
-   * using the given {@code AssetCache} to resolve cached references.
+   * Creates a new {@link PortfolioRuleResultAdapter} adapting the given portfolio-level result and
+   * using the given {@link AssetCache} to resolve cached references.
    *
    * @param evaluationResult
-   *     the {@code EvaluationResult} to be adapted
+   *     the {@link EvaluationResult} to be adapted
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve cached references
+   *     the {@link AssetCache} to use to resolve cached references
    */
   public PortfolioRuleResultAdapter(Map.Entry<RuleKey, EvaluationResult> evaluationResult,
-                                    AssetCache assetCache) {
+      AssetCache assetCache) {
     this.evaluationResult = evaluationResult;
     this.assetCache = assetCache;
   }
@@ -68,13 +70,12 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   }
 
   /**
-   * Obtains the {@code Rule} associated with this row's evaluation.
+   * Obtains the {@link RuleSummary} associated with this row's evaluation.
    *
-   * @return the evaluated {@code Rule}
+   * @return a {@link RuleSummary} summarizing the evaluated {@link Rule}
    */
   public RuleSummary getRule() {
-    return assetCache.getRuleCache().executeOnKey(evaluationResult.getKey(),
-        new RuleSummarizer());
+    return assetCache.getRuleCache().executeOnKey(evaluationResult.getKey(), new RuleSummarizer());
   }
 
   @Override
@@ -83,9 +84,9 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   }
 
   /**
-   * Obtains an abbreviated {@code Rule} description suitable for repeating in child rows.
+   * Obtains an abbreviated {@link Rule} description suitable for repeating in child rows.
    *
-   * @return a short {@code Rule} description
+   * @return a short {@link Rule} description
    */
   public String getShortRuleDescription() {
     return getRule().getDescription();
@@ -109,10 +110,10 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   }
 
   /**
-   * Obtains a {@code Map} associating each {@code EvaluationGroup} to its corresponding {@code
-   * RuleResult}.
+   * Obtains a {@link Map} associating each {@link EvaluationGroup} to its corresponding {@link
+   * ValueResult}.
    *
-   * @return a {@code Map} associating {@code EvaluationGroup} to {@code RuleResult}
+   * @return a {@link Map} associating {@link EvaluationGroup} to {@link ValueResult}
    */
   protected Map<EvaluationGroup, ValueResult> getGroupResults() {
     return evaluationResult.getValue().getResults();

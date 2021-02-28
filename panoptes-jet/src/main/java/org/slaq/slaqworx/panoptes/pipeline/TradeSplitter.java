@@ -6,10 +6,11 @@ import com.hazelcast.jet.Traversers;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
 import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * A {@code FunctionEx} which splits a {@code Trade} into its constituent {@code Transaction}s,
- * wrapped in {@code TransactionEvent}s for further processing.
+ * A {@link FunctionEx} which splits a {@link Trade} into its constituent {@link Transaction}s,
+ * wrapped in {@link TransactionEvent}s for further processing.
  *
  * @author jeremy
  */

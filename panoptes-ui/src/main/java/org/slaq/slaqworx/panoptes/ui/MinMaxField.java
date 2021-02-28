@@ -10,8 +10,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * {@code MinMaxField} encapsulates a label and pair of input fields to specify a minimum and
- * maximum value for a field (e.g. to specify a filter range).
+ * Encapsulates a label and pair of input fields to specify a minimum and maximum value for a field
+ * (e.g. to specify a filter range).
  *
  * @param <V>
  *     the value type of the contained fields
@@ -25,22 +25,22 @@ public class MinMaxField<V> extends CustomField<Pair<V, V>> {
   private final HasValue<?, V> max;
 
   /**
-   * Creates a {@code MinMaxField}, consisting of the given components, to display and/or input
+   * Creates a {@link MinMaxField}, consisting of the given components, to display and/or input
    * minimum and maximum values for some attribute.
    *
    * @param labelText
    *     the name of the attribute for which the values apply
    * @param min
-   *     a {@code Component} containing the minimum value
+   *     a {@link Component} containing the minimum value
    * @param max
-   *     a {@code Component} containing the maximum value
+   *     a {@link Component} containing the maximum value
    */
   public MinMaxField(String labelText, Component min, Component max) {
     HorizontalLayout outerLayout = new HorizontalLayout();
 
-    @SuppressWarnings("unchecked") HasValue<?, V> minHasValue = (HasValue<?, V>) min;
+    HasValue<?, V> minHasValue = (HasValue<?, V>) min;
     this.min = minHasValue;
-    @SuppressWarnings("unchecked") HasValue<?, V> maxHasValue = (HasValue<?, V>) max;
+    HasValue<?, V> maxHasValue = (HasValue<?, V>) max;
     this.max = maxHasValue;
 
     // unfortunately some components want to overflow their boundaries, so some hackery is

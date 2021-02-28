@@ -3,29 +3,26 @@ package org.slaq.slaqworx.panoptes.asset;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * A {@code PositionSupplier} which provides hierarchies of {@code Position}s, such as by employing
- * "look-through" to {@code Position}s of constituent {@code Portfolio}s, or by providing visibility
- * to a {@code Position}'s individual {@code TaxLot}s.
+ * A {@link PositionSupplier} which provides hierarchies of {@link Position}s, such as by employing
+ * "look-through" to {@link Position}s of constituent {@link Portfolio}s, or by providing visibility
+ * to a {@link Position}'s individual {@link TaxLot}s.
  *
  * @author jeremy
  */
 public interface HierarchicalPositionSupplier extends PositionSupplier {
-  enum PositionHierarchyOption {
-    LOOKTHROUGH, TAXLOT
-  }
-
   /**
-   * Obtains this {@code PositionSupplier}'s {@code Position}s as a (new) {@code Stream}, applying
+   * Obtains this {@link PositionSupplier}'s {@link Position}s as a (new) {@link Stream}, applying
    * the given hierarchy options.
    *
    * @param positionHierarchyOptions
    *     the (possibly empty) hierarchy options to be applied
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the {@code Position}s are being obtained
+   *     the {@link EvaluationContext} in which the {@link Position}s are being obtained
    *
-   * @return a {@code Stream} of {@code Position}s
+   * @return a {@link Stream} of {@link Position}s
    */
   default Stream<? extends Position> getPositions(
       EnumSet<PositionHierarchyOption> positionHierarchyOptions,
@@ -33,8 +30,7 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
     Stream<? extends Position> positionStream = getPositions();
 
     if (positionHierarchyOptions.contains(PositionHierarchyOption.LOOKTHROUGH)) {
-      positionStream =
-          positionStream.flatMap(p -> p.getLookthroughPositions(evaluationContext));
+      positionStream = positionStream.flatMap(p -> p.getLookthroughPositions(evaluationContext));
     }
 
     if (positionHierarchyOptions.contains(PositionHierarchyOption.TAXLOT)) {
@@ -42,5 +38,9 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
     }
 
     return positionStream;
+  }
+
+  enum PositionHierarchyOption {
+    LOOKTHROUGH, TAXLOT
   }
 }

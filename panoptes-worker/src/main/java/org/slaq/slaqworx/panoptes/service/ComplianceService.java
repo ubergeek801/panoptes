@@ -27,30 +27,21 @@ import org.slf4j.LoggerFactory;
  */
 @Controller("/compliance")
 public class ComplianceService {
-  static class ResultState {
-    int numEvaluations;
-    int resultIndex;
-
-    ResultState() {
-      resultIndex = 0;
-    }
-  }
-
   private static final Logger LOG = LoggerFactory.getLogger(ComplianceService.class);
 
   private final ClusterPortfolioEvaluator evaluator;
   private final AssetCache assetCache;
 
   /**
-   * Creates a new {@code ComplianceService}.
+   * Creates a new {@link ComplianceService}.
    *
    * @param clusterPortfolioEvaluator
    *     the evaluator to use for compliance checking
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve cached resources
+   *     the {@link AssetCache} to use to resolve cached resources
    */
   protected ComplianceService(ClusterPortfolioEvaluator clusterPortfolioEvaluator,
-                              AssetCache assetCache) {
+      AssetCache assetCache) {
     evaluator = clusterPortfolioEvaluator;
     this.assetCache = assetCache;
   }
@@ -58,7 +49,7 @@ public class ComplianceService {
   /**
    * Performs a compliance evaluation over all portfolios.
    *
-   * @return a {@code Flowable<String>} providing a JSON stream, where the content structure is
+   * @return a {@link Flowable<String>} providing a JSON stream, where the content structure is
    *     currently in flux
    */
   @Get(uri = "/all", produces = MediaType.APPLICATION_JSON_STREAM)
@@ -90,9 +81,9 @@ public class ComplianceService {
 
             if (++state.resultIndex == numPortfolios) {
               long endTime = System.currentTimeMillis();
-              String message = "processed " + numPortfolios + " Portfolios using "
-                  + state.numEvaluations + " Rule evaluations in "
-                  + (endTime - startTime) + " ms";
+              String message =
+                  "processed " + numPortfolios + " Portfolios using " + state.numEvaluations +
+                      " Rule evaluations in " + (endTime - startTime) + " ms";
               LOG.info(message);
               emitter.onNext("{ \"message\": \"" + message + "\" }");
               emitter.onComplete();
@@ -103,5 +94,14 @@ public class ComplianceService {
     }, BackpressureStrategy.BUFFER);
 
     return response;
+  }
+
+  static class ResultState {
+    int numEvaluations;
+    int resultIndex;
+
+    ResultState() {
+      resultIndex = 0;
+    }
   }
 }

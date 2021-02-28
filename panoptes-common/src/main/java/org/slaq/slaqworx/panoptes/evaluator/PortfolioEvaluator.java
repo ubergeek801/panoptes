@@ -2,13 +2,16 @@ package org.slaq.slaqworx.panoptes.evaluator;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * The interface for the process of evaluating a set of {@code Rule}s against some {@code Portfolio}
+ * The interface for the process of evaluating a set of {@link Rule}s against some {@link Portfolio}
  * and possibly some related benchmark. Processing may be local or distributed based on the
  * implementation.
  *
@@ -16,36 +19,34 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 public interface PortfolioEvaluator {
   /**
-   * Evaluates the given {@code Portfolio} using its associated {@code Rule}s and benchmark (if
+   * Evaluates the given {@link Portfolio} using its associated {@link Rule}s and benchmark (if
    * any).
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} to be evaluated
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} to be evaluated
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to evaluate
+   *     the {@link EvaluationContext} under which to evaluate
    *
-   * @return a {@code CompletableFuture} {@code Map} associating each evaluated {@code Rule} with
+   * @return a {@link CompletableFuture} {@link Map} associating each evaluated {@link Rule} with
    *     its result
    */
-  CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-                                                             EvaluationContext evaluationContext);
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+      EvaluationContext evaluationContext);
 
   /**
-   * Evaluates the combined {@code Position}s of the given {@code Portfolio} and {@code
-   * Transaction}
-   * using the {@code Portfolio} {@code Rule}s and benchmark (if any).
+   * Evaluates the combined {@link Position}s of the given {@link Portfolio} and {@link Transaction}
+   * using the {@link Portfolio} {@link Rule}s and benchmark (if any).
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} to be evaluated
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} to be evaluated
    * @param transaction
-   *     the {@code Transaction} from which to include allocation {@code Position}s for evaluation
+   *     the {@link Transaction} from which to include allocation {@link Position}s for evaluation
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to evaluate
+   *     the {@link EvaluationContext} under which to evaluate
    *
-   * @return a {@code CompletableFuture} {@code Map} associating each evaluated {@code Rule} with
+   * @return a {@link CompletableFuture} {@link Map} associating each evaluated {@link Rule} with
    *     its result
    */
-  CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-                                                             Transaction transaction,
-                                                             EvaluationContext evaluationContext);
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
+      Transaction transaction, EvaluationContext evaluationContext);
 }

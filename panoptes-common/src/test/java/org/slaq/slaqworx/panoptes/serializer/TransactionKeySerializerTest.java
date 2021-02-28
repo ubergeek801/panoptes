@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.trade.TransactionKey;
 
 /**
- * {@code TransactionKeySerializerTest} tests the functionality of the {@code
- * TransactionKeySerializer}.
+ * Tests the functionality of the {@link TransactionKeySerializer}.
  *
  * @author jeremy
  */

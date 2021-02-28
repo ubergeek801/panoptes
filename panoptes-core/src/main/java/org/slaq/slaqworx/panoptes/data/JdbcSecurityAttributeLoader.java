@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import io.micronaut.context.ApplicationContext;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import org.jdbi.v3.core.Jdbi;
@@ -9,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A service that initializes the known {@code SecurityAttribute}s from a JDBC data source.
+ * A service that initializes the known {@link SecurityAttribute}s from a JDBC data source.
  */
 @Singleton
 public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {
@@ -18,11 +19,11 @@ public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {
   private final Jdbi jdbi;
 
   /**
-   * Creates a new {@code JdbcSecurityAttributeLoader} that uses the given {@code JdbcTemplate}.
-   * Restricted because this class should be obtained through the {@code ApplicationContext}.
+   * Creates a new {@link JdbcSecurityAttributeLoader} that uses the given {@link Jdbi}. Restricted
+   * because this class should be obtained through the {@link ApplicationContext}.
    *
    * @param jdbi
-   *     the {@code Jdbi} instance through which to access the database
+   *     the {@link Jdbi} instance through which to access the database
    */
   protected JdbcSecurityAttributeLoader(Jdbi jdbi) {
     this.jdbi = jdbi;
@@ -32,15 +33,15 @@ public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {
   @Transactional
   public void loadSecurityAttributes() {
     jdbi.withHandle(handle -> {
-      int numAttributes = handle.select("select count(*) from security_attribute")
-          .mapTo(Integer.class).one();
+      int numAttributes =
+          handle.select("select count(*) from security_attribute").mapTo(Integer.class).one();
       LOG.info("loading {} SecurityAttributes", numAttributes);
 
       handle.select("select name, index, type from security_attribute").map((rs, ctx) -> {
         String name = rs.getString(1);
         int index = rs.getInt(2);
         String className = rs.getString(3);
-        @SuppressWarnings("rawtypes") Class clazz;
+        Class clazz;
         try {
           clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -48,8 +49,8 @@ public class JdbcSecurityAttributeLoader implements SecurityAttributeLoader {
           LOG.warn("cannot locate class {} for SecurityAttribute {}", className, name);
         }
 
-        @SuppressWarnings("unchecked") SecurityAttribute<?> attribute = SecurityAttribute
-            .of(name, index, clazz, ValueProvider.forClassIfAvailable(clazz));
+        SecurityAttribute<?> attribute =
+            SecurityAttribute.of(name, index, clazz, ValueProvider.forClassIfAvailable(clazz));
         return attribute;
       });
 

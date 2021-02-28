@@ -39,26 +39,25 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
 /**
- * Tests the functionality of the {@code BenchmarkRuleEvaluator}.
+ * Tests the functionality of the {@link BenchmarkRuleEvaluator}.
  *
  * @author jeremy
  */
 public class BenchmarkRuleEvaluatorTest {
   private BenchmarkRuleEvaluator evaluator;
   private KeyedTwoInputStreamOperatorTestHarness<PortfolioKey, PortfolioEvent, Security,
-      RuleEvaluationResult> harness;
+      RuleEvaluationResult>
+      harness;
 
   @BeforeEach
   public void setup() throws Exception {
     evaluator = new BenchmarkRuleEvaluator();
-    CoBroadcastWithKeyedOperator<PortfolioKey, PortfolioEvent, Security,
-        RuleEvaluationResult> evaluatorOperator = new CoBroadcastWithKeyedOperator<>(
-        evaluator, List.of(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR));
-    harness =
-        new KeyedTwoInputStreamOperatorTestHarness<>(evaluatorOperator,
-            ((PortfolioEvent e) -> e.getBenchmarkKey() != null ? e.getBenchmarkKey()
-                : e.getPortfolioKey()),
-            null, TypeInformation.of(PortfolioKey.class));
+    CoBroadcastWithKeyedOperator<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>
+        evaluatorOperator = new CoBroadcastWithKeyedOperator<>(evaluator,
+        List.of(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR));
+    harness = new KeyedTwoInputStreamOperatorTestHarness<>(evaluatorOperator,
+        ((PortfolioEvent e) -> e.getBenchmarkKey() != null ? e.getBenchmarkKey() :
+            e.getPortfolioKey()), null, TypeInformation.of(PortfolioKey.class));
     harness.setup();
     harness.open();
   }
@@ -73,12 +72,14 @@ public class BenchmarkRuleEvaluatorTest {
   @Test
   public void testBenchmarkBeforeSecurities() throws Exception {
     String isin1 = "security1";
-    Security security1 = new Security(Map.of(SecurityAttribute.isin, isin1,
-        SecurityAttribute.duration, 0d, SecurityAttribute.price, 1d));
+    Security security1 = new Security(
+        Map.of(SecurityAttribute.isin, isin1, SecurityAttribute.duration, 0d,
+            SecurityAttribute.price, 1d));
 
     String isin2 = "security2";
-    Security security2 = new Security(Map.of(SecurityAttribute.isin, isin2,
-        SecurityAttribute.duration, 0d, SecurityAttribute.price, 1d));
+    Security security2 = new Security(
+        Map.of(SecurityAttribute.isin, isin2, SecurityAttribute.duration, 0d,
+            SecurityAttribute.price, 1d));
 
     PortfolioKey benchmarkKey = new PortfolioKey("benchmark1", 0);
     SimplePosition benchmarkPosition1 = new SimplePosition(1, security1.getKey());
@@ -95,21 +96,22 @@ public class BenchmarkRuleEvaluatorTest {
     ArrayList<Rule> portfolioRules = new ArrayList<>();
     // a WeightedAverageRule is benchmark-enabled
     RuleKey rule1Key = new RuleKey("rule1");
-    WeightedAverageRule<Double> rule1 = new WeightedAverageRule<>(rule1Key, "rule1", null,
-        SecurityAttribute.duration, 0d, 0d, null);
+    WeightedAverageRule<Double> rule1 =
+        new WeightedAverageRule<>(rule1Key, "rule1", null, SecurityAttribute.duration, 0d, 0d,
+            null);
     portfolioRules.add(rule1);
     // a GenericRule is not benchmark-enabled
     RuleKey rule2Key = new RuleKey("rule2");
     GenericRule rule2 = new GenericRule(rule2Key, "rule2") {
       @Override
       protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-                                 EvaluationContext evaluationContext) {
+          EvaluationContext evaluationContext) {
         return new ValueResult(true);
       }
     };
     portfolioRules.add(rule2);
-    Portfolio portfolio = new Portfolio(portfolioKey, "portfolio1", portfolioPositions,
-        benchmarkKey, portfolioRules);
+    Portfolio portfolio =
+        new Portfolio(portfolioKey, "portfolio1", portfolioPositions, benchmarkKey, portfolioRules);
     PortfolioDataEvent portfolioEvent = new PortfolioDataEvent(portfolio);
 
     harness.processElement2(security1, 0L);
@@ -137,13 +139,11 @@ public class BenchmarkRuleEvaluatorTest {
         Map.of(EvaluationGroup.defaultGroup(), new ValueResult(Threshold.WITHIN, 0)));
     output = harness.getOutput();
     // peek at the output so we can get the event ID
-    @SuppressWarnings("unchecked") RuleEvaluationResult evaluationResult =
+    RuleEvaluationResult evaluationResult =
         ((StreamRecord<RuleEvaluationResult>) output.element()).getValue();
-    StreamRecord<RuleEvaluationResult> expectedResult =
-        new StreamRecord<>(
-            new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
-                EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult),
-            3L);
+    StreamRecord<RuleEvaluationResult> expectedResult = new StreamRecord<>(
+        new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
+            EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult), 3L);
     expectedOutput.add(expectedResult);
     TestHarnessUtil.assertOutputEquals("unexpected output", expectedOutput, output);
   }
@@ -158,12 +158,14 @@ public class BenchmarkRuleEvaluatorTest {
   @Test
   public void testSecuritiesBeforeBenchmark() throws Exception {
     String isin1 = "security1";
-    Security security1 = new Security(Map.of(SecurityAttribute.isin, isin1,
-        SecurityAttribute.duration, 0d, SecurityAttribute.price, 1d));
+    Security security1 = new Security(
+        Map.of(SecurityAttribute.isin, isin1, SecurityAttribute.duration, 0d,
+            SecurityAttribute.price, 1d));
 
     String isin2 = "security2";
-    Security security2 = new Security(Map.of(SecurityAttribute.isin, isin2,
-        SecurityAttribute.duration, 0d, SecurityAttribute.price, 1d));
+    Security security2 = new Security(
+        Map.of(SecurityAttribute.isin, isin2, SecurityAttribute.duration, 0d,
+            SecurityAttribute.price, 1d));
 
     PortfolioKey benchmarkKey = new PortfolioKey("benchmark1", 0);
     SimplePosition benchmarkPosition1 = new SimplePosition(1, security1.getKey());
@@ -180,21 +182,22 @@ public class BenchmarkRuleEvaluatorTest {
     ArrayList<Rule> portfolioRules = new ArrayList<>();
     // a WeightedAverageRule is benchmark-enabled
     RuleKey rule1Key = new RuleKey("rule1");
-    WeightedAverageRule<Double> rule1 = new WeightedAverageRule<>(rule1Key, "rule1", null,
-        SecurityAttribute.duration, 0d, 0d, null);
+    WeightedAverageRule<Double> rule1 =
+        new WeightedAverageRule<>(rule1Key, "rule1", null, SecurityAttribute.duration, 0d, 0d,
+            null);
     portfolioRules.add(rule1);
     // a GenericRule is not benchmark-enabled
     RuleKey rule2Key = new RuleKey("rule2");
     GenericRule rule2 = new GenericRule(rule2Key, "rule2") {
       @Override
       protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-                                 EvaluationContext evaluationContext) {
+          EvaluationContext evaluationContext) {
         return new ValueResult(true);
       }
     };
     portfolioRules.add(rule2);
-    Portfolio portfolio = new Portfolio(portfolioKey, "portfolio1", portfolioPositions,
-        benchmarkKey, portfolioRules);
+    Portfolio portfolio =
+        new Portfolio(portfolioKey, "portfolio1", portfolioPositions, benchmarkKey, portfolioRules);
     PortfolioDataEvent portfolioEvent = new PortfolioDataEvent(portfolio);
 
     harness.processElement2(security1, 0L);
@@ -222,13 +225,11 @@ public class BenchmarkRuleEvaluatorTest {
         Map.of(EvaluationGroup.defaultGroup(), new ValueResult(Threshold.WITHIN, 0)));
     output = harness.getOutput();
     // peek at the output so we can get the event ID
-    @SuppressWarnings("unchecked") RuleEvaluationResult evaluationResult =
+    RuleEvaluationResult evaluationResult =
         ((StreamRecord<RuleEvaluationResult>) output.element()).getValue();
-    StreamRecord<RuleEvaluationResult> expectedResult =
-        new StreamRecord<>(
-            new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
-                EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult),
-            3L);
+    StreamRecord<RuleEvaluationResult> expectedResult = new StreamRecord<>(
+        new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
+            EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult), 3L);
     expectedOutput.add(expectedResult);
     TestHarnessUtil.assertOutputEquals("unexpected output", expectedOutput, output);
   }

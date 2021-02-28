@@ -40,7 +40,7 @@ public class PortfolioTracker implements Serializable, RulesProvider {
   private Portfolio portfolio;
 
   /**
-   * Creates a new {@code PortfolioTracker}.
+   * Creates a new {@link PortfolioTracker}.
    *
    * @param evaluationSource
    *     the type of portfolio (portfolio or benchmark) being tracked
@@ -55,12 +55,12 @@ public class PortfolioTracker implements Serializable, RulesProvider {
    * @param security
    *     the security currently being encountered
    * @param rulesProvider
-   *     a {@code RulesProvider} providing rules to be evaluated
+   *     a {@link RulesProvider} providing rules to be evaluated
    * @param results
-   *     a {@code Collection} to which rule evaluation results, if any, are output
+   *     a {@link Collection} to which rule evaluation results, if any, are output
    */
   public void applySecurity(Security security, RulesProvider rulesProvider,
-                            Collection<RuleEvaluationResult> results) {
+      Collection<RuleEvaluationResult> results) {
     if (portfolio == null) {
       // nothing we can do yet
       return;
@@ -74,7 +74,7 @@ public class PortfolioTracker implements Serializable, RulesProvider {
   /**
    * Obtains the portfolio being tracked in the current process state.
    *
-   * @return a {@code Portfolio}
+   * @return a {@link Portfolio}
    */
   public Portfolio getPortfolio() {
     return portfolio;
@@ -89,7 +89,7 @@ public class PortfolioTracker implements Serializable, RulesProvider {
    * Registers the given portfolio for tracking in the current process state.
    *
    * @param portfolio
-   *     the {@code Portfolio} to be tracked
+   *     the {@link Portfolio} to be tracked
    */
   public void trackPortfolio(Portfolio portfolio) {
     this.portfolio = portfolio;
@@ -99,17 +99,16 @@ public class PortfolioTracker implements Serializable, RulesProvider {
    * Performs a portfolio evaluation and publishes the result.
    *
    * @param results
-   *     the {@code Collection} to which to output compliance results
+   *     the {@link Collection} to which to output compliance results
    * @param portfolio
    *     the portfolio being processed
    * @param securityMap
-   *     an {@code IMap} containing known security information
+   *     an {@link IMap} containing known security information
    * @param rulesProvider
-   *     the {@code RulesProvider} providing the rules to be evaluated
+   *     the {@link RulesProvider} providing the rules to be evaluated
    */
   protected void evaluatePortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
-                                   IMap<SecurityKey, Security> securityMap,
-                                   RulesProvider rulesProvider) {
+      IMap<SecurityKey, Security> securityMap, RulesProvider rulesProvider) {
     // this is questionable but there shouldn't be any other portfolios queried
     PortfolioProvider portfolioProvider = (k -> portfolio);
     SecurityProvider securityProvider = (k, context) -> securityMap.get(k);
@@ -125,10 +124,10 @@ public class PortfolioTracker implements Serializable, RulesProvider {
           new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
               new EvaluationContext(securityProvider, portfolioProvider)).call();
       // enrich the result with some other essential information
-      RuleEvaluationResult ruleEvaluationResult = new RuleEvaluationResult(eventId,
-          portfolio.getKey(), portfolio.getBenchmarkKey(), evaluationSource,
-          rule.isBenchmarkSupported(), rule.getLowerLimit(), rule.getUpperLimit(),
-          evaluationResult);
+      RuleEvaluationResult ruleEvaluationResult =
+          new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),
+              evaluationSource, rule.isBenchmarkSupported(), rule.getLowerLimit(),
+              rule.getUpperLimit(), evaluationResult);
       results.add(ruleEvaluationResult);
       numRules[0]++;
     });
@@ -141,20 +140,20 @@ public class PortfolioTracker implements Serializable, RulesProvider {
    * provided) and performs a compliance evaluation if so.
    *
    * @param results
-   *     the {@code Collection} to which to output compliance results
+   *     the {@link Collection} to which to output compliance results
    * @param portfolio
    *     the portfolio being processed; if {@code null}, then nothing will be done
    * @param currentSecurity
    *     the security being encountered, or {@code null} if a portfolio is being encountered
    * @param securityMap
-   *     an {@code IMap} containing known security information
+   *     an {@link IMap} containing known security information
    * @param rulesProvider
-   *     a {@code RulesProvider} providing the rules to be evaluated; if {@code null} or empty, then
+   *     a {@link RulesProvider} providing the rules to be evaluated; if {@code null} or empty, then
    *     nothing will be done
    */
   protected void processPortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
-                                  Security currentSecurity, IMap<SecurityKey, Security> securityMap,
-                                  RulesProvider rulesProvider) {
+      Security currentSecurity, IMap<SecurityKey, Security> securityMap,
+      RulesProvider rulesProvider) {
     if (portfolio == null) {
       return;
     }
@@ -180,8 +179,7 @@ public class PortfolioTracker implements Serializable, RulesProvider {
           isComplete = false;
           break;
         }
-        if (currentSecurity != null
-            && position.getSecurityKey().equals(currentSecurity.getKey())) {
+        if (currentSecurity != null && position.getSecurityKey().equals(currentSecurity.getKey())) {
           isCurrentSecurityHeld = true;
         }
       }

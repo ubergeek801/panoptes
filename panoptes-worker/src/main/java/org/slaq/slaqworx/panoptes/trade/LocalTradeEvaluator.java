@@ -8,8 +8,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Named;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -22,17 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@code TradeEvaluator} which performs processing on the local node.
+ * A {@link TradeEvaluator} which performs processing on the local node.
  *
  * @author jeremy
  */
 @Prototype
 @Named("local")
 public class LocalTradeEvaluator implements TradeEvaluator {
-  private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
-
   protected static final double ROOM_TOLERANCE = 500;
   protected static final double MIN_ALLOCATION = 1000;
+  private static final Logger LOG = LoggerFactory.getLogger(TradeEvaluator.class);
   private static final double LOG_2 = Math.log(2);
 
   private final PortfolioEvaluator evaluator;
@@ -40,31 +41,29 @@ public class LocalTradeEvaluator implements TradeEvaluator {
   private final SecurityProvider securityProvider;
 
   /**
-   * Creates a new {@code LocalTradeEvaluator}.
+   * Creates a new {@link LocalTradeEvaluator}.
    *
    * @param evaluator
-   *     the {@code PortfolioEvaluator} to use to perform {@code Portfolio}-level evaluations
+   *     the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level evaluations
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve {@code Portfolio} and {@code Security} references
+   *     the {@link AssetCache} to use to resolve {@link Portfolio} and {@link Security} references
    */
-  public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator,
-                             AssetCache assetCache) {
+  public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator, AssetCache assetCache) {
     this(evaluator, assetCache, assetCache);
   }
 
   /**
-   * Creates a new {@code LocalTradeEvaluator}.
+   * Creates a new {@link LocalTradeEvaluator}.
    *
    * @param evaluator
-   *     the {@code PortfolioEvaluator} to use to perform {@code Portfolio}-level evaluations
+   *     the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level evaluations
    * @param portfolioProvider
-   *     the {@code PortfolioProvider} to use to obtain {@code Portfolio} information
+   *     the {@link PortfolioProvider} to use to obtain {@link Portfolio} information
    * @param securityProvider
-   *     the {@code SecurityProvider} to use to obtain {@code Security} information
+   *     the {@link SecurityProvider} to use to obtain {@link Security} information
    */
   public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator,
-                             PortfolioProvider portfolioProvider,
-                             SecurityProvider securityProvider) {
+      PortfolioProvider portfolioProvider, SecurityProvider securityProvider) {
     this.evaluator = evaluator;
     this.portfolioProvider = portfolioProvider;
     this.securityProvider = securityProvider;
@@ -72,19 +71,17 @@ public class LocalTradeEvaluator implements TradeEvaluator {
 
   @Override
   public CompletableFuture<TradeEvaluationResult> evaluate(Trade trade,
-                                                           EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
-    LOG.info("evaluating trade {} with {} allocations", trade.getKey(),
-        trade.getAllocationCount());
+      EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
+    LOG.info("evaluating trade {} with {} allocations", trade.getKey(), trade.getAllocationCount());
     // evaluate the impact on each Portfolio
-    return CompletableFuture.completedFuture(AssetCache.getLocalExecutor().submit(() -> trade
-        .getTransactions().entrySet().parallelStream().map(portfolioTransactionEntry -> {
+    return CompletableFuture.completedFuture(AssetCache.getLocalExecutor().submit(
+        () -> trade.getTransactions().entrySet().parallelStream().map(portfolioTransactionEntry -> {
           PortfolioKey portfolioKey = portfolioTransactionEntry.getKey();
           Transaction transaction = portfolioTransactionEntry.getValue();
 
           try {
-            Map<RuleKey, EvaluationResult> ruleResults = evaluator
-                .evaluate(portfolioKey, transaction, evaluationContext.copy())
-                .get();
+            Map<RuleKey, EvaluationResult> ruleResults =
+                evaluator.evaluate(portfolioKey, transaction, evaluationContext.copy()).get();
 
             return Pair.of(portfolioKey, ruleResults);
           } catch (Exception e) {
@@ -92,18 +89,16 @@ public class LocalTradeEvaluator implements TradeEvaluator {
             throw new RuntimeException("could not evaluate trade", e);
           }
         }).collect(() -> new TradeEvaluationResult(trade.getKey()),
-            TradeEvaluationResult::addImpacts, TradeEvaluationResult::merge))
-        .get());
+            TradeEvaluationResult::addImpacts, TradeEvaluationResult::merge)).get());
   }
 
   @Override
-  public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey,
-                                                SecurityKey securityKey, double targetValue)
-      throws ExecutionException, InterruptedException {
+  public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
+      double targetValue) throws ExecutionException, InterruptedException {
     // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
-    EvaluationContext evaluationContext = new EvaluationContext(securityProvider,
-        portfolioProvider, EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+    EvaluationContext evaluationContext = new EvaluationContext(securityProvider, portfolioProvider,
+        EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
     double minCompliantValue = MIN_ALLOCATION;
     double trialValue = minCompliantValue;
@@ -121,8 +116,7 @@ public class LocalTradeEvaluator implements TradeEvaluator {
     double minNoncompliantValue = trialValue;
     int maxRoomIterations = (int) Math.ceil(Math.log(targetValue / ROOM_TOLERANCE) / LOG_2) + 1;
     for (int i = 0; i < maxRoomIterations; i++) {
-      evaluationResult =
-          testRoom(portfolioKey, securityKey, trialValue, evaluationContext).get();
+      evaluationResult = testRoom(portfolioKey, securityKey, trialValue, evaluationContext).get();
       if (evaluationResult.isCompliant()) {
         if (minCompliantValue < trialValue) {
           // we have a new low-water mark for what is compliant
@@ -148,31 +142,28 @@ public class LocalTradeEvaluator implements TradeEvaluator {
   }
 
   /**
-   * Tests for the requested amount of room in the given {@code Security} for the given {@code
+   * Tests for the requested amount of room in the given {@link Security} for the given {@link
    * Portfolio}.
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} in which to find room
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} in which to find room
    * @param securityKey
-   *     the {@code SecurityKey} identifying the {@code Security} name for which to find room
+   *     the {@link SecurityKey} identifying the {@link Security} name for which to find room
    * @param targetValue
    *     the desired investment amount, as USD market value
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to perform the evaluation
+   *     the {@link EvaluationContext} under which to perform the evaluation
    *
-   * @return a {@code CompletableFuture} {@code TradeEvaluationResult} indicating the result of
-   * the
+   * @return a {@link CompletableFuture} {@link TradeEvaluationResult} indicating the result of the
    *     evaluation
    *
    * @throws ExecutionException
    *     if the calculation could not be processed
    * @throws InterruptedException
-   *     if the {@code Thread} was interrupted during processing
+   *     if the {@link Thread} was interrupted during processing
    */
   protected CompletableFuture<TradeEvaluationResult> testRoom(PortfolioKey portfolioKey,
-                                                              SecurityKey securityKey,
-                                                              double targetValue,
-                                                              EvaluationContext evaluationContext)
+      SecurityKey securityKey, double targetValue, EvaluationContext evaluationContext)
       throws ExecutionException, InterruptedException {
     TaxLot trialAllocation = new TaxLot(targetValue, securityKey);
     Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));

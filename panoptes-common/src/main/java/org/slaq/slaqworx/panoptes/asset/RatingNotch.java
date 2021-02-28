@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * Describes an individual step of a {@code RatingScale}.
+ * Describes an individual step of a {@link RatingScale}.
  *
  * @author jeremy
  */
@@ -12,7 +12,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
   private int ordinal;
 
   /**
-   * Creates a new {@code RatingNotch} with the given symbol and lower bound.
+   * Creates a new {@link RatingNotch} with the given symbol and lower bound.
    *
    * @param symbol
    *     the rating symbol (e.g. AAA, Baa2)
@@ -40,7 +40,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
 
   /**
    * Obtains the middle value of this notch, calculated as the average of this notch's lower bound
-   * and the lower bound of the next-highest notch (or the top of the {@code RatingScale}).
+   * and the lower bound of the next-highest notch (or the top of the {@link RatingScale}).
    *
    * @return the middle value
    */
@@ -49,25 +49,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
   }
 
   /**
-   * Obtains the ordinal value of this notch in its assigned {@code RatingScale}.
-   *
-   * @return the ordinal/index of this notch within its {@code RatingScale}
-   */
-  public int getOrdinal() {
-    return ordinal;
-  }
-
-  /**
-   * Obtains the symbol associated with this notch.
-   *
-   * @return the symbol
-   */
-  public String getSymbol() {
-    return symbol;
-  }
-
-  /**
-   * Sets the (calculated) middle value of this notch. Normally should be set only by {@code
+   * Sets the (calculated) middle value of this notch. Normally should be set only by {@link
    * RatingScale} during creation.
    *
    * @param middle
@@ -78,12 +60,30 @@ public class RatingNotch implements Comparable<RatingNotch> {
   }
 
   /**
-   * Sets the ordinal value of this notch in its assigned {@code RatingScale}.
+   * Obtains the ordinal value of this notch in its assigned {@link RatingScale}.
+   *
+   * @return the ordinal/index of this notch within its {@link RatingScale}
+   */
+  public int getOrdinal() {
+    return ordinal;
+  }
+
+  /**
+   * Sets the ordinal value of this notch in its assigned {@link RatingScale}.
    *
    * @param ordinal
-   *     the ordinal/index of this notch within its {@code RatingScale}
+   *     the ordinal/index of this notch within its {@link RatingScale}
    */
   protected void setOrdinal(int ordinal) {
     this.ordinal = ordinal;
+  }
+
+  /**
+   * Obtains the symbol associated with this notch.
+   *
+   * @return the symbol
+   */
+  public String getSymbol() {
+    return symbol;
   }
 }

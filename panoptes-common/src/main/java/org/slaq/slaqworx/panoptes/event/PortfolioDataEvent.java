@@ -4,7 +4,7 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 
 /**
- * A {@code PortfolioEvent} which supplies portfolio data.
+ * A {@link PortfolioEvent} which supplies portfolio data.
  *
  * @author jeremy
  */
@@ -12,10 +12,10 @@ public class PortfolioDataEvent implements PortfolioEvent {
   private final Portfolio portfolio;
 
   /**
-   * Creates a new {@code PortfolioDataEvent}.
+   * Creates a new {@link PortfolioDataEvent}.
    *
    * @param portfolio
-   *     the {@code Portfolio} associated with this event
+   *     the {@link Portfolio} associated with this event
    */
   public PortfolioDataEvent(Portfolio portfolio) {
     this.portfolio = portfolio;
@@ -32,9 +32,9 @@ public class PortfolioDataEvent implements PortfolioEvent {
   }
 
   /**
-   * Obtains the {@code Portfolio} associated with this event.
+   * Obtains the {@link Portfolio} associated with this event.
    *
-   * @return a {@code Portfolio}
+   * @return a {@link Portfolio}
    */
   public Portfolio getPortfolio() {
     return portfolio;

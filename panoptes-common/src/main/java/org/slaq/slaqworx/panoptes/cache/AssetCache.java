@@ -28,14 +28,14 @@ import org.slaq.slaqworx.panoptes.util.DistinctSecurityAttributeValuesAggregator
 import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 
 /**
- * Provides operations for accessing {@code Portfolio} and related data (e.g. {@code Position}s,
- * {@code Security} entities) from the distributed cache.
+ * Provides operations for accessing {@link Portfolio} and related data (e.g. {@link Position}s,
+ * {@link Security} entities) from the distributed cache.
  *
  * @author jeremy
  */
 @Singleton
-public class AssetCache implements PortfolioProvider, PositionProvider, RuleProvider,
-    SecurityProvider, TradeProvider {
+public class AssetCache
+    implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider, TradeProvider {
   public static final String PORTFOLIO_CACHE_NAME = "portfolio";
   public static final String POSITION_CACHE_NAME = "position";
   public static final String SECURITY_CACHE_NAME = "security";
@@ -48,54 +48,19 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
       .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "local-executor");
 
   private static AssetCache defaultAssetCache;
-
-  /**
-   * Obtains the default {@code AssetCache} instance, to be used "in case of emergency."
-   *
-   * @return the default {@code AssetCache} instance
-   */
-  public static AssetCache getDefault() {
-    return defaultAssetCache;
-  }
-
-  /**
-   * Obtains the {@code ExecutorService} used to perform local computations (typically {@code
-   * Portfolio} and {@code Trade} evaluations). Callers may use this to submit processing requests
-   * in parallel, which will generally result in better performance than using a separate {@code
-   * ExecutorService}.
-   *
-   * @return an {@code ExecutorService} used to evaluate {@code Trade}s
-   */
-  public static ExecutorService getLocalExecutor() {
-    return localExecutorThreadPool;
-  }
-
-  /**
-   * Sets the default {@code AssetCache} instance, to be used "in case of emergency."
-   *
-   * @param assetCache
-   *     the default {@code AssetCache} instance
-   */
-  public static void setDefault(AssetCache assetCache) {
-    defaultAssetCache = assetCache;
-  }
-
   private final HazelcastInstance hazelcastInstance;
   private final IMap<PortfolioKey, Portfolio> portfolioCache;
   private final IMap<PositionKey, Position> positionCache;
   private final IMap<RuleKey, ConfigurableRule> ruleCache;
-
   private final IMap<SecurityKey, Security> securityCache;
-
   private final IMap<TradeKey, Trade> tradeCache;
 
   /**
-   * Creates a new {@code AssetCache}. Restricted because instances of this class should be
-   * obtained
-   * through the {@code ApplicationContext}.
+   * Creates a new {@link AssetCache}. Restricted because instances of this class should be obtained
+   * through the {@link ApplicationContext}.
    *
    * @param hazelcastInstance
-   *     the {@code HazelcastInstance} through which to access cached data
+   *     the {@link HazelcastInstance} through which to access cached data
    */
   protected AssetCache(HazelcastInstance hazelcastInstance) {
     this.hazelcastInstance = hazelcastInstance;
@@ -109,33 +74,64 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
   }
 
   /**
-   * Obtains an {@code IExecutorService} suitable for performing computations (such as portfolio
+   * Obtains the default {@link AssetCache} instance, to be used "in case of emergency."
+   *
+   * @return the default {@link AssetCache} instance
+   */
+  public static AssetCache getDefault() {
+    return defaultAssetCache;
+  }
+
+  /**
+   * Sets the default {@link AssetCache} instance, to be used "in case of emergency."
+   *
+   * @param assetCache
+   *     the default {@link AssetCache} instance
+   */
+  public static void setDefault(AssetCache assetCache) {
+    defaultAssetCache = assetCache;
+  }
+
+  /**
+   * Obtains the {@link ExecutorService} used to perform local computations (typically {@link
+   * Portfolio} and {@link Trade} evaluations). Callers may use this to submit processing requests
+   * in parallel, which will generally result in better performance than using a separate {@link
+   * ExecutorService}.
+   *
+   * @return an {@link ExecutorService} used to evaluate {@link Trade}s
+   */
+  public static ExecutorService getLocalExecutor() {
+    return localExecutorThreadPool;
+  }
+
+  /**
+   * Obtains an {@link IExecutorService} suitable for performing computations (such as portfolio
    * compliance evaluations) on the cluster.
    *
-   * @return an {@code IExecutorService}
+   * @return an {@link IExecutorService}
    */
   public IExecutorService getClusterExecutor() {
     return hazelcastInstance.getExecutorService(CLUSTER_EXECUTOR_NAME);
   }
 
   /**
-   * Obtains the set of distinct countries used by current {@code Security} entities.
+   * Obtains the set of distinct countries used by current {@link Security} entities.
    *
    * @return a set of country names
    */
   public SortedSet<String> getCountries() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
   }
 
   /**
-   * Obtains the set of distinct currencies used by current {@code Security} entities.
+   * Obtains the set of distinct currencies used by current {@link Security} entities.
    *
    * @return a set of currency symbols
    */
   public SortedSet<String> getCurrencies() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
   }
 
   @Override
@@ -144,9 +140,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
   }
 
   /**
-   * Obtains the {@code Portfolio} cache.
+   * Obtains the {@link Portfolio} cache.
    *
-   * @return the {@code Portfolio} cache
+   * @return the {@link Portfolio} cache
    */
   public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
     return portfolioCache;
@@ -158,22 +154,22 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
   }
 
   /**
-   * Obtains the {@code Position} cache.
+   * Obtains the {@link Position} cache.
    *
-   * @return the {@code Position} cache
+   * @return the {@link Position} cache
    */
   public IMap<PositionKey, Position> getPositionCache() {
     return positionCache;
   }
 
   /**
-   * Obtains the set of distinct regions used by current {@code Security} entities.
+   * Obtains the set of distinct regions used by current {@link Security} entities.
    *
    * @return a set of region names
    */
   public SortedSet<String> getRegions() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
   }
 
   @Override
@@ -182,22 +178,22 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
   }
 
   /**
-   * Obtains the {@code Rule} cache.
+   * Obtains the {@link Rule} cache.
    *
-   * @return the {@code Rule} cache
+   * @return the {@link Rule} cache
    */
   public IMap<RuleKey, ConfigurableRule> getRuleCache() {
     return ruleCache;
   }
 
   /**
-   * Obtains the set of distinct sectors used by current {@code Security} entities.
+   * Obtains the set of distinct sectors used by current {@link Security} entities.
    *
    * @return a set of sector names
    */
   public SortedSet<String> getSectors() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
   }
 
   @Override
@@ -206,9 +202,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
   }
 
   /**
-   * Obtains the {@code Security} cache.
+   * Obtains the {@link Security} cache.
    *
-   * @return the {@code Security} cache
+   * @return the {@link Security} cache
    */
   public IMap<SecurityKey, Security> getSecurityCache() {
     return securityCache;
@@ -220,9 +216,9 @@ public class AssetCache implements PortfolioProvider, PositionProvider, RuleProv
   }
 
   /**
-   * Obtains the {@code Trade} cache.
+   * Obtains the {@link Trade} cache.
    *
-   * @return the {@code Trade} cache
+   * @return the {@link Trade} cache
    */
   public IMap<TradeKey, Trade> getTradeCache() {
     return tradeCache;

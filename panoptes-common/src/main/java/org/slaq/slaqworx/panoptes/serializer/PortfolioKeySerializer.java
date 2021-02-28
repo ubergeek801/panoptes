@@ -6,13 +6,13 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code PortfolioKey}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link PortfolioKey}.
  *
  * @author jeremy
  */
 public class PortfolioKeySerializer implements ProtobufSerializer<PortfolioKey> {
   /**
-   * Creates a new {@code PortfolioKeySerializer}.
+   * Creates a new {@link PortfolioKeySerializer}.
    */
   public PortfolioKeySerializer() {
     // nothing to do

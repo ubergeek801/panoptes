@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@code EvaluationGroupTest} tests the functionality of the {@code EvaluationGroup}.
+ * Tests the functionality of the {@link EvaluationGroup}.
  *
  * @author jeremy
  */

@@ -15,7 +15,7 @@ public class PortfolioEvaluationRequestSerializationSchema
   private final PortfolioKeySerializer keySerializer;
 
   public PortfolioEvaluationRequestSerializationSchema(String topic,
-                                                       Provider<AssetCache> assetCacheProvider) {
+      Provider<AssetCache> assetCacheProvider) {
     super(topic);
     keySerializer = new PortfolioKeySerializer();
   }

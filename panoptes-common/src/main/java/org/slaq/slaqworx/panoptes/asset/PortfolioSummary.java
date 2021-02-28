@@ -4,56 +4,55 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A projection of {@code Portfolio} used primarily by the {@code Portfolio} table display.
+ * A projection of {@link Portfolio} used primarily by the {@link Portfolio} table display.
  *
  * @author jeremy
  */
 public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializable {
-  /**
-   * Creates a new {@code PortfolioSummary} from the given {@code Portfolio}.
-   *
-   * @param portfolio
-   *     the {@code Portfolio} to summarize
-   * @param marketValueProvider
-   *     a {@code MarketValueProvider} to use for market value calculations
-   *
-   * @return a {@code PortfolioSummary} summarizing the given {@code Portfolio}
-   */
-  public static PortfolioSummary fromPortfolio(Portfolio portfolio,
-                                               MarketValueProvider marketValueProvider) {
-    return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
-        portfolio.getBenchmarkKey(), marketValueProvider.getMarketValue(portfolio),
-        portfolio.isAbstract());
-  }
-
   private final PortfolioKey key;
-
   private final String name;
   private final PortfolioKey benchmarkKey;
   private final double totalMarketValue;
   private final boolean isAbstract;
 
   /**
-   * Creates a new {@code PortfolioSummary} with the given parameters.
+   * Creates a new {@link PortfolioSummary} with the given parameters.
    *
    * @param key
-   *     the {@code Portfolio} key
+   *     the {@link Portfolio} key
    * @param name
-   *     the {@code Portfolio} name
+   *     the {@link Portfolio} name
    * @param benchmarkKey
-   *     the (possibly {@code null}) key corresponding to the {@code Portfolio}'s benchmark
+   *     the (possibly {@code null}) key corresponding to the {@link Portfolio}'s benchmark
    * @param totalMarketValue
-   *     the total market value of the {@code Portfolio}
+   *     the total market value of the {@link Portfolio}
    * @param isAbstract
-   *     {@code true} if the {@code Portfolio} is considered abstract, {@code false} otherwise
+   *     {@code true} if the {@link Portfolio} is considered abstract, {@code false} otherwise
    */
   public PortfolioSummary(PortfolioKey key, String name, PortfolioKey benchmarkKey,
-                          double totalMarketValue, boolean isAbstract) {
+      double totalMarketValue, boolean isAbstract) {
     this.key = key;
     this.name = name;
     this.benchmarkKey = benchmarkKey;
     this.totalMarketValue = totalMarketValue;
     this.isAbstract = isAbstract;
+  }
+
+  /**
+   * Creates a new {@link PortfolioSummary} from the given {@link Portfolio}.
+   *
+   * @param portfolio
+   *     the {@link Portfolio} to summarize
+   * @param marketValueProvider
+   *     a {@link MarketValueProvider} to use for market value calculations
+   *
+   * @return a {@link PortfolioSummary} summarizing the given {@link Portfolio}
+   */
+  public static PortfolioSummary fromPortfolio(Portfolio portfolio,
+      MarketValueProvider marketValueProvider) {
+    return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
+        portfolio.getBenchmarkKey(), marketValueProvider.getMarketValue(portfolio),
+        portfolio.isAbstract());
   }
 
   @Override
@@ -92,15 +91,15 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
     } else if (!name.equals(other.name)) {
       return false;
     }
-    return Double.doubleToLongBits(totalMarketValue) == Double.doubleToLongBits(other.totalMarketValue);
+    return Double.doubleToLongBits(totalMarketValue) ==
+        Double.doubleToLongBits(other.totalMarketValue);
   }
 
   /**
-   * Obtains the {@code PortfolioKey} corresponding to the {@code Portfolio}'s benchmark, if it
-   * has
+   * Obtains the {@link PortfolioKey} corresponding to the {@link Portfolio}'s benchmark, if it has
    * one.
    *
-   * @return the benchmark's {@code PortfolioKey}, or {@code null} if the {@code Portfolio} has no
+   * @return the benchmark's {@link PortfolioKey}, or {@code null} if the {@link Portfolio} has no
    *     associated benchmark
    */
   public PortfolioKey getBenchmarkKey() {
@@ -113,18 +112,18 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
   }
 
   /**
-   * Obtains the name/description of the {@code Portfolio}.
+   * Obtains the name/description of the {@link Portfolio}.
    *
-   * @return the {@code Portfolio} name
+   * @return the {@link Portfolio} name
    */
   public String getName() {
     return name;
   }
 
   /**
-   * Obtains the total market value of the {@code Portfolio}.
+   * Obtains the total market value of the {@link Portfolio}.
    *
-   * @return the {@code Portfolio}'s total market value
+   * @return the {@link Portfolio}'s total market value
    */
   public double getTotalMarketValue() {
     return totalMarketValue;
@@ -145,10 +144,10 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
   }
 
   /**
-   * Indicates whether the {@code Portfolio} is considered abstract, such as a synthetic benchmark
+   * Indicates whether the {@link Portfolio} is considered abstract, such as a synthetic benchmark
    * or analysis model.
    *
-   * @return true if the {@code Portfolio} is considered abstract, false otherwise
+   * @return true if the {@link Portfolio} is considered abstract, false otherwise
    */
   public boolean isAbstract() {
     return isAbstract;
@@ -156,7 +155,7 @@ public class PortfolioSummary implements Keyed<PortfolioKey>, ProtobufSerializab
 
   @Override
   public String toString() {
-    return "PortfolioSummary[key=" + key + ", name=" + name + ", benchmarkKey=" + benchmarkKey
-        + ", totalMarketValue=" + totalMarketValue + ", isAbstract=" + isAbstract + "]";
+    return "PortfolioSummary[key=" + key + ", name=" + name + ", benchmarkKey=" + benchmarkKey +
+        ", totalMarketValue=" + totalMarketValue + ", isAbstract=" + isAbstract + "]";
   }
 }

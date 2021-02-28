@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
 
 /**
- * {@code TradeEvaluationResultTest} tests the functionality of the {@code TradeEvaluationResult}.
+ * Tests the functionality of the {@link TradeEvaluationResult}.
  *
  * @author jeremy
  */
@@ -42,8 +42,9 @@ public class TradeEvaluationResultTest {
     // mode
     EvaluationResult rule1Results =
         new EvaluationResult(rule1Key, Map.of(evalGroup1, PASS), Map.of(evalGroup2, PASS));
-    EvaluationResult rule2Results = new EvaluationResult(rule2Key,
-        Map.of(evalGroup1, PASS, evalGroup2, PASS), Map.of(evalGroup2, PASS));
+    EvaluationResult rule2Results =
+        new EvaluationResult(rule2Key, Map.of(evalGroup1, PASS, evalGroup2, PASS),
+            Map.of(evalGroup2, PASS));
 
     Map<RuleKey, EvaluationResult> ruleResults =
         Map.of(rule1Key, rule1Results, rule2Key, rule2Results);
@@ -106,7 +107,7 @@ public class TradeEvaluationResultTest {
     assertEquals(result1, result1, "result should equals() itself");
     assertEquals(result1, result1a, "result should equals() identical result");
     assertNotEquals(result1, result2, "results with different contents should not be equal");
-    assertFalse(result1.equals(null), "result should not equals() null");
+    assertNotEquals(null, result1, "result should not equals() null");
   }
 
   /**

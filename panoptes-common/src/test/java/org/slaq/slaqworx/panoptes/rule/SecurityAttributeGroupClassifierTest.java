@@ -8,8 +8,7 @@ import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code SecurityAttributeGroupClassifierTest} tests the functionality of the {@code
- * SecurityAttributeGroupClassifier}.
+ * Tests the functionality of the {@link SecurityAttributeGroupClassifier}.
  *
  * @author jeremy
  */
@@ -34,7 +33,7 @@ public class SecurityAttributeGroupClassifierTest {
   }
 
   /**
-   * Tests that JSON configuration of a {@code SecurityAttributeGroupClassifier} behaves as
+   * Tests that JSON configuration of a {@link SecurityAttributeGroupClassifier} behaves as
    * expected.
    */
   @Test

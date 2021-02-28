@@ -16,14 +16,14 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  */
 public class BenchmarkComparator {
   /**
-   * Creates a new {@code BenchmarkComparator}.
+   * Creates a new {@link BenchmarkComparator}.
    */
   public BenchmarkComparator() {
     // nothing to do
   }
 
   public EvaluationResult compare(EvaluationResult baseResult, EvaluationResult benchmarkResult,
-                                  BenchmarkComparable rule) {
+      BenchmarkComparable rule) {
     if (benchmarkResult == null) {
       // presume no benchmark used; just use the base result
       return baseResult;
@@ -37,20 +37,17 @@ public class BenchmarkComparator {
     Double lowerLimit = rule.getLowerLimit();
     Double upperLimit = rule.getUpperLimit();
 
-    Map<EvaluationGroup,
-        ValueResult> baseResults = baseResult.getResults().entrySet().stream()
-        .map(e -> Pair.of(e.getKey(),
-            compare(e.getValue(), benchmarkResult.getResults().get(e.getKey()),
-                lowerLimit, upperLimit)))
-        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    Map<EvaluationGroup, ValueResult> baseResults = baseResult.getResults().entrySet().stream().map(
+        e -> Pair.of(e.getKey(),
+            compare(e.getValue(), benchmarkResult.getResults().get(e.getKey()), lowerLimit,
+                upperLimit))).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
     Map<EvaluationGroup, ValueResult> proposedResults;
     if (baseResult.getProposedResults() != null) {
-      proposedResults = baseResult.getProposedResults().entrySet().stream()
-          .map(e -> Pair.of(e.getKey(),
-              compare(e.getValue(), benchmarkResult.getResults().get(e.getKey()),
-                  lowerLimit, upperLimit)))
-          .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+      proposedResults = baseResult.getProposedResults().entrySet().stream().map(e -> Pair
+          .of(e.getKey(),
+              compare(e.getValue(), benchmarkResult.getResults().get(e.getKey()), lowerLimit,
+                  upperLimit))).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     } else {
       proposedResults = null;
     }
@@ -59,7 +56,7 @@ public class BenchmarkComparator {
   }
 
   protected ValueResult compare(ValueResult baseResult, ValueResult benchmarkResult,
-                                Double lowerLimit, Double upperLimit) {
+      Double lowerLimit, Double upperLimit) {
     Double benchmarkValue = (benchmarkResult == null ? null : benchmarkResult.getValue());
     // rescale the value to the benchmark; this may result in NaN, which means that the
     // Position's portfolio concentration is infinitely greater than the benchmark

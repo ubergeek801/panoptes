@@ -10,7 +10,7 @@ import java.util.Spliterator;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@code StreamUtilTest} tests the functionality of {@code StreamUtil}.
+ * Tests the functionality of {@link StreamUtil}.
  *
  * @author jeremy
  */
@@ -29,7 +29,7 @@ public class StreamUtilTest {
 
     HashSet<Integer> encounteredElements = new HashSet<>();
     // whatever the partitioning, we should expect all the original elements to be there
-    partitionedList.forEach(p -> p.forEachRemaining(i -> encounteredElements.add(i)));
+    partitionedList.forEach(p -> p.forEachRemaining(encounteredElements::add));
     assertEquals(list.size(), encounteredElements.size(),
         "should have same number of encountered elements as original");
 

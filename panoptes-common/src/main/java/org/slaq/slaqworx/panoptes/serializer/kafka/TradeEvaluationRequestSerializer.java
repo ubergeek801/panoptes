@@ -3,13 +3,13 @@ package org.slaq.slaqworx.panoptes.serializer.kafka;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 
 /**
- * A {@code KafkaSerializer} which (de)serializes the state of a {@code TradeEvaluationRequest}.
+ * A {@link KafkaSerializer} which (de)serializes the state of a {@link TradeEvaluationRequest}.
  *
  * @author jeremy
  */
 public class TradeEvaluationRequestSerializer extends KafkaSerializer<TradeEvaluationRequest> {
   /**
-   * Creates a new {@code TradeEvaluationRequestSerializer}. Kafka requires a public default
+   * Creates a new {@link TradeEvaluationRequestSerializer}. Kafka requires a public default
    * constructor.
    */
   public TradeEvaluationRequestSerializer() {

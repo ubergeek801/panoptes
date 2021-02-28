@@ -9,8 +9,8 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
 
 /**
- * A Hazelcast {@code EntryProcessor} that produces a {@code RuleSummary} projection for a given
- * {@code Rule}.
+ * A Hazelcast {@link EntryProcessor} that produces a {@link RuleSummary} projection for a given
+ * {@link Rule}.
  *
  * @author jeremy
  */

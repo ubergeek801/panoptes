@@ -12,7 +12,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * {@code SecuritySerializerTest} tests the functionality of the {@code SecuritySerializer}.
+ * {@link SecuritySerializerTest} tests the functionality of the {@link SecuritySerializer}.
  *
  * @author jeremy
  */
@@ -27,8 +27,8 @@ public class SecuritySerializerTest {
   public void testMoreSerialization() throws Exception {
     SecuritySerializer serializer = new SecuritySerializer();
 
-    BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getClassLoader()
-        .getResourceAsStream("SecurityAttributeTestValues.txt")));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(
+        getClass().getClassLoader().getResourceAsStream("SecurityAttributeTestValues.txt")));
     String json;
     while ((json = reader.readLine()) != null) {
       Map<SecurityAttribute<?>, Object> attributes = SerializerUtil.jsonToAttributes(json);
@@ -52,12 +52,11 @@ public class SecuritySerializerTest {
   public void testSerialization() throws Exception {
     SecuritySerializer serializer = new SecuritySerializer();
 
-    Map<SecurityAttribute<?>,
-        ? super Object> attributes = SecurityAttribute.mapOf(SecurityAttribute.isin,
-        "dummy", SecurityAttribute.country, "US", SecurityAttribute.coupon, 4d,
-        SecurityAttribute.currency, "USD", SecurityAttribute.maturityDate,
-        LocalDate.now(), SecurityAttribute.duration, 3.1, SecurityAttribute.price,
-        99d);
+    Map<SecurityAttribute<?>, ? super Object> attributes = SecurityAttribute
+        .mapOf(SecurityAttribute.isin, "dummy", SecurityAttribute.country, "US",
+            SecurityAttribute.coupon, 4d, SecurityAttribute.currency, "USD",
+            SecurityAttribute.maturityDate, LocalDate.now(), SecurityAttribute.duration, 3.1,
+            SecurityAttribute.price, 99d);
     Security security = new Security(attributes);
 
     byte[] buffer = serializer.write(security);

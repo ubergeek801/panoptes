@@ -8,8 +8,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code PortfolioSummarySerializerTest} tests the functionality of the {@code
- * PortfolioSummarySerializer}.
+ * Tests the functionality of the {@link PortfolioSummarySerializer}.
  *
  * @author jeremy
  */

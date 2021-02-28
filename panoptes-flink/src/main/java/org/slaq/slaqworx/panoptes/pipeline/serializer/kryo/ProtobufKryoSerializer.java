@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
 /**
- * A convenient base class for implementing a Kryo {@code Serializer} (for Flink compatibility)
+ * A convenient base class for implementing a Kryo {@link Serializer} (for Flink compatibility)
  * using Protobuf.
  *
  * @param <T>
@@ -21,7 +21,7 @@ public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> ext
   private ProtobufSerializer<T> serializer;
 
   /**
-   * Creates a new {@code ProtobufKryoSerializer}.
+   * Creates a new {@link ProtobufKryoSerializer}.
    */
   protected ProtobufKryoSerializer() {
     // nothing to do
@@ -53,17 +53,17 @@ public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> ext
   }
 
   /**
-   * Creates a {@code ProtobufSerializer} instance appropriate for the handled type.
+   * Creates a {@link ProtobufSerializer} instance appropriate for the handled type.
    *
-   * @return a {@code ProtobufSerializer}
+   * @return a {@link ProtobufSerializer}
    */
   protected abstract ProtobufSerializer<T> createProtobufSerializer();
 
   /**
-   * Obtains the singleton {@code ProtobufSerializer}, creating it if necessary using {@code
-   * createProtobufSerializer()}.
+   * Obtains the singleton {@link ProtobufSerializer}, creating it if necessary using {@link
+   * #createProtobufSerializer()}.
    *
-   * @return a {@code ProtobufSerializer}
+   * @return a {@link ProtobufSerializer}
    */
   protected final ProtobufSerializer<T> getProtobufSerializer() {
     if (serializer == null) {

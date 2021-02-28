@@ -13,26 +13,26 @@ public class PortfolioState {
   private boolean isPublished;
 
   /**
-   * Creates a new {@code PortfolioState} representing the given portfolio.
+   * Creates a new {@link PortfolioState} representing the given portfolio.
    *
    * @param portfolio
-   *     the {@code Portfolio} for which state is held
+   *     the {@link Portfolio} for which state is held
    */
   public PortfolioState(Portfolio portfolio) {
     this.portfolio = portfolio;
   }
 
   /**
-   * Obtains the {@code Portfolio} for which state is held.
+   * Obtains the {@link Portfolio} for which state is held.
    *
-   * @return a {@code Portfolio}
+   * @return a {@link Portfolio}
    */
   public Portfolio getPortfolio() {
     return portfolio;
   }
 
   /**
-   * Indicates whether the {@code Portfolio} has been published.
+   * Indicates whether the {@link Portfolio} has been published.
    *
    * @return {@code true} if the portfolio has been published, {@code false} otherwise
    */
@@ -41,7 +41,7 @@ public class PortfolioState {
   }
 
   /**
-   * Specifies whether the {@code Portfolio} has been published.
+   * Specifies whether the {@link Portfolio} has been published.
    *
    * @param isPublished
    *     {@code true} if the portfolio has been published, {@code false} otherwise

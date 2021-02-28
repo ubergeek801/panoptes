@@ -6,49 +6,52 @@ import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.asset.HierarchicalPositionSupplier.PositionHierarchyOption;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
+import org.slaq.slaqworx.panoptes.trade.TaxLot;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A holding of some amount of a particular {@code Security} by some {@code Portfolio}. A {@code
+ * A holding of some amount of a particular {@link Security} by some {@link Portfolio}. A {@link
  * Position} may be durable (e.g. sourced from a database/cache) or ephemeral (e.g. supplied by a
- * proposed {@code Trade} or even a unit test).
+ * proposed {@link Trade} or even a unit test).
  * <p>
- * {@code Position}s are inherently hierarchical on a number of dimensions:
+ * {@link Position}s are inherently hierarchical on a number of dimensions:
  * <ul>
- * <li>The {@code Security} held in a {@code Position} of a {@code Portfolio} may itself represent
- * another {@code Portfolio} with its own {@code Position}s. Relative to the "parent"
- * {@code Portfolio}, these "child" {@code Position}s are known as "lookthrough" {@code Position}s.
+ * <li>The {@link Security} held in a {@link Position} of a {@link Portfolio} may itself represent
+ * another {@link Portfolio} with its own {@link Position}s. Relative to the "parent"
+ * {@link Portfolio}, these "child" {@link Position}s are known as "lookthrough" {@link Position}s.
  * Note that lookthrough may be recursive, forming (what is assumed to be) a directed acyclic graph
- * of {@code Position} holdings.</li>
- * <li>In an investment {@code Portfolio}, the {@code Position}s are aggregations of
- * {@code Transaction}s on the same {@code Security} occurring on that {@code Portfolio} over time.
- * Each {@code Transaction} produces a {@code TaxLot}, which is merely a direct (non-aggregate)
- * {@code Position} in the {@code Security}.</li>
+ * of {@link Position} holdings.</li>
+ * <li>In an investment {@link Portfolio}, the {@link Position}s are aggregations of
+ * {@link Transaction}s on the same {@link Security} occurring on that {@link Portfolio} over time.
+ * Each {@link Transaction} produces a {@link TaxLot}, which is merely a direct (non-aggregate)
+ * {@link Position} in the {@link Security}.</li>
  * </ul>
  *
  * @author jeremy
  */
 public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSerializable {
   /**
-   * Obtains the amount held by this {@code Position}.
+   * Obtains the amount held by this {@link Position}.
    *
    * @return the amount
    */
-  double getAmount();
+  public double getAmount();
 
   /**
-   * Obtains the value of the specified attribute of this {@code Position}'s held {@code
-   * Security}.
-   * This is merely a convenience method to avoid an intermediate call to {@code getSecurity()}.
+   * Obtains the value of the specified attribute of this {@link Position}'s held {@link Security}.
+   * This is merely a convenience method to avoid an intermediate call to {@link
+   * #getSecurity(EvaluationContext)}.
    *
    * @param <T>
    *     the expected type of the attribute value
    * @param attribute
-   *     the {@code SecurityAttribute} identifying the attribute
+   *     the {@link SecurityAttribute} identifying the attribute
    * @param isRequired
    *     {@code true} if a return value is required, {@code false otherwise}
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the attribute value is being retrieved
+   *     the {@link EvaluationContext} in which the attribute value is being retrieved
    *
    * @return the value of the given attribute, or {@code null} if not assigned and {@code
    *     isRequired} is {@code false}
@@ -56,45 +59,45 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * @throws NoDataException
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
-  default <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
-                                  EvaluationContext evaluationContext) {
-    return getSecurity(evaluationContext).getEffectiveAttributeValue(attribute, isRequired,
-        evaluationContext);
+  public default <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
+      EvaluationContext evaluationContext) {
+    return getSecurity(evaluationContext)
+        .getEffectiveAttributeValue(attribute, isRequired, evaluationContext);
   }
 
   /**
-   * Obtains the value of the specified attribute of this {@code Position}'s held {@code
-   * Security}.
-   * This is merely a convenience method to avoid an intermediate call to {@code getSecurity()}.
+   * Obtains the value of the specified attribute of this {@link Position}'s held {@link Security}.
+   * This is merely a convenience method to avoid an intermediate call to {@link
+   * #getSecurity(EvaluationContext)}.
    *
    * @param <T>
    *     the expected type of the attribute value
    * @param attribute
-   *     the {@code SecurityAttribute} identifying the attribute
+   *     the {@link SecurityAttribute} identifying the attribute
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the attribute value is being retrieved
+   *     the {@link EvaluationContext} in which the attribute value is being retrieved
    *
    * @return the value of the given attribute
    *
    * @throws NoDataException
    *     if the requested attribute has no assigned value
    */
-  default <T> T getAttributeValue(SecurityAttribute<T> attribute,
-                                  EvaluationContext evaluationContext) {
+  public default <T> T getAttributeValue(SecurityAttribute<T> attribute,
+      EvaluationContext evaluationContext) {
     return getAttributeValue(attribute, true, evaluationContext);
   }
 
   /**
-   * Obtains the lookthrough {@code Position}s of this {@code Position} as a {@code Stream}.
+   * Obtains the lookthrough {@link Position}s of this {@link Position} as a {@link Stream}.
    *
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which the {@code Position}s are being obtained
+   *     the {@link EvaluationContext} in which the {@link Position}s are being obtained
    *
-   * @return a {@code Stream} of this {@code Position}'s lookthrough {@code Position}s, or the
-   *     {@code Position} itself if not applicable
+   * @return a {@link Stream} of this {@link Position}'s lookthrough {@link Position}s, or the
+   *     {@link Position} itself if not applicable
    */
-  default Stream<? extends Position>
-  getLookthroughPositions(EvaluationContext evaluationContext) {
+  public default Stream<? extends Position> getLookthroughPositions(
+      EvaluationContext evaluationContext) {
     PortfolioKey lookthroughPortfolioKey = getSecurity(evaluationContext)
         .getEffectiveAttributeValue(SecurityAttribute.portfolio, false, evaluationContext);
     if (lookthroughPortfolioKey == null) {
@@ -115,38 +118,37 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
   }
 
   @Override
-  default double getMarketValue(EvaluationContext evaluationContext) {
+  public default double getMarketValue(EvaluationContext evaluationContext) {
     return getAttributeValue(SecurityAttribute.price, evaluationContext) * getAmount();
   }
 
   /**
-   * Obtains the {@code Security} held by this {@code Position}.
+   * Obtains the {@link Security} held by this {@link Position}.
    *
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which an evaluation is taking place
+   *     the {@link EvaluationContext} in which an evaluation is taking place
    *
-   * @return the {@code Security} held by this {@code Position}
+   * @return the {@link Security} held by this {@link Position}
    */
-  default Security getSecurity(EvaluationContext evaluationContext) {
-    return evaluationContext.getSecurityProvider().getSecurity(getSecurityKey(),
-        evaluationContext);
+  public default Security getSecurity(EvaluationContext evaluationContext) {
+    return evaluationContext.getSecurityProvider().getSecurity(getSecurityKey(), evaluationContext);
   }
 
   /**
-   * Obtains the {@code SecurityKey} identifying the {@code Security} held by this {@code
+   * Obtains the {@link SecurityKey} identifying the {@link Security} held by this {@link
    * Position}.
    *
-   * @return the key of the {@code Security} held by this {@code Position}
+   * @return the key of the {@link Security} held by this {@link Position}
    */
-  SecurityKey getSecurityKey();
+  public SecurityKey getSecurityKey();
 
   /**
-   * Obtains the tax lots of this {@code Position} as a {@code Stream}.
+   * Obtains the tax lots of this {@link Position} as a {@link Stream}.
    *
-   * @return a {@code Stream} of this {@code Position}'s constituent tax lots, or the {@code
+   * @return a {@link Stream} of this {@link Position}'s constituent tax lots, or the {@link
    *     Position} itself if not applicable
    */
-  default Stream<? extends Position> getTaxLots() {
+  public default Stream<? extends Position> getTaxLots() {
     return Stream.of(this);
   }
 }

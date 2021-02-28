@@ -9,19 +9,19 @@ import io.micronaut.context.annotation.Factory;
 import javax.inject.Singleton;
 
 /**
- * A Micronaut {@code Factory} that provides cache resources suitable for client use.
+ * A Micronaut {@link Factory} that provides cache resources suitable for client use.
  *
  * @author jeremy
  */
 @Factory
 public class PanoptesCacheClientConfiguration {
   /**
-   * Provides a {@code HazelcastInstance} suitable for a cache client environment.
+   * Provides a {@link HazelcastInstance} suitable for a cache client environment.
    *
    * @param serializationConfig
-   *     the {@code SerializationConfig} to use for the cache
+   *     the {@link SerializationConfig} to use for the cache
    *
-   * @return a {@code HazelcastInstance}
+   * @return a {@link HazelcastInstance}
    */
   @Bean(preDestroy = "shutdown")
   @Singleton

@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes;
 
+import org.slaq.slaqworx.panoptes.asset.Security;
+
 /**
  * Indicates an exceptional circumstance in which the data required to perform an evaluation was not
  * available.
@@ -12,7 +14,7 @@ public class NoDataException extends RuntimeException {
   private final String attributeName;
 
   /**
-   * Creates a new {@code NoDataException} indicating that a {@code Security} attribute with the
+   * Creates a new {@link NoDataException} indicating that a {@link Security} attribute with the
    * given name was unavailable.
    *
    * @param attributeName
@@ -23,7 +25,7 @@ public class NoDataException extends RuntimeException {
   }
 
   /**
-   * Obtains the name of the missing attribute that gave rise to this {@code NoDataException}.
+   * Obtains the name of the missing attribute that gave rise to this {@link NoDataException}.
    *
    * @return an attribute name
    */

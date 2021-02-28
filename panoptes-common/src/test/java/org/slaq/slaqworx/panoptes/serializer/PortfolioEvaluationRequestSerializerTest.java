@@ -13,8 +13,7 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * {@code PortfolioEvaluationRequestSerializerTest} tests the functionality of the {@code
- * PortfolioEvaluationRequestSerializer}.
+ * Tests the functionality of the {@link PortfolioEvaluationRequestSerializer}.
  *
  * @author jeremy
  */
@@ -27,8 +26,7 @@ public class PortfolioEvaluationRequestSerializerTest {
    */
   @Test
   public void testSerialization() throws Exception {
-    PortfolioEvaluationRequestSerializer serializer =
-        new PortfolioEvaluationRequestSerializer();
+    PortfolioEvaluationRequestSerializer serializer = new PortfolioEvaluationRequestSerializer();
 
     TaxLot p1 = new TaxLot(100d, TestUtil.s1.getKey());
     TaxLot p2 = new TaxLot(200d, TestUtil.s2.getKey());
@@ -69,7 +67,6 @@ public class PortfolioEvaluationRequestSerializerTest {
         deserialized.getEvaluationContext().getEvaluationMode(),
         "deserialized EvaluationContext should have evaluation mode equal to original");
 
-    assertNull(deserialized.getTransaction(),
-        "deserialized value should have null transaction");
+    assertNull(deserialized.getTransaction(), "deserialized value should have null transaction");
   }
 }

@@ -15,8 +15,8 @@ import java.util.stream.IntStream;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * A container for {@code SecurityAttribute}s which provides type-safe access when referencing an
- * attribute by its type. It also enforces immutability of a {@code Security}'s attributes.
+ * A container for {@link SecurityAttribute}s which provides type-safe access when referencing an
+ * attribute by its type. It also enforces immutability of a {@link Security}'s attributes.
  *
  * @author jeremy
  */
@@ -30,10 +30,10 @@ public class SecurityAttributes implements Serializable {
   private String hash = null;
 
   /**
-   * Creates a new {@code SecurityAttributes} container of the given attributes.
+   * Creates a new {@link SecurityAttributes} container of the given attributes.
    *
    * @param attributes
-   *     a {@code Map} of {@code SecurityAttribute} to attribute value
+   *     a {@link Map} of {@link SecurityAttribute} to attribute value
    */
   public SecurityAttributes(Map<SecurityAttribute<?>, ? super Object> attributes) {
     attributes.forEach((a, v) -> {
@@ -46,12 +46,11 @@ public class SecurityAttributes implements Serializable {
   }
 
   /**
-   * Obtains the {@code SecurityAttributes} as a {@code Map}. This can be a somewhat expensive
-   * operation if there are a lot of attributes; currently its only expected use is when
-   * serializing
-   * a {@code Security}.
+   * Obtains the {@link SecurityAttributes} as a {@link Map}. This can be a somewhat expensive
+   * operation if there are a lot of attributes; currently its only expected use is when serializing
+   * a {@link Security}.
    *
-   * @return a {@code Map} of {@code SecurityAttribute} to value
+   * @return a {@link Map} of {@link SecurityAttribute} to value
    */
   public Map<SecurityAttribute<?>, ? super Object> asMap() {
     return IntStream.range(0, attributeValues.size()).boxed()
@@ -76,12 +75,11 @@ public class SecurityAttributes implements Serializable {
   }
 
   /**
-   * Obtains the value of the specified attribute index. This form of {@code getValue()} is
-   * intended
+   * Obtains the value of the specified attribute index. This form of {@code getValue()} is intended
    * for the rare cases when the index is already known.
    *
    * @param attributeIndex
-   *     the index corresponding to the associated {@code SecurityAttribute}
+   *     the index corresponding to the associated {@link SecurityAttribute}
    *
    * @return the value of the given attribute, or {@code null} if not assigned
    */
@@ -100,12 +98,12 @@ public class SecurityAttributes implements Serializable {
    * @param <T>
    *     the expected type of the attribute value
    * @param attribute
-   *     the {@code SecurityAttribute} identifying the attribute
+   *     the {@link SecurityAttribute} identifying the attribute
    *
    * @return the value of the given attribute, or {@code null} if not assigned
    */
   public <T> T getValue(SecurityAttribute<T> attribute) {
-    @SuppressWarnings("unchecked") T value = (T) getValue(attribute.getIndex());
+    T value = (T) getValue(attribute.getIndex());
     return value;
   }
 
@@ -127,8 +125,7 @@ public class SecurityAttributes implements Serializable {
       Object v = (attributeValue == null ? "" : attributeValue);
 
       try {
-        attributeBytes
-            .write(SerializerUtil.defaultJsonMapper().writeValueAsString(v).getBytes());
+        attributeBytes.write(SerializerUtil.defaultJsonMapper().writeValueAsString(v).getBytes());
       } catch (IOException e) {
         // TODO throw a better exception
         throw new RuntimeException("could not serialize " + v.getClass(), e);
@@ -161,17 +158,16 @@ public class SecurityAttributes implements Serializable {
   }
 
   /**
-   * Obtains the {@code SecurityAttributes} as a {@code SortedMap}. Reliance on this method should
-   * be limited to diagnostic purposes such as {@code toString()}.
+   * Obtains the {@link SecurityAttributes} as a {@link SortedMap}. Reliance on this method should
+   * be limited to diagnostic purposes such as {@link toString()}.
    *
-   * @return a {@code SortedMap} of {@code SecurityAttribute} to value, sorted on attribute name
+   * @return a {@link SortedMap} of {@link SecurityAttribute} to value, sorted on attribute name
    */
   protected SortedMap<SecurityAttribute<?>, ? super Object> asSortedMap() {
     return IntStream.range(0, attributeValues.size()).boxed()
-        .filter(i -> attributeValues.get(i) != null).collect(Collectors
-            .toMap(SecurityAttribute::of, i -> attributeValues.get(i), (v1, v2) -> {
-              throw new RuntimeException(
-                  String.format("Duplicate key for values %s and %s", v1, v2));
-            }, () -> new TreeMap<>((a1, a2) -> a1.compareTo(a2))));
+        .filter(i -> attributeValues.get(i) != null)
+        .collect(Collectors.toMap(SecurityAttribute::of, i -> attributeValues.get(i), (v1, v2) -> {
+          throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
+        }, () -> new TreeMap<>((a1, a2) -> a1.compareTo(a2))));
   }
 }

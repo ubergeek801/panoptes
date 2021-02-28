@@ -55,6 +55,13 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
   private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
   /**
+   * Creates a new instance of the Panoptes application.
+   */
+  protected Panoptes() {
+    // nothing to do
+  }
+
+  /**
    * The entry point for the Panoptes application.
    *
    * @param args
@@ -64,18 +71,10 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
     Micronaut.run(Panoptes.class, args);
   }
 
-  /**
-   * Creates a new instance of the Panoptes application.
-   */
-  protected Panoptes() {
-    // nothing to do
-  }
-
   @Override
   public void onApplicationEvent(ApplicationStartupEvent event) {
     try {
-      @SuppressWarnings("resource") ApplicationContext applicationContext =
-          event.getSource().getApplicationContext();
+      ApplicationContext applicationContext = event.getSource().getApplicationContext();
       AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
       if (applicationContext.getEnvironment().getActiveNames().contains("offline")) {
@@ -106,8 +105,9 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
   }
 
   /**
-   * Initializes the cache for offline mode from dummy data, in much the same way as {@code
-   * PimcoBenchmarkDatabaseLoader} initializes the persistent store.
+   * Initializes the cache for offline mode from dummy data, in much the same way as {@link
+   * org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDatabaseLoader} initializes the persistent
+   * store.
    *
    * @param assetCache
    *     the cache to be initialized
@@ -129,10 +129,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
     }
 
     portfolios.stream().forEach(pf -> {
-      LOG.info("initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(),
-          pf.getName());
-      pf.getRules()
-          .forEach(r -> assetCache.getRuleCache().set(r.getKey(), (ConfigurableRule) r));
+      LOG.info("initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(), pf.getName());
+      pf.getRules().forEach(r -> assetCache.getRuleCache().set(r.getKey(), (ConfigurableRule) r));
     });
 
     portfolios.stream().forEach(pf -> {
@@ -165,7 +163,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
    * of multi-allocation Trades.
    *
    * @param assetCache
-   *     the {@code AssetCache} from which to obtain {@code Portfolio} data
+   *     the {@link AssetCache} from which to obtain {@link Portfolio} data
    *
    * @throws ExecutionException
    *     if evaluations could not be executed
@@ -184,19 +182,17 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
     Collection<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
     int numPortfolios = portfolioKeys.size();
     try {
-      ExecutorCompletionService<
-          Pair<PortfolioKey, Map<RuleKey, EvaluationResult>>> completionService =
-          new ExecutorCompletionService<>(evaluationExecutor);
+      ExecutorCompletionService<Pair<PortfolioKey, Map<RuleKey, EvaluationResult>>>
+          completionService = new ExecutorCompletionService<>(evaluationExecutor);
 
       portfolioStartTime = System.currentTimeMillis();
       portfolioKeys.forEach(key -> {
-        completionService.submit(
-            () -> Pair.of(key, evaluator.evaluate(key, new EvaluationContext()).get()));
+        completionService
+            .submit(() -> Pair.of(key, evaluator.evaluate(key, new EvaluationContext()).get()));
       });
       // wait for all of the evaluations to complete
       for (int i = 0; i < numPortfolios; i++) {
-        Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result =
-            completionService.take().get();
+        Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result = completionService.take().get();
         numPortfolioRuleEvalutions += result.getRight().size();
       }
       portfolioEndTime = System.currentTimeMillis();
@@ -215,8 +211,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
       ArrayList<TaxLot> taxLots = new ArrayList<>();
       TaxLot allocation1 = new TaxLot(100_000, security1Key);
       taxLots.add(allocation1);
-      TradeEvaluator tradeEvaluator = new LocalTradeEvaluator(
-          new LocalPortfolioEvaluator(assetCache), assetCache, assetCache);
+      TradeEvaluator tradeEvaluator =
+          new LocalTradeEvaluator(new LocalPortfolioEvaluator(assetCache), assetCache, assetCache);
       HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
       portfolioKeys.stream().limit(i * 62).forEach(key -> {
         Transaction transaction = new Transaction(key, taxLots);
@@ -225,10 +221,11 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
       Trade trade = new Trade(tradeDate, tradeDate, transactions);
 
       tradeStartTimes.add(System.currentTimeMillis());
-      TradeEvaluationResult result = tradeEvaluator
-          .evaluate(trade, new EvaluationContext(EvaluationMode.FULL_EVALUATION)).get();
-      long numEvaluationGroups = result.getImpacts().values().stream()
-          .collect(Collectors.summingLong(Map::size));
+      TradeEvaluationResult result =
+          tradeEvaluator.evaluate(trade, new EvaluationContext(EvaluationMode.FULL_EVALUATION))
+              .get();
+      long numEvaluationGroups =
+          result.getImpacts().values().stream().collect(Collectors.summingLong(Map::size));
       tradeEndTimes.add(System.currentTimeMillis());
       allocationCounts.add(trade.getTransactions().size());
       evaluationGroupCounts.add(numEvaluationGroups);

@@ -15,7 +15,7 @@ public class TradeEvaluationRequestSerializationSchema
   private final TradeKeySerializer keySerializer;
 
   public TradeEvaluationRequestSerializationSchema(String topic,
-                                                   Provider<AssetCache> assetCacheProvider) {
+      Provider<AssetCache> assetCacheProvider) {
     super(topic);
     keySerializer = new TradeKeySerializer();
   }

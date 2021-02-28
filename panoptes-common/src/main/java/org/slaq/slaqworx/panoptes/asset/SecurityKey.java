@@ -3,7 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A key used to reference {@code Security} entities.
+ * A key used to reference {@link Security} entities.
  *
  * @author jeremy
  */
@@ -11,7 +11,7 @@ public class SecurityKey implements Comparable<SecurityKey>, ProtobufSerializabl
   private final String id;
 
   /**
-   * Creates a new {@code SecurityKey} with the given ID.
+   * Creates a new {@link SecurityKey} with the given ID.
    *
    * @param id
    *     the ID to assign to the key
@@ -42,7 +42,7 @@ public class SecurityKey implements Comparable<SecurityKey>, ProtobufSerializabl
   }
 
   /**
-   * Obtains this {@code SecurityKey}'s ID.
+   * Obtains this {@link SecurityKey}'s ID.
    *
    * @return the ID underlying this key
    */

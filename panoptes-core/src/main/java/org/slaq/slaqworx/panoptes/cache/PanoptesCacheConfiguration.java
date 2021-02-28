@@ -19,48 +19,53 @@ import io.micronaut.context.env.Environment;
 import java.util.Optional;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.Position;
+import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.data.HazelcastMapStoreFactory;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * A Micronaut {@code Factory} that provides {@code Bean}s related to the Hazelcast cache.
+ * A Micronaut {@link Factory} that provides {@link Bean}s related to the Hazelcast cache.
  *
  * @author jeremy
  */
 @Factory
 public class PanoptesCacheConfiguration {
   /**
-   * Creates a new {@code PanoptesCacheConfiguration}. Restricted because instances of this class
-   * should be obtained through the {@code ApplicationContext} (if it is needed at all).
+   * Creates a new {@link PanoptesCacheConfiguration}. Restricted because instances of this class
+   * should be obtained through the {@link ApplicationContext} (if it is needed at all).
    */
   protected PanoptesCacheConfiguration() {
     // nothing to do
   }
 
   /**
-   * Provides a {@code MapConfig} for the specified map and adds it to the given Hazelcast {@code
+   * Provides a {@link MapConfig} for the specified map and adds it to the given Hazelcast {@link
    * Config}.
    *
    * @param cacheName
    *     the name of the map/cache being created
    * @param mapStoreFactory
-   *     the {@code HazelcastMapStoreFactory} to use to create the {@code MapStore}, or {@code
-   *     null}
-   *     to use no {@code MapStore}
+   *     the {@link HazelcastMapStoreFactory} to use to create the {@link MapStore}, or {@code null}
+   *     to use no {@link MapStore}
    *
-   * @return a {@code MapConfig} configured for the given map
+   * @return a {@link MapConfig} configured for the given map
    */
   protected MapConfig createMapConfiguration(String cacheName,
-                                             HazelcastMapStoreFactory mapStoreFactory) {
-    NearCacheConfig nearCacheConfig = new NearCacheConfig().setName("near-" + cacheName)
-        .setInMemoryFormat(InMemoryFormat.OBJECT).setCacheLocalEntries(true);
+      HazelcastMapStoreFactory mapStoreFactory) {
+    NearCacheConfig nearCacheConfig =
+        new NearCacheConfig().setName("near-" + cacheName).setInMemoryFormat(InMemoryFormat.OBJECT)
+            .setCacheLocalEntries(true);
     MapConfig mapConfig = new MapConfig(cacheName).setBackupCount(2).setReadBackupData(true)
         .setInMemoryFormat(InMemoryFormat.BINARY).setNearCacheConfig(nearCacheConfig);
     if (mapStoreFactory != null) {
-      MapStoreConfig mapStoreConfig = new MapStoreConfig()
-          .setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
-          .setWriteBatchSize(1000).setInitialLoadMode(InitialLoadMode.LAZY);
+      MapStoreConfig mapStoreConfig =
+          new MapStoreConfig().setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
+              .setWriteBatchSize(1000).setInitialLoadMode(InitialLoadMode.LAZY);
       mapConfig.setMapStoreConfig(mapStoreConfig);
     }
 
@@ -71,37 +76,36 @@ public class PanoptesCacheConfiguration {
    * Provides a Hazelcast configuration suitable for the detected runtime environment.
    *
    * @param securityAttributeLoader
-   *     the {@code SecurityAttributeLoader} used to initialize {@code SecurityAttribute}s
+   *     the {@link SecurityAttributeLoader} used to initialize {@link SecurityAttribute}s
    * @param portfolioMapConfig
-   *     the {@code MapConfig} to use for {@code Portfolio} data
+   *     the {@link MapConfig} to use for {@link Portfolio} data
    * @param positionMapConfig
-   *     the {@code MapConfig} to use for {@code Position} data
+   *     the {@link MapConfig} to use for {@link Position} data
    * @param securityMapConfig
-   *     the {@code MapConfig} to use for {@code Security} data
+   *     the {@link MapConfig} to use for {@link Security} data
    * @param ruleMapConfig
-   *     the {@code MapConfig} to use for {@code Rule} data
+   *     the {@link MapConfig} to use for {@link Rule} data
    * @param serializationConfig
-   *     the {@code SerializationConfig} to use for the cache
+   *     the {@link SerializationConfig} to use for the cache
    * @param clusterExecutorConfig
-   *     the {@code ExecutorConfig} to use for clustered execution
+   *     the {@link ExecutorConfig} to use for clustered execution
    * @param applicationContext
-   *     the current {@code ApplicationContext}
+   *     the current {@link ApplicationContext}
    *
-   * @return a Hazelcast {@code Config}
+   * @return a Hazelcast {@link Config}
    */
   @Singleton
   protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
-                                   @Named(AssetCache.PORTFOLIO_CACHE_NAME) MapConfig portfolioMapConfig,
-                                   @Named(AssetCache.POSITION_CACHE_NAME) MapConfig positionMapConfig,
-                                   @Named(AssetCache.SECURITY_CACHE_NAME) MapConfig securityMapConfig,
-                                   @Named(AssetCache.RULE_CACHE_NAME) MapConfig ruleMapConfig,
-                                   SerializationConfig serializationConfig,
-                                   ExecutorConfig clusterExecutorConfig,
-                                   ApplicationContext applicationContext) {
+      @Named(AssetCache.PORTFOLIO_CACHE_NAME) MapConfig portfolioMapConfig,
+      @Named(AssetCache.POSITION_CACHE_NAME) MapConfig positionMapConfig,
+      @Named(AssetCache.SECURITY_CACHE_NAME) MapConfig securityMapConfig,
+      @Named(AssetCache.RULE_CACHE_NAME) MapConfig ruleMapConfig,
+      SerializationConfig serializationConfig, ExecutorConfig clusterExecutorConfig,
+      ApplicationContext applicationContext) {
     securityAttributeLoader.loadSecurityAttributes();
 
-    boolean isClustered = (applicationContext.getEnvironment().getActiveNames()
-        .contains(Environment.KUBERNETES));
+    boolean isClustered =
+        (applicationContext.getEnvironment().getActiveNames().contains(Environment.KUBERNETES));
 
     Config config = new Config("panoptes");
     config.setClusterName("panoptes");
@@ -143,8 +147,8 @@ public class PanoptesCacheConfiguration {
           .setProperty("service-dns", "panoptes-hazelcast.default.svc.cluster.local");
     } else {
       // not running in Kubernetes; run standalone
-      boolean isUseMulticast = (!applicationContext.getEnvironment().getActiveNames()
-          .contains(Environment.TEST));
+      boolean isUseMulticast =
+          (!applicationContext.getEnvironment().getActiveNames().contains(Environment.TEST));
       config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(isUseMulticast);
       config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(false);
     }
@@ -153,60 +157,57 @@ public class PanoptesCacheConfiguration {
   }
 
   /**
-   * Provides a {@code HazelcastInstance} configured with the given configuration.
+   * Provides a {@link HazelcastInstance} configured with the given configuration.
    *
    * @param hazelcastConfiguration
-   *     the Hazelcast {@Config} with which to configure the instance
+   *     the Hazelcast {@link Config} with which to configure the instance
    * @param meterRegistry
-   *     the {@code MeterRegistry} with which to register Hazelcast resources for monitoring
+   *     the {@link MeterRegistry} with which to register Hazelcast resources for monitoring
    *
-   * @return a {@code HazelcastInstance}
+   * @return a {@link HazelcastInstance}
    */
   @Bean(preDestroy = "shutdown")
   @Singleton
   protected HazelcastInstance hazelcastInstance(Config hazelcastConfiguration,
-                                                MeterRegistry meterRegistry) {
+      MeterRegistry meterRegistry) {
     HazelcastInstance hazelcastInstance =
         Hazelcast.getOrCreateHazelcastInstance(hazelcastConfiguration);
 
-    Hazelcast4CacheMetrics.monitor(meterRegistry,
-        CacheBootstrap.getPortfolioCache(hazelcastInstance));
-    Hazelcast4CacheMetrics.monitor(meterRegistry,
-        CacheBootstrap.getPositionCache(hazelcastInstance));
-    Hazelcast4CacheMetrics.monitor(meterRegistry,
-        CacheBootstrap.getRuleCache(hazelcastInstance));
-    Hazelcast4CacheMetrics.monitor(meterRegistry,
-        CacheBootstrap.getSecurityCache(hazelcastInstance));
-    Hazelcast4CacheMetrics.monitor(meterRegistry,
-        CacheBootstrap.getTradeCache(hazelcastInstance));
+    Hazelcast4CacheMetrics
+        .monitor(meterRegistry, CacheBootstrap.getPortfolioCache(hazelcastInstance));
+    Hazelcast4CacheMetrics
+        .monitor(meterRegistry, CacheBootstrap.getPositionCache(hazelcastInstance));
+    Hazelcast4CacheMetrics.monitor(meterRegistry, CacheBootstrap.getRuleCache(hazelcastInstance));
+    Hazelcast4CacheMetrics
+        .monitor(meterRegistry, CacheBootstrap.getSecurityCache(hazelcastInstance));
+    Hazelcast4CacheMetrics.monitor(meterRegistry, CacheBootstrap.getTradeCache(hazelcastInstance));
 
     return hazelcastInstance;
   }
 
   /**
-   * Provides a {@code MapConfig} for the {@code Portfolio} cache.
+   * Provides a {@link MapConfig} for the {@link Portfolio} cache.
    *
    * @param mapStoreFactory
-   *     the {@code HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
+   *     the {@link HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
    *     persistence is not desired (e.g. unit testing)
    *
-   * @return a {@code MapConfig}
+   * @return a {@link MapConfig}
    */
   @Named(AssetCache.PORTFOLIO_CACHE_NAME)
   @Singleton
   protected MapConfig portfolioMapConfig(Optional<HazelcastMapStoreFactory> mapStoreFactory) {
-    return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME,
-        mapStoreFactory.orElse(null));
+    return createMapConfiguration(AssetCache.PORTFOLIO_CACHE_NAME, mapStoreFactory.orElse(null));
   }
 
   /**
-   * Provides a {@code MapConfig} for the {@code Position} cache.
+   * Provides a {@link MapConfig} for the {@link Position} cache.
    *
    * @param mapStoreFactory
-   *     the {@code HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
+   *     the {@link HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
    *     persistence is not desired (e.g. unit testing)
    *
-   * @return a {@code MapConfig}
+   * @return a {@link MapConfig}
    */
   @Named(AssetCache.POSITION_CACHE_NAME)
   @Singleton
@@ -215,13 +216,13 @@ public class PanoptesCacheConfiguration {
   }
 
   /**
-   * Provides a {@code MapConfig} for the {@code Rule} cache.
+   * Provides a {@link MapConfig} for the {@link Rule} cache.
    *
    * @param mapStoreFactory
-   *     the {@code HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
+   *     the {@link HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
    *     persistence is not desired (e.g. unit testing)
    *
-   * @return a {@code MapConfig}
+   * @return a {@link MapConfig}
    */
   @Named(AssetCache.RULE_CACHE_NAME)
   @Singleton
@@ -230,13 +231,13 @@ public class PanoptesCacheConfiguration {
   }
 
   /**
-   * Provides a {@code MapConfig} for the {@code Security} cache.
+   * Provides a {@link MapConfig} for the {@link Security} cache.
    *
    * @param mapStoreFactory
-   *     the {@code HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
+   *     the {@link HazelcastMapStoreFactory} to provide to the configuration; may be omitted if
    *     persistence is not desired (e.g. unit testing)
    *
-   * @return a {@code MapConfig}
+   * @return a {@link MapConfig}
    */
   @Named(AssetCache.SECURITY_CACHE_NAME)
   @Singleton

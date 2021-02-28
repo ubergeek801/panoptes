@@ -6,13 +6,13 @@ import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code PositionKey}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link PositionKey}.
  *
  * @author jeremy
  */
 public class PositionKeySerializer implements ProtobufSerializer<PositionKey> {
   /**
-   * Creates a new {@code PositionKeySerializer}.
+   * Creates a new {@link PositionKeySerializer}.
    */
   public PositionKeySerializer() {
     // nothing to do

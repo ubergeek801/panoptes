@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.ui.ComponentUtil;
 
 /**
- * {@code CompliancePanel} is a container providing tools for evaluating portfolio compliance. This
- * is very much a work in progress.
+ * A container providing tools for evaluating portfolio compliance. This is very much a work in
+ * progress.
  *
  * @author jeremy
  */
@@ -25,12 +25,12 @@ public class CompliancePanel extends VerticalLayout {
   private PortfolioSummary portfolio;
 
   /**
-   * Creates a new {@code CompliancePanel}.
+   * Creates a new {@link CompliancePanel}.
    *
    * @param portfolioEvaluator
-   *     the {@code PortfolioEvaluator} to use to perform compliance evaluation
+   *     the {@link PortfolioEvaluator} to use to perform compliance evaluation
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve cached entities
+   *     the {@link AssetCache} to use to resolve cached entities
    */
   public CompliancePanel(PortfolioEvaluator portfolioEvaluator, AssetCache assetCache) {
     HorizontalLayout portfolioSelectionPanel = new HorizontalLayout();
@@ -50,8 +50,8 @@ public class CompliancePanel extends VerticalLayout {
     portfolioIdField.addValueChangeListener(event -> {
       // FIXME use a proper version
       PortfolioKey portfolioKey = new PortfolioKey(portfolioIdField.getValue(), 1);
-      portfolio = assetCache.getPortfolioCache().executeOnKey(portfolioKey,
-          new PortfolioSummarizer(new EvaluationContext()));
+      portfolio = assetCache.getPortfolioCache()
+          .executeOnKey(portfolioKey, new PortfolioSummarizer(new EvaluationContext()));
       if (portfolio == null) {
         portfolioIdField.setErrorMessage("not found");
         portfolioIdField.setInvalid(true);
@@ -75,8 +75,8 @@ public class CompliancePanel extends VerticalLayout {
         return;
       }
 
-      resultPanel.setResult(portfolioEvaluator
-          .evaluate(portfolio.getKey(), new EvaluationContext()).join());
+      resultPanel.setResult(
+          portfolioEvaluator.evaluate(portfolio.getKey(), new EvaluationContext()).join());
     });
   }
 }

@@ -9,14 +9,14 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code TradeEvaluationRequest}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link TradeEvaluationRequest}.
  *
  * @author jeremy
  */
 public class TradeEvaluationRequestSerializer
     implements ProtobufSerializer<TradeEvaluationRequest> {
   /**
-   * Creates a new {@code TradeEvaluationRequestSerializer}.
+   * Creates a new {@link TradeEvaluationRequestSerializer}.
    */
   public TradeEvaluationRequestSerializer() {
     // nothing to do

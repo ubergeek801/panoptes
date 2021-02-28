@@ -13,7 +13,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link
  * PortfolioEvaluationRequest}.
  *
  * @author jeremy
@@ -22,7 +22,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 public class PortfolioEvaluationRequestSerializer
     implements ProtobufSerializer<PortfolioEvaluationRequest> {
   /**
-   * Creates a new {@code PortfolioEvaluationRequestSerializer}.
+   * Creates a new {@link PortfolioEvaluationRequestSerializer}.
    */
   public PortfolioEvaluationRequestSerializer() {
     // nothing to do
@@ -34,8 +34,7 @@ public class PortfolioEvaluationRequestSerializer
     IdVersionKeyMsg keyMsg = requestMsg.getPortfolioKey();
     PortfolioKey key = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
     EvaluationContextMsg evaluationContextMsg = requestMsg.getEvaluationContext();
-    EvaluationContext evaluationContext =
-        EvaluationContextSerializer.convert(evaluationContextMsg);
+    EvaluationContext evaluationContext = EvaluationContextSerializer.convert(evaluationContextMsg);
 
     Transaction transaction;
     if (requestMsg.hasTransaction()) {

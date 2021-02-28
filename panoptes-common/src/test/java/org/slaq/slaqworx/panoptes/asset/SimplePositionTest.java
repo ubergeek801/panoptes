@@ -9,20 +9,20 @@ import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code SimplePositionTest} tests the functionality of {@code SimplePosition}.
+ * Tests the functionality of {@link SimplePosition}.
  *
  * @author jeremy
  */
 public class SimplePositionTest {
   /**
-   * Tests that {@code SimplePosition}s are hashed in a reasonable way.
+   * Tests that {@link SimplePosition}s are hashed in a reasonable way.
    */
   @Test
   public void testHash() {
     TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-    Security dummySecurity = securityProvider.newSecurity("dummy",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
+    Security dummySecurity =
+        securityProvider.newSecurity("dummy", SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
     Position p1 = new SimplePosition(new PositionKey("p1"), 100, dummySecurity.getKey());
     Position p2 = new SimplePosition(new PositionKey("p2"), 100, dummySecurity.getKey());
     Position p3 = new SimplePosition(new PositionKey("p3"), 100, dummySecurity.getKey());

@@ -33,7 +33,7 @@ import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code RuleEvaluatorTest} tests the functionality of the {@code RuleEvaluator}.
+ * Tests the functionality of the {@link RuleEvaluator}.
  *
  * @author jeremy
  */
@@ -43,18 +43,17 @@ public class RuleEvaluatorTest {
   private AssetCache assetCache;
 
   /**
-   * Tests that {@code Position} classification behaves as expected.
+   * Tests that {@link Position} classification behaves as expected.
    */
   @Test
   public void testClassify() {
     // a dumb classifier that merely "classifies" by security ID
     EvaluationGroupClassifier classifier =
-        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().getId(),
-            "id"));
+        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().getId(), "id"));
     Rule rule = new GenericRule(null, "dummy rule", classifier) {
       @Override
       protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-                                 EvaluationContext evaluationContext) {
+          EvaluationContext evaluationContext) {
         // will not actually be invoked anyway
         return null;
       }
@@ -68,23 +67,22 @@ public class RuleEvaluatorTest {
   }
 
   /**
-   * Tests that {@code Position} evaluation behaves as expected.
+   * Tests that {@link Position} evaluation behaves as expected.
    */
   @Test
   public void testEvaluate() {
     // a dumb classifier that merely "classifies" by security ID
     EvaluationGroupClassifier classifier =
-        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().getId(),
-            "id"));
+        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().getId(), "id"));
     // a dumb filter that matches Positions in s1
     Predicate<PositionEvaluationContext> filter =
         (c -> c.getPosition().getSecurityKey().equals(TestUtil.s1.getKey()));
-    Rule rule = new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration,
-        0d, 3.9, classifier);
+    Rule rule =
+        new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration, 0d, 3.9,
+            classifier);
 
     EvaluationResult result =
-        new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext())
-            .call();
+        new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext()).call();
     assertNotNull(result, "result should never be null");
     Map<EvaluationGroup, ValueResult> groupedResults = result.getResults();
     assertNotNull(groupedResults, "result groups should never be null");
@@ -93,27 +91,25 @@ public class RuleEvaluatorTest {
     ValueResult ruleResult = groupedResults.values().iterator().next();
     assertFalse(ruleResult.isPassed(), "rule with 3.9 upper limit should have failed");
 
-    rule = new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration, 3.9,
-        4.1, classifier);
-    result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext())
-        .call();
+    rule =
+        new WeightedAverageRule<>(null, "test rule", filter, SecurityAttribute.duration, 3.9, 4.1,
+            classifier);
+    result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext()).call();
     assertTrue(result.isPassed(),
         "rule with 3.9 lower limit and 4.1 upper limit should have passed");
 
     // p1's concentration in s1 is 66.667% so should fail this rule
     rule = new ConcentrationRule(null, "test rule", filter, null, 0.65, null);
-    result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext())
-        .call();
+    result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext()).call();
     assertFalse(result.isPassed(), "rule with 65% upper limit should have failed");
     // ...and should pass this rule
     rule = new ConcentrationRule(null, "test rule", filter, null, 0.67, null);
-    result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext())
-        .call();
+    result = new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext()).call();
     assertTrue(result.isPassed(), "rule with 67% upper limit should have passed");
   }
 
   /**
-   * Tests that {@code Position} evaluation behaves as expected when an exception is thrown during
+   * Tests that {@link Position} evaluation behaves as expected when an exception is thrown during
    * calculation.
    */
   @Test
@@ -127,8 +123,9 @@ public class RuleEvaluatorTest {
     Position p2 = TestUtil.createTestPosition(assetCache, 750, s2);
 
     Set<Position> positions = Set.of(p1, p2);
-    Portfolio portfolio = TestUtil.createTestPortfolio(assetCache, "test", "Test Portfolio",
-        positions, null, Collections.emptyList());
+    Portfolio portfolio = TestUtil
+        .createTestPortfolio(assetCache, "test", "Test Portfolio", positions, null,
+            Collections.emptyList());
 
     GroovyPositionFilter filter = GroovyPositionFilter.of("s.issuer == 'issuer1'");
     ConcentrationRule rule = new ConcentrationRule(null, "test rule", filter, 0d, 10d, null);
@@ -143,8 +140,7 @@ public class RuleEvaluatorTest {
     // the Rule should have failed due to a NoDataException
     assertFalse(result.isPassed(), "failed evaluation result should not have passed");
     assertNull(result.getValue(), "failed evaluation result should not have a value");
-    assertNotNull(result.getException(),
-        "failed evaluation result should contain an exception");
+    assertNotNull(result.getException(), "failed evaluation result should contain an exception");
     assertEquals(NoDataException.class, result.getException().getClass(),
         "failed evaluation result had unexpected exception type");
   }

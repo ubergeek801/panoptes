@@ -48,15 +48,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Micronaut {@code Factory} which configures and provides various beans to the {@code
+ * A Micronaut {@link Factory} which configures and provides various beans to the {@link
  * ApplicationContext}.
  *
  * @author jeremy
  */
 @Factory
 public class PanoptesPipelineConfig {
-  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
-
   public static final String BENCHMARK_SOURCE = "benchmarkSource";
   public static final String PORTFOLIO_SOURCE = "portfolioSource";
   public static final String PORTFOLIO_EVALUATION_REQUEST_SOURCE =
@@ -66,17 +64,17 @@ public class PanoptesPipelineConfig {
   public static final String TRADE_SOURCE = "tradeSource";
   public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
 
+  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
+
   @Property(name = "kafka")
   private Properties kafkaProperties;
   @Property(name = "kafka-topic.benchmark-topic")
   private String benchmarkTopic;
   @Property(name = "kafka-topic.portfolio-topic")
   private String portfolioTopic;
-  @Property(
-      name = "kafka-topic.portfolio-request-topic")
+  @Property(name = "kafka-topic.portfolio-request-topic")
   private String portfolioEvaluationRequestTopic;
-  @Property(
-      name = "kafka-topic.portfolio-result-topic")
+  @Property(name = "kafka-topic.portfolio-result-topic")
   private String portfolioEvaluationResultTopic;
   @Property(name = "kafka-topic.security-topic")
   private String securityTopic;
@@ -86,7 +84,7 @@ public class PanoptesPipelineConfig {
   private String tradeEvaluationResultTopic;
 
   /**
-   * Creates a new {@code PanoptesPipelineConfig}. Restricted because this class is managed by
+   * Creates a new {@link PanoptesPipelineConfig}. Restricted because this class is managed by
    * Micronaut.
    */
   protected PanoptesPipelineConfig() {
@@ -94,17 +92,18 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code SourceFunction} to source benchmark data from Kafka.
+   * Configures and provides a {@link SourceFunction} to source benchmark data from Kafka.
    *
-   * @return a {@code SourceFunction}
+   * @return a {@link SourceFunction}
    */
   @Singleton
   @Named(BENCHMARK_SOURCE)
   protected SourceFunction<PortfolioEvent> benchmarkSource() {
     LOG.info("using {} as benchmark topic", benchmarkTopic);
 
-    FlinkKafkaConsumer<PortfolioEvent> consumer = new FlinkKafkaConsumer<>(benchmarkTopic,
-        new PortfolioEventDeserializationSchema(), kafkaProperties);
+    FlinkKafkaConsumer<PortfolioEvent> consumer =
+        new FlinkKafkaConsumer<>(benchmarkTopic, new PortfolioEventDeserializationSchema(),
+            kafkaProperties);
     consumer.setStartFromEarliest();
 
     return consumer;
@@ -113,7 +112,7 @@ public class PanoptesPipelineConfig {
   /**
    * Configures and provides the Flink execution environment.
    *
-   * @return a {@code StreamExecutionEnvironment}
+   * @return a {@link StreamExecutionEnvironment}
    */
   @Singleton
   protected StreamExecutionEnvironment executionEnvironment() {
@@ -132,12 +131,11 @@ public class PanoptesPipelineConfig {
     // used in operator state, etc.
     env.getConfig().registerTypeWithKryoSerializer(EvaluationResult.class,
         EvaluationResultKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(Portfolio.class,
-        PortfolioKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(PortfolioEvent.class,
-        PortfolioEventKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(PortfolioKey.class,
-        PortfolioKeyKryoSerializer.class);
+    env.getConfig().registerTypeWithKryoSerializer(Portfolio.class, PortfolioKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(PortfolioEvent.class, PortfolioEventKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(PortfolioKey.class, PortfolioKeyKryoSerializer.class);
     env.getConfig().registerTypeWithKryoSerializer(PortfolioRuleKey.class,
         PortfolioRuleKeyKryoSerializer.class);
     env.getConfig().registerTypeWithKryoSerializer(PortfolioSummary.class,
@@ -147,25 +145,23 @@ public class PanoptesPipelineConfig {
     env.getConfig().registerTypeWithKryoSerializer(RuleKey.class, RuleKeyKryoSerializer.class);
     // theoretically we should just be able to register a Rule (or maybe ConfigurableRule)
     // serializer, but Flink/Kryo aren't happy unless we register the concrete rule classes
-    env.getConfig().registerTypeWithKryoSerializer(ConcentrationRule.class,
-        RuleKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(MarketValueRule.class,
-        RuleKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(WeightedAverageRule.class,
-        RuleKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(Security.class,
-        SecurityKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(SecurityKey.class,
-        SecurityKeyKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(ConcentrationRule.class, RuleKryoSerializer.class);
+    env.getConfig().registerTypeWithKryoSerializer(MarketValueRule.class, RuleKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(WeightedAverageRule.class, RuleKryoSerializer.class);
+    env.getConfig().registerTypeWithKryoSerializer(Security.class, SecurityKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(SecurityKey.class, SecurityKeyKryoSerializer.class);
 
     return env;
   }
 
   /**
-   * Configures and provides a {@code SourceFunction} to source portfolio evaluation requests from
+   * Configures and provides a {@link SourceFunction} to source portfolio evaluation requests from
    * Kafka.
    *
-   * @return a {@code SourceFunction}
+   * @return a {@link SourceFunction}
    */
   @Singleton
   @Named(PORTFOLIO_EVALUATION_REQUEST_SOURCE)
@@ -180,10 +176,10 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code SinkFunction} to publish portfolio evaluation results to
+   * Configures and provides a {@link SinkFunction} to publish portfolio evaluation results to
    * Kafka.
    *
-   * @return a {@code SinkFunction}
+   * @return a {@link SinkFunction}
    */
   @Singleton
   @Named(PORTFOLIO_EVALUATION_RESULT_SINK)
@@ -200,43 +196,45 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code SourceFunction} to source portfolio data from Kafka.
+   * Configures and provides a {@link SourceFunction} to source portfolio data from Kafka.
    *
-   * @return a {@code SourceFunction}
+   * @return a {@link SourceFunction}
    */
   @Singleton
   @Named(PORTFOLIO_SOURCE)
   protected SourceFunction<PortfolioEvent> portfolioSource() {
     LOG.info("using {} as portfolio topic", portfolioTopic);
 
-    FlinkKafkaConsumer<PortfolioEvent> consumer = new FlinkKafkaConsumer<>(portfolioTopic,
-        new PortfolioEventDeserializationSchema(), kafkaProperties);
+    FlinkKafkaConsumer<PortfolioEvent> consumer =
+        new FlinkKafkaConsumer<>(portfolioTopic, new PortfolioEventDeserializationSchema(),
+            kafkaProperties);
     consumer.setStartFromEarliest();
 
     return consumer;
   }
 
   /**
-   * Configures and provides a {@code SourceFunction} to source security data from Kafka.
+   * Configures and provides a {@link SourceFunction} to source security data from Kafka.
    *
-   * @return a {@code SourceFunction}
+   * @return a {@link SourceFunction}
    */
   @Singleton
   @Named(SECURITY_SOURCE)
   protected SourceFunction<Security> securitySource() {
     LOG.info("using {} as security topic", securityTopic);
 
-    FlinkKafkaConsumer<Security> consumer = new FlinkKafkaConsumer<>(securityTopic,
-        new SecurityDeserializationSchema(), kafkaProperties);
+    FlinkKafkaConsumer<Security> consumer =
+        new FlinkKafkaConsumer<>(securityTopic, new SecurityDeserializationSchema(),
+            kafkaProperties);
     consumer.setStartFromEarliest();
 
     return consumer;
   }
 
   /**
-   * Configures and provides a {@code SinkFunction} to publish trade evaluation results to Kafka.
+   * Configures and provides a {@link SinkFunction} to publish trade evaluation results to Kafka.
    *
-   * @return a {@code SinkFunction}
+   * @return a {@link SinkFunction}
    */
   @Singleton
   @Named(TRADE_EVALUATION_RESULT_SINK)
@@ -253,17 +251,17 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code SourceFunction} to source trades from Kafka.
+   * Configures and provides a {@link SourceFunction} to source trades from Kafka.
    *
-   * @return a {@code SourceFunction}
+   * @return a {@link SourceFunction}
    */
   @Singleton
   @Named(TRADE_SOURCE)
   protected SourceFunction<Trade> tradeSource() {
     LOG.info("using {} as trade topic", tradeTopic);
 
-    FlinkKafkaConsumer<Trade> consumer = new FlinkKafkaConsumer<>(tradeTopic,
-        new TradeDeserializationSchema(), kafkaProperties);
+    FlinkKafkaConsumer<Trade> consumer =
+        new FlinkKafkaConsumer<>(tradeTopic, new TradeDeserializationSchema(), kafkaProperties);
 
     return consumer;
   }

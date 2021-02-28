@@ -3,14 +3,14 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 
 /**
- * A {@code HazelcastStreamSerializer} which (de)serializes the state of a {@code
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link
  * EvaluationResult}.
  *
  * @author jeremy
  */
 public class EvaluationResultSerializer extends HazelcastStreamSerializer<EvaluationResult> {
   /**
-   * Creates a new {@code EvaluationResultSerializer}. Hazelcast requires a public default
+   * Creates a new {@link EvaluationResultSerializer}. Hazelcast requires a public default
    * constructor.
    */
   public EvaluationResultSerializer() {

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
 
 /**
- * {@code TradeKeySerializerTest} tests the functionality of the {@code TradeKeySerializer}.
+ * Tests the functionality of the {@link TradeKeySerializer}.
  *
  * @author jeremy
  */

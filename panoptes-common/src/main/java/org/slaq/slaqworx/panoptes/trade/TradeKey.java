@@ -4,7 +4,7 @@ import org.slaq.slaqworx.panoptes.asset.IdVersionKey;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A key used to reference {@code Trade}s.
+ * A key used to reference {@link Trade}s.
  *
  * @author jeremy
  */
@@ -12,7 +12,7 @@ public class TradeKey implements ProtobufSerializable {
   private final String id;
 
   /**
-   * Creates a new {@code TradeKey} with the given ID.
+   * Creates a new {@link TradeKey} with the given ID.
    *
    * @param id
    *     the ID to assign to the key, or {@code null} to generate one
@@ -38,7 +38,7 @@ public class TradeKey implements ProtobufSerializable {
   }
 
   /**
-   * Obtains this {@code TradeKey}'s ID.
+   * Obtains this {@link TradeKey}'s ID.
    *
    * @return the ID underlying this key
    */

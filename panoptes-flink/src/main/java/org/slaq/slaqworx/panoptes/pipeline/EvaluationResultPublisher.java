@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A sink which consumes {@code RuleEvaluationResult}s. Currently this merely writes a summary of
+ * A sink which consumes {@link RuleEvaluationResult}s. Currently this merely writes a summary of
  * each result to the log.
  *
  * @author jeremy

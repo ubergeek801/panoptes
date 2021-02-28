@@ -8,13 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code RatingScaleTest} tests the functionality of the {@code RatingScale}.
+ * Tests the functionality of the {@link RatingScale}.
  *
  * @author jeremy
  */
 public class RatingScaleTest {
   /**
-   * Tests that {@code getRatingNotch()} behaves as expected.
+   * Tests that {@link RatingScale#getRatingNotch(double)} and {@link
+   * RatingScale#getRatingNotch(String)} behave as expected.
    */
   @Test
   public void testGetRatingNotch() {
@@ -44,8 +45,7 @@ public class RatingScaleTest {
     RatingNotch notch = scale.getRatingNotch("B");
     assertEquals("B", notch.getSymbol(), "unexpected symbol for notch B");
     assertEquals(8, notch.getLower(), TestUtil.EPSILON, "unexpected lower value for notch B");
-    assertEquals(8.5, notch.getMiddle(), TestUtil.EPSILON,
-        "unexpected middle value for notch B");
+    assertEquals(8.5, notch.getMiddle(), TestUtil.EPSILON, "unexpected middle value for notch B");
 
     assertNull(scale.getRatingNotch("Q"), "should not have found notch for bogus symbol");
 

@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.test.TestSecurityProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code SecurityTest} tests the functionality of {@code Security}.
+ * Tests the functionality of {@link Security}.
  *
  * @author jeremy
  */
@@ -33,11 +33,10 @@ public class SecurityTest {
   public void testGetAttributes() {
     TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-    Security s = securityProvider.newSecurity("dummy",
-        SecurityAttribute.mapOf(SecurityAttribute.country, "US", SecurityAttribute.cusip,
-            "abcde", SecurityAttribute.duration, 3.1, SecurityAttribute.coupon, 4d,
-            SecurityAttribute.maturityDate, LocalDate.of(2019, 8, 5),
-            SecurityAttribute.price, 1d));
+    Security s = securityProvider.newSecurity("dummy", SecurityAttribute
+        .mapOf(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
+            SecurityAttribute.duration, 3.1, SecurityAttribute.coupon, 4d,
+            SecurityAttribute.maturityDate, LocalDate.of(2019, 8, 5), SecurityAttribute.price, 1d));
     SecurityAttributes attributes = s.getAttributes();
     assertEquals("US", attributes.getValue(SecurityAttribute.country),
         "country value should have matched");
@@ -56,8 +55,8 @@ public class SecurityTest {
    */
   @Test
   public void testGetAttributeValue() {
-    Map<SecurityAttribute<?>, ? super Object> attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
+    Map<SecurityAttribute<?>, ? super Object> attributes =
+        SecurityAttribute.mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
     Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
     assertEquals("foo", security.getAttributeValue(SecurityAttribute.isin),
         "unexpected value for isin");
@@ -70,13 +69,13 @@ public class SecurityTest {
    */
   @Test
   public void testGetEffectiveAttributeValue() {
-    Map<SecurityAttribute<?>, ? super Object> attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
+    Map<SecurityAttribute<?>, ? super Object> attributes =
+        SecurityAttribute.mapOf(SecurityAttribute.isin, "foo", SecurityAttribute.duration, 4d);
     Security security = TestUtil.createTestSecurity(assetCache, "foo", attributes);
 
     // test some overridden attribute values
-    Map<SecurityKey, SecurityAttributes> overrides =
-        Map.of(security.getKey(), new SecurityAttributes(SecurityAttribute
+    Map<SecurityKey, SecurityAttributes> overrides = Map.of(security.getKey(),
+        new SecurityAttributes(SecurityAttribute
             .mapOf(SecurityAttribute.duration, 3d, SecurityAttribute.country, "US")));
     EvaluationContext evaluationContext =
         new EvaluationContext(EvaluationMode.FULL_EVALUATION, overrides);
@@ -90,28 +89,28 @@ public class SecurityTest {
   }
 
   /**
-   * Tests that {@code Security} objects are hashed in a reasonable way.
+   * Tests that {@link Security} objects are hashed in a reasonable way.
    */
   @Test
   public void testHash() {
     TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-    Security s1 = securityProvider.newSecurity("s1",
-        SecurityAttribute.mapOf(SecurityAttribute.country, "US", SecurityAttribute.cusip,
-            "abcde", SecurityAttribute.price, 99.1234));
-    Security s2 = securityProvider.newSecurity("s2",
-        SecurityAttribute.mapOf(SecurityAttribute.cusip, "abcde",
-            SecurityAttribute.currency, "USD", SecurityAttribute.duration, 3d));
+    Security s1 = securityProvider.newSecurity("s1", SecurityAttribute
+        .mapOf(SecurityAttribute.country, "US", SecurityAttribute.cusip, "abcde",
+            SecurityAttribute.price, 99.1234));
+    Security s2 = securityProvider.newSecurity("s2", SecurityAttribute
+        .mapOf(SecurityAttribute.cusip, "abcde", SecurityAttribute.currency, "USD",
+            SecurityAttribute.duration, 3d));
     Security s3 = securityProvider.newSecurity("s3", SecurityAttribute
         .mapOf(SecurityAttribute.description, "a security", SecurityAttribute.price, 99.1));
     Security s4 = securityProvider.newSecurity("s4", Collections.emptyMap());
     // these are the same as above, with the attributes permuted; these should hash to the same
-    Security s1a = securityProvider.newSecurity("s1",
-        SecurityAttribute.mapOf(SecurityAttribute.cusip, "abcde", SecurityAttribute.price,
-            99.1234, SecurityAttribute.country, "US"));
-    Security s2a = securityProvider.newSecurity("s2",
-        SecurityAttribute.mapOf(SecurityAttribute.cusip, "abcde",
-            SecurityAttribute.duration, 3d, SecurityAttribute.currency, "USD"));
+    Security s1a = securityProvider.newSecurity("s1", SecurityAttribute
+        .mapOf(SecurityAttribute.cusip, "abcde", SecurityAttribute.price, 99.1234,
+            SecurityAttribute.country, "US"));
+    Security s2a = securityProvider.newSecurity("s2", SecurityAttribute
+        .mapOf(SecurityAttribute.cusip, "abcde", SecurityAttribute.duration, 3d,
+            SecurityAttribute.currency, "USD"));
     Security s3a = securityProvider.newSecurity("s3", SecurityAttribute
         .mapOf(SecurityAttribute.price, 99.1, SecurityAttribute.description, "a security"));
     Security s4a = securityProvider.newSecurity("s4", Collections.emptyMap());

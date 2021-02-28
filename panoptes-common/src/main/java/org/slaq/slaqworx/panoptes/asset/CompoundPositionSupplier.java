@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
- * A {@code PositionSupplier} that represents the "concatenation" of multiple {@code
+ * A {@link PositionSupplier} that represents the "concatenation" of multiple {@link
  * PositionSupplier}s.
  *
  * @author jeremy
@@ -13,7 +13,7 @@ public class CompoundPositionSupplier implements PositionSupplier {
   private final PositionSupplier[] suppliers;
 
   /**
-   * Creates a new {@code CompoundPositionSupplier} concatenating the given suppliers.
+   * Creates a new {@link CompoundPositionSupplier} concatenating the given suppliers.
    *
    * @param suppliers
    *     the suppliers to be concatenated

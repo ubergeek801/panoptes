@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@code SinkFunction} that merely logs the received {@code PortfolioSummary}.
+ * A {@link SinkFunction} that merely logs the received {@link PortfolioSummary}.
  *
  * @author jeremy
  */

@@ -21,73 +21,73 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  */
 class CacheBootstrap {
   /**
-   * Obtains the {@code Portfolio} cache from the given {@code HazelcastInstance}.
+   * Creates a new {@link CacheBootstrap}. Restricted to enforce class utility semantics.
+   */
+  private CacheBootstrap() {
+    // nothing to do
+  }
+
+  /**
+   * Obtains the {@link Portfolio} cache from the given {@link HazelcastInstance}.
    *
    * @param hazelcastInstance
-   *     the {@code HazelcastInstance} from which to obtain the cache
+   *     the {@link HazelcastInstance} from which to obtain the cache
    *
-   * @return the {@code Portfolio} cache
+   * @return the {@link Portfolio} cache
    */
-  protected static IMap<PortfolioKey, Portfolio>
-  getPortfolioCache(HazelcastInstance hazelcastInstance) {
+  protected static IMap<PortfolioKey, Portfolio> getPortfolioCache(
+      HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.PORTFOLIO_CACHE_NAME);
   }
 
   /**
-   * Obtains the {@code Position} cache from the given {@code HazelcastInstance}.
+   * Obtains the {@link Position} cache from the given {@link HazelcastInstance}.
    *
    * @param hazelcastInstance
-   *     the {@code HazelcastInstance} from which to obtain the cache
+   *     the {@link HazelcastInstance} from which to obtain the cache
    *
-   * @return the {@code Position} cache
+   * @return the {@link Position} cache
    */
-  protected static IMap<PositionKey, Position>
-  getPositionCache(HazelcastInstance hazelcastInstance) {
+  protected static IMap<PositionKey, Position> getPositionCache(
+      HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.POSITION_CACHE_NAME);
   }
 
   /**
-   * Obtains the {@code Rule} cache from the given {@code HazelcastInstance}.
+   * Obtains the {@link Rule} cache from the given {@link HazelcastInstance}.
    *
    * @param hazelcastInstance
-   *     the {@code HazelcastInstance} from which to obtain the cache
+   *     the {@link HazelcastInstance} from which to obtain the cache
    *
-   * @return the {@code Rule} cache
+   * @return the {@link Rule} cache
    */
-  protected static IMap<RuleKey, ConfigurableRule>
-  getRuleCache(HazelcastInstance hazelcastInstance) {
+  protected static IMap<RuleKey, ConfigurableRule> getRuleCache(
+      HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.RULE_CACHE_NAME);
   }
 
   /**
-   * Obtains the {@code Security} cache from the given {@code HazelcastInstance}.
+   * Obtains the {@link Security} cache from the given {@link HazelcastInstance}.
    *
    * @param hazelcastInstance
-   *     the {@code HazelcastInstance} from which to obtain the cache
+   *     the {@link HazelcastInstance} from which to obtain the cache
    *
-   * @return the {@code Security} cache
+   * @return the {@link Security} cache
    */
-  protected static IMap<SecurityKey, Security>
-  getSecurityCache(HazelcastInstance hazelcastInstance) {
+  protected static IMap<SecurityKey, Security> getSecurityCache(
+      HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.SECURITY_CACHE_NAME);
   }
 
   /**
-   * Obtains the {@code Trade} cache from the given {@code HazelcastInstance}.
+   * Obtains the {@link Trade} cache from the given {@link HazelcastInstance}.
    *
    * @param hazelcastInstance
-   *     the {@code HazelcastInstance} from which to obtain the cache
+   *     the {@link HazelcastInstance} from which to obtain the cache
    *
-   * @return the {@code Trade} cache
+   * @return the {@link Trade} cache
    */
   protected static IMap<TradeKey, Trade> getTradeCache(HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.TRADE_CACHE_NAME);
-  }
-
-  /**
-   * Creates a new {@code CacheBootstrap}. Restricted to enforce class utility semantics.
-   */
-  private CacheBootstrap() {
-    // nothing to do
   }
 }

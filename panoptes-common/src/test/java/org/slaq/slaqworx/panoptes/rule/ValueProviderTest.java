@@ -9,13 +9,13 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@code ValueProviderTest} tests the functionality of the {@code ValueProvider}.
+ * Tests the functionality of the {@link ValueProvider}.
  *
  * @author jeremy
  */
 public class ValueProviderTest {
   /**
-   * Tests that a {@code ValueProvider} for {@code BigDecimal} behaves as expected.
+   * Tests that a {@link ValueProvider} for {@link BigDecimal} behaves as expected.
    */
   @Test
   public void testValueProvider_BigDecimal() {
@@ -29,7 +29,7 @@ public class ValueProviderTest {
   }
 
   /**
-   * Tests that a {@code ValueProvider} for {@code Double} behaves as expected.
+   * Tests that a {@link ValueProvider} for {@link Double} behaves as expected.
    */
   @Test
   public void testValueProvider_Double() {
@@ -41,7 +41,7 @@ public class ValueProviderTest {
   }
 
   /**
-   * Tests that a {@code ValueProvider} for {@code LocalDate} behaves as expected.
+   * Tests that a {@link ValueProvider} for {@link LocalDate} behaves as expected.
    */
   @Test
   public void testValueProvider_LocalDate() {
@@ -56,7 +56,7 @@ public class ValueProviderTest {
   }
 
   /**
-   * Tests that a {@code ValueProvider} for {@code RatingSymbol} behaves as expected.
+   * Tests that a {@link ValueProvider} for rating symbols/notches behaves as expected.
    */
   @Test
   public void testValueProvider_RatingSymbol() {
@@ -74,7 +74,7 @@ public class ValueProviderTest {
   }
 
   /**
-   * Tests that {@code ValueProvider} behaves as expected for an unsupported type.
+   * Tests that {@link ValueProvider} behaves as expected for an unsupported type.
    */
   @Test
   public void testValueProvider_unsupported() {

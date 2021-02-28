@@ -12,55 +12,54 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext.EvaluationMode;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of an {@code EvaluationContext}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of an {@link EvaluationContext}.
  *
  * @author jeremy
  */
 @Singleton
 public class EvaluationContextSerializer implements ProtobufSerializer<EvaluationContext> {
   /**
-   * Converts an {@code EvaluationContext} into a new {@code EvaluationContextMsg}.
+   * Creates a new {@link EvaluationContextSerializer}.
+   */
+  public EvaluationContextSerializer() {
+    // nothing to do
+  }
+
+  /**
+   * Converts an {@link EvaluationContext} into a new {@link EvaluationContextMsg}.
    *
    * @param evaluationContext
-   *     the {@code EvaluationContext} to be converted
+   *     the {@link EvaluationContext} to be converted
    *
-   * @return a {@code EvaluationContextMsg}
+   * @return a {@link EvaluationContextMsg}
    */
   public static EvaluationContextMsg convert(EvaluationContext evaluationContext) {
     EvaluationContextMsg.Builder evaluationContextBuilder = EvaluationContextMsg.newBuilder();
     evaluationContextBuilder.setEvaluationMode(evaluationContext.getEvaluationMode().name());
     evaluationContext.getSecurityOverrides().forEach((securityKey, attributes) -> {
-      evaluationContextBuilder.putSecurityOverrides(securityKey.getId(),
-          SecuritySerializer.convert(attributes));
+      evaluationContextBuilder
+          .putSecurityOverrides(securityKey.getId(), SecuritySerializer.convert(attributes));
     });
 
     return evaluationContextBuilder.build();
   }
 
   /**
-   * Converts a {@code EvaluationContextMsg} into a new {@code EvaluationContext}.
+   * Converts a {@link EvaluationContextMsg} into a new {@link EvaluationContext}.
    *
    * @param evaluationContextMsg
    *     the message to be converted
    *
-   * @return a {@code EvaluationContext}
+   * @return a {@link EvaluationContext}
    */
   public static EvaluationContext convert(EvaluationContextMsg evaluationContextMsg) {
-    Map<SecurityKey, SecurityAttributes> securityAttributeOverrides = evaluationContextMsg
-        .getSecurityOverridesMap().entrySet().stream()
-        .collect(Collectors.toMap(e -> new SecurityKey(e.getKey()),
-            e -> new SecurityAttributes(SecuritySerializer.convert(e.getValue()))));
+    Map<SecurityKey, SecurityAttributes> securityAttributeOverrides =
+        evaluationContextMsg.getSecurityOverridesMap().entrySet().stream().collect(Collectors
+            .toMap(e -> new SecurityKey(e.getKey()),
+                e -> new SecurityAttributes(SecuritySerializer.convert(e.getValue()))));
 
-    return new EvaluationContext(
-        EvaluationMode.valueOf(evaluationContextMsg.getEvaluationMode()),
+    return new EvaluationContext(EvaluationMode.valueOf(evaluationContextMsg.getEvaluationMode()),
         securityAttributeOverrides);
-  }
-
-  /**
-   * Creates a new {@code EvaluationContextSerializer}.
-   */
-  public EvaluationContextSerializer() {
-    // nothing to do
   }
 
   @Override

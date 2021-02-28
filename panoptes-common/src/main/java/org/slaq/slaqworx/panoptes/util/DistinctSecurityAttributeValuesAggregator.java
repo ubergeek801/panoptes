@@ -10,15 +10,16 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 
 /**
- * An {@code Aggregator} which extracts the distinct non-{@code null} values of a specified {@code
- * SecurityAttribute}, as well as a solid entry in the Impractically Long Class Names Competition.
+ * A Hazelcast {@link Aggregator} which extracts the distinct non-{@code null} values of a specified
+ * {@link SecurityAttribute}, as well as a solid entry in the Impractically Long Class Names
+ * Competition.
  *
  * @param <T>
- *     the value type of the {@code Security} attribute being aggregated
+ *     the value type of the {@link Security} attribute being aggregated
  *
  * @author jeremy
  */
-public class DistinctSecurityAttributeValuesAggregator<T>
+public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
     implements Aggregator<Map.Entry<SecurityKey, Security>, SortedSet<T>> {
   private static final long serialVersionUID = 1L;
 
@@ -27,21 +28,19 @@ public class DistinctSecurityAttributeValuesAggregator<T>
   private final TreeSet<T> distinctValues = new TreeSet<>();
 
   /**
-   * Creates a new {@code DistinctSecurityAttributeValuesAggregator} that aggregates distinct
-   * values
-   * of the given {@code SecurityAttribute}.
+   * Creates a new {@link DistinctSecurityAttributeValuesAggregator} that aggregates distinct values
+   * of the given {@link SecurityAttribute}.
    *
    * @param attribute
-   *     the {@code SecurityAttribute} for which to aggregate distinct values
+   *     the {@link SecurityAttribute} for which to aggregate distinct values
    */
   public DistinctSecurityAttributeValuesAggregator(SecurityAttribute<T> attribute) {
-    this.attributeName = attribute.getName();
+    attributeName = attribute.getName();
   }
 
   @Override
   public void accumulate(Entry<SecurityKey, Security> input) {
-    @SuppressWarnings("unchecked") T value =
-        (T) input.getValue().getAttributeValue(SecurityAttribute.of(attributeName), false);
+    T value = (T) input.getValue().getAttributeValue(SecurityAttribute.of(attributeName), false);
     if (value != null) {
       distinctValues.add(value);
     }

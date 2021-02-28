@@ -13,8 +13,8 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 
 /**
- * A {@code Position}-based {@code Predicate} that can be used as a {@code Position} filter for
- * {@code Rule} evaluation. Currently it is the only such filter that can be persisted.
+ * A {@link Position}-based {@link Predicate} that can be used as a {@link Position} filter for
+ * {@link Rule} evaluation. Currently it is the only such filter that can be persisted.
  *
  * @author jeremy
  */
@@ -23,33 +23,15 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   private static final ConcurrentHashMap<String, GroovyPositionFilter> expressionFilterMap =
       new ConcurrentHashMap<>(25_000);
   private static final Pattern expressionTranslationPattern = Pattern.compile("s\\.(\\w+)");
-
-  /**
-   * Obtains a {@code GroovyPositionFilter} corresponding to the given filter expression.
-   *
-   * @param expression
-   *     the expression for which to obtain a filter
-   *
-   * @return a {@code GroovyPositionFilter} compiled from the given expression, or {@code null} if
-   *     the expression is empty
-   */
-  public static GroovyPositionFilter of(String expression) {
-    if (StringUtils.isEmpty(expression)) {
-      return null;
-    }
-
-    return expressionFilterMap.computeIfAbsent(expression, GroovyPositionFilter::new);
-  }
-
   private final String expression;
   private final Predicate<PositionEvaluationContext> groovyFilter;
 
   /**
-   * Creates a new {@code GroovyPositionFilter} using the given Groovy expression. Restricted
+   * Creates a new {@link GroovyPositionFilter} using the given Groovy expression. Restricted
    * because instances of this class should be obtained through the {@code of()} factory method.
    *
    * @param expression
-   *     a Groovy expression suitable for use as a {@code Position} filter
+   *     a Groovy expression suitable for use as a {@link Position} filter
    */
   private GroovyPositionFilter(String expression) {
     this.expression = expression;
@@ -63,31 +45,48 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
       // invocation
       String matchedSubstring = securityExpressionMatcher.group(1);
       SecurityAttribute<?> matchedAttribute = SecurityAttribute.of(matchedSubstring);
-      String replacement = "s." + (matchedAttribute == null ? matchedSubstring
-          : "getEffectiveAttributeValue(" + matchedAttribute.getIndex() + ", ctx)");
+      String replacement = "s." + (matchedAttribute == null ? matchedSubstring :
+          "getEffectiveAttributeValue(" + matchedAttribute.getIndex() + ", ctx)");
       securityExpressionMatcher.appendReplacement(translatedExpression, replacement);
     }
     securityExpressionMatcher.appendTail(translatedExpression);
     String translatedExpressionString = translatedExpression.toString();
 
-    Class<Predicate<PositionEvaluationContext>> filterClass;
+    Class<?> filterClass;
     try {
-      filterClass = groovyClassLoader
-          .parseClass(getClassDefString(translatedExpressionString, true));
+      filterClass =
+          groovyClassLoader.parseClass(toClassDefString(translatedExpressionString, true));
     } catch (CompilationFailedException e) {
       // try parsing without @groovy.transform.CompileStatic
-      filterClass = groovyClassLoader
-          .parseClass(getClassDefString(translatedExpressionString, false));
+      filterClass =
+          groovyClassLoader.parseClass(toClassDefString(translatedExpressionString, false));
     }
 
     try {
       Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
-          filterClass.getConstructor();
+          (Constructor<Predicate<PositionEvaluationContext>>) filterClass.getConstructor();
       groovyFilter = filterClassConstructor.newInstance();
     } catch (Exception e) {
       // TODO throw a better exception
       throw new RuntimeException("could not instantiate Groovy filter", e);
     }
+  }
+
+  /**
+   * Obtains a {@link GroovyPositionFilter} corresponding to the given filter expression.
+   *
+   * @param expression
+   *     the expression for which to obtain a filter
+   *
+   * @return a {@link GroovyPositionFilter} compiled from the given expression, or {@code null} if
+   *     the expression is empty
+   */
+  public static GroovyPositionFilter of(String expression) {
+    if (StringUtils.isEmpty(expression)) {
+      return null;
+    }
+
+    return expressionFilterMap.computeIfAbsent(expression, GroovyPositionFilter::new);
   }
 
   /**
@@ -110,7 +109,19 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     }
   }
 
-  protected String getClassDefString(String translatedExpression, boolean isCompileStatic) {
+  /**
+   * Translates the given expression to an equivalent Groovy class definition, implementing a {@link
+   * Predicate}.
+   *
+   * @param expression
+   *     the expression to be translated to a class definition
+   * @param isCompileStatic
+   *     {@code true} if the translated class should be annotated with {@code @groovy.transform
+   *     .CompileStatic}, {@code false} otherwise
+   *
+   * @return a {@link String} containing a Groovy class definition
+   */
+  protected String toClassDefString(String expression, boolean isCompileStatic) {
     StringBuilder classDef = new StringBuilder("package org.slaq.slaqworx.panoptes.rule\n");
     classDef.append("import " + Predicate.class.getName() + "\n");
     classDef.append("import " + EvaluationContext.class.getName() + "\n");
@@ -126,7 +137,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     classDef.append("  EvaluationContext ctx = pctx.evaluationContext\n");
     classDef.append("  Position p = pctx.position\n");
     classDef.append("  Security s = p.getSecurity(ctx)\n");
-    classDef.append("  return " + translatedExpression + "\n");
+    classDef.append("  return " + expression + "\n");
     classDef.append(" }\n");
     classDef.append("}");
 

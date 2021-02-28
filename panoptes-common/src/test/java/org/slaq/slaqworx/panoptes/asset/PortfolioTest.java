@@ -26,25 +26,24 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * {@code PortfolioTest} tests the functionality of the {@code Portfolio}.
+ * Tests the functionality of the {@link Portfolio}.
  *
  * @author jeremy
  */
 @MicronautTest
 public class PortfolioTest {
+  private final TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
+  private final TestPortfolioProvider portfolioProvider = TestUtil.testPortfolioProvider();
   @Inject
   private AssetCache assetCache;
 
-  private final TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
-  private final TestPortfolioProvider portfolioProvider = TestUtil.testPortfolioProvider();
-
   /**
-   * Tests that {@code getPositions()} behaves as expected for non-hierarchy requests.
+   * Tests that {@link Portfolio#getPositions()} behaves as expected for non-hierarchy requests.
    */
   @Test
   public void testGetPositions() {
-    Security dummySecurity = securityProvider.newSecurity("dummy",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
+    Security dummySecurity =
+        securityProvider.newSecurity("dummy", SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
     HashSet<Position> positions = new HashSet<>();
     positions.add(new SimplePosition(100, dummySecurity.getKey()));
     positions.add(new SimplePosition(200, dummySecurity.getKey()));
@@ -75,37 +74,37 @@ public class PortfolioTest {
   }
 
   /**
-   * Tests that {@code getPositions()} works as expected when lookthrough {@code Position}s are
-   * requested.
+   * Tests that {@link Portfolio#getPositions()} works as expected when lookthrough {@link
+   * Position}s are requested.
    */
   @Test
   public void testGetPositions_lookthrough() {
     // just a plain old Security (no lookthrough)
-    Security plainSecurity1 = securityProvider.newSecurity("sec1",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
+    Security plainSecurity1 =
+        securityProvider.newSecurity("sec1", SecurityAttribute.mapOf(SecurityAttribute.price, 1d));
 
     // these Securities have a Portfolio key associated and thus represent holdings in those
     // funds
     PortfolioKey p2Key = new PortfolioKey("p2", 1);
-    Security p2Security = securityProvider.newSecurity("p2Sec",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio,
-            p2Key, SecurityAttribute.amount, 1000d));
+    Security p2Security = securityProvider.newSecurity("p2Sec", SecurityAttribute
+        .mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio, p2Key,
+            SecurityAttribute.amount, 1000d));
     PortfolioKey p3Key = new PortfolioKey("p3", 1);
-    Security p3Security = securityProvider.newSecurity("p3Sec",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio,
-            p3Key, SecurityAttribute.amount, 1000d));
+    Security p3Security = securityProvider.newSecurity("p3Sec", SecurityAttribute
+        .mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio, p3Key,
+            SecurityAttribute.amount, 1000d));
     PortfolioKey p4Key = new PortfolioKey("p4", 1);
-    Security p4Security = securityProvider.newSecurity("p4Sec",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio,
-            p4Key, SecurityAttribute.amount, 1000d));
+    Security p4Security = securityProvider.newSecurity("p4Sec", SecurityAttribute
+        .mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio, p4Key,
+            SecurityAttribute.amount, 1000d));
 
     // p1 is 20% p2 and 20% p3
     HashSet<Position> p1Positions = new HashSet<>();
     p1Positions.add(new SimplePosition(300, plainSecurity1.getKey()));
     p1Positions.add(new SimplePosition(100, p2Security.getKey()));
     p1Positions.add(new SimplePosition(100, p3Security.getKey()));
-    Portfolio p1 = portfolioProvider.newPortfolio("p1", "test1", p1Positions, null,
-        Collections.emptySet());
+    Portfolio p1 =
+        portfolioProvider.newPortfolio("p1", "test1", p1Positions, null, Collections.emptySet());
 
     // p2 is 20% p3 and 20% p4, with amount 1000
     HashSet<Position> p2Positions = new HashSet<>();
@@ -208,7 +207,8 @@ public class PortfolioTest {
   }
 
   /**
-   * Tests that {@code getPositions()} works as expected when {@code TaxLot}s are requested.
+   * Tests that {@link Portfolio#getPositions()} works as expected when {@link TaxLot}s are
+   * requested.
    */
   @Test
   public void testGetPositions_taxLot() {
@@ -238,11 +238,11 @@ public class PortfolioTest {
     PortfolioPosition p3 = new PortfolioPosition(p3TaxLots);
 
     Set<Position> positions = Set.of(p1, p2, p3);
-    Portfolio portfolio = TestUtil.createTestPortfolio(assetCache, null, "TaxLotTestPortfolio",
-        positions, null, Collections.emptySet());
+    Portfolio portfolio = TestUtil
+        .createTestPortfolio(assetCache, null, "TaxLotTestPortfolio", positions, null,
+            Collections.emptySet());
 
-    Map<PositionKey,
-        ? extends Position> taxLots = portfolio
+    Map<PositionKey, ? extends Position> taxLots = portfolio
         .getPositions(EnumSet.of(PositionHierarchyOption.TAXLOT),
             TestUtil.defaultTestEvaluationContext())
         .collect(Collectors.toMap(Position::getKey, t -> t));
@@ -273,12 +273,12 @@ public class PortfolioTest {
   }
 
   /**
-   * Tests that {@code getTotalMarketValue()} behaves as expected.
+   * Tests that {@link Portfolio#getMarketValue(EvaluationContext)}} behaves as expected.
    */
   @Test
-  public void testGetTotalMarketValue() {
-    Security dummySecurity = securityProvider.newSecurity("dummy",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 2d));
+  public void testGetMarketValue() {
+    Security dummySecurity =
+        securityProvider.newSecurity("dummy", SecurityAttribute.mapOf(SecurityAttribute.price, 2d));
     HashSet<Position> positions = new HashSet<>();
     positions.add(new SimplePosition(100, dummySecurity.getKey()));
     positions.add(new SimplePosition(200, dummySecurity.getKey()));
@@ -291,14 +291,14 @@ public class PortfolioTest {
         TestUtil.EPSILON, "unexpected total amount");
 
     // changing the price should change the market value
-    dummySecurity = securityProvider.newSecurity("dummy",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 4d));
+    dummySecurity =
+        securityProvider.newSecurity("dummy", SecurityAttribute.mapOf(SecurityAttribute.price, 4d));
     assertEquals(4000, portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
         TestUtil.EPSILON, "unexpected total amount after price change");
   }
 
   /**
-   * Tests that {@code Portfolio}s are hashed in a reasonable way.
+   * Tests that {@link Portfolio}s are hashed in a reasonable way.
    */
   @Test
   public void testHash() {

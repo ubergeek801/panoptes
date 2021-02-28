@@ -3,13 +3,15 @@ package org.slaq.slaqworx.panoptes.trade;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import java.util.concurrent.Callable;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
+import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * A {@code Callable} which facilitates clustered room-in-name evaluation by serializing the
+ * A {@link Callable} which facilitates clustered room-in-name evaluation by serializing the
  * evaluation parameters for execution on a remote cluster node.
  *
  * @author jeremy
@@ -23,18 +25,18 @@ public class RoomEvaluationRequest
   private ApplicationContext applicationContext;
 
   /**
-   * Creates a new {@code RoomEvaluationRequest} with the given parameters.
+   * Creates a new {@link RoomEvaluationRequest} with the given parameters.
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} in which room is to be found
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} in which room is to be found
    * @param securityKey
-   *     the {@code SecurityKey} identifying the {@code Security} for which to find room in the
-   *     specified {@code Portfolio}
+   *     the {@link SecurityKey} identifying the {@link Security} for which to find room in the
+   *     specified {@link Portfolio}
    * @param targetValue
    *     the target (maximum) amount of room to find
    */
   public RoomEvaluationRequest(PortfolioKey portfolioKey, SecurityKey securityKey,
-                               double targetValue) {
+      double targetValue) {
     this.portfolioKey = portfolioKey;
     this.securityKey = securityKey;
     this.targetValue = targetValue;
@@ -51,26 +53,26 @@ public class RoomEvaluationRequest
   }
 
   /**
-   * Obtains the {@code PortfolioKey} identifying the {@code Portfolio} for which to calculate
+   * Obtains the {@link PortfolioKey} identifying the {@link Portfolio} for which to calculate
    * room.
    *
-   * @return a {@code PortfolioKey}
+   * @return a {@link PortfolioKey}
    */
   public PortfolioKey getPortfolioKey() {
     return portfolioKey;
   }
 
   /**
-   * Obtains the {@code SecurityKey} identifying the {@code Security} for which to calculate room.
+   * Obtains the {@link SecurityKey} identifying the {@link Security} for which to calculate room.
    *
-   * @return a {@code getSecurityKey}
+   * @return a {@link SecurityKey}
    */
   public SecurityKey getSecurityKey() {
     return securityKey;
   }
 
   /**
-   * Obtains the target (maximum) amount of room to seek in the specified {@code Portfolio}.
+   * Obtains the target (maximum) amount of room to seek in the specified {@link Portfolio}.
    *
    * @return the target value
    */

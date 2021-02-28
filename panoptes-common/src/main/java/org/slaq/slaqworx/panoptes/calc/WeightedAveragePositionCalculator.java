@@ -13,8 +13,8 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
 /**
- * A {@code PositionCalculator} that determines the weighted average of a {@code Position}
- * collection with respect to some {@code SecurityAttribute}.
+ * A {@link PositionCalculator} that determines the weighted average of a {@link Position}
+ * collection with respect to some {@link SecurityAttribute}.
  *
  * @param <T>
  *     the type on which the calculator operates
@@ -23,8 +23,23 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  */
 public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> {
   /**
-   * {@code AccountAccumulator} accumulates the weighted and raw sums from the visited {@code
-   * Position}s.
+   * Creates a new {@link WeightedAveragePositionCalculator} which calculates on the given
+   * attribute.
+   *
+   * @param calculationAttribute
+   *     the attribute on which to calculate
+   */
+  public WeightedAveragePositionCalculator(SecurityAttribute<T> calculationAttribute) {
+    super(calculationAttribute);
+  }
+
+  @Override
+  public double calculate(Stream<PositionEvaluationContext> positions) {
+    return positions.collect(new WeightedAveragePositionCollector());
+  }
+
+  /**
+   * Accumulates the weighted and raw sums from the visited {@link Position}s.
    */
   private static class AmountAccumulator {
     double weightedAttributeValue = 0;
@@ -32,15 +47,15 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
   }
 
   /**
-   * {@code WeightedAveragePositionCollector} is a {@code Collector} that operates on a {@code
-   * Stream} of {@code Position}s to calculate a weighted average of the given attribute.
+   * A {@link Collector} that operates on a {@link Stream} of {@link Position}s to calculate a
+   * weighted average of the given attribute.
    *
    * @author jeremy
    */
   private class WeightedAveragePositionCollector
       implements Collector<PositionEvaluationContext, AmountAccumulator, Double> {
     /**
-     * Creates a new {@code WeightedAveragePositionCollector}.
+     * Creates a new {@link WeightedAveragePositionCollector}.
      */
     public WeightedAveragePositionCollector() {
       // nothing to do
@@ -89,21 +104,5 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
     public Supplier<AmountAccumulator> supplier() {
       return AmountAccumulator::new;
     }
-  }
-
-  /**
-   * Creates a new {@code WeightedAveragePositionCalculator} which calculates on the given
-   * attribute.
-   *
-   * @param calculationAttribute
-   *     the attribute on which to calculate
-   */
-  public WeightedAveragePositionCalculator(SecurityAttribute<T> calculationAttribute) {
-    super(calculationAttribute);
-  }
-
-  @Override
-  public double calculate(Stream<PositionEvaluationContext> positions) {
-    return positions.collect(new WeightedAveragePositionCollector());
   }
 }

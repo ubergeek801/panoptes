@@ -15,14 +15,14 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Trade}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link Trade}.
  *
  * @author jeremy
  */
 @Singleton
 public class TradeSerializer implements ProtobufSerializer<Trade> {
   /**
-   * Creates a new {@code TradeSerializer}.
+   * Creates a new {@link TradeSerializer}.
    */
   public TradeSerializer() {
     // nothing to do
@@ -34,11 +34,11 @@ public class TradeSerializer implements ProtobufSerializer<Trade> {
     IdKeyMsg tradeKeyMsg = tradeMsg.getKey();
     TradeKey tradeKey = new TradeKey(tradeKeyMsg.getId());
     DateMsg tradeDateMsg = tradeMsg.getTradeDate();
-    LocalDate tradeDate = LocalDate.of(tradeDateMsg.getYear(), tradeDateMsg.getMonth(),
-        tradeDateMsg.getDay());
+    LocalDate tradeDate =
+        LocalDate.of(tradeDateMsg.getYear(), tradeDateMsg.getMonth(), tradeDateMsg.getDay());
     DateMsg settlementDateMsg = tradeMsg.getSettlementDate();
-    LocalDate settlementDate = LocalDate.of(settlementDateMsg.getYear(),
-        settlementDateMsg.getMonth(), settlementDateMsg.getDay());
+    LocalDate settlementDate = LocalDate
+        .of(settlementDateMsg.getYear(), settlementDateMsg.getMonth(), settlementDateMsg.getDay());
     Map<PortfolioKey, Transaction> transactions =
         tradeMsg.getTransactionList().stream().map(TransactionSerializer::convert)
             .collect(Collectors.toMap(Transaction::getPortfolioKey, t -> t));

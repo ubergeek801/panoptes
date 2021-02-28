@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.Map;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
@@ -11,21 +12,21 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 @FunctionalInterface
 public interface GroupAggregator {
   /**
-   * Aggregates the given {@code Position} classifications into zero or more new classifications.
-   * For example, a {@code GroupAggregator} may select {@code Position}s held in the top five
-   * issuers and create a new "top 5 issuer" {@code EvaluationGroup} consisting of those {@code
+   * Aggregates the given {@link Position} classifications into zero or more new classifications.
+   * For example, a {@link GroupAggregator} may select {@link Position}s held in the top five
+   * issuers and create a new "top 5 issuer" {@link EvaluationGroup} consisting of those {@link
    * Position}s.
    *
    * @param classifiedPositions
-   *     the {@code Position}s already classified
+   *     the {@link Position}s already classified
    * @param evaluationContext
-   *     the {@code EvaluationContext} in which to perform the evaluation
+   *     the {@link EvaluationContext} in which to perform the evaluation
    *
-   * @return a {@code Map} consisting of the existing classified {@code Position}s (possibly
-   *     filtered) while adding zero or more new mappings of {@code EvaluationGroup}s to their
-   *     constituent {@code Position}s
+   * @return a {@link Map} consisting of the existing classified {@link Position}s (possibly
+   *     filtered) while adding zero or more new mappings of {@link EvaluationGroup}s to their
+   *     constituent {@link Position}s
    */
-  Map<EvaluationGroup, PositionSupplier> aggregate(
+  public Map<EvaluationGroup, PositionSupplier> aggregate(
       Map<EvaluationGroup, PositionSupplier> classifiedPositions,
       EvaluationContext evaluationContext);
 }

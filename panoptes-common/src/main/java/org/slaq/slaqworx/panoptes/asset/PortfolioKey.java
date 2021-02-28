@@ -3,13 +3,13 @@ package org.slaq.slaqworx.panoptes.asset;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A key used to reference {@code Portfolio}s.
+ * A key used to reference {@link Portfolio}s.
  *
  * @author jeremy
  */
 public class PortfolioKey extends IdVersionKey implements ProtobufSerializable {
   /**
-   * Creates a new {@code PortfolioKey} with the given ID and version.
+   * Creates a new {@link PortfolioKey} with the given ID and version.
    *
    * @param id
    *     the ID to assign to the key, or {@code null} to generate one

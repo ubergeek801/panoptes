@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.data;
 
 import com.hazelcast.map.MapStore;
 import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionManager;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A partial implementation of a {@code MapStore} which provides efficient implementations for
+ * A partial implementation of a {@link MapStore} which provides efficient implementations for
  * {@code loadAll()} and {@code storeAll()} (using SQL {@code IN} clauses for the former and JDBC
  * batching for the latter).
  *
@@ -37,15 +38,15 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   private final Jdbi jdbi;
 
   /**
-   * Creates a new {@code HazelcastMapStore} which uses the given {@code Jdbi} instance.
+   * Creates a new {@link HazelcastMapStore} which uses the given {@link Jdbi} instance.
    *
    * @param transactionManager
-   *     the {@code TransactionManager} to use for {@code loadAllKeys()}
+   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
    * @param jdbi
-   *     the {@code Jdbi} instance to use for database operations
+   *     the {@link Jdbi} instance to use for database operations
    */
   protected HazelcastMapStore(SynchronousTransactionManager<Connection> transactionManager,
-                              Jdbi jdbi) {
+      Jdbi jdbi) {
     this.transactionManager = transactionManager;
     this.jdbi = jdbi;
   }
@@ -61,7 +62,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   public V load(K key) {
     Map<K, V> values = loadAll(List.of(key));
 
-    return (values.isEmpty() ? null : values.get(0));
+    return values.get(key);
   }
 
   @Override
@@ -133,28 +134,27 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   }
 
   /**
-   * Binds the values to be inserted/updated for the given value, as part of a batch store
-   * operation
+   * Binds the values to be inserted/updated for the given value, as part of a batch store operation
    * (with SQL provided by {@code getStoreSql()}.
    *
    * @param batch
-   *     the {@code PreparedBatch} on which to bind the values
+   *     the {@link PreparedBatch} on which to bind the values
    * @param value
    *     the entity value for which to bind the values
    */
   protected abstract void bindValues(PreparedBatch batch, V value);
 
   /**
-   * Obtains the {@code Jdbi} to use for database operations.
+   * Obtains the {@link Jdbi} to use for database operations.
    *
-   * @return a {@code Jdbi}
+   * @return a {@link Jdbi}
    */
   protected Jdbi getJdbi() {
     return jdbi;
   }
 
   /**
-   * Obtains the key column(s) for this {@code MapStore}'s table.
+   * Obtains the key column(s) for this {@link MapStore}'s table.
    *
    * @return the table's key column names
    */
@@ -166,14 +166,14 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
    * @param key
    *     the key from which to extract component values
    *
-   * @return the component values as an {@code Object} array
+   * @return the component values as an {@link Object} array
    */
   protected abstract Object[] getKeyComponents(K key);
 
   /**
-   * Obtains a {@code RowMapper} which can be used to fetch keys for the entity being mapped.
+   * Obtains a {@link RowMapper} which can be used to fetch keys for the entity being mapped.
    *
-   * @return a {@code RowMapper}
+   * @return a {@link RowMapper}
    */
   protected abstract RowMapper<K> getKeyMapper();
 
@@ -186,8 +186,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   protected abstract String getLoadSelect();
 
   /**
-   * Obtains the insert/update SQL to be used in a store operation. This will be used in
-   * conjunction
+   * Obtains the insert/update SQL to be used in a store operation. This will be used in conjunction
    * with {@code setValues()} to batch individual operations.
    *
    * @return the SQL to be used for insert/update operations
@@ -195,27 +194,27 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   protected abstract String getStoreSql();
 
   /**
-   * Obtains this {@code MapStore}'s table name.
+   * Obtains this {@link MapStore}'s table name.
    *
-   * @return the table name corresponding to entities serviced by this {@code MapStore}
+   * @return the table name corresponding to entities serviced by this {@link MapStore}
    */
   protected abstract String getTableName();
 
   /**
-   * Invoked prior to {@code storeAll()}.
+   * Invoked following {@code storeAll()}.
    *
    * @param map
-   *     a {@code Map} of entity key to entity value, of entities being stored
+   *     a {@link Map} of entity key to entity value, of entities being stored
    */
   protected void postStoreAll(Map<K, V> map) {
     // default is to do nothing
   }
 
   /**
-   * Invoked following {@code storeAll()}.
+   * Invoked prior to {@code storeAll()}.
    *
    * @param map
-   *     a {@code Map} of entity key to entity value, of entities being stored
+   *     a {@link Map} of entity key to entity value, of entities being stored
    */
   protected void preStoreAll(Map<K, V> map) {
     // default is to do nothing

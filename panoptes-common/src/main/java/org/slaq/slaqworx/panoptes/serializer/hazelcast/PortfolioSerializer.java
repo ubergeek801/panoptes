@@ -3,13 +3,13 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 
 /**
- * A {@code HazelcastStreamSerializer} which (de)serializes the state of a {@code Portfolio}.
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link Portfolio}.
  *
  * @author jeremy
  */
 public class PortfolioSerializer extends HazelcastStreamSerializer<Portfolio> {
   /**
-   * Creates a new {@code PortfolioSerializer}. Hazelcast requires a public default constructor.
+   * Creates a new {@link PortfolioSerializer}. Hazelcast requires a public default constructor.
    */
   public PortfolioSerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.PortfolioSerializer());

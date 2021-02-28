@@ -15,19 +15,26 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.trade.TransactionKey;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Transaction}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link Transaction}.
  *
  * @author jeremy
  */
 @Singleton
 public class TransactionSerializer implements ProtobufSerializer<Transaction> {
   /**
-   * Converts a {@code Transaction} into a new {@code TransactionMsg}.
+   * Creates a new {@link TransactionSerializer}.
+   */
+  public TransactionSerializer() {
+    // nothing to do
+  }
+
+  /**
+   * Converts a {@link Transaction} into a new {@link TransactionMsg}.
    *
    * @param transaction
-   *     the {@code Transaction} to be converted
+   *     the {@link Transaction} to be converted
    *
-   * @return a {@code TransactionMsg}
+   * @return a {@link TransactionMsg}
    */
   public static TransactionMsg convert(Transaction transaction) {
     IdKeyMsg.Builder transactionKeyBuilder = IdKeyMsg.newBuilder();
@@ -59,12 +66,12 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
   }
 
   /**
-   * Converts a {@code TransactionMsg} into a new {@code Transaction}.
+   * Converts a {@link TransactionMsg} into a new {@link Transaction}.
    *
    * @param transactionMsg
    *     the message to be converted
    *
-   * @return a {@code Transaction}
+   * @return a {@link Transaction}
    */
   public static Transaction convert(TransactionMsg transactionMsg) {
     IdKeyMsg transactionKeyMsg = transactionMsg.getKey();
@@ -72,17 +79,11 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
     IdVersionKeyMsg portfolioKeyMsg = transactionMsg.getPortfolioKey();
     PortfolioKey portfolioKey =
         new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
-    List<TaxLot> allocations = transactionMsg.getPositionList().stream()
-        .map(PositionSerializer::convertTaxLot).collect(Collectors.toList());
+    List<TaxLot> allocations =
+        transactionMsg.getPositionList().stream().map(PositionSerializer::convertTaxLot)
+            .collect(Collectors.toList());
 
     return new Transaction(transactionKey, portfolioKey, allocations);
-  }
-
-  /**
-   * Creates a new {@code TransactionSerializer}.
-   */
-  public TransactionSerializer() {
-    // nothing to do
   }
 
   @Override

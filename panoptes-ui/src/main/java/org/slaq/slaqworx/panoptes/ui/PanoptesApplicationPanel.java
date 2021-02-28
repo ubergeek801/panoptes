@@ -22,7 +22,7 @@ import org.slaq.slaqworx.panoptes.ui.compliance.CompliancePanel;
 import org.slaq.slaqworx.panoptes.ui.trading.TradingPanel;
 
 /**
- * {@code PanoptesApplicationPanel} is the top-level layout for an experimental user interface.
+ * The top-level layout for an experimental user interface.
  *
  * @author jeremy
  */
@@ -34,17 +34,17 @@ public class PanoptesApplicationPanel extends AppLayout {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Creates a new {@code PanoptesApplicationPanel}.
+   * Creates a new {@link PanoptesApplicationPanel}.
    *
    * @param portfolioEvaluator
-   *     the {@code PortfolioEvaluator} to use to perform compliance evaluation
+   *     the {@link PortfolioEvaluator} to use to perform compliance evaluation
    * @param tradeEvaluator
-   *     the {@code TradeEvaluator} to use to perform compliance evaluation
+   *     the {@link TradeEvaluator} to use to perform compliance evaluation
    * @param assetCache
-   *     the {@code AssetCache} to use to resolve cached entities
+   *     the {@link AssetCache} to use to resolve cached entities
    */
   protected PanoptesApplicationPanel(PortfolioEvaluator portfolioEvaluator,
-                                     TradeEvaluator tradeEvaluator, AssetCache assetCache) {
+      TradeEvaluator tradeEvaluator, AssetCache assetCache) {
     Icon applicationIcon = new Icon(VaadinIcon.EYE);
     Span applicationTitle = new Span("Panoptes");
     applicationTitle.getStyle().set("font-weight", "bold").set("font-size", "120%")
@@ -84,8 +84,8 @@ public class PanoptesApplicationPanel extends AppLayout {
     Tab complianceTab = new Tab("Compliance");
     Tab aboutTab = new Tab("About");
     Tabs tabs = new Tabs(tradingTab, complianceTab, aboutTab);
-    Map<Tab, Component> tabPageMap = Map.of(tradingTab, tradingPanel, complianceTab,
-        compliancePanel, aboutTab, aboutPanel);
+    Map<Tab, Component> tabPageMap =
+        Map.of(tradingTab, tradingPanel, complianceTab, compliancePanel, aboutTab, aboutPanel);
     tabs.setOrientation(Tabs.Orientation.VERTICAL);
     tabs.addSelectedChangeListener(e -> {
       setContent(tabPageMap.get(e.getSelectedTab()));

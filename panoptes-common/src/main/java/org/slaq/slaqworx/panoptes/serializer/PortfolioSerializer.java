@@ -14,12 +14,19 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Portfolio}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link Portfolio}.
  *
  * @author jeremy
  */
 @Singleton
 public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
+  /**
+   * Creates a new {@link PortfolioSerializer}.
+   */
+  public PortfolioSerializer() {
+    // nothing to do
+  }
+
   public static PortfolioMsg convert(Portfolio portfolio) {
     IdVersionKeyMsg.Builder keyBuilder = IdVersionKeyMsg.newBuilder();
     keyBuilder.setId(portfolio.getKey().getId());
@@ -42,8 +49,8 @@ public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
     if (benchmarkKeyMsg != null) {
       portfolioBuilder.setBenchmarkKey(benchmarkKeyMsg);
     }
-    portfolio.getRules().forEach(
-        r -> portfolioBuilder.addRule(RuleSerializer.convert((ConfigurableRule) r)));
+    portfolio.getRules()
+        .forEach(r -> portfolioBuilder.addRule(RuleSerializer.convert((ConfigurableRule) r)));
     portfolio.getPositions()
         .forEach(p -> portfolioBuilder.addPosition(PositionSerializer.convert(p)));
 
@@ -61,19 +68,13 @@ public class PortfolioSerializer implements ProtobufSerializer<Portfolio> {
       benchmarkKey = null;
     }
 
-    Set<Position> positions = portfolioMsg.getPositionList().stream()
-        .map(PositionSerializer::convert).collect(Collectors.toSet());
+    Set<Position> positions =
+        portfolioMsg.getPositionList().stream().map(PositionSerializer::convert)
+            .collect(Collectors.toSet());
     Set<Rule> rules = portfolioMsg.getRuleList().stream().map(RuleSerializer::convert)
         .collect(Collectors.toSet());
 
     return new Portfolio(key, portfolioMsg.getName(), positions, benchmarkKey, rules);
-  }
-
-  /**
-   * Creates a new {@code PortfolioSerializer}.
-   */
-  public PortfolioSerializer() {
-    // nothing to do
   }
 
   @Override

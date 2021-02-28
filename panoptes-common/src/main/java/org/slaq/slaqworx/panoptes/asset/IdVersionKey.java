@@ -10,21 +10,11 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
  * @author jeremy
  */
 public abstract class IdVersionKey implements Comparable<IdVersionKey> {
-  /**
-   * Obtains a generated ID of the form used by an {@code IdVersionKey}.
-   *
-   * @return a generated ID
-   */
-  public static String generateId() {
-    return UUID.randomUUID().toString();
-  }
-
   private final String id;
-
   private final long version;
 
   /**
-   * Creates a new {@code IdVersionKey} with the given ID and version.
+   * Creates a new {@link IdVersionKey} with the given ID and version.
    *
    * @param id
    *     the ID to assign to the key, or {@code null} to generate one
@@ -34,6 +24,15 @@ public abstract class IdVersionKey implements Comparable<IdVersionKey> {
   public IdVersionKey(String id, long version) {
     this.id = (id == null ? generateId() : id);
     this.version = version;
+  }
+
+  /**
+   * Obtains a generated ID of the form used by an {@link IdVersionKey}.
+   *
+   * @return a generated ID
+   */
+  public static String generateId() {
+    return UUID.randomUUID().toString();
   }
 
   @Override

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 
 /**
- * {@code PositionKeySerializerTest} tests the functionality of the {@code PositionKeySerializer}.
+ * Tests the functionality of the {@link PositionKeySerializer}.
  *
  * @author jeremy
  */

@@ -1,10 +1,12 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
 /**
- * A partial implementation of {@code Rule} which does some basic initialization and housekeeping.
+ * A partial implementation of {@link Rule} which does some basic initialization and housekeeping.
  * Extending this class is recommended but optional.
  *
  * @author jeremy
@@ -17,31 +19,31 @@ public abstract class GenericRule implements Rule {
   private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();
 
   /**
-   * Creates a new {@code GenericRule} with the given key and description.
+   * Creates a new {@link GenericRule} with the given key and description.
    *
    * @param key
-   *     the unique key to assign to the {@code Rule}, or {@code null} to generate one
+   *     the unique key to assign to the {@link Rule}, or {@code null} to generate one
    * @param description
-   *     the description of the {@code Rule}
+   *     the description of the {@link Rule}
    */
   protected GenericRule(RuleKey key, String description) {
     this(key, description, null);
   }
 
   /**
-   * Creates a new {@code GenericRule} with the given key, description and evaluation group
+   * Creates a new {@link GenericRule} with the given key, description and evaluation group
    * classifier.
    *
    * @param key
-   *     the unique key to assign to the {@code Rule}, or {@code null} to generate one
+   *     the unique key to assign to the {@link Rule}, or {@code null} to generate one
    * @param description
-   *     the description of the {@code Rule}
+   *     the description of the {@link Rule}
    * @param groupClassifier
-   *     the (possibly {@code null}) {@code EvaluationGroupClassifier} to use, which may also
-   *     implement {@code GroupAggregator}
+   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
+   *     implement {@link GroupAggregator}
    */
   protected GenericRule(RuleKey key, String description,
-                        EvaluationGroupClassifier groupClassifier) {
+      EvaluationGroupClassifier groupClassifier) {
     this.key = (key == null ? new RuleKey(null) : key);
     this.description = description;
     if (groupClassifier == null) {
@@ -55,10 +57,10 @@ public abstract class GenericRule implements Rule {
   }
 
   /**
-   * Creates a new {@code GenericRule} with a generated key and the given description.
+   * Creates a new {@link GenericRule} with a generated key and the given description.
    *
    * @param description
-   *     the description of the {@code Rule}
+   *     the description of the {@link Rule}
    */
   protected GenericRule(String description) {
     this(null, description);
@@ -81,7 +83,7 @@ public abstract class GenericRule implements Rule {
 
   @Override
   public ValueResult evaluate(PositionSupplier positions, EvaluationGroup evaluationGroup,
-                              EvaluationContext evaluationContext) {
+      EvaluationContext evaluationContext) {
     try {
       return eval(positions,
           evaluationGroup == null ? EvaluationGroup.defaultGroup() : evaluationGroup,
@@ -137,19 +139,18 @@ public abstract class GenericRule implements Rule {
   }
 
   /**
-   * Evaluates the {@code Rule} on the given {@code Portfolio} {@code Position}s. The public
-   * {@code
+   * Evaluates the {@link Rule} on the given {@link Portfolio} {@link Position}s. The public {@code
    * evaluate()} methods ultimately delegate to this one.
    *
    * @param positions
-   *     the {@code Portfolio} {@code Position}s on which to evaluate the {@code Rule}
+   *     the {@link Portfolio} {@link Position}s on which to evaluate the {@link Rule}
    * @param evaluationGroup
-   *     the {@code EvaluationGroup} on which the {@code Rule} is being evaluated
+   *     the {@link EvaluationGroup} on which the {@link Rule} is being evaluated
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to evaluate
+   *     the {@link EvaluationContext} under which to evaluate
    *
-   * @return the result of the {@code Rule} evaluation
+   * @return the result of the {@link Rule} evaluation
    */
   protected abstract ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-                                      EvaluationContext evaluationContext);
+      EvaluationContext evaluationContext);
 }

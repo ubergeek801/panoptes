@@ -11,13 +11,13 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * {@code PortfolioPositionTest} tests the functionality of {@code PortfolioPosition}.
+ * Tests the functionality of {@link PortfolioPosition}.
  *
  * @author jeremy
  */
 public class PortfolioPositionTest {
   /**
-   * Tests that {@code getTaxLots()} behaves as expected.
+   * Tests that {@link PortfolioPosition#getTaxLots()} behaves as expected.
    */
   @Test
   public void getTaxLots() {
@@ -44,7 +44,7 @@ public class PortfolioPositionTest {
   }
 
   /**
-   * Tests that {@code getAmount()} behaves as expected.
+   * Tests that {@link PortfolioPosition#getAmount()} behaves as expected.
    */
   @Test
   public void testGetAmount() {
@@ -61,7 +61,7 @@ public class PortfolioPositionTest {
   }
 
   /**
-   * Tests that {@code getSecurityKey()} behaves as expected.
+   * Tests that {@link PortfolioPosition#getSecurityKey()} behaves as expected.
    */
   @Test
   public void testGetSecurityKey() {

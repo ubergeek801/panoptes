@@ -8,7 +8,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
- * A {@code PositionProvider} suitable for testing purposes.
+ * A {@link PositionProvider} suitable for testing purposes.
  *
  * @author jeremy
  */
@@ -16,8 +16,8 @@ public class TestPositionProvider implements PositionProvider {
   private final HashMap<PositionKey, Position> positionMap = new HashMap<>();
 
   /**
-   * Creates a new {@code TestPositionProvider}. Restricted because instances of this class should
-   * be obtained through {@code TestUtil}.
+   * Creates a new {@link TestPositionProvider}. Restricted because instances of this class should
+   * be obtained through {@link TestUtil}.
    */
   protected TestPositionProvider() {
     // nothing to do
@@ -29,16 +29,16 @@ public class TestPositionProvider implements PositionProvider {
   }
 
   /**
-   * Creates a new {@code Position} and makes it available through this provider.
+   * Creates a new {@link Position} and makes it available through this provider.
    *
    * @param id
-   *     the ID of the {@code Position} to create, or {@code null} to generate an ID
+   *     the ID of the {@link Position} to create, or {@code null} to generate an ID
    * @param amount
-   *     the amount of the {@code Position}
+   *     the amount of the {@link Position}
    * @param security
-   *     the {@code Security} held by the {@code Position}
+   *     the {@link Security} held by the {@link Position}
    *
-   * @return the newly created {@code Position}
+   * @return the newly created {@link Position}
    */
   public Position newPosition(String id, double amount, Security security) {
     Position position = new SimplePosition(new PositionKey(id), amount, security.getKey());

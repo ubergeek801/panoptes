@@ -7,7 +7,7 @@ import com.vaadin.flow.server.VaadinServletService;
 import io.micronaut.context.ApplicationContext;
 
 /**
- * A {@code VaadinServletService} that uses a {@code MicronautVaadinInstantiator} to perform
+ * A {@link VaadinServletService} that uses a {@link MicronautVaadinInstantiator} to perform
  * Micronaut dependency injection on objects created on behalf of the Vaadin application.
  *
  * @author jeremy
@@ -18,18 +18,17 @@ public class MicronautVaadinServletService extends VaadinServletService {
   private final MicronautVaadinInstantiator instantiator;
 
   /**
-   * Creates a new {@code MicronautVaadinServletService}.
+   * Creates a new {@link MicronautVaadinServletService}.
    *
    * @param vaadinServlet
-   *     the {@code VaadinServlet} hosting the Vaadin application
+   *     the {@link VaadinServlet} hosting the Vaadin application
    * @param deploymentConfiguration
-   *     the application's {@code DeploymentConfiguration}
+   *     the application's {@link DeploymentConfiguration}
    * @param applicationContext
-   *     the {code AppliationContext} to use to resolve beans
+   *     the {@link ApplicationContext} to use to resolve beans
    */
   public MicronautVaadinServletService(VaadinServlet vaadinServlet,
-                                       DeploymentConfiguration deploymentConfiguration,
-                                       ApplicationContext applicationContext) {
+      DeploymentConfiguration deploymentConfiguration, ApplicationContext applicationContext) {
     super(vaadinServlet, deploymentConfiguration);
     instantiator = new MicronautVaadinInstantiator(this, applicationContext);
   }

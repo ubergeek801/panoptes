@@ -14,7 +14,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code SerializerUtilTest} tests the functionality of {@code SerializerUtil}.
+ * Tests the functionality of {@link SerializerUtil}.
  *
  * @author jeremy
  */
@@ -98,8 +98,8 @@ public class SerializerUtilTest {
    */
   @Test
   public void testJsonToAttributes() throws Exception {
-    String json = "{\"cusip\":\"0MV4CFXX\",\"yield\":2.60,\"rating1Value\":99.1,"
-        + "\"maturityDate\":\"2019-07-31\"}";
+    String json = "{\"cusip\":\"0MV4CFXX\",\"yield\":2.60,\"rating1Value\":99.1," +
+        "\"maturityDate\":\"2019-07-31\"}";
     Map<SecurityAttribute<?>, ? super Object> map = SerializerUtil.jsonToAttributes(json);
     assertEquals(4, map.size(), "unexpected map size");
     assertEquals("0MV4CFXX", map.get(SecurityAttribute.cusip), "unexpected value for cusip");
@@ -113,9 +113,7 @@ public class SerializerUtilTest {
     String output = SerializerUtil.attributesToJson(map);
 
     // note the reordered keys which unfortunately makes this test slightly brittle
-    assertEquals(
-        "{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\","
-            + "\"yield\":2.6,\"rating1Value\":99.1}",
-        output, "unexpected JSON");
+    assertEquals("{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\"," +
+        "\"yield\":2.6,\"rating1Value\":99.1}", output, "unexpected JSON");
   }
 }

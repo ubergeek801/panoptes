@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.data;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 
 /**
- * A Hazelcast {@code MapStore} that provides {@code Position} persistence services.
+ * A {@link HazelcastMapStore} that provides {@link Position} persistence services.
  *
  * @author jeremy
  */
@@ -26,16 +27,16 @@ import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 @Requires(notEnv = {Environment.TEST, "offline"})
 public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
   /**
-   * Creates a new {@code PositionMapStore}. Restricted because instances of this class should be
-   * created through the {@code HazelcastMapStoreFactory}.
+   * Creates a new {@link PositionMapStore}. Restricted because instances of this class should be
+   * created through the {@link HazelcastMapStoreFactory}.
    *
    * @param transactionManager
-   *     the {@code TransactionManager} to use for {@code loadAllKeys()}
+   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
    * @param jdbi
-   *     the {@code Jdbi} instance through which to access the database
+   *     the {@link Jdbi} instance through which to access the database
    */
   protected PositionMapStore(SynchronousTransactionManager<Connection> transactionManager,
-                             Jdbi jdbi) {
+      Jdbi jdbi) {
     super(transactionManager, jdbi);
   }
 
@@ -86,9 +87,9 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() + " (id, amount, security_id, partition_id) values"
-        + " (?, ?, ?, 0) on conflict on constraint position_pk do update set amount ="
-        + " excluded.amount, security_id = excluded.security_id";
+    return "insert into " + getTableName() + " (id, amount, security_id, partition_id) values" +
+        " (?, ?, ?, 0) on conflict on constraint position_pk do update set amount =" +
+        " excluded.amount, security_id = excluded.security_id";
   }
 
   @Override

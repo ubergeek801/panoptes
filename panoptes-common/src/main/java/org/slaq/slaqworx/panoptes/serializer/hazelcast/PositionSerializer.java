@@ -3,13 +3,13 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.asset.Position;
 
 /**
- * A {@code HazelcastStreamSerializer} which (de)serializes the state of a {@code Position}.
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link Position}.
  *
  * @author jeremy
  */
 public class PositionSerializer extends HazelcastStreamSerializer<Position> {
   /**
-   * Creates a new {@code PositionSerializer}. Hazelcast requires a public default constructor.
+   * Creates a new {@link PositionSerializer}. Hazelcast requires a public default constructor.
    */
   public PositionSerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.PositionSerializer());

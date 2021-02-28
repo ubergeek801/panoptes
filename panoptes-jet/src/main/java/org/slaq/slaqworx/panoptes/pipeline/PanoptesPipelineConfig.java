@@ -7,6 +7,7 @@ import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Sink;
 import com.hazelcast.jet.pipeline.StreamSource;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Prototype;
@@ -56,15 +57,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Micronaut {@code Factory} which configures and provides various beans to the {@code
+ * A Micronaut {@link Factory} which configures and provides various beans to the {@link
  * ApplicationContext}.
  *
  * @author jeremy
  */
 @Factory
 public class PanoptesPipelineConfig {
-  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
-
   public static final String BENCHMARK_SOURCE = "benchmarkSource";
   public static final String PORTFOLIO_SOURCE = "portfolioSource";
   public static final String PORTFOLIO_EVALUATION_REQUEST_SOURCE =
@@ -73,6 +72,8 @@ public class PanoptesPipelineConfig {
   public static final String SECURITY_SOURCE = "securitySource";
   public static final String TRADE_SOURCE = "tradeSource";
   public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
+
+  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
 
   @Property(name = "kafka")
   private Properties kafkaProperties;
@@ -92,7 +93,7 @@ public class PanoptesPipelineConfig {
   private String tradeEvaluationResultTopic;
 
   /**
-   * Creates a new {@code PanoptesPipelineConfig}. Restricted because this class is managed by
+   * Creates a new {@link PanoptesPipelineConfig}. Restricted because this class is managed by
    * Micronaut.
    */
   protected PanoptesPipelineConfig() {
@@ -100,9 +101,9 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code StreamSource} to source benchmark data from Kafka.
+   * Configures and provides a {@link StreamSource} to source benchmark data from Kafka.
    *
-   * @return a {@code StreamSource}
+   * @return a {@link StreamSource}
    */
   @Singleton
   @Named(BENCHMARK_SOURCE)
@@ -117,29 +118,32 @@ public class PanoptesPipelineConfig {
     benchmarkSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         PortfolioEventSerializer.class.getCanonicalName());
 
-    return KafkaSources.kafka(benchmarkSourceProperties,
-        ConsumerRecord<PortfolioKey, PortfolioEvent>::value, benchmarkTopic);
+    return KafkaSources
+        .kafka(benchmarkSourceProperties, ConsumerRecord<PortfolioKey, PortfolioEvent>::value,
+            benchmarkTopic);
   }
 
   /**
-   * Configures and provides a {@code JetConfig} suitable for executing the Panoptes pipeline.
+   * Configures and provides a {@link JetConfig} suitable for executing the Panoptes pipeline.
    *
    * @param hazelcastConfig
    *     the configuration to use for the underlying Hazelcast instance
    *
-   * @return a {@code JetConfig}
+   * @return a {@link JetConfig}
    */
   @Singleton
   protected JetConfig jetConfig(Config hazelcastConfig) {
-    JetConfig jetConfig = new JetConfig().setHazelcastConfig(hazelcastConfig);
+    JetConfig jetConfig = new JetConfig();
+    jetConfig.setHazelcastConfig(hazelcastConfig);
 
     return jetConfig;
   }
 
   /**
-   * Configures and provides a {@code JobConfig} suitable for executing the Panoptes pipeline.
+   * Configures and provides a {@link JobConfig} suitable for executing the Panoptes pipeline, using
+   * {@link Prototype} semantics.
    *
-   * @return a {@code JobConfig}
+   * @return a {@link JobConfig}
    */
   @Prototype
   protected JobConfig jobConfig() {
@@ -198,10 +202,10 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code StreamSource} to source portfolio evaluation requests from
+   * Configures and provides a {@link StreamSource} to source portfolio evaluation requests from
    * Kafka.
    *
-   * @return a {@code StreamSource}
+   * @return a {@link StreamSource}
    */
   @Singleton
   @Named(PORTFOLIO_EVALUATION_REQUEST_SOURCE)
@@ -212,12 +216,12 @@ public class PanoptesPipelineConfig {
     portfolioEvaluationRequestSourceProperties.putAll(kafkaProperties);
     portfolioEvaluationRequestSourceProperties
         .setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    portfolioEvaluationRequestSourceProperties.setProperty(
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-        PortfolioKeySerializer.class.getCanonicalName());
-    portfolioEvaluationRequestSourceProperties.setProperty(
-        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        PortfolioEvaluationRequestSerializer.class.getCanonicalName());
+    portfolioEvaluationRequestSourceProperties
+        .setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+            PortfolioKeySerializer.class.getCanonicalName());
+    portfolioEvaluationRequestSourceProperties
+        .setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+            PortfolioEvaluationRequestSerializer.class.getCanonicalName());
 
     return KafkaSources.kafka(portfolioEvaluationRequestSourceProperties,
         ConsumerRecord<PortfolioKey, PortfolioEvaluationRequest>::value,
@@ -225,9 +229,9 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code Sink} to publish portfolio evaluation results to Kafka.
+   * Configures and provides a {@link Sink} to publish portfolio evaluation results to Kafka.
    *
-   * @return a {@code Sink}
+   * @return a {@link Sink}
    */
   @Singleton
   @Named(PORTFOLIO_EVALUATION_RESULT_SINK)
@@ -236,21 +240,20 @@ public class PanoptesPipelineConfig {
 
     Properties portfolioEvaluationResultSinkProperties = new Properties();
     portfolioEvaluationResultSinkProperties.putAll(kafkaProperties);
-    portfolioEvaluationResultSinkProperties.setProperty(
-        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+    portfolioEvaluationResultSinkProperties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         PortfolioKeySerializer.class.getCanonicalName());
-    portfolioEvaluationResultSinkProperties.setProperty(
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-        RuleEvaluationResultSerializer.class.getCanonicalName());
+    portfolioEvaluationResultSinkProperties
+        .setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+            RuleEvaluationResultSerializer.class.getCanonicalName());
 
-    return KafkaSinks.kafka(portfolioEvaluationResultSinkProperties,
-        portfolioEvaluationResultTopic, RuleEvaluationResult::getPortfolioKey, r -> r);
+    return KafkaSinks.kafka(portfolioEvaluationResultSinkProperties, portfolioEvaluationResultTopic,
+        RuleEvaluationResult::getPortfolioKey, r -> r);
   }
 
   /**
-   * Configures and provides a {@code StreamSource} to source portfolio data from Kafka.
+   * Configures and provides a {@link StreamSource} to source portfolio data from Kafka.
    *
-   * @return a {@code StreamSource}
+   * @return a {@link StreamSource}
    */
   @Singleton
   @Named(PORTFOLIO_SOURCE)
@@ -265,14 +268,15 @@ public class PanoptesPipelineConfig {
     portfolioSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         PortfolioEventSerializer.class.getCanonicalName());
 
-    return KafkaSources.kafka(portfolioSourceProperties,
-        ConsumerRecord<PortfolioKey, PortfolioEvent>::value, portfolioTopic);
+    return KafkaSources
+        .kafka(portfolioSourceProperties, ConsumerRecord<PortfolioKey, PortfolioEvent>::value,
+            portfolioTopic);
   }
 
   /**
-   * Configures and provides a {@code StreamSource} to source security data from Kafka.
+   * Configures and provides a {@link StreamSource} to source security data from Kafka.
    *
-   * @return a {@code StreamSource}
+   * @return a {@link StreamSource}
    */
   @Singleton
   @Named(SECURITY_SOURCE)
@@ -289,14 +293,15 @@ public class PanoptesPipelineConfig {
     securitySourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         SecuritySerializer.class.getCanonicalName());
 
-    return KafkaSources.kafka(securitySourceProperties,
-        ConsumerRecord<SecurityKey, Security>::value, securityTopic);
+    return KafkaSources
+        .kafka(securitySourceProperties, ConsumerRecord<SecurityKey, Security>::value,
+            securityTopic);
   }
 
   /**
-   * Configures and provides a {@code Sink} to publish trade evaluation results to Kafka.
+   * Configures and provides a {@link Sink} to publish trade evaluation results to Kafka.
    *
-   * @return a {@code Sink}
+   * @return a {@link Sink}
    */
   @Singleton
   @Named(TRADE_EVALUATION_RESULT_SINK)
@@ -307,8 +312,7 @@ public class PanoptesPipelineConfig {
     tradeEvaluationResultSinkProperties.putAll(kafkaProperties);
     tradeEvaluationResultSinkProperties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         TradeKeySerializer.class.getCanonicalName());
-    tradeEvaluationResultSinkProperties.setProperty(
-        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+    tradeEvaluationResultSinkProperties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         TradeEvaluationResultSerializer.class.getCanonicalName());
 
     return KafkaSinks.kafka(tradeEvaluationResultSinkProperties, tradeEvaluationResultTopic,
@@ -316,9 +320,9 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@code StreamSource} to source trades from Kafka.
+   * Configures and provides a {@link StreamSource} to source trades from Kafka.
    *
-   * @return a {@code StreamSource}
+   * @return a {@link StreamSource}
    */
   @Singleton
   @Named(TRADE_SOURCE)
@@ -333,7 +337,7 @@ public class PanoptesPipelineConfig {
     tradeSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         TradeSerializer.class.getCanonicalName());
 
-    return KafkaSources.kafka(tradeSourceProperties, ConsumerRecord<TradeKey, Trade>::value,
-        tradeTopic);
+    return KafkaSources
+        .kafka(tradeSourceProperties, ConsumerRecord<TradeKey, Trade>::value, tradeTopic);
   }
 }

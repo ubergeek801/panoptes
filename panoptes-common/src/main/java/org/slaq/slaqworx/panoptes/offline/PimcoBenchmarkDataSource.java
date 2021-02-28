@@ -34,49 +34,26 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProvider {
-  private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDataSource.class);
-
-  private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-02-2019.tsv";
-  private static final String GLAD_CONSTITUENTS_FILE = "PIMCO_GLAD_Constituents_07-02-2019.tsv";
-  private static final String ILAD_CONSTITUENTS_FILE = "PIMCO_ILAD_Constituents_07-02-2019.tsv";
-  private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
-
-  private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
-  private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
-  private static final Random random = new Random(0);
-
-  private static final BigDecimal MARKET_VALUE_MULTIPLIER = new BigDecimal("10000.00");
-
   public static final String RESOURCE_PATH = "offline/";
-
   public static final PortfolioKey EMAD_KEY = new PortfolioKey("EMAD", 1);
   public static final PortfolioKey GLAD_KEY = new PortfolioKey("GLAD", 1);
   public static final PortfolioKey ILAD_KEY = new PortfolioKey("ILAD", 1);
   public static final PortfolioKey PGOV_KEY = new PortfolioKey("PGOV", 1);
-
+  private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDataSource.class);
+  private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-02-2019.tsv";
+  private static final String GLAD_CONSTITUENTS_FILE = "PIMCO_GLAD_Constituents_07-02-2019.tsv";
+  private static final String ILAD_CONSTITUENTS_FILE = "PIMCO_ILAD_Constituents_07-02-2019.tsv";
+  private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
+  private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
+  private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
+  private static final Random random = new Random(0);
+  private static final BigDecimal MARKET_VALUE_MULTIPLIER = new BigDecimal("10000.00");
   private static PimcoBenchmarkDataSource instance;
-
-  /**
-   * Obtains the singleton instance of the {@code PimcoBenchmarkDataSource}.
-   *
-   * @return the {@code PimcoBenchmarkDataSource} instance
-   *
-   * @throws IOException
-   *     if the data could not be read
-   */
-  public synchronized static PimcoBenchmarkDataSource getInstance() throws IOException {
-    if (instance == null) {
-      instance = new PimcoBenchmarkDataSource();
-    }
-
-    return instance;
-  }
-
   private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
   private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
   /**
-   * Creates a new {@code PimcoBenchmarkDataSource}. Restricted to enforce singleton semantics.
+   * Creates a new {@link PimcoBenchmarkDataSource}. Restricted to enforce singleton semantics.
    *
    * @throws IOException
    *     if the data could not be read
@@ -92,6 +69,22 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   }
 
   /**
+   * Obtains the singleton instance of the {@link PimcoBenchmarkDataSource}.
+   *
+   * @return the {@link PimcoBenchmarkDataSource} instance
+   *
+   * @throws IOException
+   *     if the data could not be read
+   */
+  public synchronized static PimcoBenchmarkDataSource getInstance() throws IOException {
+    if (instance == null) {
+      instance = new PimcoBenchmarkDataSource();
+    }
+
+    return instance;
+  }
+
+  /**
    * Obtains the benchmark with the given ID.
    *
    * @param benchmarkKey
@@ -104,9 +97,9 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   }
 
   /**
-   * Obtains a {@code Map} mapping portfolio key to its corresponding benchmark.
+   * Obtains a {@link Map} mapping portfolio key to its corresponding benchmark.
    *
-   * @return a {@code Map} of portfolio key to benchmark
+   * @return a {@link Map} of portfolio key to benchmark
    */
   public Map<PortfolioKey, Portfolio> getBenchmarkMap() {
     return benchmarkMap;
@@ -124,37 +117,38 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   }
 
   /**
-   * Obtains a {@code Map} mapping security ID to its corresponding {@code Security}.
+   * Obtains a {@link Map} mapping security ID to its corresponding {@link Security}.
    *
-   * @return a {@code Map} of security ID to {@code Security}
+   * @return a {@link Map} of security ID to {@link Security}
    */
   public Map<SecurityKey, Security> getSecurityMap() {
     return securityMap;
   }
 
   /**
-   * Calculates the price of a {@code Security} given the specified attributes, normalized to USD
+   * Calculates the price of a {@link Security} given the specified attributes, normalized to USD
    * 100.
    *
    * @param asOfDate
    *     the effective current date of the calculation
    * @param maturityDate
-   *     the date that the {@code Security} matures
+   *     the date that the {@link Security} matures
    * @param effectiveYield
-   *     the effective yield of the {@code Security}
+   *     the effective yield of the {@link Security}
    *
    * @return the calculated price
    */
   protected BigDecimal calculatePrice(LocalDate asOfDate, LocalDate maturityDate,
-                                      BigDecimal effectiveYield) {
-    return BigDecimal.valueOf(36500 / (365 + asOfDate.until(maturityDate, ChronoUnit.DAYS)
-        * effectiveYield.doubleValue() / 100)).setScale(4, RoundingMode.HALF_UP);
+      BigDecimal effectiveYield) {
+    return BigDecimal.valueOf(36500 /
+        (365 + asOfDate.until(maturityDate, ChronoUnit.DAYS) * effectiveYield.doubleValue() / 100))
+        .setScale(4, RoundingMode.HALF_UP);
   }
 
   /**
    * Loads data from the given PIMCO constituents file (converted to tab-separated values) and
-   * creates a new {@code Portfolio} with the data, populating the {@code benchmarkMap} with the
-   * created {@code Portfolio} and the {@code securityMap} with the created {@code Security}
+   * creates a new {@link Portfolio} with the data, populating the {@code benchmarkMap} with the
+   * created {@link Portfolio} and the {@code securityMap} with the created {@link Security}
    * entities.
    *
    * @param benchmarkKey
@@ -192,8 +186,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
           sector = null;
         }
         String currency = values[column++];
-        BigDecimal coupon =
-            new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal coupon = new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
         LocalDate maturityDate = LocalDate.parse(values[column++], dateFormatter);
         // Face Value Local not used
         column++;
@@ -202,15 +195,14 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         // Market Value Local not used
         column++;
         // multiply the market value so it is not tiny
-        BigDecimal marketValueUsd = new BigDecimal(values[column++])
-            .multiply(MARKET_VALUE_MULTIPLIER).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal marketValueUsd =
+            new BigDecimal(values[column++]).multiply(MARKET_VALUE_MULTIPLIER)
+                .setScale(2, RoundingMode.HALF_UP);
         // Weight not used
         column++;
         String rating1Symbol = values[column++];
-        BigDecimal yield =
-            new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal duration =
-            new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal yield = new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal duration = new BigDecimal(values[column++]).setScale(2, RoundingMode.HALF_UP);
 
         Map<SecurityAttribute<?>, ? super Object> attributes = new HashMap<>();
         attributes.put(SecurityAttribute.cusip, cusip);
@@ -223,22 +215,21 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         attributes.put(SecurityAttribute.coupon, coupon.doubleValue());
         attributes.put(SecurityAttribute.maturityDate, maturityDate);
         attributes.put(SecurityAttribute.rating1Symbol, rating1Symbol);
-        double rating1Value =
-            RatingScale.defaultScale().getRatingNotch(rating1Symbol).getMiddle();
+        double rating1Value = RatingScale.defaultScale().getRatingNotch(rating1Symbol).getMiddle();
         attributes.put(SecurityAttribute.rating1Value, rating1Value);
 
         // manufacture rating2 and rating3 values
         if (random.nextDouble() < 0.8) {
-          String rating2Symbol = RatingScale.defaultScale()
-              .getRatingNotch(rating1Value + random.nextGaussian() * 3).getSymbol();
+          String rating2Symbol =
+              RatingScale.defaultScale().getRatingNotch(rating1Value + random.nextGaussian() * 3)
+                  .getSymbol();
           attributes.put(SecurityAttribute.rating2Symbol, rating2Symbol);
           attributes.put(SecurityAttribute.rating2Value,
               RatingScale.defaultScale().getRatingNotch(rating2Symbol).getMiddle());
         }
         if (random.nextDouble() < 0.8) {
           String rating3Symbol = RatingScale.defaultScale()
-              .getRatingNotch(rating1Value - 1.5 + random.nextGaussian() * 3)
-              .getSymbol();
+              .getRatingNotch(rating1Value - 1.5 + random.nextGaussian() * 3).getSymbol();
           attributes.put(SecurityAttribute.rating3Symbol, rating3Symbol);
           attributes.put(SecurityAttribute.rating3Value,
               RatingScale.defaultScale().getRatingNotch(rating3Symbol).getMiddle());
@@ -255,12 +246,12 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
         BigDecimal price = calculatePrice(asOfDate, maturityDate, yield);
         attributes.put(SecurityAttribute.price, price.doubleValue());
-        Security security = securityMap.computeIfAbsent(new SecurityKey(isin),
-            i -> new Security(attributes));
+        Security security =
+            securityMap.computeIfAbsent(new SecurityKey(isin), i -> new Security(attributes));
 
-        positions.add(new SimplePosition(
-            marketValueUsd.divide(price, RoundingMode.HALF_UP).doubleValue(),
-            security.getKey()));
+        positions.add(
+            new SimplePosition(marketValueUsd.divide(price, RoundingMode.HALF_UP).doubleValue(),
+                security.getKey()));
         portfolioMarketValue += marketValueUsd.doubleValue();
       }
     }
@@ -272,12 +263,10 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     // average rating is kind of interesting, so let's calculate it
     WeightedAveragePositionCalculator<Double> averageRatingCalc =
         new WeightedAveragePositionCalculator<>(SecurityAttribute.rating1Value);
-    String averageRating = RatingScale.defaultScale()
-        .getRatingNotch(averageRatingCalc.calculate(
-            benchmark.getPositionsWithContext(new EvaluationContext(this, this))))
+    String averageRating = RatingScale.defaultScale().getRatingNotch(averageRatingCalc
+        .calculate(benchmark.getPositionsWithContext(new EvaluationContext(this, this))))
         .getSymbol();
     LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
-        positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue),
-        averageRating);
+        positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue), averageRating);
   }
 }

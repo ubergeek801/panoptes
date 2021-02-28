@@ -9,7 +9,7 @@ import org.slaq.slaqworx.panoptes.asset.SimplePosition;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code PositionSerializerTest} tests the functionality of the {@code PositionSerializer}.
+ * Tests the functionality of the {@link PositionSerializer}.
  *
  * @author jeremy
  */
@@ -24,8 +24,7 @@ public class PositionSerializerTest {
   public void testSerialization() throws Exception {
     PositionSerializer serializer = new PositionSerializer();
 
-    Position position =
-        new SimplePosition(new PositionKey("foo"), 123456.78, TestUtil.s1.getKey());
+    Position position = new SimplePosition(new PositionKey("foo"), 123456.78, TestUtil.s1.getKey());
     byte[] buffer = serializer.write(position);
     Position deserialized = serializer.read(buffer);
 

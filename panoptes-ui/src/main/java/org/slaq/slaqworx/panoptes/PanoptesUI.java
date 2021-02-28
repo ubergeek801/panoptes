@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Panoptes is a prototype system for investment portfolio compliance assurance. {@code PanoptesUI}
- * is the entry point of the Web application.
+ * Panoptes is a prototype system for investment portfolio compliance assurance. This class is the
+ * entry point of the Web application.
  *
  * @author jeremy
  */
@@ -25,6 +25,13 @@ import org.slf4j.LoggerFactory;
 @Requires(notEnv = Environment.TEST)
 public class PanoptesUI implements ApplicationEventListener<ApplicationStartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesUI.class);
+
+  /**
+   * Creates a new instance of the Panoptes UI application.
+   */
+  protected PanoptesUI() {
+    // nothing to do
+  }
 
   /**
    * The entry point for the Panoptes application.
@@ -36,18 +43,10 @@ public class PanoptesUI implements ApplicationEventListener<ApplicationStartupEv
     Micronaut.run(PanoptesUI.class, args);
   }
 
-  /**
-   * Creates a new instance of the Panoptes UI application.
-   */
-  protected PanoptesUI() {
-    // nothing to do
-  }
-
   @Override
   public void onApplicationEvent(ApplicationStartupEvent event) {
     try {
-      @SuppressWarnings("resource") ApplicationContext applicationContext =
-          event.getSource().getApplicationContext();
+      ApplicationContext applicationContext = event.getSource().getApplicationContext();
       AssetCache assetCache = applicationContext.getBean(AssetCache.class);
 
       int numSecurities = assetCache.getSecurityCache().size();

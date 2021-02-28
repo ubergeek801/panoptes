@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import com.hazelcast.map.MapStore;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
@@ -7,6 +8,7 @@ import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionManager;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@code PimcoBenchmarkDatabaseLoader} populates the Panoptes database (using Hazelcast {@code
- * MapStore}s) with data based on the PIMCO benchmarks.
+ * Populates the Panoptes database (using Hazelcast {@link MapStore}s) with data based on the PIMCO
+ * benchmarks.
  *
  * @author jeremy
  */
@@ -35,40 +37,38 @@ import org.slf4j.LoggerFactory;
 @Requires(notEnv = Environment.TEST)
 public class PimcoBenchmarkDatabaseLoader {
   private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDatabaseLoader.class);
-
-  public static void main(String[] args) {
-    Micronaut.run(PimcoBenchmarkDatabaseLoader.class, args);
-  }
-
   private final SynchronousTransactionManager<Connection> transactionManager;
 
   /**
-   * Creates a new {@code PimcoBenchmarkDatabaseLoader}.
+   * Creates a new {@link PimcoBenchmarkDatabaseLoader}.
    *
    * @param transactionManager
-   *     the {@code TransactionManager} to use for transaction management
+   *     the {@link TransactionManager} to use for transaction management
    */
   public PimcoBenchmarkDatabaseLoader(
       SynchronousTransactionManager<Connection> transactionManager) {
     this.transactionManager = transactionManager;
   }
 
+  public static void main(String[] args) {
+    Micronaut.run(PimcoBenchmarkDatabaseLoader.class, args);
+  }
+
   /**
    * Loads the cache (and then flushes to the database) using data from the PIMCO data source.
    *
    * @param event
-   *     a {@code StartupEvent}
+   *     a {@link StartupEvent}
    *
    * @throws Exception
    *     if an unexpected error occurs
    */
-  @EventListener()
+  @EventListener
   protected void onStartup(StartupEvent event) throws Exception {
-    @SuppressWarnings("resource") BeanContext beanContext = event.getSource();
+    BeanContext beanContext = event.getSource();
 
     PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
-    HazelcastMapStoreFactory mapStoreFactory =
-        beanContext.getBean(HazelcastMapStoreFactory.class);
+    HazelcastMapStoreFactory mapStoreFactory = beanContext.getBean(HazelcastMapStoreFactory.class);
 
     LOG.info("persisting {} Securities", pimcoDataSource.getSecurityMap().size());
     SecurityMapStore securityMapStore =
@@ -88,12 +88,11 @@ public class PimcoBenchmarkDatabaseLoader {
 
     RuleMapStore ruleMapStore =
         (RuleMapStore) mapStoreFactory.newMapStore(AssetCache.RULE_CACHE_NAME, null);
-    portfolios.stream().forEach(pf -> {
-      LOG.info("persisting {} Rules for Portfolio \"{}\"", pf.getRules().count(),
-          pf.getName());
+    portfolios.forEach(pf -> {
+      LOG.info("persisting {} Rules for Portfolio \"{}\"", pf.getRules().count(), pf.getName());
       transactionManager.executeWrite(status -> {
-        Map<RuleKey, ConfigurableRule> ruleMap = pf.getRules()
-            .collect(Collectors.toMap(Rule::getKey, r -> (ConfigurableRule) r));
+        Map<RuleKey, ConfigurableRule> ruleMap =
+            pf.getRules().collect(Collectors.toMap(Rule::getKey, r -> (ConfigurableRule) r));
         ruleMapStore.storeAll(ruleMap);
         return null;
       });
@@ -101,7 +100,7 @@ public class PimcoBenchmarkDatabaseLoader {
 
     PositionMapStore positionMapStore =
         (PositionMapStore) mapStoreFactory.newMapStore(AssetCache.POSITION_CACHE_NAME, null);
-    portfolios.stream().forEach(pf -> {
+    portfolios.forEach(pf -> {
       LOG.info("persisting {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
           pf.getName());
       transactionManager.executeWrite(status -> {
@@ -112,8 +111,8 @@ public class PimcoBenchmarkDatabaseLoader {
       });
     });
 
-    PortfolioMapStore portfolioMapStore = (PortfolioMapStore) mapStoreFactory
-        .newMapStore(AssetCache.PORTFOLIO_CACHE_NAME, null);
+    PortfolioMapStore portfolioMapStore =
+        (PortfolioMapStore) mapStoreFactory.newMapStore(AssetCache.PORTFOLIO_CACHE_NAME, null);
     // persist the benchmarks first
     LOG.info("persisting 4 benchmark Portfolios");
     transactionManager.executeWrite(status -> {

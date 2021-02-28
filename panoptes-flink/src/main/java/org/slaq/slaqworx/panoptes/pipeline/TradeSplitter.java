@@ -5,10 +5,11 @@ import org.apache.flink.util.Collector;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
 import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * A {@code FlatMapFunction} which splits a {@code Trade} into its constituent {@code Transaction}s,
- * wrapped in {@code TransactionEvent}s for further processing.
+ * A {@link FlatMapFunction} which splits a {@link Trade} into its constituent {@link Transaction}s,
+ * wrapped in {@link TransactionEvent}s for further processing.
  *
  * @author jeremy
  */

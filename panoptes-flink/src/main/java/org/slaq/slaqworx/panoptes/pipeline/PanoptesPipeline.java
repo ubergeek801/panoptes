@@ -31,21 +31,17 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class PanoptesPipeline {
-  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
-
   public static final TypeInformation<SecurityKey> SECURITY_KEY_TYPE_INFO =
-      TypeInformation.of(new TypeHint<SecurityKey>() {
+      TypeInformation.of(new TypeHint<>() {
         // trivial
       });
   public static final TypeInformation<Security> SECURITY_TYPE_INFO =
-      TypeInformation.of(new TypeHint<Security>() {
+      TypeInformation.of(new TypeHint<>() {
         // trivial
       });
-
   public static final MapStateDescriptor<SecurityKey, Security> SECURITY_STATE_DESCRIPTOR =
-      new MapStateDescriptor<>("securityBroadcast", SECURITY_KEY_TYPE_INFO,
-          SECURITY_TYPE_INFO);
-
+      new MapStateDescriptor<>("securityBroadcast", SECURITY_KEY_TYPE_INFO, SECURITY_TYPE_INFO);
+  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
   private final SourceFunction<PortfolioEvent> benchmarkKafkaSource;
   private final SourceFunction<PortfolioEvent> portfolioKafkaSource;
   private final SourceFunction<PortfolioEvaluationRequest> portfolioRequestSource;
@@ -57,41 +53,38 @@ public class PanoptesPipeline {
   private final StreamExecutionEnvironment env;
 
   /**
-   * Creates a new {@code PanoptesPipeline} using the given resources. Restricted because this
-   * class
+   * Creates a new {@link PanoptesPipeline} using the given resources. Restricted because this class
    * should be instantiated through Micronaut.
    *
    * @param benchmarkKafkaSource
-   *     a {@code SourceFunction} producing benchmark-related events
+   *     a {@link SourceFunction} producing benchmark-related events
    * @param portfolioKafkaSource
-   *     a {@code SourceFunction} producing portfolio-related events
+   *     a {@link SourceFunction} producing portfolio-related events
    * @param portfolioRequestSource
-   *     a {@code SourceFunction} producing portfolio evaluation requests
+   *     a {@link SourceFunction} producing portfolio evaluation requests
    * @param portfolioResultSink
-   *     a {@code SinkFunction} consuming portfolio evaluation results
+   *     a {@link SinkFunction} consuming portfolio evaluation results
    * @param securityKafkaSource
-   *     a {@code SourceFunction} producing security-related events
+   *     a {@link SourceFunction} producing security-related events
    * @param tradeSource
-   *     a {@code SourceFunction} producing trade evaluation requests
+   *     a {@link SourceFunction} producing trade evaluation requests
    * @param tradeResultSink
-   *     a {@code SinkFunction} consuming trade evaluation results
+   *     a {@link SinkFunction} consuming trade evaluation results
    * @param flinkEnvironment
    *     the Flink execution environment to use
    */
-  protected PanoptesPipeline(
-      @Named(PanoptesPipelineConfig.BENCHMARK_SOURCE) SourceFunction<
-          PortfolioEvent> benchmarkKafkaSource,
-      @Named(PanoptesPipelineConfig.PORTFOLIO_SOURCE) SourceFunction<
-          PortfolioEvent> portfolioKafkaSource,
-      @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_REQUEST_SOURCE) SourceFunction<
-          PortfolioEvaluationRequest> portfolioRequestSource,
-      @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_RESULT_SINK) SinkFunction<
-          EvaluationResult> portfolioResultSink,
-      @Named(PanoptesPipelineConfig.SECURITY_SOURCE) SourceFunction<
-          Security> securityKafkaSource,
+  protected PanoptesPipeline(@Named(PanoptesPipelineConfig.BENCHMARK_SOURCE)
+      SourceFunction<PortfolioEvent> benchmarkKafkaSource,
+      @Named(PanoptesPipelineConfig.PORTFOLIO_SOURCE)
+          SourceFunction<PortfolioEvent> portfolioKafkaSource,
+      @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_REQUEST_SOURCE)
+          SourceFunction<PortfolioEvaluationRequest> portfolioRequestSource,
+      @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_RESULT_SINK)
+          SinkFunction<EvaluationResult> portfolioResultSink,
+      @Named(PanoptesPipelineConfig.SECURITY_SOURCE) SourceFunction<Security> securityKafkaSource,
       @Named(PanoptesPipelineConfig.TRADE_SOURCE) SourceFunction<Trade> tradeSource,
-      @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK) SinkFunction<
-          TradeEvaluationResult> tradeResultSink,
+      @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK)
+          SinkFunction<TradeEvaluationResult> tradeResultSink,
       StreamExecutionEnvironment flinkEnvironment) {
     this.benchmarkKafkaSource = benchmarkKafkaSource;
     this.portfolioKafkaSource = portfolioKafkaSource;
@@ -118,16 +111,15 @@ public class PanoptesPipeline {
     // obtain securities from Kafka and broadcast
     SingleOutputStreamOperator<Security> securitySource =
         env.addSource(securityKafkaSource).name("securitySource").uid("securitySource");
-    BroadcastStream<Security> securityStream =
-        securitySource.broadcast(SECURITY_STATE_DESCRIPTOR);
+    BroadcastStream<Security> securityStream = securitySource.broadcast(SECURITY_STATE_DESCRIPTOR);
 
     // obtain trades from Kafka
     SingleOutputStreamOperator<Trade> tradeSource =
         env.addSource(tradeKafkaSource).name("tradeSource").uid("tradeSource");
     // split each trade into its constituent transactions
     KeyedStream<PortfolioEvent, PortfolioKey> transactionStream =
-        tradeSource.flatMap(new TradeSplitter()).name("tradeTransactions")
-            .uid("tradeTransactions").keyBy(PortfolioEvent::getPortfolioKey);
+        tradeSource.flatMap(new TradeSplitter()).name("tradeTransactions").uid("tradeTransactions")
+            .keyBy(PortfolioEvent::getPortfolioKey);
 
     // obtain portfolio (event)s from Kafka, union with transaction events, connect with
     // securities and feed into a portfolio rule evaluator
@@ -141,20 +133,20 @@ public class PanoptesPipeline {
     // obtain benchmarks from Kafka, union them with the portfolio stream, and feed into a
     // benchmark rule evaluator (this evaluator only evaluates benchmarks, but collects rules
     // from the non-benchmark portfolios)
-    DataStream<PortfolioEvent> benchmarkSource = env.addSource(benchmarkKafkaSource)
-        .name("benchmarkSource").uid("benchmarkSource").union(portfolioSource);
+    DataStream<PortfolioEvent> benchmarkSource =
+        env.addSource(benchmarkKafkaSource).name("benchmarkSource").uid("benchmarkSource")
+            .union(portfolioSource);
     SingleOutputStreamOperator<RuleEvaluationResult> benchmarkResultStream = benchmarkSource
         .keyBy(p -> p.getBenchmarkKey() != null ? p.getBenchmarkKey() : p.getPortfolioKey())
-        .connect(securityStream).process(new BenchmarkRuleEvaluator())
-        .name("benchmarkEvaluator").uid("benchmarkEvaluator");
+        .connect(securityStream).process(new BenchmarkRuleEvaluator()).name("benchmarkEvaluator")
+        .uid("benchmarkEvaluator");
 
     // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark
     // evaluation results (keyed by portfolio ID, which *is* the benchmark ID for a benchmark, +
     // rule ID) into a benchmark comparator
     SingleOutputStreamOperator<RuleEvaluationResult> resultStream =
         portfolioResultStream.keyBy(RuleEvaluationResult::getBenchmarkEvaluationKey)
-            .connect(benchmarkResultStream
-                .keyBy(RuleEvaluationResult::getBenchmarkEvaluationKey))
+            .connect(benchmarkResultStream.keyBy(RuleEvaluationResult::getBenchmarkEvaluationKey))
             .process(new BenchmarkComparator()).name("benchmarkComparator")
             .uid("benchmarkComparator");
 

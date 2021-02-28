@@ -1,22 +1,23 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A key to specify or retrieve evaluation results by {@code Portfolio} and {@code Rule}.
+ * A key to specify or retrieve evaluation results by {@link Portfolio} and {@link Rule}.
  */
 public class PortfolioRuleKey implements ProtobufSerializable {
   private final PortfolioKey portfolioKey;
   private final RuleKey ruleKey;
 
   /**
-   * Creates a new {@code PortfolioRuleKey} for the given {@code Portfolio} and {@code Rule} keys.
+   * Creates a new {@link PortfolioRuleKey} for the given {@link Portfolio} and {@link Rule} keys.
    *
    * @param portfolioKey
-   *     the key of the referenced {@code Portfolio}
+   *     the key of the referenced {@link Portfolio}
    * @param ruleKey
-   *     the key of the referenced {@code Rule}
+   *     the key of the referenced {@link Rule}
    */
   public PortfolioRuleKey(PortfolioKey portfolioKey, RuleKey ruleKey) {
     this.portfolioKey = portfolioKey;
@@ -44,22 +45,24 @@ public class PortfolioRuleKey implements ProtobufSerializable {
     }
     if (ruleKey == null) {
       return other.ruleKey == null;
-    } else return ruleKey.equals(other.ruleKey);
+    } else {
+      return ruleKey.equals(other.ruleKey);
+    }
   }
 
   /**
-   * Obtains the key of the {@code Portfolio} referenced by this key.
+   * Obtains the key of the {@link Portfolio} referenced by this key.
    *
-   * @return a {@code Portfolio} key
+   * @return a {@link Portfolio} key
    */
   public PortfolioKey getPortfolioKey() {
     return portfolioKey;
   }
 
   /**
-   * Obtains the key of the {@code Rule} referenced by this key.
+   * Obtains the key of the {@link Rule} referenced by this key.
    *
-   * @return a {@code Rule} key
+   * @return a {@link Rule} key
    */
   public RuleKey getRuleKey() {
     return ruleKey;

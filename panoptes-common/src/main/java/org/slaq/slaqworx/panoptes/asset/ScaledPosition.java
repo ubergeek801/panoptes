@@ -1,14 +1,14 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A pseudo-{@code Position} typically arising from an indirect holding of a {@code Security}. For
- * example, if {@code Portfolio} A holds some amount of {@code Portfolio} B, and {@code Portfolio} B
- * holds some amount of {@code Security} S, then {@code Portfolio} A indirectly holds some amount of
+ * A pseudo-{@link Position} typically arising from an indirect holding of a {@link Security}. For
+ * example, if {@link Portfolio} A holds some amount of {@link Portfolio} B, and {@link Portfolio} B
+ * holds some amount of {@link Security} S, then {@link Portfolio} A indirectly holds some amount of
  * S, where that amount is given by (B's amount in S) * (A's shares of B) / (total shares of B). The
  * quotient portion of this equation is taken to be the {@code scale}.
  * <p>
- * Indirect holdings may be transitive, meaning that the above example could be extended with {@code
- * Portfolio} C, D, etc. The relationships between held {@code Portfolio}s form a directed acyclic
+ * Indirect holdings may be transitive, meaning that the above example could be extended with {@link
+ * Portfolio} C, D, etc. The relationships between held {@link Portfolio}s form a directed acyclic
  * graph, where the "acyclic" property is assumed.
  *
  * @author jeremy
@@ -18,14 +18,13 @@ public class ScaledPosition extends AbstractPosition {
   private final double scaledAmount;
 
   /**
-   * Creates a new {@code ScaledPosition} which represents a fractional (scaled) share of the
-   * source
-   * {@code Position}.
+   * Creates a new {@link ScaledPosition} which represents a fractional (scaled) share of the source
+   * {@link Position}.
    *
    * @param sourcePosition
-   *     the {@code Position} of which this {@code ScaledPosition} represents a fractional share
+   *     the {@link Position} of which this {@link ScaledPosition} represents a fractional share
    * @param scale
-   *     the fraction of the source {@code Position} represented by this {@code ScaledPosition}
+   *     the fraction of the source {@link Position} represented by this {@link ScaledPosition}
    */
   public ScaledPosition(Position sourcePosition, double scale) {
     this.sourcePosition = sourcePosition;

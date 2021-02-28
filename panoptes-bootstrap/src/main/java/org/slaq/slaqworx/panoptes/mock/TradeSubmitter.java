@@ -35,9 +35,20 @@ import org.slf4j.LoggerFactory;
 @Requires(env = {"trade-submit"})
 public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(TradeSubmitter.class);
+  private final KafkaProducer kafkaProducer;
 
   /**
-   * Executes the {@code TradeSubmitter} application.
+   * Creates a {@link TradeSubmitter} that publishes using the given {@link KafkaProducer}.
+   *
+   * @param kafkaProducer
+   *     the {@link KafkaProducer} with which to publish events to Kafka
+   */
+  protected TradeSubmitter(KafkaProducer kafkaProducer) {
+    this.kafkaProducer = kafkaProducer;
+  }
+
+  /**
+   * Executes the {@link TradeSubmitter} application.
    *
    * @param args
    *     the program arguments (unused)
@@ -47,18 +58,6 @@ public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
         .environments("trade-submit", "offline").args(args).start()) {
       // nothing else to do
     }
-  }
-
-  private final KafkaProducer kafkaProducer;
-
-  /**
-   * Creates a {@code TradeSubmitter} that publishes using the given {@code KafkaProducer}.
-   *
-   * @param kafkaProducer
-   *     the {@code KafkaProducer} with which to publish events to Kafka
-   */
-  protected TradeSubmitter(KafkaProducer kafkaProducer) {
-    this.kafkaProducer = kafkaProducer;
   }
 
   @Override
@@ -102,17 +101,16 @@ public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
       ArrayList<PortfolioKey> unusedPortfolioKeys = new ArrayList<>(portfolioKeys);
       for (int j = 0; j < numTransactions; j++) {
         // don't use a portfolio key more than once
-        PortfolioKey portfolioKey = unusedPortfolioKeys
-            .remove((int) (random.nextDouble() * unusedPortfolioKeys.size()));
+        PortfolioKey portfolioKey =
+            unusedPortfolioKeys.remove((int) (random.nextDouble() * unusedPortfolioKeys.size()));
 
         // pick a security, any security
         SecurityKey securityKey =
             securities.get((int) (random.nextDouble() * securities.size())).getKey();
 
         // generate an amount in the approximate range of 100.00 ~ 10_000.00
-        double amount = 100
-            + (long) (Math.pow(10, 2 + random.nextInt(3)) * random.nextDouble() * 100)
-            / 100d;
+        double amount =
+            100 + (long) (Math.pow(10, 2 + random.nextInt(3)) * random.nextDouble() * 100) / 100d;
 
         TaxLot allocation = new TaxLot(amount * 100, securityKey);
         Transaction transaction = new Transaction(portfolioKey, List.of(allocation));

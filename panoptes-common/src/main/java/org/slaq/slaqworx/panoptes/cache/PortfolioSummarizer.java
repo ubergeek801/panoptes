@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.cache;
 
 import com.hazelcast.core.ReadOnly;
 import com.hazelcast.map.EntryProcessor;
+import java.io.Serializable;
 import java.util.Map;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -10,17 +11,18 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
- * A Hazelcast {@code EntryProcessor} that produces a {@code PortfolioSummary} projection for a
- * given {@code Portfolio}.
+ * A Hazelcast {@link EntryProcessor} that produces a {@link PortfolioSummary} projection for a
+ * given {@link Portfolio}.
  * <p>
- * Note that although {@code EntryProcessor} is {@code Serializable}, this class expects to be
- * serialized using Protobuf (because the contained {@code EvaluationContext} is not {@code
+ * Note that although {@link EntryProcessor} is {@link Serializable}, this class expects to be
+ * serialized using Protobuf (because the contained {@link EvaluationContext} is not {@link
  * Serializable}.
  *
  * @author jeremy
  */
-public class PortfolioSummarizer implements
-    EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary>, ReadOnly, ProtobufSerializable {
+public class PortfolioSummarizer
+    implements EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary>, ReadOnly,
+    ProtobufSerializable {
   private static final long serialVersionUID = 1L;
 
   // note that the EvaluationContext isn't Serializable
@@ -37,9 +39,9 @@ public class PortfolioSummarizer implements
   }
 
   /**
-   * Obtains the {@code EvaluationContext} in effect for this {@code PortfolioSummarizer}.
+   * Obtains the {@link EvaluationContext} in effect for this {@link PortfolioSummarizer}.
    *
-   * @return an {@code EvaluationContext}
+   * @return an {@link EvaluationContext}
    */
   public EvaluationContext getEvaluationContext() {
     return evaluationContext;

@@ -8,14 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code CompoundPositionSupplierTest} tests the functionality of the {@code
- * CompoundPositionSupplier}.
+ * Tests the functionality of the {@link CompoundPositionSupplier}.
  *
  * @author jeremy
  */
 public class CompoundPositionSupplierTest {
   /**
-   * Tests that {@code PositionSupplier} concatenation behaves as expected.
+   * Tests that {@link PositionSupplier} concatenation behaves as expected.
    */
   @Test
   public void testConcat() {
@@ -26,11 +25,9 @@ public class CompoundPositionSupplierTest {
     PositionSupplier concat = PositionSupplier.concat(s1, s2, s3);
 
     // there should be a total of 7 positions (2 + 2 + 3)
-    assertEquals(7, concat.size(),
-        "number of Positions should equal sum of Position set sizes");
+    assertEquals(7, concat.size(), "number of Positions should equal sum of Position set sizes");
     List<Position> positions = concat.getPositions().collect(Collectors.toList());
-    assertEquals(7, positions.size(),
-        "number of Positions should equal sum of Position set sizes");
+    assertEquals(7, positions.size(), "number of Positions should equal sum of Position set sizes");
 
     assertEquals(portfolioKey, concat.getPortfolioKey(),
         "Portfolio key should equal that of the Portfolios");

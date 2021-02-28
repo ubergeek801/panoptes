@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@code SecurityKeyTest} tests the functionality of the {@code SecurityKey}.
+ * Tests the functionality of the {@link SecurityKey}.
  *
  * @author jeremy
  */
 public class SecurityKeyTest {
   /**
-   * Tests that {@code SecurityKey}s are sortable.
+   * Tests that {@link SecurityKey}s are sortable.
    */
   @Test
   public void testSort() {

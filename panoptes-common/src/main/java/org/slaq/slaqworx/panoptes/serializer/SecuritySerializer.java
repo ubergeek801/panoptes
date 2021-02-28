@@ -13,18 +13,25 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.SecurityMsg;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Security}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link Security}.
  *
  * @author jeremy
  */
 public class SecuritySerializer implements ProtobufSerializer<Security> {
   /**
-   * Converts a {@code SecurityAttributes} instance into a new {@code SecurityMsg}.
+   * Creates a new {@link SecuritySerializer}.
+   */
+  public SecuritySerializer() {
+    // nothing to do
+  }
+
+  /**
+   * Converts a {@link SecurityAttributes} instance into a new {@link SecurityMsg}.
    *
    * @param securityAttributes
-   *     the {@code SecurityAttributes} to be converted
+   *     the {@link SecurityAttributes} to be converted
    *
-   * @return a {@code SecurityMsg}
+   * @return a {@link SecurityMsg}
    */
   public static SecurityMsg convert(SecurityAttributes securityAttributes) {
     SecurityMsg.Builder securityBuilder = SecurityMsg.newBuilder();
@@ -37,8 +44,8 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
             SerializerUtil.defaultJsonMapper().writeValueAsString(value));
       } catch (JsonProcessingException e) {
         // FIXME throw a better exception
-        throw new RuntimeException("could not serialize value " + value + "of attribute "
-            + attribute.getName(), e);
+        throw new RuntimeException(
+            "could not serialize value " + value + "of attribute " + attribute.getName(), e);
       }
     }
 
@@ -46,13 +53,13 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
   }
 
   /**
-   * Converts a {@code SecurityMsg} into a new {@code Map} relating each {@code SecurityAttribute}
+   * Converts a {@link SecurityMsg} into a new {@link Map} relating each {@link SecurityAttribute}
    * to its corresponding value.
    *
    * @param securityMsg
    *     the message to be converted
    *
-   * @return a {@code Map} relating each {@code SecurityAttribute} to its corresponding value
+   * @return a {@link Map} relating each {@link SecurityAttribute} to its corresponding value
    */
   public static Map<SecurityAttribute<?>, ? super Object> convert(SecurityMsg securityMsg) {
     Map<String, String> msgAttributes = securityMsg.getAttributesMap();
@@ -60,8 +67,7 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
         .collect(Collectors.toMap(e -> SecurityAttribute.of(e.getKey()), e -> {
           try {
             return SerializerUtil.coerce(SecurityAttribute.of(e.getKey()),
-                SerializerUtil.defaultJsonMapper().readValue(e.getValue(),
-                    String.class));
+                SerializerUtil.defaultJsonMapper().readValue(e.getValue(), String.class));
           } catch (IOException ex) {
             // FIXME throw a better exception
             throw new RuntimeException(ex);
@@ -69,13 +75,6 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
         }));
 
     return attributes;
-  }
-
-  /**
-   * Creates a new {@code SecuritySerializer}.
-   */
-  public SecuritySerializer() {
-    // nothing to do
   }
 
   @Override

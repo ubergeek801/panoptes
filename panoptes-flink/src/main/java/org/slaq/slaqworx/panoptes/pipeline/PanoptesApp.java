@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The main entry point of the Flink edition of Panoptes. The application configures a Micronaut
- * {@code ApplicationContext} and initializes the Flink pipeline.
+ * {@link ApplicationContext} and initializes the Flink pipeline.
  *
  * @author jeremy
  */
@@ -25,14 +25,13 @@ public class PanoptesApp {
   private static ApplicationContext globalAppContext;
 
   /**
-   * Obtains the {@code ApplicationContext} singleton.
+   * Obtains the {@link ApplicationContext} singleton.
    *
    * @param args
-   *     the program arguments with which to initialize the {@code ApplicationContext}; ignored
-   *     (and
+   *     the program arguments with which to initialize the {@link ApplicationContext}; ignored (and
    *     may be empty) if the context has already been created
    *
-   * @return the {@code ApplicationContext}
+   * @return the {@link ApplicationContext}
    */
   public static ApplicationContext getApplicationContext(String... args) {
     if (globalAppContext == null) {
@@ -43,14 +42,13 @@ public class PanoptesApp {
   }
 
   /**
-   * Obtains the {@code AssetCache} from the application context.
+   * Obtains the {@link AssetCache} from the application context.
    *
    * @param args
-   *     the program arguments with which to initialize the {@code ApplicationContext}; ignored
-   *     (and
+   *     the program arguments with which to initialize the {@link ApplicationContext}; ignored (and
    *     may be empty) if the context has already been created
    *
-   * @return the {@code AssetCache} singleton
+   * @return the {@link AssetCache} singleton
    */
   public static AssetCache getAssetCache(String... args) {
     return getApplicationContext(args).getBean(AssetCache.class);
@@ -79,12 +77,12 @@ public class PanoptesApp {
   }
 
   /**
-   * Creates the Micronaut {@code ApplicationContext}.
+   * Creates the Micronaut {@link ApplicationContext}.
    *
    * @param args
-   *     the program arguments with which to initialize the {@code ApplicationContext}
+   *     the program arguments with which to initialize the {@link ApplicationContext}
    *
-   * @return the {@code ApplicationContext}
+   * @return the {@link ApplicationContext}
    */
   protected static ApplicationContext createApplicationContext(String... args) {
     return Micronaut.build(args).mainClass(PanoptesApp.class).environments(args).start();

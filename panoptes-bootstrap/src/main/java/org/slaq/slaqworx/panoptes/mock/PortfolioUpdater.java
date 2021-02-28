@@ -26,9 +26,20 @@ import org.slf4j.LoggerFactory;
 @Requires(env = {"portfolio-update"})
 public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioUpdater.class);
+  private final KafkaProducer kafkaProducer;
 
   /**
-   * Executes the {@code PortfolioUpdater} application.
+   * Creates a {@link PortfolioUpdater} that publishes using the given {@link KafkaProducer}.
+   *
+   * @param kafkaProducer
+   *     the {@link KafkaProducer} with which to publish events to Kafka
+   */
+  protected PortfolioUpdater(KafkaProducer kafkaProducer) {
+    this.kafkaProducer = kafkaProducer;
+  }
+
+  /**
+   * Executes the {@link PortfolioUpdater} application.
    *
    * @param args
    *     the program arguments (unused)
@@ -38,18 +49,6 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
         .environments("portfolio-update", "offline").args(args).start()) {
       // nothing else to do
     }
-  }
-
-  private final KafkaProducer kafkaProducer;
-
-  /**
-   * Creates a {@code PortfolioUpdater} that publishes using the given {@code KafkaProducer}.
-   *
-   * @param kafkaProducer
-   *     the {@code KafkaProducer} with which to publish events to Kafka
-   */
-  protected PortfolioUpdater(KafkaProducer kafkaProducer) {
-    this.kafkaProducer = kafkaProducer;
   }
 
   @Override
@@ -88,14 +87,13 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
       ArrayList<Portfolio> portfoliosCopy = new ArrayList<>(portfolios);
       ArrayList<Portfolio> randomPortfolios = new ArrayList<>();
       for (int i = 0; i < 100; i++) {
-        randomPortfolios
-            .add(portfoliosCopy.remove((int) (Math.random() * portfoliosCopy.size())));
+        randomPortfolios.add(portfoliosCopy.remove((int) (Math.random() * portfoliosCopy.size())));
       }
 
       long[] eventId = new long[] {System.currentTimeMillis()};
       LOG.info("publishing {} portfolios", randomPortfolios.size());
-      randomPortfolios.forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(),
-          new PortfolioCommandEvent(eventId[0]++, p.getKey())));
+      randomPortfolios.forEach(p -> kafkaProducer
+          .publishPortfolioEvent(p.getKey(), new PortfolioCommandEvent(eventId[0]++, p.getKey())));
     }
 
     LOG.info("published portfolios");

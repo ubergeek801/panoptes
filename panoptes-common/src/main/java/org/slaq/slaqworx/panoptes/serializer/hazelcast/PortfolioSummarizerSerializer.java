@@ -3,14 +3,14 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
 
 /**
- * A {@code HazelcastStreamSerializer} which (de)serializes the state of a {@code
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link
  * PortfolioSummarizer}.
  *
  * @author jeremy
  */
 public class PortfolioSummarizerSerializer extends HazelcastStreamSerializer<PortfolioSummarizer> {
   /**
-   * Creates a new {@code PortfolioSummarizerSerializer}. Hazelcast requires a public default
+   * Creates a new {@link PortfolioSummarizerSerializer}. Hazelcast requires a public default
    * constructor.
    */
   public PortfolioSummarizerSerializer() {

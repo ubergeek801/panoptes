@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.test.TestRuleProvider;
 import org.slaq.slaqworx.panoptes.test.TestUtil;
 
 /**
- * {@code PortfolioSerializerTest} tests the functionality of the {@code PortfolioSerializer}.
+ * Tests the functionality of the {@link PortfolioSerializer}.
  *
  * @author jeremy
  */

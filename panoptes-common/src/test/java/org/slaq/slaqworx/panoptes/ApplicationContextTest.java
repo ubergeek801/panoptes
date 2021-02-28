@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@code ApplicationContextTest} tests the {@code ApplicationContext} for the Panoptes
+ * {@link ApplicationContextTest} tests the {@link ApplicationContext} for the Panoptes
  * application.
  *
  * @author jeremy
@@ -19,7 +19,7 @@ public class ApplicationContextTest {
   private ApplicationContext applicationContext;
 
   /**
-   * Tests that the {@code ApplicationContext} can be constructed.
+   * Tests that the {@link ApplicationContext} can be constructed.
    */
   @Test
   public void testApplicationContext() {

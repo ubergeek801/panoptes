@@ -12,19 +12,26 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PositionMsg;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
- * A {@code ProtobufSerializer} which (de)serializes the state of a {@code Position}.
+ * A {@link ProtobufSerializer} which (de)serializes the state of a {@link Position}.
  *
  * @author jeremy
  */
 @Singleton
 public class PositionSerializer implements ProtobufSerializer<Position> {
   /**
-   * Converts a {@code Position} into a new {@code PositionMsg}.
+   * Creates a new {@link PositionSerializer}.
+   */
+  public PositionSerializer() {
+    // nothing to do
+  }
+
+  /**
+   * Converts a {@link Position} into a new {@link PositionMsg}.
    *
    * @param position
-   *     the {@code Position} to be converted
+   *     the {@link Position} to be converted
    *
-   * @return a {@code PositionMsg}
+   * @return a {@link PositionMsg}
    */
   public static PositionMsg convert(Position position) {
     IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
@@ -42,12 +49,12 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
   }
 
   /**
-   * Converts a {@code PositionMsg} into a new {@code Position}.
+   * Converts a {@link PositionMsg} into a new {@link Position}.
    *
    * @param positionMsg
    *     the message to be converted
    *
-   * @return a {@code Position}
+   * @return a {@link Position}
    */
   public static Position convert(PositionMsg positionMsg) {
     IdKeyMsg keyMsg = positionMsg.getKey();
@@ -59,12 +66,12 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
   }
 
   /**
-   * Converts a {@code PositionMsg} into a new {@code TaxLot}.
+   * Converts a {@link PositionMsg} into a new {@link TaxLot}.
    *
    * @param positionMsg
    *     the message to be converted
    *
-   * @return a {@code TaxLot}
+   * @return a {@link TaxLot}
    */
   public static TaxLot convertTaxLot(PositionMsg positionMsg) {
     IdKeyMsg keyMsg = positionMsg.getKey();
@@ -73,13 +80,6 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
     SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
 
     return new TaxLot(key, positionMsg.getAmount(), securityKey);
-  }
-
-  /**
-   * Creates a new {@code PositionSerializer}.
-   */
-  public PositionSerializer() {
-    // nothing to do
   }
 
   @Override

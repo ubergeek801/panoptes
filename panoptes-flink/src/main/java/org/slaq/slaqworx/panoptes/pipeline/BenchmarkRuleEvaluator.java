@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A process function which, similarly to {@code PortfolioRuleEvaluator}, collects security and
+ * A process function which, similarly to {@link PortfolioRuleEvaluator}, collects security and
  * portfolio position data. However, this class evaluates rules only against benchmarks (which are
  * merely portfolios that are specially designated as such). The rules to be evaluated against a
  * particular benchmark are obtained by collecting rules from non-benchmark portfolios which are
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author jeremy
  */
-public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<PortfolioKey,
-    PortfolioEvent, Security, RuleEvaluationResult> {
+public class BenchmarkRuleEvaluator extends
+    KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRuleEvaluator.class);
@@ -45,7 +45,7 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
   private transient MapState<RuleKey, Rule> benchmarkRulesState;
 
   /**
-   * Creates a new {@code BenchmarkRuleEvaluator}.
+   * Creates a new {@link BenchmarkRuleEvaluator}.
    */
   public BenchmarkRuleEvaluator() {
     // nothing to do
@@ -59,10 +59,8 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
 
   @Override
   public void processBroadcastElement(Security security,
-                                      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent,
-                                          Security,
-                                          RuleEvaluationResult>.Context context,
-                                      Collector<RuleEvaluationResult> out) throws Exception {
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.Context context,
+      Collector<RuleEvaluationResult> out) throws Exception {
     portfolioTracker.applySecurity(context, security, (p -> {
       try {
         return benchmarkRulesState.values();
@@ -75,9 +73,8 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
 
   @Override
   public void processElement(PortfolioEvent portfolioEvent,
-                             KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security,
-                                 RuleEvaluationResult>.ReadOnlyContext context,
-                             Collector<RuleEvaluationResult> out) throws Exception {
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.ReadOnlyContext context,
+      Collector<RuleEvaluationResult> out) throws Exception {
     if (!(portfolioEvent instanceof PortfolioDataEvent)) {
       // not interesting to us
       return;
@@ -90,8 +87,8 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
       // the portfolio is a benchmark, so try to process it
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker.processPortfolio(out, portfolio, null, securityState,
-          benchmarkRulesState.values());
+      portfolioTracker
+          .processPortfolio(out, portfolio, null, securityState, benchmarkRulesState.values());
     } else {
       // the portfolio is not a benchmark, but it may have rules that are of interest, so try
       // to extract and process them
@@ -99,8 +96,8 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
       // process any newly-encountered rules against the benchmark
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker.processPortfolio(out, portfolioTracker.getPortfolio(), null,
-          securityState, newRules);
+      portfolioTracker
+          .processPortfolio(out, portfolioTracker.getPortfolio(), null, securityState, newRules);
     }
   }
 
@@ -108,9 +105,9 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
    * Extracts benchmark-enabled rules from the given portfolio.
    *
    * @param portfolio
-   *     the {@code Portfolio} from which to extract rules
+   *     the {@link Portfolio} from which to extract rules
    *
-   * @return a {@code Collection} of rules which are benchmark-enabled
+   * @return a {@link Collection} of rules which are benchmark-enabled
    */
   protected Collection<Rule> extractRules(Portfolio portfolio) {
     ArrayList<Rule> newRules = new ArrayList<>();
@@ -118,12 +115,11 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
     // since our input stream is keyed on the portfolio's benchmark, any portfolio that we
     // encounter should have its (benchmark-enabled) rules evaluated against the benchmark
     if (portfolio.getBenchmarkKey() != null) {
-      List<Rule> benchmarkEnabledRules = portfolio.getRules()
-          .filter(Rule::isBenchmarkSupported).collect(Collectors.toList());
+      List<Rule> benchmarkEnabledRules =
+          portfolio.getRules().filter(Rule::isBenchmarkSupported).collect(Collectors.toList());
       if (!benchmarkEnabledRules.isEmpty()) {
-        LOG.info("adding {} rules to benchmark {} from portfolio {}",
-            benchmarkEnabledRules.size(), portfolio.getBenchmarkKey(),
-            portfolio.getKey());
+        LOG.info("adding {} rules to benchmark {} from portfolio {}", benchmarkEnabledRules.size(),
+            portfolio.getBenchmarkKey(), portfolio.getKey());
         benchmarkEnabledRules.forEach(r -> {
           try {
             if (!benchmarkRulesState.contains(r.getKey())) {
@@ -146,7 +142,7 @@ public class BenchmarkRuleEvaluator extends KeyedBroadcastProcessFunction<Portfo
    * Obtains the process state containing currently tracked rules. Should only be useful for test
    * cases.
    *
-   * @return a {@code MapState} relating rule keys to their corresponding rules
+   * @return a {@link MapState} relating rule keys to their corresponding rules
    */
   protected MapState<RuleKey, Rule> getBenchmarkRulesState() {
     return benchmarkRulesState;

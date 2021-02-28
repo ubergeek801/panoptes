@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 /**
- * A partial implementation of {@code Position} which provides {@code equals()} and {@code
- * hashCode()} semantics based on the {@code Position}'s key.
+ * A partial implementation of {@link Position} which provides {@code equals()} and {@code
+ * hashCode()} semantics based on the {@link Position}'s key.
  *
  * @author jeremy
  */
@@ -10,17 +10,17 @@ public abstract class AbstractPosition implements Position {
   private final PositionKey key;
 
   /**
-   * Creates a new {@code AbstractPosition} with a generated key.
+   * Creates a new {@link AbstractPosition} with a generated key.
    */
   protected AbstractPosition() {
     this(null);
   }
 
   /**
-   * Creates a new {@code AbstractPosition} with the specified key.
+   * Creates a new {@link AbstractPosition} with the specified key.
    *
    * @param key
-   *     the {@code PositionKey} identifying this {@code Position}
+   *     the {@link PositionKey} identifying this {@link Position}
    */
   protected AbstractPosition(PositionKey key) {
     this.key = (key == null ? new PositionKey(null) : key);

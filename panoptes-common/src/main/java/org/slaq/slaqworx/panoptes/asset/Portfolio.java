@@ -13,76 +13,77 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A set of {@code Position}s held by some entity, which may be (for example) a customer account, a
+ * A set of {@link Position}s held by some entity, which may be (for example) a customer account, a
  * hypothetical model, or something more abstract such as a benchmark.
  *
  * @author jeremy
  */
-public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSupplier,
-    ProtobufSerializable, RulesProvider {
+public class Portfolio
+    implements Keyed<PortfolioKey>, HierarchicalPositionSupplier, ProtobufSerializable,
+    RulesProvider {
   private final PortfolioKey key;
   private final String name;
   private final PortfolioKey benchmarkKey;
-  private Portfolio benchmark;
   private final HashSet<Rule> rules;
   private final PositionSet<Position> positionSet;
+  private Portfolio benchmark;
 
   /**
-   * Creates a new {@code Portfolio} with the given key, name and {@code Position}s, with no
-   * associated benchmark or {@code Rule}s.
+   * Creates a new {@link Portfolio} with the given key, name and {@link Position}s, with no
+   * associated benchmark or {@link Rule}s.
    *
    * @param id
-   *     the unique {@code Portfolio} key
+   *     the unique {@link Portfolio} key
    * @param name
-   *     the {@code Portfolio} name/description
+   *     the {@link Portfolio} name/description
    * @param positions
-   *     the {@code Positions} comprising the {@code Portfolio}
+   *     the {@link Position}s comprising the {@link Portfolio}
    */
   public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
     this(id, name, positions, (PortfolioKey) null, Collections.emptySet());
   }
 
   /**
-   * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
-   * {@code Rule}s.
+   * Creates a new {@link Portfolio} with the given key, name, {@link Position}s, benchmark and
+   * {@link Rule}s.
    *
    * @param id
-   *     the unique {@code Portfolio} key
+   *     the unique {@link Portfolio} key
    * @param name
-   *     the {@code Portfolio} name/description
+   *     the {@link Portfolio} name/description
    * @param positions
-   *     the {@code Position}s comprising the {@code Portfolio}
+   *     the {@link Position}s comprising the {@link Portfolio}
    * @param benchmark
-   *     the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the {@code
+   *     the (possibly {@code null}) {@link Portfolio} that acts a benchmark for the {@link
    *     Portfolio}
    * @param rules
-   *     the (possibly empty) {@code Collection} of {@code Rule}s associated with the {@code
+   *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    */
   public Portfolio(PortfolioKey id, String name, Set<Position> positions, Portfolio benchmark,
-                   Collection<? extends Rule> rules) {
+      Collection<? extends Rule> rules) {
     this(id, name, positions, (benchmark == null ? null : benchmark.getKey()), rules);
   }
 
   /**
-   * Creates a new {@code Portfolio} with the given key, name, {@code Position}s, benchmark and
-   * {@code Rule}s.
+   * Creates a new {@link Portfolio} with the given key, name, {@link Position}s, benchmark and
+   * {@link Rule}s.
    *
    * @param key
-   *     the unique {@code Portfolio} key
+   *     the unique {@link Portfolio} key
    * @param name
-   *     the {@code Portfolio} name/description
+   *     the {@link Portfolio} name/description
    * @param positions
-   *     the {@code Position}s comprising the {@code Portfolio}
+   *     the {@link Position}s comprising the {@link Portfolio}
    * @param benchmarkKey
-   *     the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the {@code
+   *     the (possibly {@code null}) {@link Portfolio} that acts a benchmark for the {@link
    *     Portfolio}
    * @param rules
-   *     the (possibly empty) {@code Collection} of {@code Rule}s associated with the {@code
+   *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    */
   public Portfolio(PortfolioKey key, String name, Set<Position> positions,
-                   PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
+      PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
     this.key = key;
     this.name = name;
     this.benchmarkKey = benchmarkKey;
@@ -106,12 +107,12 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
   }
 
   /**
-   * Obtains this {@code Portfolio}'s benchmark, if any.
+   * Obtains this {@link Portfolio}'s benchmark, if any.
    *
    * @param portfolioProvider
-   *     the {@code PortfolioProvider} from which to obtain the benchmark {@code Portfolio}
+   *     the {@link PortfolioProvider} from which to obtain the benchmark {@link Portfolio}
    *
-   * @return this {@code Portfolio}'s benchmark, or {@code null} if one is not associated
+   * @return this {@link Portfolio}'s benchmark, or {@code null} if one is not associated
    */
   public Portfolio getBenchmark(PortfolioProvider portfolioProvider) {
     if (benchmarkKey == null) {
@@ -126,11 +127,10 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
   }
 
   /**
-   * Obtains the {@code PortfolioKey} corresponding to this {@code Portfolio}'s benchmark, if
-   * it has
+   * Obtains the {@link PortfolioKey} corresponding to this {@link Portfolio}'s benchmark, if it has
    * one.
    *
-   * @return the benchmark's {@code PortfolioKey}, or {@code null} if this {@code Portfolio} has no
+   * @return the benchmark's {@link PortfolioKey}, or {@code null} if this {@link Portfolio} has no
    *     associated benchmark
    */
   public PortfolioKey getBenchmarkKey() {
@@ -148,9 +148,9 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
   }
 
   /**
-   * Obtains the name/description of this {@code Portfolio}.
+   * Obtains the name/description of this {@link Portfolio}.
    *
-   * @return the {@code Portfolio} name
+   * @return the {@link Portfolio} name
    */
   public String getName() {
     return name;
@@ -178,9 +178,9 @@ public class Portfolio implements Keyed<PortfolioKey>, HierarchicalPositionSuppl
   }
 
   /**
-   * Indicates that this {@code Portfolio} is "abstract," such as an index.
+   * Indicates that this {@link Portfolio} is "abstract," such as an index.
    *
-   * @return {@code true} if this {@code Portfolio} is abstract, {@code false otherwise}
+   * @return {@code true} if this {@link Portfolio} is abstract, {@code false otherwise}
    */
   public boolean isAbstract() {
     // consider a Portfolio without Rules to be abstract

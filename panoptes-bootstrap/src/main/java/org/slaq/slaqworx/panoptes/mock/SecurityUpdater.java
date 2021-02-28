@@ -24,9 +24,20 @@ import org.slf4j.LoggerFactory;
 @Requires(env = {"security-update"})
 public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(SecurityUpdater.class);
+  private final KafkaProducer kafkaProducer;
 
   /**
-   * Executes the {@code SecurityUpdater} application.
+   * Creates a {@link SecurityUpdater} that publishes using the given {@link KafkaProducer}.
+   *
+   * @param kafkaProducer
+   *     the {@link KafkaProducer} with which to publish events to Kafka
+   */
+  protected SecurityUpdater(KafkaProducer kafkaProducer) {
+    this.kafkaProducer = kafkaProducer;
+  }
+
+  /**
+   * Executes the {@link SecurityUpdater} application.
    *
    * @param args
    *     the program arguments (unused)
@@ -36,18 +47,6 @@ public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
         .environments("security-update", "offline").args(args).start()) {
       // nothing else to do
     }
-  }
-
-  private final KafkaProducer kafkaProducer;
-
-  /**
-   * Creates a {@code SecurityUpdater} that publishes using the given {@code KafkaProducer}.
-   *
-   * @param kafkaProducer
-   *     the {@code KafkaProducer} with which to publish events to Kafka
-   */
-  protected SecurityUpdater(KafkaProducer kafkaProducer) {
-    this.kafkaProducer = kafkaProducer;
   }
 
   @Override

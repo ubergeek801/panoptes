@@ -11,8 +11,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult;
 import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
 
 /**
- * {@code EvaluationResultSerializerTest} tests the functionality of the {@code
- * EvaluationResultSerializer}.
+ * Tests the functionality of the {@link EvaluationResultSerializer}.
  *
  * @author jeremy
  */
@@ -41,8 +40,9 @@ public class EvaluationResultSerializerTest {
     ValueResult proposedDefaultResult = new ValueResult(Threshold.WITHIN, 4d);
     ValueResult proposedGroup1Result = new ValueResult(true);
     ValueResult proposedGroup2Result = new ValueResult(Threshold.ABOVE, 3d);
-    Map<EvaluationGroup, ValueResult> proposedResults = Map.of(defaultGroup,
-        proposedDefaultResult, group1, proposedGroup1Result, group2, proposedGroup2Result);
+    Map<EvaluationGroup, ValueResult> proposedResults =
+        Map.of(defaultGroup, proposedDefaultResult, group1, proposedGroup1Result, group2,
+            proposedGroup2Result);
 
     EvaluationResult result = new EvaluationResult(ruleKey, results, proposedResults);
 

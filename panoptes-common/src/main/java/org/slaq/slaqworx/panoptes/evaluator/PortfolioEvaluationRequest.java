@@ -4,6 +4,7 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -12,13 +13,14 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 
 /**
- * A {@code Callable} which facilitates clustered {@code Portfolio} evaluation by serializing the
+ * A {@link Callable} which facilitates clustered {@link Portfolio} evaluation by serializing the
  * evaluation parameters for execution on a remote cluster node.
  *
  * @author jeremy
  */
-public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, EvaluationResult>>,
-    ApplicationContextAware, ProtobufSerializable {
+public class PortfolioEvaluationRequest
+    implements Callable<Map<RuleKey, EvaluationResult>>, ApplicationContextAware,
+    ProtobufSerializable {
   private final PortfolioKey portfolioKey;
   private final Transaction transaction;
   private final EvaluationContext evaluationContext;
@@ -26,17 +28,17 @@ public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, Evaluat
   private ApplicationContext applicationContext;
 
   /**
-   * Creates a new {@code PortfolioEvaluationRequest} with the given parameters.
+   * Creates a new {@link PortfolioEvaluationRequest} with the given parameters.
    *
    * @param portfolioKey
-   *     the {@code PortfolioKey} identifying the {@code Portfolio} to be evaluated
+   *     the {@link PortfolioKey} identifying the {@link Portfolio} to be evaluated
    * @param transaction
-   *     the (possibly {@code null} {@code Transaction} to be evaluated with the {@code Portfolio}
+   *     the (possibly {@code null} {@link Transaction} to be evaluated with the {@link Portfolio}
    * @param evaluationContext
-   *     the {@code EvaluationContext} under which to evaluate
+   *     the {@link EvaluationContext} under which to evaluate
    */
   public PortfolioEvaluationRequest(PortfolioKey portfolioKey, Transaction transaction,
-                                    EvaluationContext evaluationContext) {
+      EvaluationContext evaluationContext) {
     this.portfolioKey = portfolioKey;
     this.transaction = transaction;
     this.evaluationContext = evaluationContext;
@@ -73,31 +75,33 @@ public class PortfolioEvaluationRequest implements Callable<Map<RuleKey, Evaluat
     }
     if (transaction == null) {
       return other.transaction == null;
-    } else return transaction.equals(other.transaction);
+    } else {
+      return transaction.equals(other.transaction);
+    }
   }
 
   /**
-   * Obtains the {@code EvaluationContext} in effect for this evaluation request.
+   * Obtains the {@link EvaluationContext} in effect for this evaluation request.
    *
-   * @return a {@code EvaluationContext}
+   * @return a {@link EvaluationContext}
    */
   public EvaluationContext getEvaluationContext() {
     return evaluationContext;
   }
 
   /**
-   * Obtains the {@code PortfolioKey} identifying the {@code Portfolio} to be evaluated.
+   * Obtains the {@link PortfolioKey} identifying the {@link Portfolio} to be evaluated.
    *
-   * @return the evaluated {@code Portfolio}'s key
+   * @return the evaluated {@link Portfolio}'s key
    */
   public PortfolioKey getPortfolioKey() {
     return portfolioKey;
   }
 
   /**
-   * Obtains the {@code Transaction} to be evaluated with the requested {@code Portfolio}.
+   * Obtains the {@link Transaction} to be evaluated with the requested {@link Portfolio}.
    *
-   * @return the {@code Transaction} to be evaluated, or {@code null} if not applicable
+   * @return the {@link Transaction} to be evaluated, or {@code null} if not applicable
    */
   public Transaction getTransaction() {
     return transaction;

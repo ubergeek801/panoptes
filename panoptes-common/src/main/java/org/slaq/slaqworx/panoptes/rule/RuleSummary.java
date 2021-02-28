@@ -4,42 +4,41 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 
 /**
- * A projection of {@code Rule} used primarily by the compliance display.
+ * A projection of {@link Rule} used primarily by the compliance display.
  *
  * @author jeremy
  */
 public class RuleSummary implements Keyed<RuleKey>, ProtobufSerializable {
-  /**
-   * Creates a new {@code RuleSummary} from the given {@code Rule}.
-   *
-   * @param rule
-   *     the {@code Rule} to summarize
-   *
-   * @return a {@code RuleSummary} summarizing the given {@code Rule}
-   */
-  public static RuleSummary fromRule(Rule rule) {
-    return new RuleSummary(rule.getKey(), rule.getDescription(),
-        rule.getParameterDescription());
-  }
-
   private final RuleKey key;
   private final String description;
   private final String parameterDescription;
 
   /**
-   * Creates a new {@code RuleSummary} with the given parameters.
+   * Creates a new {@link RuleSummary} with the given parameters.
    *
    * @param key
-   *     the {@code Rule} key
+   *     the {@link Rule} key
    * @param description
-   *     the {@code Rule} description
+   *     the {@link Rule} description
    * @param parameterDescription
-   *     a description of the {@code Rule}'s configuration parameters
+   *     a description of the {@link Rule}'s configuration parameters
    */
   public RuleSummary(RuleKey key, String description, String parameterDescription) {
     this.key = key;
     this.description = description;
     this.parameterDescription = parameterDescription;
+  }
+
+  /**
+   * Creates a new {@link RuleSummary} from the given {@link Rule}.
+   *
+   * @param rule
+   *     the {@link Rule} to summarize
+   *
+   * @return a {@link RuleSummary} summarizing the given {@link Rule}
+   */
+  public static RuleSummary fromRule(Rule rule) {
+    return new RuleSummary(rule.getKey(), rule.getDescription(), rule.getParameterDescription());
   }
 
   @Override
@@ -70,11 +69,13 @@ public class RuleSummary implements Keyed<RuleKey>, ProtobufSerializable {
     }
     if (parameterDescription == null) {
       return other.parameterDescription == null;
-    } else return parameterDescription.equals(other.parameterDescription);
+    } else {
+      return parameterDescription.equals(other.parameterDescription);
+    }
   }
 
   /**
-   * Obtains a description of the summarized {@code Rule}.
+   * Obtains a description of the summarized {@link Rule}.
    *
    * @return a description
    */
@@ -88,7 +89,7 @@ public class RuleSummary implements Keyed<RuleKey>, ProtobufSerializable {
   }
 
   /**
-   * Obtains a description of the summarized {@code Rule}'s configuration parameters.
+   * Obtains a description of the summarized {@link Rule}'s configuration parameters.
    *
    * @return a description of the configuration
    */
@@ -102,8 +103,8 @@ public class RuleSummary implements Keyed<RuleKey>, ProtobufSerializable {
     int result = 1;
     result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result
-        + ((parameterDescription == null) ? 0 : parameterDescription.hashCode());
+    result =
+        prime * result + ((parameterDescription == null) ? 0 : parameterDescription.hashCode());
 
     return result;
   }

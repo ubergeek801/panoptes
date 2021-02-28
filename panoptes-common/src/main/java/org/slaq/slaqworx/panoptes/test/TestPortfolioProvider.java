@@ -8,9 +8,10 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 
 /**
- * A {@code PortfolioProvider} suitable for testing purposes.
+ * A {@link PortfolioProvider} suitable for testing purposes.
  *
  * @author jeremy
  */
@@ -18,9 +19,8 @@ public class TestPortfolioProvider implements PortfolioProvider {
   private final HashMap<PortfolioKey, Portfolio> portfolioMap = new HashMap<>();
 
   /**
-   * Creates a new {@code TestPortfolioProvider}. Restricted because instances of this class
-   * should
-   * be obtained through {@code TestUtil}.
+   * Creates a new {@link TestPortfolioProvider}. Restricted because instances of this class should
+   * be obtained through {@link TestUtil}.
    */
   protected TestPortfolioProvider() {
     // nothing to do
@@ -32,25 +32,25 @@ public class TestPortfolioProvider implements PortfolioProvider {
   }
 
   /**
-   * Creates a new {@code Portfolio} and makes it available through this provider.
+   * Creates a new {@link Portfolio} and makes it available through this provider.
    *
    * @param key
-   *     the key of the {@code Portfolio} to create, or {@code null} to generate a key
+   *     the key of the {@link Portfolio} to create, or {@code null} to generate a key
    * @param name
-   *     the {@code Portfolio} name/description
+   *     the {@link Portfolio} name/description
    * @param positions
-   *     the {@code Position}s comprising the {@code Portfolio}
+   *     the {@link Position}s comprising the {@link Portfolio}
    * @param benchmark
-   *     the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the {@code
+   *     the (possibly {@code null}) {@link Portfolio} that acts a benchmark for the {@link
    *     Portfolio}
    * @param rules
-   *     the (possibly empty) {@code Collection} of {@code Rule}s associated with the {@code
+   *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    *
-   * @return a {@code Portfolio} with the specified configuration
+   * @return a {@link Portfolio} with the specified configuration
    */
   public Portfolio newPortfolio(PortfolioKey key, String name, Set<Position> positions,
-                                Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
+      Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
     Portfolio portfolio = new Portfolio(key, name, positions, benchmark, rules);
     portfolioMap.put(key, portfolio);
 
@@ -58,25 +58,25 @@ public class TestPortfolioProvider implements PortfolioProvider {
   }
 
   /**
-   * Creates a new {@code Portfolio} and makes it available through this provider.
+   * Creates a new {@link Portfolio} and makes it available through this provider.
    *
    * @param id
-   *     the ID of the {@code Portfolio} to create, or {@code null} to generate an ID
+   *     the ID of the {@link Portfolio} to create, or {@code null} to generate an ID
    * @param name
-   *     the {@code Portfolio} name/description
+   *     the {@link Portfolio} name/description
    * @param positions
-   *     the {@code Position}s comprising the {@code Portfolio}
+   *     the {@link Position}s comprising the {@link Portfolio}
    * @param benchmark
-   *     the (possibly {@code null}) {@code Portfolio} that acts a benchmark for the {@code
+   *     the (possibly {@code null}) {@link Portfolio} that acts a benchmark for the {@link
    *     Portfolio}
    * @param rules
-   *     the (possibly empty) {@code Collection} of {@code Rule}s associated with the {@code
+   *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    *
-   * @return a {@code Portfolio} with the specified configuration
+   * @return a {@link Portfolio} with the specified configuration
    */
   public Portfolio newPortfolio(String id, String name, Set<Position> positions,
-                                Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
+      Portfolio benchmark, Collection<? extends ConfigurableRule> rules) {
     return newPortfolio(new PortfolioKey(id, 1), name, positions, benchmark, rules);
   }
 }
