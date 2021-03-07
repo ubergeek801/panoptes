@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -15,8 +15,8 @@
   <name>panoptes-ui</name>
 
   <properties>
-    <jetty.version>9.4.36.v20210114</jetty.version>
-    <vaadin.version>18.0.5</vaadin.version>
+    <jetty.version>9.4.38.v20210224</jetty.version>
+    <vaadin.version>18.0.6</vaadin.version>
   </properties>
 
   <build>
