@@ -15,7 +15,7 @@
   <name>panoptes-common</name>
 
   <properties>
-    <protobuf.version>3.15.5</protobuf.version>
+    <protobuf.version>3.15.6</protobuf.version>
   </properties>
 
   <build>
@@ -100,6 +100,11 @@
     <dependency>
       <groupId>io.micronaut.kubernetes</groupId>
       <artifactId>micronaut-kubernetes-discovery-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

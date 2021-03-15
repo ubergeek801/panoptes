@@ -1,12 +1,12 @@
 package org.slaq.slaqworx.panoptes.trade;
 
 import io.micronaut.context.annotation.Prototype;
+import jakarta.inject.Named;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Named;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;

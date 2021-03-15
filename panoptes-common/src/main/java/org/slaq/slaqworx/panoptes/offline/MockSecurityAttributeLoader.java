@@ -4,7 +4,7 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.data.SecurityAttributeLoader;
 

@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
+import jakarta.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import javax.inject.Singleton;
 import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextMsg;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;

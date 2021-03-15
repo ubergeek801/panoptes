@@ -8,7 +8,7 @@ import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.ApplicationStartupEvent;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.eclipse.jetty.server.Server;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slf4j.Logger;

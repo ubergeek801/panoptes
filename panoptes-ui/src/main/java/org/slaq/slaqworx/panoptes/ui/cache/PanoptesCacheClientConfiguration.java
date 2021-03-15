@@ -6,7 +6,7 @@ import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.core.HazelcastInstance;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * A Micronaut {@link Factory} that provides cache resources suitable for client use.

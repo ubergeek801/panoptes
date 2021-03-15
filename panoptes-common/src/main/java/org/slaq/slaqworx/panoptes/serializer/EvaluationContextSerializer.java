@@ -1,10 +1,10 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
+import jakarta.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.inject.Singleton;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttributes;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationContextMsg;

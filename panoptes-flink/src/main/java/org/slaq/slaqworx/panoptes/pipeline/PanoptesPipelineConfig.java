@@ -2,9 +2,9 @@ package org.slaq.slaqworx.panoptes.pipeline;
 
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import java.util.Properties;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;

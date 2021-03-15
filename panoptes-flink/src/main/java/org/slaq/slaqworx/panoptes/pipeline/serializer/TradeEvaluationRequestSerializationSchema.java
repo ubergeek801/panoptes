@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
+import io.micronaut.context.BeanProvider;
 import java.io.IOException;
-import javax.inject.Provider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 import org.slaq.slaqworx.panoptes.serializer.TradeEvaluationRequestSerializer;
@@ -15,7 +15,7 @@ public class TradeEvaluationRequestSerializationSchema
   private final TradeKeySerializer keySerializer;
 
   public TradeEvaluationRequestSerializationSchema(String topic,
-      Provider<AssetCache> assetCacheProvider) {
+      BeanProvider<AssetCache> assetCacheProvider) {
     super(topic);
     keySerializer = new TradeKeySerializer();
   }

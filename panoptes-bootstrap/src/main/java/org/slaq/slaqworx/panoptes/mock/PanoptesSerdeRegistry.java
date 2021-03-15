@@ -2,10 +2,10 @@ package org.slaq.slaqworx.panoptes.mock;
 
 import io.micronaut.configuration.kafka.serde.SerdeRegistry;
 import io.micronaut.context.annotation.Replaces;
+import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.inject.Singleton;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;

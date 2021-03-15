@@ -28,7 +28,7 @@ import org.slaq.slaqworx.panoptes.ui.trading.TradingPanel;
  */
 @Route("")
 @Push
-@Theme(value = Lumo.class, variant = Lumo.DARK)
+@Theme(themeClass = Lumo.class, variant = Lumo.DARK)
 @Prototype
 public class PanoptesApplicationPanel extends AppLayout {
   private static final long serialVersionUID = 1L;

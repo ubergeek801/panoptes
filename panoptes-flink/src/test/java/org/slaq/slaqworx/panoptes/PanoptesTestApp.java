@@ -5,7 +5,7 @@ import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import io.micronaut.runtime.Micronaut;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.slaq.slaqworx.panoptes.pipeline.PanoptesApp;
 import org.slaq.slaqworx.panoptes.pipeline.PanoptesPipeline;
 import org.slf4j.Logger;

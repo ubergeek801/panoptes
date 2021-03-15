@@ -1,11 +1,11 @@
 package org.slaq.slaqworx.panoptes.serializer;
 
+import jakarta.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.inject.Singleton;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.DateMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;

@@ -7,7 +7,7 @@ import com.hazelcast.core.HazelcastInstance;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * A Micronaut {@link Factory} that provides {@link Bean}s related to the Hazelcast cache, suitable

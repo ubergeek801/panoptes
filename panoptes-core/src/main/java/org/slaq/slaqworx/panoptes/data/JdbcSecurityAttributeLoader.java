@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.data;
 
 import io.micronaut.context.ApplicationContext;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import javax.transaction.Transactional;
 import org.jdbi.v3.core.Jdbi;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;

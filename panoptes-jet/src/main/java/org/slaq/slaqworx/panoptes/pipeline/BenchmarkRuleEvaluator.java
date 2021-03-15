@@ -108,7 +108,7 @@ public class BenchmarkRuleEvaluator implements SupplierEx<BenchmarkRuleEvaluator
       IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
       processState.portfolioTracker
           .processPortfolio(results, processState.portfolioTracker.getPortfolio(), null,
-              securityMap, () -> newRules.stream());
+              securityMap, newRules::stream);
     }
   }
 

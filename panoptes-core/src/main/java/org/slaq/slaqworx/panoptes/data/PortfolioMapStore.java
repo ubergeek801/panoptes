@@ -1,9 +1,11 @@
 package org.slaq.slaqworx.panoptes.data;
 
+import io.micronaut.context.BeanProvider;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import io.micronaut.transaction.SynchronousTransactionManager;
 import io.micronaut.transaction.TransactionManager;
+import jakarta.inject.Singleton;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -34,7 +34,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
 @Singleton
 @Requires(notEnv = {Environment.TEST, "offline"})
 public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio> {
-  private final Provider<AssetCache> assetCacheProvider;
+  private final BeanProvider<AssetCache> assetCacheProvider;
 
   /**
    * Creates a new {@link PortfolioMapStore}. Restricted because instances of this class should be
@@ -45,11 +45,11 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
    * @param jdbi
    *     the {@link Jdbi} instance through which to access the database
    * @param assetCacheProvider
-   *     the {@link AssetCache} from which to obtained cached data, wrapped in a {@link Provider} to
-   *     avoid a circular injection dependency
+   *     the {@link AssetCache} from which to obtained cached data, wrapped in a {@link
+   *     BeanProvider} to avoid a circular injection dependency
    */
   protected PortfolioMapStore(SynchronousTransactionManager<Connection> transactionManager,
-      Jdbi jdbi, Provider<AssetCache> assetCacheProvider) {
+      Jdbi jdbi, BeanProvider<AssetCache> assetCacheProvider) {
     super(transactionManager, jdbi);
     this.assetCacheProvider = assetCacheProvider;
   }

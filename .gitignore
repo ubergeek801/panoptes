@@ -14,6 +14,8 @@ target/
 *.iml
 
 # ignore Vaadin artifacts which can be regenerated
+.npmrc
+frontend
 package-lock.json
 package.json
 pnpmfile.js

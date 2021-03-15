@@ -1,6 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
-import javax.inject.Provider;
+import io.micronaut.context.BeanProvider;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -25,7 +25,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * @author jeremy
  */
 public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable>
-    implements KafkaSerializationSchema<T>, Provider<AssetCache>, PortfolioProvider,
+    implements KafkaSerializationSchema<T>, BeanProvider<AssetCache>, PortfolioProvider,
     SecurityProvider {
   private static final long serialVersionUID = 1L;
 

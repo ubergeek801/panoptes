@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;

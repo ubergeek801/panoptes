@@ -1,7 +1,7 @@
 package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
+import io.micronaut.context.BeanProvider;
 import java.io.IOException;
-import javax.inject.Provider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioEvaluationRequestSerializer;
@@ -15,7 +15,7 @@ public class PortfolioEvaluationRequestSerializationSchema
   private final PortfolioKeySerializer keySerializer;
 
   public PortfolioEvaluationRequestSerializationSchema(String topic,
-      Provider<AssetCache> assetCacheProvider) {
+      BeanProvider<AssetCache> assetCacheProvider) {
     super(topic);
     keySerializer = new PortfolioKeySerializer();
   }

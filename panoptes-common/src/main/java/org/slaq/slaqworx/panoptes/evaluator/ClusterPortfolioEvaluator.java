@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.evaluator;
 
+import jakarta.inject.Singleton;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import javax.inject.Singleton;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
