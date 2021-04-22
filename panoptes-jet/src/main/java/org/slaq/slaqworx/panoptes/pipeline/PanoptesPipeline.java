@@ -14,6 +14,7 @@ import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,14 @@ public class PanoptesPipeline {
         pipeline.readFrom(securityKafkaSource).withIngestionTimestamps().setName("securitySource");
     StreamStage<SecurityUpdateEvent> securityUpdateStream =
         securitySource.flatMap(new SecurityBroadcaster()).setName("securityUpdates");
+
+    // obtain trade sequence information from the source ringbuffer
+    StreamSource<TradeKey> tradeSequenceSource =
+        RingbufferSource.buildRingbufferSource("tradeSequenceRingbufferSource", "tradeSequencing");
+    StreamStage<Trade> trades = pipeline.readFrom(tradeSequenceSource).withIngestionTimestamps()
+        .setName("tradeSequenceSource")
+        .mapUsingIMap("FIXME_MAP_NAME", tk -> tk, (TradeKey tk, Trade t) -> t)
+        .setName("sequencedTrades");
 
     // obtain trades from Kafka and split each into its constituent transactions
     StreamStage<Trade> tradeSource =

@@ -16,11 +16,6 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import io.micronaut.context.annotation.Prototype;
 import java.util.Map;
-import org.slaq.slaqworx.panoptes.cache.AssetCache;
-import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluator;
-import org.slaq.slaqworx.panoptes.trade.TradeEvaluator;
-import org.slaq.slaqworx.panoptes.ui.compliance.CompliancePanel;
-import org.slaq.slaqworx.panoptes.ui.trading.TradingPanel;
 
 /**
  * The top-level layout for an experimental user interface.
@@ -36,16 +31,8 @@ public class PanoptesApplicationPanel extends AppLayout implements AppShellConfi
 
   /**
    * Creates a new {@link PanoptesApplicationPanel}.
-   *
-   * @param portfolioEvaluator
-   *     the {@link PortfolioEvaluator} to use to perform compliance evaluation
-   * @param tradeEvaluator
-   *     the {@link TradeEvaluator} to use to perform compliance evaluation
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve cached entities
    */
-  protected PanoptesApplicationPanel(PortfolioEvaluator portfolioEvaluator,
-      TradeEvaluator tradeEvaluator, AssetCache assetCache) {
+  protected PanoptesApplicationPanel() {
     Icon applicationIcon = new Icon(VaadinIcon.EYE);
     Span applicationTitle = new Span("Panoptes");
     applicationTitle.getStyle().set("font-weight", "bold").set("font-size", "120%")
@@ -57,12 +44,9 @@ public class PanoptesApplicationPanel extends AppLayout implements AppShellConfi
 
     addToNavbar(new DrawerToggle(), applicationIcon, applicationInfo);
 
-    TradingPanel tradingPanel = new TradingPanel(tradeEvaluator, assetCache);
-    tradingPanel.setSizeFull();
-    setContent(tradingPanel);
-
-    CompliancePanel compliancePanel = new CompliancePanel(portfolioEvaluator, assetCache);
+    CompliancePanel compliancePanel = new CompliancePanel();
     compliancePanel.setSizeFull();
+    setContent(compliancePanel);
 
     VerticalLayout aboutPanel = new VerticalLayout();
     Icon aboutApplicationIcon = new Icon(VaadinIcon.EYE);
@@ -81,17 +65,15 @@ public class PanoptesApplicationPanel extends AppLayout implements AppShellConfi
     aboutPanel.add(aboutApplicationDescription);
     aboutPanel.setSizeFull();
 
-    Tab tradingTab = new Tab("Trading");
     Tab complianceTab = new Tab("Compliance");
     Tab aboutTab = new Tab("About");
-    Tabs tabs = new Tabs(tradingTab, complianceTab, aboutTab);
-    Map<Tab, Component> tabPageMap =
-        Map.of(tradingTab, tradingPanel, complianceTab, compliancePanel, aboutTab, aboutPanel);
+    Tabs tabs = new Tabs(complianceTab, aboutTab);
+    Map<Tab, Component> tabPageMap = Map.of(complianceTab, compliancePanel, aboutTab, aboutPanel);
     tabs.setOrientation(Tabs.Orientation.VERTICAL);
     tabs.addSelectedChangeListener(e -> {
       setContent(tabPageMap.get(e.getSelectedTab()));
     });
     addToDrawer(tabs);
-    tabs.setSelectedTab(tradingTab);
+    tabs.setSelectedTab(complianceTab);
   }
 }

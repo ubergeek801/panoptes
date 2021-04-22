@@ -10,9 +10,9 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>panoptes-ui</artifactId>
+  <artifactId>panoptes-ui-prototype</artifactId>
 
-  <name>panoptes-ui</name>
+  <name>panoptes-ui-prototype</name>
 
   <properties>
     <jetty.version>9.4.38.v20210224</jetty.version>
@@ -34,6 +34,14 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <!-- enable Micronaut-related Maven actions -->
+      <plugin>
+        <groupId>io.micronaut.build</groupId>
+        <artifactId>micronaut-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>org.slaq.slaqworx.panoptes.PanoptesUI</mainClass>
+        </configuration>
       </plugin>
       <!-- produce build-info to include in the application package -->
       <plugin>
@@ -99,18 +107,17 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.slaq.slaqworx</groupId>
-      <artifactId>panoptes-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.vaadin</groupId>
       <artifactId>vaadin-core</artifactId>
     </dependency>
     <dependency>
       <groupId>io.micronaut.servlet</groupId>
       <artifactId>micronaut-http-server-jetty</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty.websocket</groupId>
