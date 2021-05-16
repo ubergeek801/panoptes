@@ -1,20 +1,19 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.ServiceFactory;
 import com.hazelcast.jet.pipeline.Sink;
 import com.hazelcast.jet.pipeline.SinkBuilder;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
 import jakarta.inject.Named;
-import jakarta.inject.Singleton;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
+import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
-import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeEvaluationResult;
-import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author jeremy
  */
-@Singleton
+//@Singleton
 public class PanoptesPipeline {
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
 
@@ -64,20 +63,24 @@ public class PanoptesPipeline {
 
     pipeline = Pipeline.create();
 
-    // obtain securities from Kafka and put to the Security map, then emit a SecurityUpdateEvent
-    // to each portfolio/benchmark
+    // obtain securities from Kafka and put to the Security map, then broadcast to each
+    // portfolio/benchmark (note that the broadcast edge must be added manually in the DAG)
     StreamStage<Security> securitySource =
-        pipeline.readFrom(securityKafkaSource).withIngestionTimestamps().setName("securitySource");
-    StreamStage<SecurityUpdateEvent> securityUpdateStream =
-        securitySource.flatMap(new SecurityBroadcaster()).setName("securityUpdates");
+        pipeline.readFrom(securityKafkaSource).withIngestionTimestamps().setName("securitySource")
+            .filter(s -> {
+              PanoptesApp.getAssetCache().getSecurityCache().set(s.getKey(), s);
+              return true;
+            }).setName("securityMapStore");
 
     // obtain trade sequence information from the source ringbuffer
+    /*
     StreamSource<TradeKey> tradeSequenceSource =
         RingbufferSource.buildRingbufferSource("tradeSequenceRingbufferSource", "tradeSequencing");
     StreamStage<Trade> trades = pipeline.readFrom(tradeSequenceSource).withIngestionTimestamps()
         .setName("tradeSequenceSource")
         .mapUsingIMap("FIXME_MAP_NAME", tk -> tk, (TradeKey tk, Trade t) -> t)
         .setName("sequencedTrades");
+     */
 
     // obtain trades from Kafka and split each into its constituent transactions
     StreamStage<Trade> tradeSource =
@@ -85,35 +88,58 @@ public class PanoptesPipeline {
     StreamStage<PortfolioEvent> transactionStream =
         tradeSource.flatMap(new TradeSplitter()).setName("tradeTransactions");
 
-    // obtain portfolio (event)s from Kafka, merge with holding portfolio events, merge with
-    // transaction events, and feed into a portfolio rule evaluator
+    // obtain portfolio (event)s from Kafka, merge with security update events, merge with
+    // transaction events, and feed into a portfolio readiness evaluator
     StreamStage<PortfolioEvent> portfolioSource =
-        pipeline.readFrom(portfolioKafkaSource).withIngestionTimestamps()
-            .setName("portfolioSource");
-    PortfolioRuleEvaluator portfolioRuleEvaluator = new PortfolioRuleEvaluator();
-    StreamStage<RuleEvaluationResult> portfolioResultStream =
-        portfolioSource.merge(transactionStream).setName("portfolioEventCombiner")
-            .merge(securityUpdateStream).setName("portfolioSecurityJoiner")
-            .groupingKey(PortfolioEvent::getPortfolioKey)
-            .flatMapStateful(portfolioRuleEvaluator, portfolioRuleEvaluator)
-            .setName("portfolioEvaluator");
+        pipeline.readFrom(portfolioKafkaSource).withIngestionTimestamps().setName("portfolioSource")
+            .filter(e -> {
+              if (e instanceof PortfolioDataEvent pde) {
+                PanoptesApp.getAssetCache().getPortfolioCache()
+                    .set(pde.getPortfolioKey(), pde.getPortfolio());
+              }
+              return true;
+            }).setName("portfolioMapStore");
+    StreamStage<PortfolioEvent> portfolioEvents =
+        portfolioSource.merge(transactionStream).setName("portfolioEventJoiner");
+    PortfolioReadinessEvaluator portfolioReadinessEvaluator = new PortfolioReadinessEvaluator();
+    StreamStage<PortfolioEvaluationInput> evaluationInputStream =
+        portfolioEvents.groupingKey(PortfolioEvent::getPortfolioKey)
+            .flatMapStateful(portfolioReadinessEvaluator, portfolioReadinessEvaluator)
+            .setName("portfolioReadinessEvaluator");
 
-    // obtain benchmarks from Kafka, merge them with the portfolio stream, merge with holding
-    // portfolio events, and feed into a benchmark rule evaluator (this evaluator only evaluates
-    // benchmarks, but collects rules from the non-benchmark portfolios)
+    ServiceFactory<?, PortfolioEvaluationService> portfolioEvaluationServiceFactory =
+        PortfolioEvaluationService.serviceFactory();
+    StreamStage<RuleEvaluationResult> portfolioResultStream = evaluationInputStream
+        .flatMapUsingService(portfolioEvaluationServiceFactory,
+            (service, input) -> service.evaluate(input));
+
+    // obtain benchmarks from Kafka, merge them with the portfolio events stream (which already
+    // includes security update events), and feed into a benchmark readiness evaluator
     StreamStage<PortfolioEvent> benchmarkSource =
         pipeline.readFrom(benchmarkKafkaSource).withIngestionTimestamps().setName("benchmarkSource")
-            .merge(portfolioSource).setName("positionSourceCombiner");
-    BenchmarkRuleEvaluator benchmarkRuleEvaluator = new BenchmarkRuleEvaluator();
-    StreamStage<RuleEvaluationResult> benchmarkResultStream =
-        benchmarkSource.merge(securityUpdateStream).setName("benchmarkSecurityJoiner").groupingKey(
-            p -> p.getBenchmarkKey() != null ? p.getBenchmarkKey() : p.getPortfolioKey())
-            .flatMapStateful(benchmarkRuleEvaluator, benchmarkRuleEvaluator)
-            .setName("benchmarkEvaluator");
+            .filter(e -> {
+              if (e instanceof PortfolioDataEvent pde) {
+                PanoptesApp.getAssetCache().getPortfolioCache()
+                    .set(pde.getPortfolioKey(), pde.getPortfolio());
+              }
+              return true;
+            }).setName("portfolioMapBenchmarkStore");
+    StreamStage<PortfolioEvent> combinedPositions =
+        benchmarkSource.merge(portfolioEvents).setName("positionSourceCombiner");
+    BenchmarkReadinessEvaluator benchmarkReadinessEvaluator = new BenchmarkReadinessEvaluator();
+    StreamStage<PortfolioEvaluationInput> benchmarkEvaluationInputStream = combinedPositions
+        .groupingKey(p -> p.getBenchmarkKey() != null ? p.getBenchmarkKey() : p.getPortfolioKey())
+        .flatMapStateful(benchmarkReadinessEvaluator, benchmarkReadinessEvaluator)
+        .setName("benchmarkReadinessEvaluator");
+    // feed the evaluation inputs into a benchmark rule evaluator (this evaluator only evaluates
+    // benchmarks, but collects rules from the non-benchmark portfolios)
+    StreamStage<RuleEvaluationResult> benchmarkResultStream = benchmarkEvaluationInputStream
+        .flatMapUsingService(portfolioEvaluationServiceFactory,
+            (service, input) -> service.evaluate(input));
 
-    // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark
-    // evaluation results (keyed by portfolio ID, which *is* the benchmark ID for a benchmark, +
-    // rule ID) into a benchmark comparator
+    // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark evaluation
+    // results (keyed by portfolio ID, which *is* the benchmark ID for a benchmark, + rule ID) into
+    // a benchmark comparator
     BenchmarkComparator benchmarkComparator = new BenchmarkComparator();
     StreamStage<RuleEvaluationResult> resultStream =
         portfolioResultStream.merge(benchmarkResultStream).setName("resultCombiner")

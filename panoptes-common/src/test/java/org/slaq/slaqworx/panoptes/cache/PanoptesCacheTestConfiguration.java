@@ -39,6 +39,7 @@ public class PanoptesCacheTestConfiguration {
     Config config = new Config("panoptes-test");
     config.setProperty("hazelcast.logging.type", "slf4j");
     config.setSerializationConfig(serializationConfig);
+    config.getNetworkConfig().getJoin().getAutoDetectionConfig().setEnabled(false);
     config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 
     return Hazelcast.getOrCreateHazelcastInstance(config);

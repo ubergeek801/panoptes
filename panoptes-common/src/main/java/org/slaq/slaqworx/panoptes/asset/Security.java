@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
@@ -22,8 +23,8 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * @author jeremy
  */
 public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
-  private final SecurityKey key;
-  private final SecurityAttributes attributes;
+  private final @Nonnull SecurityKey key;
+  private final @Nonnull SecurityAttributes attributes;
 
   /**
    * Creates a new {@link Security} with the given {@link SecurityAttribute} values. The key is
@@ -62,7 +63,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *
    * @return a {@link SecurityAttributes} comprising this {@link Security}'s attributes
    */
-  public SecurityAttributes getAttributes() {
+  public @Nonnull SecurityAttributes getAttributes() {
     return attributes;
   }
 
@@ -140,6 +141,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
   public <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired) {
+    @SuppressWarnings("unchecked")
     T value = (T) getAttributeValue(attribute.getIndex(), isRequired);
 
     return value;

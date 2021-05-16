@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.pipeline;
 import com.hazelcast.function.BiConsumerEx;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.pipeline.Sink;
+import java.io.Serial;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EvaluationResultPublisher
     implements BiConsumerEx<Processor.Context, RuleEvaluationResult> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(EvaluationResultPublisher.class);
@@ -23,6 +25,7 @@ public class EvaluationResultPublisher
   @Override
   public void acceptEx(Processor.Context context, RuleEvaluationResult evaluationResult) {
     EvaluationResult result = evaluationResult.getEvaluationResult();
-    LOG.info("produced {} results for rule {}", result.getResults().size(), result.getKey());
+    LOG.info("produced {} results for rule {} on portfolio {}", result.getResults().size(),
+        result.getKey(), evaluationResult.getPortfolioKey());
   }
 }

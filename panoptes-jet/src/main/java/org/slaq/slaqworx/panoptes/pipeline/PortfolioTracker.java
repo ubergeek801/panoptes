@@ -1,26 +1,19 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import com.hazelcast.map.IMap;
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
-import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
-import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
-import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
-import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
-import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RulesProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A utility for determining whether a tracked portfolio is ready for evaluation (that is, all of
@@ -29,15 +22,13 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class PortfolioTracker implements Serializable, RulesProvider {
+  @Serial
   private static final long serialVersionUID = 1L;
-
-  private static final Logger LOG = LoggerFactory.getLogger(PortfolioTracker.class);
-
-  private static final ConcurrentHashMap<PortfolioKey, Boolean> portfolioCompleteState =
-      new ConcurrentHashMap<>();
 
   private final EvaluationSource evaluationSource;
   private Portfolio portfolio;
+  private Set<SecurityKey> unsatisfiedSecurities;
+  private Set<SecurityKey> heldSecurities;
 
   /**
    * Creates a new {@link PortfolioTracker}.
@@ -53,22 +44,20 @@ public class PortfolioTracker implements Serializable, RulesProvider {
    * Applies the given security to the tracked portfolio, evaluating related rules if appropriate.
    *
    * @param security
-   *     the security currently being encountered
+   *     a key identifying the security currently being encountered
    * @param rulesProvider
    *     a {@link RulesProvider} providing rules to be evaluated
-   * @param results
-   *     a {@link Collection} to which rule evaluation results, if any, are output
+   *
+   * @return a {@link PortfolioEvaluationInput} providing input to the next stage, or {@code null}
+   *     if the portfolio is not ready
    */
-  public void applySecurity(Security security, RulesProvider rulesProvider,
-      Collection<RuleEvaluationResult> results) {
+  public PortfolioEvaluationInput applySecurity(SecurityKey security, RulesProvider rulesProvider) {
     if (portfolio == null) {
       // nothing we can do yet
-      return;
+      return null;
     }
 
-    IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
-
-    processPortfolio(results, portfolio, security, securityMap, rulesProvider);
+    return processPortfolio(portfolio, security, rulesProvider);
   }
 
   /**
@@ -93,108 +82,68 @@ public class PortfolioTracker implements Serializable, RulesProvider {
    */
   public void trackPortfolio(Portfolio portfolio) {
     this.portfolio = portfolio;
+    // determine which securities have yet to be encountered
+    heldSecurities = portfolio.getPositions().map(Position::getSecurityKey)
+        .collect(Collectors.toCollection(HashSet::new));
+    unsatisfiedSecurities = new HashSet<>(heldSecurities);
+    IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
+    unsatisfiedSecurities.removeIf(securityMap::containsKey);
   }
 
   /**
-   * Performs a portfolio evaluation and publishes the result.
+   * Indicates whether the tracked portfolio is "complete," that is, all of its held securities have
+   * been encountered.
    *
-   * @param results
-   *     the {@link Collection} to which to output compliance results
-   * @param portfolio
-   *     the portfolio being processed
-   * @param securityMap
-   *     an {@link IMap} containing known security information
-   * @param rulesProvider
-   *     the {@link RulesProvider} providing the rules to be evaluated
+   * @return {@code true} if the tracked portfolio is complete, {@code false} otherwise
    */
-  protected void evaluatePortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
-      IMap<SecurityKey, Security> securityMap, RulesProvider rulesProvider) {
-    // this is questionable but there shouldn't be any other portfolios queried
-    PortfolioProvider portfolioProvider = (k -> portfolio);
-    SecurityProvider securityProvider = (k, context) -> securityMap.get(k);
-
-    LOG.info("processing rules for {} {} (\"{}\")", evaluationSource, portfolio.getKey(),
-        portfolio.getName());
-    int[] numRules = new int[1];
-    rulesProvider.getRules().forEach(rule -> {
-      // FIXME get/generate eventId
-      long eventId = System.currentTimeMillis();
-
-      EvaluationResult evaluationResult =
-          new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
-              new EvaluationContext(securityProvider, portfolioProvider)).call();
-      // enrich the result with some other essential information
-      RuleEvaluationResult ruleEvaluationResult =
-          new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),
-              evaluationSource, rule.isBenchmarkSupported(), rule.getLowerLimit(),
-              rule.getUpperLimit(), evaluationResult);
-      results.add(ruleEvaluationResult);
-      numRules[0]++;
-    });
-    LOG.info("processed {} rules for {} {} (\"{}\")", numRules[0], evaluationSource,
-        portfolio.getKey(), portfolio.getName());
+  protected boolean isPortfolioComplete() {
+    return (unsatisfiedSecurities != null && unsatisfiedSecurities.isEmpty());
   }
 
   /**
    * Determines whether the given portfolio is "complete" (all security information has been
-   * provided) and performs a compliance evaluation if so.
+   * provided) and whether the currently encountered security (if any) is held, and performs a
+   * compliance evaluation if so.
    *
-   * @param results
-   *     the {@link Collection} to which to output compliance results
    * @param portfolio
    *     the portfolio being processed; if {@code null}, then nothing will be done
    * @param currentSecurity
-   *     the security being encountered, or {@code null} if a portfolio is being encountered
-   * @param securityMap
-   *     an {@link IMap} containing known security information
+   *     a key identifying the security being encountered, or {@code null} if a portfolio is being
+   *     encountered
    * @param rulesProvider
    *     a {@link RulesProvider} providing the rules to be evaluated; if {@code null} or empty, then
    *     nothing will be done
+   *
+   * @return a {@link PortfolioEvaluationInput} providing input to the next stage, or {@code null}
+   *     if the portfolio is not ready
    */
-  protected void processPortfolio(Collection<RuleEvaluationResult> results, Portfolio portfolio,
-      Security currentSecurity, IMap<SecurityKey, Security> securityMap,
-      RulesProvider rulesProvider) {
+  protected PortfolioEvaluationInput processPortfolio(Portfolio portfolio,
+      SecurityKey currentSecurity, RulesProvider rulesProvider) {
     if (portfolio == null) {
-      return;
+      return null;
     }
 
     // if there are no rules to be evaluated, then don't bother
     if (rulesProvider == null || rulesProvider.getRules().count() == 0) {
-      return;
+      return null;
     }
 
-    boolean needSecurityHeld = (currentSecurity != null);
-    boolean needPortfolioComplete =
-        (!Boolean.TRUE.equals(portfolioCompleteState.get(portfolio.getKey())));
+    // update the unsatisfied securities
+    if (currentSecurity != null && !isPortfolioComplete()) {
+      unsatisfiedSecurities.remove(currentSecurity);
+    }
+    if (!isPortfolioComplete()) {
+      // still have unsatisfied securities, so portfolio isn't ready
+      return null;
+    }
 
-    if (needSecurityHeld || needPortfolioComplete) {
-      // determine whether we have all held securities for the portfolio, and whether the
-      // current security is in the portfolio
-      boolean isComplete = true;
-      boolean isCurrentSecurityHeld = (currentSecurity == null);
-      Iterator<? extends Position> positionIter = portfolio.getPositions().iterator();
-      while (positionIter.hasNext()) {
-        Position position = positionIter.next();
-        if (!securityMap.containsKey(position.getSecurityKey())) {
-          isComplete = false;
-          break;
-        }
-        if (currentSecurity != null && position.getSecurityKey().equals(currentSecurity.getKey())) {
-          isCurrentSecurityHeld = true;
-        }
-      }
-
-      if (isComplete) {
-        portfolioCompleteState.put(portfolio.getKey(), true);
-      }
-
-      if (!isComplete || !isCurrentSecurityHeld) {
-        // we are either not ready or not affected
-        return;
-      }
+    // in a security encounter, if the security isn't held by the tracked portfolio, there is
+    // nothing to do
+    if (currentSecurity != null && !heldSecurities.contains(currentSecurity)) {
+      return null;
     }
 
     // portfolio is ready for evaluation; proceed
-    evaluatePortfolio(results, portfolio, securityMap, rulesProvider);
+    return new PortfolioEvaluationInput(evaluationSource, portfolio, rulesProvider);
   }
 }

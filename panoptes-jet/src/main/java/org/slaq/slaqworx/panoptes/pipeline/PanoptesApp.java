@@ -1,12 +1,9 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import com.hazelcast.cluster.Member;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.ringbuffer.Ringbuffer;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
@@ -14,7 +11,6 @@ import io.micronaut.context.env.Environment;
 import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Singleton;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
-import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,28 +71,11 @@ public class PanoptesApp {
 
       JetConfig jetConfig = appContext.getBean(JetConfig.class);
       JetInstance jetInstance = Jet.newJetInstance(jetConfig);
-      HazelcastInstance hazelcastInstance = jetInstance.getHazelcastInstance();
 
-      String hostname = System.getenv("NODENAME");
-      Ringbuffer<TradeKey> tradeSequencing = hazelcastInstance.getRingbuffer("tradeSequencing");
-      long startTime = System.currentTimeMillis();
-      for (int tradeId = 1; tradeId <= 100; tradeId++) {
-        TradeKey tradeKey = new TradeKey(hostname + ":" + tradeId);
-        tradeSequencing.add(tradeKey);
-      }
-      LOG.info("added trades to Ringbuffer in {} ms", System.currentTimeMillis() - startTime);
-
-      Member localMember = hazelcastInstance.getCluster().getLocalMember();
-      if (!localMember
-          .equals(hazelcastInstance.getPartitionService().getPartition("1").getOwner())) {
-        LOG.info("not elected to start PanoptesPipeline");
-        return;
-      }
-
-      LOG.info("elected to start PanoptesPipeline");
-      PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
+      PanoptesTestPipeline pipeline = appContext.getBean(PanoptesTestPipeline.class);
+//      PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
       JobConfig jobConfig = appContext.getBean(JobConfig.class);
-      jetInstance.newJob(pipeline.getJetPipeline(), jobConfig).join();
+      jetInstance.newJobIfAbsent(pipeline.getJetPipeline(), jobConfig).join();
     }
   }
 

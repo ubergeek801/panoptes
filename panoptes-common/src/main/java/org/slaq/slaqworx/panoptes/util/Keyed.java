@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.util;
 
+import javax.annotation.Nonnull;
+
 /**
  * Indicates that an entity can be referenced by a key of the specified type.
  *
@@ -15,5 +17,5 @@ public interface Keyed<T> {
    *
    * @return this entity's key
    */
-  public T getKey();
+  public @Nonnull T getKey();
 }

@@ -4,6 +4,7 @@ import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +29,9 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResu
 public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>,
     TriFunction<BenchmarkComparatorState, PortfolioRuleKey, RuleEvaluationResult,
         Traverser<RuleEvaluationResult>> {
+  @Serial
   private static final long serialVersionUID = 1L;
+
   private transient BenchmarkComparatorState processState;
 
   /**
@@ -102,16 +105,16 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    */
   protected void handlePortfolioResultEvent(RuleEvaluationResult portfolioResult,
       Collection<RuleEvaluationResult> comparedResults) {
-    // if the portfolio does not have a benchmark or if the rule does not support benchmarks,
-    // then we can pass the result through and forget about it
+    // if the portfolio does not have a benchmark or if the rule does not support benchmarks, then
+    // we can pass the result through and forget about it
     PortfolioKey benchmarkKey = portfolioResult.getBenchmarkKey();
     if (benchmarkKey == null || !portfolioResult.isBenchmarkSupported()) {
       comparedResults.add(portfolioResult);
       return;
     }
 
-    // the portfolio/rule are benchmark-enabled; capture the portfolio state for immediate
-    // and/or future publication
+    // the portfolio/rule are benchmark-enabled; capture the portfolio state for immediate and/or
+    // future publication
     processState.baseResult = portfolioResult;
 
     // check whether we have the corresponding benchmark results yet
@@ -156,6 +159,7 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    * most recent benchmark rule result encountered (if any).
    */
   static class BenchmarkComparatorState implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // contains the portfolio's rule results mapped by the rule key

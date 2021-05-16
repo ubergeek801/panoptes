@@ -18,7 +18,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
 
-    <micronaut.version>2.4.2</micronaut.version>
+    <micronaut.version>2.5.1</micronaut.version>
   </properties>
 
   <modules>
@@ -33,25 +33,6 @@
     <module>panoptes-worker</module>
   </modules>
 
-  <repositories>
-    <!-- bintray is sometimes needed for fresh Micronaut releases -->
-    <repository>
-      <id>micronaut</id>
-      <url>https://dl.bintray.com/micronaut/core-releases-local</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!-- and for ktor too, it seems -->
-    <repository>
-      <id>ktor</id>
-      <url>https://dl.bintray.com/kotlin/ktor</url>
-    </repository>
-  </repositories>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -65,7 +46,7 @@
         <plugin>
           <groupId>io.micronaut.build</groupId>
           <artifactId>micronaut-maven-plugin</artifactId>
-          <version>1.1.8</version>
+          <version>2.0.0</version>
         </plugin>
         <!-- process the Micronaut annotations -->
         <plugin>
@@ -85,7 +66,7 @@
               <path>
                 <groupId>io.micronaut.data</groupId>
                 <artifactId>micronaut-data-processor</artifactId>
-                <version>2.3.1</version>
+                <version>2.4.2</version>
               </path>
             </annotationProcessorPaths>
           </configuration>

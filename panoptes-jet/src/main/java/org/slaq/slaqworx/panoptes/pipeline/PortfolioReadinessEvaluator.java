@@ -4,9 +4,7 @@ import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
-import com.hazelcast.map.IMap;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.Serial;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -14,46 +12,45 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
-import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 
 /**
- * A process function which collects security and portfolio position data and evaluates portfolio
- * compliance using the portfolio-supplied rules.
+ * A process function which collects security and portfolio position data and outputs {@link
+ * PortfolioEvaluationInput}s when a portfolio is ready for evaluation.
  *
  * @author jeremy
  */
-public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>,
-    TriFunction<PortfolioTracker, PortfolioKey, PortfolioEvent, Traverser<RuleEvaluationResult>> {
+public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>,
+    TriFunction<PortfolioTracker, PortfolioKey, PortfolioEvent,
+        Traverser<PortfolioEvaluationInput>> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private transient PortfolioTracker portfolioTracker;
 
   /**
-   * Creates a new {@link PortfolioRuleEvaluator}.
+   * Creates a new {@link PortfolioReadinessEvaluator}.
    */
-  public PortfolioRuleEvaluator() {
+  public PortfolioReadinessEvaluator() {
     // nothing to do
   }
 
   @Override
-  public Traverser<RuleEvaluationResult> applyEx(PortfolioTracker processState,
+  public Traverser<PortfolioEvaluationInput> applyEx(PortfolioTracker processState,
       PortfolioKey eventKey, PortfolioEvent event) {
     portfolioTracker = processState;
 
-    ArrayList<RuleEvaluationResult> results = new ArrayList<>();
+    PortfolioEvaluationInput evaluationInput;
     if (event instanceof SecurityUpdateEvent) {
       SecurityKey securityKey = ((SecurityUpdateEvent) event).getSecurityKey();
-      IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
-      Security security = securityMap.get(securityKey);
-      handleSecurityEvent(security, results);
+      evaluationInput = handleSecurityEvent(securityKey);
     } else {
-      handlePortfolioEvent(event, results);
+      evaluationInput = handlePortfolioEvent(event);
     }
 
-    return Traversers.traverseIterable(results);
+    return (evaluationInput != null ? Traversers.singleton(evaluationInput) : Traversers.empty());
   }
 
   @Override
@@ -66,11 +63,11 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>,
    *
    * @param portfolioEvent
    *     an event containing portfolio constituent data
-   * @param results
-   *     a {@link Collection} into which evaluation results, if any, are published
+   *
+   * @return a {@link PortfolioEvaluationInput} providing input to the next stage, or {@code null}
+   *     if the portfolio is not ready
    */
-  protected void handlePortfolioEvent(PortfolioEvent portfolioEvent,
-      Collection<RuleEvaluationResult> results) {
+  protected PortfolioEvaluationInput handlePortfolioEvent(PortfolioEvent portfolioEvent) {
     boolean isPortfolioProcessable;
     Portfolio portfolio;
     if (portfolioEvent instanceof PortfolioCommandEvent) {
@@ -97,21 +94,24 @@ public class PortfolioRuleEvaluator implements SupplierEx<PortfolioTracker>,
           "don't know how to process PortfolioEvent of type " + portfolioEvent.getClass());
     }
 
-    if (isPortfolioProcessable && portfolio != null) {
-      IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
-      portfolioTracker.processPortfolio(results, portfolio, null, securityMap, portfolio);
+    if (isPortfolioProcessable) {
+      return portfolioTracker.processPortfolio(portfolio, null, portfolio);
     }
+
+    // can't process yet
+    return null;
   }
 
   /**
    * Handles a security event.
    *
-   * @param security
-   *     the {@link Security} update information obtained from the event
-   * @param results
-   *     a {@link Collection} into which evaluation results, if any, are published
+   * @param securityKey
+   *     a key identifying the {@link Security} update information obtained from the event
+   *
+   * @return a {@link PortfolioEvaluationInput} providing input to the next stage, or {@code null}
+   *     if the portfolio is not ready
    */
-  protected void handleSecurityEvent(Security security, Collection<RuleEvaluationResult> results) {
-    portfolioTracker.applySecurity(security, portfolioTracker, results);
+  protected PortfolioEvaluationInput handleSecurityEvent(SecurityKey securityKey) {
+    return portfolioTracker.applySecurity(securityKey, portfolioTracker);
   }
 }
