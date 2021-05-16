@@ -1,12 +1,8 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.function.FunctionEx;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.core.EventTimePolicy;
-import com.hazelcast.jet.core.ProcessorMetaSupplier;
-import com.hazelcast.jet.kafka.KafkaProcessors;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.kafka.KafkaSources;
 import com.hazelcast.jet.pipeline.Sink;
@@ -69,14 +65,11 @@ import org.slf4j.LoggerFactory;
 @Factory
 public class PanoptesPipelineConfig {
   public static final String BENCHMARK_SOURCE = "benchmarkSource";
-  public static final String BENCHMARK_SOURCE_PROCESSOR = "benchmarkSourceP";
   public static final String PORTFOLIO_SOURCE = "portfolioSource";
-  public static final String PORTFOLIO_SOURCE_PROCESSOR = "portfolioSourceP";
   public static final String PORTFOLIO_EVALUATION_REQUEST_SOURCE =
       "portfolioEvaluationRequestSource";
   public static final String PORTFOLIO_EVALUATION_RESULT_SINK = "portfolioEvaluationResultSink";
   public static final String SECURITY_SOURCE = "securitySource";
-  public static final String SECURITY_SOURCE_PROCESSOR = "securitySourceP";
   public static final String TRADE_SOURCE = "tradeSource";
   public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
 
@@ -132,20 +125,6 @@ public class PanoptesPipelineConfig {
     return KafkaSources
         .kafka(benchmarkSourceProperties(), ConsumerRecord<PortfolioKey, PortfolioEvent>::value,
             benchmarkTopic);
-  }
-
-  @Singleton
-  @Named(BENCHMARK_SOURCE_PROCESSOR)
-  protected ProcessorMetaSupplier benchmarkSourceProcessor() {
-    LOG.info("using {} as benchmark topic", benchmarkTopic);
-
-    FunctionEx<ConsumerRecord<PortfolioKey, PortfolioEvent>, PortfolioEvent>
-        benchmarkSourceProjectionFunction = (r -> r.value());
-    EventTimePolicy kafkaSourceEventTimePolicy = EventTimePolicy.noEventTime(); // FIXME
-
-    return KafkaProcessors
-        .streamKafkaP(portfolioSourceProperties(), benchmarkSourceProjectionFunction,
-            kafkaSourceEventTimePolicy, benchmarkTopic);
   }
 
   /**
@@ -313,20 +292,6 @@ public class PanoptesPipelineConfig {
             portfolioTopic);
   }
 
-  @Singleton
-  @Named(PORTFOLIO_SOURCE_PROCESSOR)
-  protected ProcessorMetaSupplier portfolioSourceProcessor() {
-    LOG.info("using {} as portfolio topic", portfolioTopic);
-
-    FunctionEx<ConsumerRecord<PortfolioKey, PortfolioEvent>, PortfolioEvent>
-        portfolioSourceProjectionFunction = (r -> r.value());
-    EventTimePolicy kafkaSourceEventTimePolicy = EventTimePolicy.noEventTime(); // FIXME
-
-    return KafkaProcessors
-        .streamKafkaP(portfolioSourceProperties(), portfolioSourceProjectionFunction,
-            kafkaSourceEventTimePolicy, portfolioTopic);
-  }
-
   protected Properties securitySourceProperties() {
     Properties securitySourceProperties = new Properties();
     securitySourceProperties.putAll(kafkaProperties);
@@ -352,20 +317,6 @@ public class PanoptesPipelineConfig {
     return KafkaSources
         .kafka(securitySourceProperties(), ConsumerRecord<SecurityKey, Security>::value,
             securityTopic);
-  }
-
-  @Singleton
-  @Named(SECURITY_SOURCE_PROCESSOR)
-  protected ProcessorMetaSupplier securitySourceProcessor() {
-    LOG.info("using {} as security topic", securityTopic);
-
-    FunctionEx<ConsumerRecord<SecurityKey, Security>, Security> securitySourceProjectionFunction =
-        (r -> r.value());
-    EventTimePolicy kafkaSourceEventTimePolicy = EventTimePolicy.noEventTime(); // FIXME
-
-    return KafkaProcessors
-        .streamKafkaP(securitySourceProperties(), securitySourceProjectionFunction,
-            kafkaSourceEventTimePolicy, securityTopic);
   }
 
   /**

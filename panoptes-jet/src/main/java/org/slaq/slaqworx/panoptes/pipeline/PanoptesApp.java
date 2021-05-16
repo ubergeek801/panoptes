@@ -72,8 +72,7 @@ public class PanoptesApp {
       JetConfig jetConfig = appContext.getBean(JetConfig.class);
       JetInstance jetInstance = Jet.newJetInstance(jetConfig);
 
-      PanoptesTestPipeline pipeline = appContext.getBean(PanoptesTestPipeline.class);
-//      PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
+      PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
       JobConfig jobConfig = appContext.getBean(JobConfig.class);
       jetInstance.newJobIfAbsent(pipeline.getJetPipeline(), jobConfig).join();
     }
