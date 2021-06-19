@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
@@ -14,7 +15,8 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 public class SimplePosition extends AbstractPosition {
   private final double amount;
-  private final SecurityKey securityKey;
+  private final @Nonnull
+  SecurityKey securityKey;
 
   /**
    * Creates a new {@link SimplePosition} with a generated key and the specified amount and {@link
@@ -25,7 +27,7 @@ public class SimplePosition extends AbstractPosition {
    * @param securityKey
    *     a {@link SecurityKey} identifying the held {@link Security}
    */
-  public SimplePosition(double amount, SecurityKey securityKey) {
+  public SimplePosition(double amount, @Nonnull SecurityKey securityKey) {
     this(null, amount, securityKey);
   }
 
@@ -39,7 +41,7 @@ public class SimplePosition extends AbstractPosition {
    * @param securityKey
    *     a {@link SecurityKey} identifying the held {@link Security}
    */
-  public SimplePosition(PositionKey key, double amount, SecurityKey securityKey) {
+  public SimplePosition(PositionKey key, double amount, @Nonnull SecurityKey securityKey) {
     super(key);
     this.amount = amount;
     this.securityKey = securityKey;
@@ -51,6 +53,7 @@ public class SimplePosition extends AbstractPosition {
   }
 
   @Override
+  @Nonnull
   public SecurityKey getSecurityKey() {
     return securityKey;
   }

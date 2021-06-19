@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.event;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
@@ -9,6 +10,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  * @author jeremy
  */
 public class TransactionEvent extends PortfolioCommandEvent {
+  @Nonnull
   private final Transaction transaction;
 
   /**
@@ -19,7 +21,7 @@ public class TransactionEvent extends PortfolioCommandEvent {
    * @param transaction
    *     a {@link Transaction} to be evaluated against the specified portfolio
    */
-  public TransactionEvent(long eventId, Transaction transaction) {
+  public TransactionEvent(long eventId, @Nonnull Transaction transaction) {
     super(eventId, transaction.getPortfolioKey());
 
     this.transaction = transaction;
@@ -30,6 +32,7 @@ public class TransactionEvent extends PortfolioCommandEvent {
    *
    * @return a {@link Transaction}
    */
+  @Nonnull
   public Transaction getTransaction() {
     return transaction;
   }

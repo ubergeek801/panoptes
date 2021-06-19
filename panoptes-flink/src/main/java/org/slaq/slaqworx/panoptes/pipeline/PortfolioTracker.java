@@ -25,7 +25,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slf4j.Logger;

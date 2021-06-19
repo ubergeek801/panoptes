@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,6 +13,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.util.SerializerUtil;
 
 /**
@@ -21,13 +23,14 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
  * @author jeremy
  */
 public class SecurityAttributes implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   // while a Map is more convenient, attribute lookups are a very hot piece of code during Rule
   // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
   private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
-  private String hash = null;
+  private String hash;
 
   /**
    * Creates a new {@link SecurityAttributes} container of the given attributes.
@@ -35,7 +38,7 @@ public class SecurityAttributes implements Serializable {
    * @param attributes
    *     a {@link Map} of {@link SecurityAttribute} to attribute value
    */
-  public SecurityAttributes(Map<SecurityAttribute<?>, ? super Object> attributes) {
+  public SecurityAttributes(@Nonnull Map<SecurityAttribute<?>, ? super Object> attributes) {
     attributes.forEach((a, v) -> {
       attributeValues.ensureCapacity(a.getIndex() + 1);
       while (attributeValues.size() < a.getIndex() + 1) {
@@ -52,10 +55,11 @@ public class SecurityAttributes implements Serializable {
    *
    * @return a {@link Map} of {@link SecurityAttribute} to value
    */
+  @Nonnull
   public Map<SecurityAttribute<?>, ? super Object> asMap() {
     return IntStream.range(0, attributeValues.size()).boxed()
         .filter(i -> attributeValues.get(i) != null)
-        .collect(Collectors.toMap(SecurityAttribute::of, i -> attributeValues.get(i)));
+        .collect(Collectors.toMap(SecurityAttribute::of, attributeValues::get));
   }
 
   @Override
@@ -102,8 +106,8 @@ public class SecurityAttributes implements Serializable {
    *
    * @return the value of the given attribute, or {@code null} if not assigned
    */
-  public <T> T getValue(SecurityAttribute<T> attribute) {
-    T value = (T) getValue(attribute.getIndex());
+  public <T> T getValue(@Nonnull SecurityAttribute<T> attribute) {
+    @SuppressWarnings("unchecked") T value = (T) getValue(attribute.getIndex());
     return value;
   }
 
@@ -112,6 +116,7 @@ public class SecurityAttributes implements Serializable {
    *
    * @return the calculated hash value
    */
+  @Nonnull
   public String hash() {
     // lazily calculate the hash; no need to worry about race conditions with read-only data
 
@@ -153,21 +158,23 @@ public class SecurityAttributes implements Serializable {
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return asSortedMap().toString();
   }
 
   /**
    * Obtains the {@link SecurityAttributes} as a {@link SortedMap}. Reliance on this method should
-   * be limited to diagnostic purposes such as {@link toString()}.
+   * be limited to diagnostic purposes such as {@link #toString()}.
    *
    * @return a {@link SortedMap} of {@link SecurityAttribute} to value, sorted on attribute name
    */
+  @Nonnull
   protected SortedMap<SecurityAttribute<?>, ? super Object> asSortedMap() {
     return IntStream.range(0, attributeValues.size()).boxed()
         .filter(i -> attributeValues.get(i) != null)
-        .collect(Collectors.toMap(SecurityAttribute::of, i -> attributeValues.get(i), (v1, v2) -> {
+        .collect(Collectors.toMap(SecurityAttribute::of, attributeValues::get, (v1, v2) -> {
           throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
-        }, () -> new TreeMap<>((a1, a2) -> a1.compareTo(a2))));
+        }, () -> new TreeMap<>(SecurityAttribute::compareTo)));
   }
 }

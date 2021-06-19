@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
@@ -17,5 +18,5 @@ public interface MarketValued {
    *
    * @return the total market value of whatever comprises this holding
    */
-  double getMarketValue(EvaluationContext evaluationContext);
+  double getMarketValue(@Nonnull EvaluationContext evaluationContext);
 }

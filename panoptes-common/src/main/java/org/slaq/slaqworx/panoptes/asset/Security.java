@@ -23,8 +23,10 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * @author jeremy
  */
 public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
-  private final @Nonnull SecurityKey key;
-  private final @Nonnull SecurityAttributes attributes;
+  private final @Nonnull
+  SecurityKey key;
+  private final @Nonnull
+  SecurityAttributes attributes;
 
   /**
    * Creates a new {@link Security} with the given {@link SecurityAttribute} values. The key is
@@ -33,7 +35,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @param attributes
    *     a {@link Map} of {@link SecurityAttribute} to attribute value
    */
-  public Security(Map<SecurityAttribute<?>, ? super Object> attributes) {
+  public Security(@Nonnull Map<SecurityAttribute<?>, ? super Object> attributes) {
     this.attributes = new SecurityAttributes(attributes);
     String assetId = (String) attributes.get(SecurityAttribute.isin);
     if (assetId == null) {
@@ -63,7 +65,8 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *
    * @return a {@link SecurityAttributes} comprising this {@link Security}'s attributes
    */
-  public @Nonnull SecurityAttributes getAttributes() {
+  public @Nonnull
+  SecurityAttributes getAttributes() {
     return attributes;
   }
 
@@ -120,7 +123,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the requested attribute has no assigned value
    */
-  public <T> T getAttributeValue(SecurityAttribute<T> attribute) {
+  public <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute) {
     return getAttributeValue(attribute, true);
   }
 
@@ -140,9 +143,9 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
-  public <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired) {
-    @SuppressWarnings("unchecked")
-    T value = (T) getAttributeValue(attribute.getIndex(), isRequired);
+  public <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute, boolean isRequired) {
+    @SuppressWarnings("unchecked") T value =
+        (T) getAttributeValue(attribute.getIndex(), isRequired);
 
     return value;
   }
@@ -192,7 +195,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned
    */
   public Object getEffectiveAttributeValue(int attributeIndex,
-      EvaluationContext evaluationContext) {
+      @Nonnull EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attributeIndex, true, evaluationContext);
   }
 
@@ -215,9 +218,9 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
   public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
-      EvaluationContext evaluationContext) {
-    T value = (T) getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
-
+      @Nonnull EvaluationContext evaluationContext) {
+    @SuppressWarnings("unchecked") T value =
+        (T) getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
     return value;
   }
 
@@ -237,11 +240,12 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned
    */
   public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
-      EvaluationContext evaluationContext) {
+      @Nonnull EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attribute, true, evaluationContext);
   }
 
   @Override
+  @Nonnull
   public SecurityKey getKey() {
     return key;
   }
@@ -252,6 +256,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "Security[" + key + "]";
   }

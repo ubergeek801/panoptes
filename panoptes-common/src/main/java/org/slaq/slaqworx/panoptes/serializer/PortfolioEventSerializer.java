@@ -5,17 +5,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
-import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioEventMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioEventMsg.PortfolioCommandMsg;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioEventMsg.SecurityUpdateMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioEventMsg.TransactionEventMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TransactionMsg;
@@ -53,20 +49,11 @@ public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEve
       IdVersionKeyMsg keyMsg = portfolioCommandMsg.getPortfolioKey();
       PortfolioKey portfolioKey = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
       event = new PortfolioCommandEvent(eventId, portfolioKey);
-    } else if (portfolioEventMsg.hasPortfolioData()) {
+    } else {
       // must be a data message
       PortfolioMsg portfolioMsg = portfolioEventMsg.getPortfolioData();
       Portfolio portfolio = PortfolioSerializer.convert(portfolioMsg);
       event = new PortfolioDataEvent(portfolio);
-    } else {
-      // must be a SecurityUpdateEvent
-      SecurityUpdateMsg securityUpdateMsg = portfolioEventMsg.getSecurityUpdate();
-      IdVersionKeyMsg portfolioKeyMsg = securityUpdateMsg.getPortfolioKey();
-      PortfolioKey portfolioKey =
-          new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
-      IdKeyMsg securityKeyMsg = securityUpdateMsg.getSecurityKey();
-      SecurityKey securityKey = new SecurityKey(securityKeyMsg.getId());
-      event = new SecurityUpdateEvent(portfolioKey, securityKey);
     }
 
     return event;
@@ -75,8 +62,7 @@ public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEve
   @Override
   public byte[] write(PortfolioEvent event) throws IOException {
     PortfolioEventMsg.Builder portfolioEventBuilder = PortfolioEventMsg.newBuilder();
-    if (event instanceof TransactionEvent) {
-      TransactionEvent transactionEvent = (TransactionEvent) event;
+    if (event instanceof TransactionEvent transactionEvent) {
       TransactionEventMsg.Builder transactionEventMsg = TransactionEventMsg.newBuilder();
 
       transactionEventMsg.setEventId(transactionEvent.getEventId());
@@ -88,8 +74,7 @@ public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEve
           .setTransaction(TransactionSerializer.convert(transactionEvent.getTransaction()));
 
       portfolioEventBuilder.setTransactionEvent(transactionEventMsg.build());
-    } else if (event instanceof PortfolioCommandEvent) {
-      PortfolioCommandEvent commandEvent = (PortfolioCommandEvent) event;
+    } else if (event instanceof PortfolioCommandEvent commandEvent) {
       PortfolioCommandMsg.Builder portfolioCommandMsg = PortfolioCommandMsg.newBuilder();
 
       portfolioCommandMsg.setEventId(commandEvent.getEventId());
@@ -100,24 +85,9 @@ public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEve
       portfolioCommandMsg.setPortfolioKey(keyBuilder.build());
 
       portfolioEventBuilder.setPortfolioCommand(portfolioCommandMsg.build());
-    } else if (event instanceof PortfolioDataEvent) {
-      PortfolioDataEvent dataEvent = (PortfolioDataEvent) event;
+    } else if (event instanceof PortfolioDataEvent dataEvent) {
       PortfolioMsg portfolioMsg = PortfolioSerializer.convert(dataEvent.getPortfolio());
       portfolioEventBuilder.setPortfolioData(portfolioMsg);
-    } else if (event instanceof SecurityUpdateEvent) {
-      SecurityUpdateEvent securityUpdateEvent = (SecurityUpdateEvent) event;
-      SecurityUpdateMsg.Builder securityUpdateMsg = SecurityUpdateMsg.newBuilder();
-
-      IdVersionKeyMsg.Builder portfolioKeyBuilder = IdVersionKeyMsg.newBuilder();
-      portfolioKeyBuilder.setId(securityUpdateEvent.getPortfolioKey().getId());
-      portfolioKeyBuilder.setVersion(securityUpdateEvent.getPortfolioKey().getVersion());
-      securityUpdateMsg.setPortfolioKey(portfolioKeyBuilder);
-
-      IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-      securityKeyBuilder.setId(securityUpdateEvent.getSecurityKey().getId());
-      securityUpdateMsg.setSecurityKey(securityKeyBuilder);
-
-      portfolioEventBuilder.setSecurityUpdate(securityUpdateMsg.build());
     } else {
       // this shouldn't be possible since only the above subclasses exist
       throw new IllegalArgumentException(

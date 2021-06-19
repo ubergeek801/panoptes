@@ -6,6 +6,7 @@ import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.ringbuffer.ReadResultSet;
 import com.hazelcast.ringbuffer.Ringbuffer;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 
 /**
  * Facilitates the construction of {@link StreamSource}s which in turn source data from a Hazelcast
@@ -28,7 +29,8 @@ public class RingbufferSource {
    *
    * @return a {@link StreamSource}
    */
-  public static <T> StreamSource<T> buildRingbufferSource(String name, String ringbufferName) {
+  public static <T> StreamSource<T> buildRingbufferSource(@Nonnull String name,
+      @Nonnull String ringbufferName) {
     return SourceBuilder.stream(name, context -> new RingbufferSourceContext<T>(
         context.jetInstance().getHazelcastInstance().getRingbuffer(ringbufferName)))
         .fillBufferFn(new RingbufferBufferFiller<>())
@@ -64,6 +66,7 @@ public class RingbufferSource {
    *     the type of data contained in the {@link Ringbuffer}
    */
   private static class RingbufferSourceContext<T> {
+    @Nonnull
     private final Ringbuffer<T> ringbuffer;
     private long currentSequence;
 
@@ -74,11 +77,12 @@ public class RingbufferSource {
      * @param ringbuffer
      *     the {@link Ringbuffer} from which to source events
      */
-    public RingbufferSourceContext(Ringbuffer<T> ringbuffer) {
+    public RingbufferSourceContext(@Nonnull Ringbuffer<T> ringbuffer) {
       this.ringbuffer = ringbuffer;
       currentSequence = ringbuffer.headSequence();
     }
 
+    @Nonnull
     public Ringbuffer<T> getRingbuffer() {
       return ringbuffer;
     }

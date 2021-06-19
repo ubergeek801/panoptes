@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -126,7 +127,7 @@ public class DummyPortfolioMapLoader
   }
 
   @Override
-  public Portfolio getPortfolio(PortfolioKey key) {
+  public Portfolio getPortfolio(@Nonnull PortfolioKey key) {
     return portfolioMap.get(key);
   }
 

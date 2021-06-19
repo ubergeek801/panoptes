@@ -4,7 +4,7 @@ import java.util.Objects;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.BenchmarkComparable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 

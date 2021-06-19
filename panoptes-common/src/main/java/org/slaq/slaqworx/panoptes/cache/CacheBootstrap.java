@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.cache;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -9,6 +10,7 @@ import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.trade.TradeKey;
@@ -35,8 +37,9 @@ class CacheBootstrap {
    *
    * @return the {@link Portfolio} cache
    */
+  @Nonnull
   protected static IMap<PortfolioKey, Portfolio> getPortfolioCache(
-      HazelcastInstance hazelcastInstance) {
+      @Nonnull HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.PORTFOLIO_CACHE_NAME);
   }
 
@@ -48,8 +51,9 @@ class CacheBootstrap {
    *
    * @return the {@link Position} cache
    */
+  @Nonnull
   protected static IMap<PositionKey, Position> getPositionCache(
-      HazelcastInstance hazelcastInstance) {
+      @Nonnull HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.POSITION_CACHE_NAME);
   }
 
@@ -61,8 +65,9 @@ class CacheBootstrap {
    *
    * @return the {@link Rule} cache
    */
+  @Nonnull
   protected static IMap<RuleKey, ConfigurableRule> getRuleCache(
-      HazelcastInstance hazelcastInstance) {
+      @Nonnull HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.RULE_CACHE_NAME);
   }
 
@@ -74,8 +79,9 @@ class CacheBootstrap {
    *
    * @return the {@link Security} cache
    */
+  @Nonnull
   protected static IMap<SecurityKey, Security> getSecurityCache(
-      HazelcastInstance hazelcastInstance) {
+      @Nonnull HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.SECURITY_CACHE_NAME);
   }
 
@@ -87,7 +93,9 @@ class CacheBootstrap {
    *
    * @return the {@link Trade} cache
    */
-  protected static IMap<TradeKey, Trade> getTradeCache(HazelcastInstance hazelcastInstance) {
+  @Nonnull
+  protected static IMap<TradeKey, Trade> getTradeCache(
+      @Nonnull HazelcastInstance hazelcastInstance) {
     return hazelcastInstance.getMap(AssetCache.TRADE_CACHE_NAME);
   }
 }

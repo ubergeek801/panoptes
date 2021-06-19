@@ -1,15 +1,17 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
  * A key used to reference {@link Position}s.
  *
+ * @param id
+ *     the ID to assign to the key, or {@code null} to generate one
+ *
  * @author jeremy
  */
-public class PositionKey implements ProtobufSerializable {
-  private final String id;
-
+public record PositionKey(@Nonnull String id) implements ProtobufSerializable {
   /**
    * Creates a new {@link PositionKey} with the given ID.
    *
@@ -21,35 +23,7 @@ public class PositionKey implements ProtobufSerializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    PositionKey other = (PositionKey) obj;
-    return id.equals(other.id);
-  }
-
-  /**
-   * Obtains this {@link PositionKey}'s ID.
-   *
-   * @return the ID underlying this key
-   */
-  public String getId() {
-    return id;
-  }
-
-  @Override
-  public int hashCode() {
-    return id.hashCode();
-  }
-
-  @Override
+  @Nonnull
   public String toString() {
     return id;
   }

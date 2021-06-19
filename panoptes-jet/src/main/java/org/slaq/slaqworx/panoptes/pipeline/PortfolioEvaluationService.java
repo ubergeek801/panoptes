@@ -6,14 +6,17 @@ import com.hazelcast.jet.pipeline.ServiceFactories;
 import com.hazelcast.jet.pipeline.ServiceFactory;
 import com.hazelcast.map.IMap;
 import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
+import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
+import org.slaq.slaqworx.panoptes.event.PortfolioEvaluationInput;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RulesProvider;
 import org.slf4j.Logger;
@@ -23,26 +26,34 @@ import org.slf4j.LoggerFactory;
  * A service (in the Hazelcast Jet sense) which performs rule evaluations and emits results. Receipt
  * of a {@link PortfolioEvaluationInput} implies that the target {@link Portfolio} is "ready" for
  * evaluation, that is, all of its held securities are known to have been encountered.
+ * <p>
+ * Rule evaluation is provided in this manner because, while generally non-blocking, the process may
+ * take on the order of tens to hundreds of milliseconds, for which Jet recommends designating the
+ * process as non-cooperative.
  */
 public class PortfolioEvaluationService {
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioEvaluationService.class);
+
+  private final AssetCache assetCache;
 
   /**
    * Creates a new {@link PortfolioEvaluationService}. Restricted because instances should be
    * obtained through the {@link #serviceFactory()} method.
    */
   protected PortfolioEvaluationService() {
-    // nothing to do
+    assetCache = PanoptesApp.getAssetCache();
   }
 
   /**
    * Obtains a {@link ServiceFactory} which provides a shared {@link PortfolioEvaluationService}
-   * instance. Note that the factory is tagged as non-cooperative because portfolio-level rule
-   * evaluation may take on the order of tens to hundreds of milliseconds, which is well over the
-   * threshold of cooperative task requirements.
+   * instance.
+   *
+   * @param assetCache
+   *     the {@link AssetCache} to be used to resolve data references
    *
    * @return a {@link ServiceFactory}
    */
+  @Nonnull
   public static ServiceFactory<?, PortfolioEvaluationService> serviceFactory() {
     return ServiceFactories.sharedService(context -> new PortfolioEvaluationService())
         .toNonCooperative();
@@ -56,22 +67,25 @@ public class PortfolioEvaluationService {
    *
    * @return a {@link Traverser} over the results of portfolio rule evaluation
    */
+  @Nonnull
   public Traverser<RuleEvaluationResult> evaluate(
-      PortfolioEvaluationInput portfolioEvaluationInput) {
+      @Nonnull PortfolioEvaluationInput portfolioEvaluationInput) {
     EvaluationSource evaluationSource = portfolioEvaluationInput.getEvaluationSource();
-    Portfolio portfolio = portfolioEvaluationInput.getPortfolio();
     RulesProvider rulesProvider = () -> portfolioEvaluationInput.getRules().stream();
+    int numRules = portfolioEvaluationInput.getRules().size();
 
-    // this is questionable but there shouldn't be any other portfolios queried
-    PortfolioProvider portfolioProvider = (k -> portfolio);
-    IMap<SecurityKey, Security> securityMap = PanoptesApp.getAssetCache().getSecurityCache();
+    IMap<SecurityKey, Security> securityMap = assetCache.getSecurityCache();
     SecurityProvider securityProvider = (k, context) -> securityMap.get(k);
 
-    LOG.info("processing rules for {} {} (\"{}\")", evaluationSource, portfolio.getKey(),
-        portfolio.getName());
-    ArrayList<RuleEvaluationResult> results = new ArrayList<>();
+    Portfolio portfolio = PanoptesApp.getAssetCache().getPortfolioCache()
+        .get(portfolioEvaluationInput.getPortfolioKey());
+    // this is questionable but there shouldn't be any other Portfolios requested by rule evaluation
+    PortfolioProvider portfolioProvider = (k -> portfolio);
+
+    LOG.info("processing {} rules for {} {} (\"{}\")", numRules, evaluationSource,
+        portfolio.getKey(), portfolio.getName());
+    ArrayList<RuleEvaluationResult> results = new ArrayList<>(numRules);
     long startTime = System.currentTimeMillis();
-    int[] numRules = new int[1];
     rulesProvider.getRules().forEach(rule -> {
       // FIXME get/generate eventId
       long eventId = System.currentTimeMillis();
@@ -85,9 +99,8 @@ public class PortfolioEvaluationService {
               evaluationSource, rule.isBenchmarkSupported(), rule.getLowerLimit(),
               rule.getUpperLimit(), evaluationResult);
       results.add(ruleEvaluationResult);
-      numRules[0]++;
     });
-    LOG.info("processed {} rules for {} {} (\"{}\") in {} ms", numRules[0], evaluationSource,
+    LOG.info("processed {} rules for {} {} (\"{}\") in {} ms", numRules, evaluationSource,
         portfolio.getKey(), portfolio.getName(), System.currentTimeMillis() - startTime);
 
     return Traversers.traverseIterable(results);

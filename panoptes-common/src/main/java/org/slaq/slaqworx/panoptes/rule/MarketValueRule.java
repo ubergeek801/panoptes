@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -84,7 +85,7 @@ public class MarketValueRule extends LimitRule {
   }
 
   @Override
-  protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
+  protected double getValue(@Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
     TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
 
     return calculator.calculate(positions.getPositionsWithContext(evaluationContext));

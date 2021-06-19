@@ -44,8 +44,8 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
   @Transactional
   public void delete(PositionKey key) {
     getJdbi().withHandle(handle -> {
-      handle.execute("delete from portfolio_position where position_id = ?", key.getId());
-      return handle.execute("delete from " + getTableName() + " where id = ?", key.getId());
+      handle.execute("delete from portfolio_position where position_id = ?", key.id());
+      return handle.execute("delete from " + getTableName() + " where id = ?", key.id());
     });
   }
 
@@ -60,9 +60,9 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
   @Override
   protected void bindValues(PreparedBatch batch, Position position) {
-    batch.bind(1, position.getKey().getId());
+    batch.bind(1, position.getKey().id());
     batch.bind(2, position.getAmount());
-    batch.bind(3, position.getSecurityKey().getId());
+    batch.bind(3, position.getSecurityKey().id());
   }
 
   @Override
@@ -72,7 +72,7 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
   @Override
   protected Object[] getKeyComponents(PositionKey key) {
-    return new Object[] {key.getId()};
+    return new Object[] {key.id()};
   }
 
   @Override

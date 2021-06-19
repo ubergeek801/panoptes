@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.test;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -25,7 +26,7 @@ public class TestSecurityProvider implements SecurityProvider {
   }
 
   @Override
-  public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext) {
+  public Security getSecurity(@Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext) {
     return securityMap.get(key);
   }
 

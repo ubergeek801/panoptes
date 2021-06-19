@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
@@ -20,5 +21,5 @@ public interface SecurityProvider {
    * @return the {@link Security} corresponding to the given key, or {@code null} if it could not be
    *     located
    */
-  public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext);
+  Security getSecurity(@Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext);
 }

@@ -72,7 +72,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
 
     String[] keyColumns = getKeyColumnNames();
     StringBuilder queryString = new StringBuilder(getLoadSelect());
-    queryString.append(" where (").append(String.join(",", keyColumns) + ") in (values ");
+    queryString.append(" where (").append(String.join(",", keyColumns)).append(") in (values ");
 
     List<Object> parameters = new ArrayList<>(keys.size() * keyColumns.length);
     int keyIndex = 0;

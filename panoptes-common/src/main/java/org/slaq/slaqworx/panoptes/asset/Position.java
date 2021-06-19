@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.EnumSet;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.asset.HierarchicalPositionSupplier.PositionHierarchyOption;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -37,7 +38,7 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    *
    * @return the amount
    */
-  public double getAmount();
+  double getAmount();
 
   /**
    * Obtains the value of the specified attribute of this {@link Position}'s held {@link Security}.
@@ -59,8 +60,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * @throws NoDataException
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
-  public default <T> T getAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
-      EvaluationContext evaluationContext) {
+  default <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute, boolean isRequired,
+      @Nonnull EvaluationContext evaluationContext) {
     return getSecurity(evaluationContext)
         .getEffectiveAttributeValue(attribute, isRequired, evaluationContext);
   }
@@ -82,8 +83,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * @throws NoDataException
    *     if the requested attribute has no assigned value
    */
-  public default <T> T getAttributeValue(SecurityAttribute<T> attribute,
-      EvaluationContext evaluationContext) {
+  default <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute,
+      @Nonnull EvaluationContext evaluationContext) {
     return getAttributeValue(attribute, true, evaluationContext);
   }
 
@@ -96,8 +97,9 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * @return a {@link Stream} of this {@link Position}'s lookthrough {@link Position}s, or the
    *     {@link Position} itself if not applicable
    */
-  public default Stream<? extends Position> getLookthroughPositions(
-      EvaluationContext evaluationContext) {
+  @Nonnull
+  default Stream<? extends Position> getLookthroughPositions(
+      @Nonnull EvaluationContext evaluationContext) {
     PortfolioKey lookthroughPortfolioKey = getSecurity(evaluationContext)
         .getEffectiveAttributeValue(SecurityAttribute.portfolio, false, evaluationContext);
     if (lookthroughPortfolioKey == null) {
@@ -107,10 +109,10 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
 
     Portfolio lookthroughPortfolio =
         evaluationContext.getPortfolioProvider().getPortfolio(lookthroughPortfolioKey);
-    // For a Security representing a fund, the amount attribute represents the number of fund
-    // shares outstanding, so the effective lookthrough Positions should have their amounts
-    // scaled by (this Position's amount in fund) / (total amount of fund). Each Position of the
-    // held Portfolio is mapped to a ScaledPosition using this multiplier.
+    // For a Security representing a fund, the amount attribute represents the number of fund shares
+    // outstanding, so the effective lookthrough Positions should have their amounts scaled by
+    // (this Position's amount in fund) / (total amount of fund). Each Position of the held
+    // Portfolio is mapped to a ScaledPosition using this multiplier.
     double portfolioAmount = getAttributeValue(SecurityAttribute.amount, evaluationContext);
     return lookthroughPortfolio
         .getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH), evaluationContext)
@@ -118,7 +120,7 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
   }
 
   @Override
-  public default double getMarketValue(EvaluationContext evaluationContext) {
+  default double getMarketValue(@Nonnull EvaluationContext evaluationContext) {
     return getAttributeValue(SecurityAttribute.price, evaluationContext) * getAmount();
   }
 
@@ -130,7 +132,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    *
    * @return the {@link Security} held by this {@link Position}
    */
-  public default Security getSecurity(EvaluationContext evaluationContext) {
+  @Nonnull
+  default Security getSecurity(@Nonnull EvaluationContext evaluationContext) {
     return evaluationContext.getSecurityProvider().getSecurity(getSecurityKey(), evaluationContext);
   }
 
@@ -140,7 +143,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    *
    * @return the key of the {@link Security} held by this {@link Position}
    */
-  public SecurityKey getSecurityKey();
+  @Nonnull
+  SecurityKey getSecurityKey();
 
   /**
    * Obtains the tax lots of this {@link Position} as a {@link Stream}.
@@ -148,7 +152,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * @return a {@link Stream} of this {@link Position}'s constituent tax lots, or the {@link
    *     Position} itself if not applicable
    */
-  public default Stream<? extends Position> getTaxLots() {
+  @Nonnull
+  default Stream<? extends Position> getTaxLots() {
     return Stream.of(this);
   }
 }

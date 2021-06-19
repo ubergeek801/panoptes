@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 
@@ -15,8 +16,10 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * @author jeremy
  */
 public class PositionEvaluationContext {
-  private final Position position;
-  private final EvaluationContext evaluationContext;
+  private final @Nonnull
+  Position position;
+  private final @Nonnull
+  EvaluationContext evaluationContext;
 
   private Throwable exception;
 
@@ -29,7 +32,8 @@ public class PositionEvaluationContext {
    * @param evaluationContext
    *     the context in which to evaluate the {@link Position}
    */
-  public PositionEvaluationContext(Position position, EvaluationContext evaluationContext) {
+  public PositionEvaluationContext(@Nonnull Position position,
+      @Nonnull EvaluationContext evaluationContext) {
     this.position = position;
     this.evaluationContext = evaluationContext;
   }
@@ -39,6 +43,7 @@ public class PositionEvaluationContext {
    *
    * @return an {@link EvaluationContext}
    */
+  @Nonnull
   public EvaluationContext getEvaluationContext() {
     return evaluationContext;
   }
@@ -67,6 +72,7 @@ public class PositionEvaluationContext {
    *
    * @return a {@link Position}
    */
+  @Nonnull
   public Position getPosition() {
     return position;
   }

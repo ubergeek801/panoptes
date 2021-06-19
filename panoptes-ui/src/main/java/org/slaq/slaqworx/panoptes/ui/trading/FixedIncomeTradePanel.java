@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -40,12 +41,17 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class FixedIncomeTradePanel extends FormLayout {
+  @Serial
   private static final long serialVersionUID = 1L;
+
   private static final Logger LOG = LoggerFactory.getLogger(FixedIncomeTradePanel.class);
+
   private static final ForkJoinPool roomEvaluatorExecutor = ForkJoinPoolFactory
       .newForkJoinPool(Runtime.getRuntime().availableProcessors(), "room-evaluator");
+
   // TODO this isn't very "responsive"
   private static final int NUM_COLUMNS = 7;
+
   private final AssetCache assetCache;
   private final TradeEvaluator tradeEvaluator;
   private final BigDecimalField tradeMarketValueField;
@@ -141,7 +147,7 @@ public class FixedIncomeTradePanel extends FormLayout {
                     // add at the next position
                     allocations.addComponentAtIndex(allocationIndex++, allocationPanel);
                     allocationPanel.portfolioIdField.setValue(portfolioKey.getId());
-                    allocationPanel.portfolioNameField.setValue(portfolio.getName());
+                    allocationPanel.portfolioNameField.setValue(portfolio.name());
                     allocationPanel.amountField.setValue(tradePrice == null ? null :
                         roomMarketValue.setScale(4, RoundingMode.HALF_EVEN)
                             .divide(tradePrice, RoundingMode.HALF_EVEN));
@@ -256,6 +262,7 @@ public class FixedIncomeTradePanel extends FormLayout {
    * actions that can be taken on that allocation.
    */
   class AllocationPanel extends HorizontalLayout {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final TextField portfolioIdField;
@@ -332,7 +339,7 @@ public class FixedIncomeTradePanel extends FormLayout {
         }
 
         portfolioIdField.setInvalid(false);
-        portfolioNameField.setValue(portfolio.getName());
+        portfolioNameField.setValue(portfolio.name());
         room.setEnabled(true);
       });
     }

@@ -13,7 +13,7 @@ import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 
 /**
  * A process function which collects security and portfolio position data and evaluates portfolio

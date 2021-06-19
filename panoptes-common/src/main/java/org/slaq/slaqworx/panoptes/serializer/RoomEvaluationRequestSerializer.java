@@ -43,7 +43,7 @@ public class RoomEvaluationRequestSerializer implements ProtobufSerializer<RoomE
     requestBuilder.setPortfolioKey(portfolioKeyBuilder.build());
 
     IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-    securityKeyBuilder.setId(request.getSecurityKey().getId());
+    securityKeyBuilder.setId(request.getSecurityKey().id());
     requestBuilder.setSecurityKey(securityKeyBuilder.build());
 
     requestBuilder.setTargetValue(request.getTargetValue());

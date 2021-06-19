@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.pipeline;
 import com.hazelcast.function.FunctionEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
+import java.io.Serial;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -15,6 +16,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  * @author jeremy
  */
 public class TradeSplitter implements FunctionEx<Trade, Traverser<PortfolioEvent>> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Override

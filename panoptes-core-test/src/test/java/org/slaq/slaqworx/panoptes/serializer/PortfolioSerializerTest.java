@@ -44,8 +44,7 @@ public class PortfolioSerializerTest {
     assertEquals(portfolio.getPositions().count(), deserialized.getPositions().count(),
         "deserialized Portfolio should have same number of Positions as original");
 
-    Comparator<Position> positionComparator =
-        (p1, p2) -> p1.getKey().getId().compareTo(p2.getKey().getId());
+    Comparator<Position> positionComparator = (Comparator.comparing(p -> p.getKey().id()));
 
     // sort the Position lists so we can compare elements
     ArrayList<Position> originalPositions = new ArrayList<>();

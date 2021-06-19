@@ -5,178 +5,179 @@ import "google/protobuf/wrappers.proto";
 package org.slaq.slaqworx.panoptes.proto;
 
 message IdVersionKeyMsg {
-    string id = 1;
-    int64 version = 2;
+  string id = 1;
+  int64 version = 2;
 }
 
 message IdKeyMsg {
-    string id = 1;
+  string id = 1;
 }
 
 message DateMsg {
-    int32 year = 1;
-    int32 month = 2;
-    int32 day = 3;
+  int32 year = 1;
+  int32 month = 2;
+  int32 day = 3;
 }
 
 message PortfolioMsg {
-    IdVersionKeyMsg key = 1;
-    string name = 2;
-    IdVersionKeyMsg benchmarkKey = 3;
-    repeated RuleMsg rule = 4;
-    repeated PositionMsg position = 5;
+  IdVersionKeyMsg key = 1;
+  string name = 2;
+  IdVersionKeyMsg benchmarkKey = 3;
+  repeated RuleMsg rule = 4;
+  repeated PositionMsg position = 5;
 }
 
 message PortfolioSummaryMsg {
-    IdVersionKeyMsg key = 1;
-    string name = 2;
-    IdVersionKeyMsg benchmarkKey = 3;
-    double totalMarketValue = 4;
-    bool isAbstract = 5;
+  IdVersionKeyMsg key = 1;
+  string name = 2;
+  IdVersionKeyMsg benchmarkKey = 3;
+  double totalMarketValue = 4;
+  bool isAbstract = 5;
 }
 
 message PositionMsg {
-    IdKeyMsg key = 1;
-    double amount = 2;
-    IdKeyMsg securityKey = 3;
+  IdKeyMsg key = 1;
+  double amount = 2;
+  IdKeyMsg securityKey = 3;
 }
 
 message RuleMsg {
-    IdKeyMsg key = 1;
-    string description = 2;
-    string type = 3;
-    string configuration = 4;
-    string filter = 5;
-    string classifierType = 6;
-    string classifierConfiguration = 7;
+  IdKeyMsg key = 1;
+  string description = 2;
+  string type = 3;
+  string configuration = 4;
+  string filter = 5;
+  string classifierType = 6;
+  string classifierConfiguration = 7;
 }
 
 message RuleSummaryMsg {
-    IdKeyMsg key = 1;
-    string description = 2;
-    string parameterDescription = 3;
+  IdKeyMsg key = 1;
+  string description = 2;
+  string parameterDescription = 3;
 }
 
 message PortfolioRuleKeyMsg {
-    IdVersionKeyMsg portfolioKey = 1;
-    IdKeyMsg ruleKey = 2;
+  IdVersionKeyMsg portfolioKey = 1;
+  IdKeyMsg ruleKey = 2;
 }
 
 message SecurityMsg {
-    map<string, string> attributes = 1;
+  map<string, string> attributes = 1;
 }
 
 message TransactionMsg {
-    IdKeyMsg key = 1;
-    IdVersionKeyMsg portfolioKey = 2;
-    repeated PositionMsg position = 3;
+  IdKeyMsg key = 1;
+  IdVersionKeyMsg portfolioKey = 2;
+  repeated PositionMsg position = 3;
 }
 
 message TradeMsg {
-    IdKeyMsg key = 1;
-    DateMsg tradeDate = 2;
-    DateMsg settlementDate = 3;
-    repeated TransactionMsg transaction = 4;
+  IdKeyMsg key = 1;
+  DateMsg tradeDate = 2;
+  DateMsg settlementDate = 3;
+  repeated TransactionMsg transaction = 4;
 }
 
 message EvaluationContextMsg {
-    string evaluationMode = 1;
-    map<string, SecurityMsg> securityOverrides = 2;
+  string evaluationMode = 1;
+  map<string, SecurityMsg> securityOverrides = 2;
 }
 
 message PortfolioEvaluationRequestMsg {
-    IdVersionKeyMsg portfolioKey = 1;
-    TransactionMsg transaction = 2;
-    EvaluationContextMsg evaluationContext = 3;
+  IdVersionKeyMsg portfolioKey = 1;
+  TransactionMsg transaction = 2;
+  EvaluationContextMsg evaluationContext = 3;
 }
 
 message ExceptionMsg {
-    string exceptionClass = 1;
-    string message = 2;
-    repeated string stackEntry = 3;
-    ExceptionMsg cause = 4;
+  string exceptionClass = 1;
+  string message = 2;
+  repeated string stackEntry = 3;
+  ExceptionMsg cause = 4;
 }
 
 message ValueResultMsg {
-    string id = 1;
-    google.protobuf.StringValue aggregationKey = 2;
-    bool isPassed = 3;
-    google.protobuf.StringValue threshold = 4;
-    google.protobuf.DoubleValue value = 5;
-    ExceptionMsg exception = 6;
+  string id = 1;
+  google.protobuf.StringValue aggregationKey = 2;
+  bool isPassed = 3;
+  google.protobuf.StringValue threshold = 4;
+  google.protobuf.DoubleValue value = 5;
+  ExceptionMsg exception = 6;
 }
 
 message EvaluationResultMsg {
-    IdKeyMsg ruleKey = 1;
-    repeated ValueResultMsg result = 2;
-    repeated ValueResultMsg proposedResult = 3;
+  IdKeyMsg ruleKey = 1;
+  repeated ValueResultMsg result = 2;
+  repeated ValueResultMsg proposedResult = 3;
 }
 
 message RuleImpactMsg {
-    string id = 1;
-    google.protobuf.StringValue aggregationKey = 2;
-    string impact = 3;
+  string id = 1;
+  google.protobuf.StringValue aggregationKey = 2;
+  string impact = 3;
 }
 
 message PortfolioRuleImpactMsg {
-    IdVersionKeyMsg portfolioKey = 1;
-    IdKeyMsg ruleKey = 2;
-    repeated RuleImpactMsg ruleImpact = 3;
+  IdVersionKeyMsg portfolioKey = 1;
+  IdKeyMsg ruleKey = 2;
+  repeated RuleImpactMsg ruleImpact = 3;
 }
 
 message TradeEvaluationRequestMsg {
-    IdKeyMsg tradeKey = 1;
-    EvaluationContextMsg evaluationContext = 2;
+  IdKeyMsg tradeKey = 1;
+  EvaluationContextMsg evaluationContext = 2;
 }
 
 message RoomEvaluationRequestMsg {
-    IdVersionKeyMsg portfolioKey = 1;
-    IdKeyMsg securityKey = 2;
-    double targetValue = 3;
+  IdVersionKeyMsg portfolioKey = 1;
+  IdKeyMsg securityKey = 2;
+  double targetValue = 3;
 }
 
 message TradeEvaluationResultMsg {
-    IdKeyMsg tradeKey = 1;
-    repeated PortfolioRuleImpactMsg portfolioRuleImpact = 2;
+  IdKeyMsg tradeKey = 1;
+  repeated PortfolioRuleImpactMsg portfolioRuleImpact = 2;
 }
 
 // the following are used by Flink/Jet operators; maybe this will become a distinct package
 
 message PortfolioEventMsg {
-    message PortfolioCommandMsg {
-        int64 eventId = 1;
-        IdVersionKeyMsg portfolioKey = 2;
-    }
-    message TransactionEventMsg {
-        int64 eventId = 1;
-        IdVersionKeyMsg portfolioKey = 2;
-        TransactionMsg transaction = 3;
-    }
-    message SecurityUpdateMsg {
-        IdVersionKeyMsg portfolioKey = 1;
-        IdKeyMsg securityKey = 2;
-    }
-    oneof content {
-        PortfolioCommandMsg portfolioCommand = 1;
-        PortfolioMsg portfolioData = 2;
-        SecurityUpdateMsg securityUpdate = 3;
-        TransactionEventMsg transactionEvent = 4;
-    }
+  message PortfolioCommandMsg {
+    int64 eventId = 1;
+    IdVersionKeyMsg portfolioKey = 2;
+  }
+  message TransactionEventMsg {
+    int64 eventId = 1;
+    IdVersionKeyMsg portfolioKey = 2;
+    TransactionMsg transaction = 3;
+  }
+  oneof content {
+    PortfolioCommandMsg portfolioCommand = 1;
+    PortfolioMsg portfolioData = 2;
+    TransactionEventMsg transactionEvent = 3;
+  }
+}
+
+enum EvaluationSource {
+  BENCHMARK = 0;
+  PORTFOLIO = 1;
+  BENCHMARK_COMPARISON = 2;
 }
 
 message RuleEvaluationResultMsg {
-    enum EvaluationSource {
-        BENCHMARK = 0;
-        PORTFOLIO = 1;
-        BENCHMARK_COMPARISON = 2;
-    }
+  int64 eventId = 1;
+  IdVersionKeyMsg portfolioKey = 2;
+  IdVersionKeyMsg benchmarkKey = 3;
+  EvaluationSource source = 4;
+  bool isBenchmarkSupported = 5;
+  google.protobuf.DoubleValue lowerLimit = 6;
+  google.protobuf.DoubleValue upperLimit = 7;
+  EvaluationResultMsg evaluationResult = 8;
+}
 
-    int64 eventId = 1;
-    IdVersionKeyMsg portfolioKey = 2;
-    IdVersionKeyMsg benchmarkKey = 3;
-    EvaluationSource source = 4;
-    bool isBenchmarkSupported = 5;
-    google.protobuf.DoubleValue lowerLimit = 6;
-    google.protobuf.DoubleValue upperLimit = 7;
-    EvaluationResultMsg evaluationResult = 8;
+message PortfolioEvaluationInputMsg {
+  EvaluationSource evaluationSource = 1;
+  IdVersionKeyMsg portfolioKey = 2;
+  repeated RuleMsg rule = 3;
 }

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -49,11 +50,12 @@ public class RuleEvaluatorTest {
   public void testClassify() {
     // a dumb classifier that merely "classifies" by security ID
     EvaluationGroupClassifier classifier =
-        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().getId(), "id"));
+        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().id(), "id"));
     Rule rule = new GenericRule(null, "dummy rule", classifier) {
+      @Nonnull
       @Override
-      protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-          EvaluationContext evaluationContext) {
+      protected ValueResult eval(@Nonnull PositionSupplier positions,
+          @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
         // will not actually be invoked anyway
         return null;
       }
@@ -73,7 +75,7 @@ public class RuleEvaluatorTest {
   public void testEvaluate() {
     // a dumb classifier that merely "classifies" by security ID
     EvaluationGroupClassifier classifier =
-        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().getId(), "id"));
+        (ctx -> new EvaluationGroup(ctx.get().getPosition().getSecurityKey().id(), "id"));
     // a dumb filter that matches Positions in s1
     Predicate<PositionEvaluationContext> filter =
         (c -> c.getPosition().getSecurityKey().equals(TestUtil.s1.getKey()));

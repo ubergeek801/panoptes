@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.EnumSet;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
@@ -24,6 +25,7 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
    *
    * @return a {@link Stream} of {@link Position}s
    */
+  @Nonnull
   default Stream<? extends Position> getPositions(
       EnumSet<PositionHierarchyOption> positionHierarchyOptions,
       EvaluationContext evaluationContext) {

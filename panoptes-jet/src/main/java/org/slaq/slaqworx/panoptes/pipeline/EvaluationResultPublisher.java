@@ -4,6 +4,8 @@ import com.hazelcast.function.BiConsumerEx;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.pipeline.Sink;
 import java.io.Serial;
+import java.util.HashSet;
+import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slf4j.Logger;
@@ -22,10 +24,18 @@ public class EvaluationResultPublisher
 
   private static final Logger LOG = LoggerFactory.getLogger(EvaluationResultPublisher.class);
 
+  private static final HashSet<PortfolioKey> distinctPortfolios = new HashSet<>();
+
   @Override
   public void acceptEx(Processor.Context context, RuleEvaluationResult evaluationResult) {
     EvaluationResult result = evaluationResult.getEvaluationResult();
     LOG.info("produced {} results for rule {} on portfolio {}", result.getResults().size(),
         result.getKey(), evaluationResult.getPortfolioKey());
+
+    synchronized (distinctPortfolios) {
+      if (distinctPortfolios.add(evaluationResult.getPortfolioKey())) {
+        LOG.info("produced results for {} distinct portfolios", distinctPortfolios.size());
+      }
+    }
   }
 }

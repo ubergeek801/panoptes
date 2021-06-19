@@ -2,8 +2,10 @@ package org.slaq.slaqworx.panoptes.cache;
 
 import com.hazelcast.core.ReadOnly;
 import com.hazelcast.map.EntryProcessor;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
@@ -18,19 +20,16 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  * serialized using Protobuf (because the contained {@link EvaluationContext} is not {@link
  * Serializable}.
  *
+ * @param evaluationContext
+ *     the {@link EvaluationContext} in effect for this {@link PortfolioSummarizer}
+ *
  * @author jeremy
  */
-public class PortfolioSummarizer
+public record PortfolioSummarizer(@Nonnull EvaluationContext evaluationContext)
     implements EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary>, ReadOnly,
     ProtobufSerializable {
+  @Serial
   private static final long serialVersionUID = 1L;
-
-  // note that the EvaluationContext isn't Serializable
-  private final transient EvaluationContext evaluationContext;
-
-  public PortfolioSummarizer(EvaluationContext evaluationContext) {
-    this.evaluationContext = evaluationContext;
-  }
 
   @Override
   public EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary> getBackupProcessor() {
@@ -38,17 +37,8 @@ public class PortfolioSummarizer
     return null;
   }
 
-  /**
-   * Obtains the {@link EvaluationContext} in effect for this {@link PortfolioSummarizer}.
-   *
-   * @return an {@link EvaluationContext}
-   */
-  public EvaluationContext getEvaluationContext() {
-    return evaluationContext;
-  }
-
   @Override
-  public PortfolioSummary process(Map.Entry<PortfolioKey, Portfolio> e) {
+  public PortfolioSummary process(@Nonnull Map.Entry<PortfolioKey, Portfolio> e) {
     Portfolio p = e.getValue();
     return (p == null ? null : PortfolioSummary.fromPortfolio(p, evaluationContext));
   }

@@ -71,7 +71,8 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
   public void updatePortfolios() throws IOException {
     // generate the portfolios
     LOG.info("generating portfolios");
-    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(800);
+    DummyPortfolioMapLoader mapLoader =
+        new DummyPortfolioMapLoader(600);
     ArrayList<Portfolio> portfolios = new ArrayList<>();
     for (PortfolioKey key : mapLoader.loadAllKeys()) {
       Portfolio portfolio = mapLoader.load(key);
@@ -82,7 +83,8 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
     }
 
     long startTime = System.currentTimeMillis();
-    while (System.currentTimeMillis() - startTime < 120000) {
+//    while (System.currentTimeMillis() - startTime < 120_000) {
+    for (int j = 0; j < 50; j++) {
       // republish some random portfolios
       ArrayList<Portfolio> portfoliosCopy = new ArrayList<>(portfolios);
       ArrayList<Portfolio> randomPortfolios = new ArrayList<>();

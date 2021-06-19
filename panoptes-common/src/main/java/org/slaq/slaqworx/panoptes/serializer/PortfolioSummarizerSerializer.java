@@ -32,10 +32,10 @@ public class PortfolioSummarizerSerializer implements ProtobufSerializer<Portfol
   public static EvaluationContextMsg convert(PortfolioSummarizer portfolioSummarizer) {
     EvaluationContextMsg.Builder evaluationContextBuilder = EvaluationContextMsg.newBuilder();
     evaluationContextBuilder
-        .setEvaluationMode(portfolioSummarizer.getEvaluationContext().getEvaluationMode().name());
-    portfolioSummarizer.getEvaluationContext().getSecurityOverrides().forEach(
+        .setEvaluationMode(portfolioSummarizer.evaluationContext().getEvaluationMode().name());
+    portfolioSummarizer.evaluationContext().getSecurityOverrides().forEach(
         (securityKey, attributes) -> evaluationContextBuilder
-            .putSecurityOverrides(securityKey.getId(), SecuritySerializer.convert(attributes)));
+            .putSecurityOverrides(securityKey.id(), SecuritySerializer.convert(attributes)));
 
     return evaluationContextBuilder.build();
   }

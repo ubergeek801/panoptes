@@ -36,10 +36,9 @@ public class EvaluationContextSerializer implements ProtobufSerializer<Evaluatio
   public static EvaluationContextMsg convert(EvaluationContext evaluationContext) {
     EvaluationContextMsg.Builder evaluationContextBuilder = EvaluationContextMsg.newBuilder();
     evaluationContextBuilder.setEvaluationMode(evaluationContext.getEvaluationMode().name());
-    evaluationContext.getSecurityOverrides().forEach((securityKey, attributes) -> {
-      evaluationContextBuilder
-          .putSecurityOverrides(securityKey.getId(), SecuritySerializer.convert(attributes));
-    });
+    evaluationContext.getSecurityOverrides().forEach(
+        (securityKey, attributes) -> evaluationContextBuilder
+            .putSecurityOverrides(securityKey.id(), SecuritySerializer.convert(attributes)));
 
     return evaluationContextBuilder.build();
   }

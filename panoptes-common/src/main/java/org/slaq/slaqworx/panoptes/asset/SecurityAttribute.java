@@ -2,10 +2,12 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.ValueProvider;
 
 /**
@@ -18,6 +20,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueProvider;
  * @author jeremy
  */
 public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final Map<String, SecurityAttribute<?>> attributesByName =
@@ -61,14 +64,17 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
       of("rating3Symbol", 19, String.class, ValueProvider.forRatingSymbol());
   public static final SecurityAttribute<Double> rating3Value =
       of("rating3Value", 20, Double.class, ValueProvider.forDouble());
-  private final String name;
+
+  private final @Nonnull
+  String name;
   private final int index;
-  private final Class<T> type;
+  private final @Nonnull
+  Class<T> type;
   private final ValueProvider<T> valueProvider;
 
   /**
    * Creates a new {@link SecurityAttribute} with the given name and index. Restricted to enforce
-   * use of the {@code of()} factory method.
+   * use of the {@code #of()} factory methods.
    *
    * @param name
    *     the unique name of the {@link SecurityAttribute}
@@ -80,7 +86,8 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *     a {@link ValueProvider} capable of interpreting {@link SecurityAttribute} values, or {@code
    *     null} if not applicable
    */
-  private SecurityAttribute(String name, int index, Class<T> type, ValueProvider<T> valueProvider) {
+  private SecurityAttribute(@Nonnull String name, int index, @Nonnull Class<T> type,
+      ValueProvider<T> valueProvider) {
     this.name = name;
     this.index = index;
     this.type = type;
@@ -99,8 +106,9 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attribute
    */
-  public static <A> Map<SecurityAttribute<?>, Object> mapOf(SecurityAttribute<A> attribute,
-      A value) {
+  @Nonnull
+  public static <A> Map<SecurityAttribute<?>, Object> mapOf(@Nonnull SecurityAttribute<A> attribute,
+      @Nonnull A value) {
     return Map.of(attribute, value);
   }
 
@@ -122,8 +130,10 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
-  public static <A, B> Map<SecurityAttribute<?>, Object> mapOf(SecurityAttribute<A> attribute1,
-      A value1, SecurityAttribute<B> attribute2, B value2) {
+  @Nonnull
+  public static <A, B> Map<SecurityAttribute<?>, Object> mapOf(
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2) {
     return Map.of(attribute1, value1, attribute2, value2);
   }
 
@@ -151,9 +161,11 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
-  public static <A, B, C> Map<SecurityAttribute<?>, Object> mapOf(SecurityAttribute<A> attribute1,
-      A value1, SecurityAttribute<B> attribute2, B value2, SecurityAttribute<C> attribute3,
-      C value3) {
+  @Nonnull
+  public static <A, B, C> Map<SecurityAttribute<?>, Object> mapOf(
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3);
   }
 
@@ -187,9 +199,12 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4);
   }
 
@@ -229,10 +244,13 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D, E> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4,
-      SecurityAttribute<E> attribute5, E value5) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
         attribute5, value5);
   }
@@ -279,10 +297,14 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D, E, F> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4,
-      SecurityAttribute<E> attribute5, E value5, SecurityAttribute<F> attribute6, F value6) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
         attribute5, value5, attribute6, value6);
   }
@@ -335,11 +357,15 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D, E, F, G> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4,
-      SecurityAttribute<E> attribute5, E value5, SecurityAttribute<F> attribute6, F value6,
-      SecurityAttribute<G> attribute7, G value7) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
         attribute5, value5, attribute6, value6, attribute7, value7);
   }
@@ -398,11 +424,16 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D, E, F, G, H> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4,
-      SecurityAttribute<E> attribute5, E value5, SecurityAttribute<F> attribute6, F value6,
-      SecurityAttribute<G> attribute7, G value7, SecurityAttribute<H> attribute8, H value8) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7,
+      @Nonnull SecurityAttribute<H> attribute8, @Nonnull H value8) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
         attribute5, value5, attribute6, value6, attribute7, value7, attribute8, value8);
   }
@@ -467,12 +498,17 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D, E, F, G, H, I> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4,
-      SecurityAttribute<E> attribute5, E value5, SecurityAttribute<F> attribute6, F value6,
-      SecurityAttribute<G> attribute7, G value7, SecurityAttribute<H> attribute8, H value8,
-      SecurityAttribute<I> attribute9, I value9) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7,
+      @Nonnull SecurityAttribute<H> attribute8, @Nonnull H value8,
+      @Nonnull SecurityAttribute<I> attribute9, @Nonnull I value9) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
         attribute5, value5, attribute6, value6, attribute7, value7, attribute8, value8, attribute9,
         value9);
@@ -544,12 +580,18 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return a {@link Map} containing the specified attributes
    */
+  @Nonnull
   public static <A, B, C, D, E, F, G, H, I, J> Map<SecurityAttribute<?>, Object> mapOf(
-      SecurityAttribute<A> attribute1, A value1, SecurityAttribute<B> attribute2, B value2,
-      SecurityAttribute<C> attribute3, C value3, SecurityAttribute<D> attribute4, D value4,
-      SecurityAttribute<E> attribute5, E value5, SecurityAttribute<F> attribute6, F value6,
-      SecurityAttribute<G> attribute7, G value7, SecurityAttribute<H> attribute8, H value8,
-      SecurityAttribute<I> attribute9, I value9, SecurityAttribute<J> attribute10, J value10) {
+      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7,
+      @Nonnull SecurityAttribute<H> attribute8, @Nonnull H value8,
+      @Nonnull SecurityAttribute<I> attribute9, @Nonnull I value9,
+      @Nonnull SecurityAttribute<J> attribute10, @Nonnull J value10) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
         attribute5, value5, attribute6, value6, attribute7, value7, attribute8, value8, attribute9,
         value9, attribute10, value10);
@@ -579,7 +621,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *     does not exist
    */
   @JsonCreator
-  public static SecurityAttribute<?> of(String name) {
+  public static SecurityAttribute<?> of(@Nonnull String name) {
     return attributesByName.get(name);
   }
 
@@ -588,7 +630,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @param <T>
    *     the value type of the {@link SecurityAttribute}
-   * @param link
+   * @param name
    *     the unique name of the {@link SecurityAttribute}
    * @param index
    *     the index of the {@link SecurityAttribute} in an attributes array
@@ -601,17 +643,19 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    * @return an existing {@link SecurityAttribute} if already defined, otherwise a new {@link
    *     SecurityAttribute}
    */
-  public static <T> SecurityAttribute<T> of(String name, int index, Class<T> type,
+  @Nonnull
+  public static <T> SecurityAttribute<T> of(@Nonnull String name, int index, @Nonnull Class<T> type,
       ValueProvider<T> valueProvider) {
-    SecurityAttribute<T> attribute = (SecurityAttribute<T>) attributesByName
-        .computeIfAbsent(name, n -> new SecurityAttribute<>(name, index, type, valueProvider));
+    @SuppressWarnings("unchecked") SecurityAttribute<T> attribute =
+        (SecurityAttribute<T>) attributesByName
+            .computeIfAbsent(name, n -> new SecurityAttribute<>(name, index, type, valueProvider));
     attributesByIndex.put(index, attribute);
 
     return attribute;
   }
 
   @Override
-  public int compareTo(SecurityAttribute<?> o) {
+  public int compareTo(@Nonnull SecurityAttribute<?> o) {
     // sort by attribute name for diagnostic-friendly behavior (e.g. toString() output)
     return name.compareTo(o.name);
   }
@@ -646,6 +690,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return the attribute name
    */
+  @Nonnull
   public String getName() {
     return name;
   }
@@ -655,6 +700,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
    *
    * @return the {@link SecurityAttribute} value type
    */
+  @Nonnull
   public Class<T> getType() {
     return type;
   }
@@ -675,11 +721,13 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   }
 
   @JsonValue
+  @Nonnull
   public String toJsonString() {
     return name;
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "SecurityAttribute[\"" + name + "\"]";
   }

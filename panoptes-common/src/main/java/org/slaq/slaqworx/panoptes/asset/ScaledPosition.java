@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
+
 /**
  * A pseudo-{@link Position} typically arising from an indirect holding of a {@link Security}. For
  * example, if {@link Portfolio} A holds some amount of {@link Portfolio} B, and {@link Portfolio} B
@@ -14,7 +16,8 @@ package org.slaq.slaqworx.panoptes.asset;
  * @author jeremy
  */
 public class ScaledPosition extends AbstractPosition {
-  private final Position sourcePosition;
+  private final @Nonnull
+  Position sourcePosition;
   private final double scaledAmount;
 
   /**
@@ -26,7 +29,7 @@ public class ScaledPosition extends AbstractPosition {
    * @param scale
    *     the fraction of the source {@link Position} represented by this {@link ScaledPosition}
    */
-  public ScaledPosition(Position sourcePosition, double scale) {
+  public ScaledPosition(@Nonnull Position sourcePosition, double scale) {
     this.sourcePosition = sourcePosition;
     scaledAmount = sourcePosition.getAmount() * scale;
   }
@@ -37,6 +40,7 @@ public class ScaledPosition extends AbstractPosition {
   }
 
   @Override
+  @Nonnull
   public SecurityKey getSecurityKey() {
     return sourcePosition.getSecurityKey();
   }

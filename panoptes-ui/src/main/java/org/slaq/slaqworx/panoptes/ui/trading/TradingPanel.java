@@ -11,9 +11,9 @@ import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.LocalDateRenderer;
 import com.vaadin.flow.data.renderer.NumberRenderer;
+import java.io.Serial;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -33,6 +33,7 @@ import org.slaq.slaqworx.panoptes.util.FakeSet;
  * @author jeremy
  */
 public class TradingPanel extends VerticalLayout {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**
@@ -64,7 +65,7 @@ public class TradingPanel extends VerticalLayout {
         GridVariant.LUMO_COMPACT);
     securityGrid.setItems(securityProvider);
 
-    securityGrid.addColumn(s -> s.getKey().getId()).setAutoWidth(true).setFrozen(true)
+    securityGrid.addColumn(s -> s.getKey().id()).setAutoWidth(true).setFrozen(true)
         .setHeader("Asset ID");
     securityGrid.addColumn(s -> s.getAttributeValue(SecurityAttribute.cusip, false))
         .setAutoWidth(true).setHeader("CUSIP");
@@ -111,7 +112,7 @@ public class TradingPanel extends VerticalLayout {
 
     // TODO make portfolios sortable
     List<PortfolioKey> portfolioKeys = new ArrayList<>(portfolioCache.keySet());
-    Collections.sort(portfolioKeys, PortfolioKey::compareTo);
+    portfolioKeys.sort(PortfolioKey::compareTo);
 
     CallbackDataProvider<PortfolioSummary, Void> portfolioProvider = DataProvider.fromCallbacks(
         query -> portfolioCache.executeOnKeys(new FakeSet<>(portfolioKeys.subList(query.getOffset(),
@@ -127,11 +128,11 @@ public class TradingPanel extends VerticalLayout {
 
     portfolioGrid.addColumn(p -> p.getKey().getId()).setAutoWidth(true).setFrozen(true)
         .setHeader("ID");
-    portfolioGrid.addColumn(PortfolioSummary::getName).setAutoWidth(true).setHeader("Name");
-    portfolioGrid.addColumn(
-        new NumberRenderer<>(PortfolioSummary::getTotalMarketValue, "$%(,.2f", Locale.US))
+    portfolioGrid.addColumn(PortfolioSummary::name).setAutoWidth(true).setHeader("Name");
+    portfolioGrid
+        .addColumn(new NumberRenderer<>(PortfolioSummary::totalMarketValue, "$%(,.2f", Locale.US))
         .setAutoWidth(true).setTextAlign(ColumnTextAlign.END).setHeader("Market Value");
-    portfolioGrid.addColumn(PortfolioSummary::getBenchmarkKey).setAutoWidth(true)
+    portfolioGrid.addColumn(PortfolioSummary::benchmarkKey).setAutoWidth(true)
         .setHeader("Benchmark");
 
     add(portfolioGrid);

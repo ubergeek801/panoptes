@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.Objects;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
 /**
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
  * @author jeremy
  */
 public abstract class IdVersionKey implements Comparable<IdVersionKey> {
+  @Nonnull
   private final String id;
   private final long version;
 
@@ -31,12 +33,13 @@ public abstract class IdVersionKey implements Comparable<IdVersionKey> {
    *
    * @return a generated ID
    */
+  @Nonnull
   public static String generateId() {
     return UUID.randomUUID().toString();
   }
 
   @Override
-  public int compareTo(IdVersionKey o) {
+  public int compareTo(@Nonnull IdVersionKey o) {
     return new CompareToBuilder().append(id, o.id).append(version, o.version).toComparison();
   }
 
@@ -61,6 +64,7 @@ public abstract class IdVersionKey implements Comparable<IdVersionKey> {
    *
    * @return the ID portion of the key
    */
+  @Nonnull
   public String getId() {
     return id;
   }
@@ -80,6 +84,7 @@ public abstract class IdVersionKey implements Comparable<IdVersionKey> {
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return id + ":" + version;
   }

@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
+
 /**
  * A partial implementation of {@link Position} which provides {@code equals()} and {@code
  * hashCode()} semantics based on the {@link Position}'s key.
@@ -7,7 +9,8 @@ package org.slaq.slaqworx.panoptes.asset;
  * @author jeremy
  */
 public abstract class AbstractPosition implements Position {
-  private final PositionKey key;
+  private final @Nonnull
+  PositionKey key;
 
   /**
    * Creates a new {@link AbstractPosition} with a generated key.
@@ -34,15 +37,15 @@ public abstract class AbstractPosition implements Position {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof Position)) {
+    if (!(obj instanceof Position other)) {
       return false;
     }
-    Position other = (Position) obj;
 
     return key.equals(other.getKey());
   }
 
   @Override
+  @Nonnull
   public PositionKey getKey() {
     return key;
   }

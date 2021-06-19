@@ -27,7 +27,7 @@ public class PositionKeySerializer implements ProtobufSerializer<PositionKey> {
   @Override
   public byte[] write(PositionKey key) throws IOException {
     IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
-    keyBuilder.setId(key.getId());
+    keyBuilder.setId(key.id());
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     keyBuilder.build().writeTo(out);

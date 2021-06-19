@@ -48,7 +48,7 @@ public class PortfolioSummarySerializer implements ProtobufSerializer<PortfolioS
     keyBuilder.setVersion(portfolioSummary.getKey().getVersion());
 
     IdVersionKeyMsg benchmarkKeyMsg;
-    PortfolioKey benchmarkKey = portfolioSummary.getBenchmarkKey();
+    PortfolioKey benchmarkKey = portfolioSummary.benchmarkKey();
     if (benchmarkKey == null) {
       benchmarkKeyMsg = null;
     } else {
@@ -60,11 +60,11 @@ public class PortfolioSummarySerializer implements ProtobufSerializer<PortfolioS
 
     PortfolioSummaryMsg.Builder portfolioSummaryBuilder = PortfolioSummaryMsg.newBuilder();
     portfolioSummaryBuilder.setKey(keyBuilder);
-    portfolioSummaryBuilder.setName(portfolioSummary.getName());
+    portfolioSummaryBuilder.setName(portfolioSummary.name());
     if (benchmarkKeyMsg != null) {
       portfolioSummaryBuilder.setBenchmarkKey(benchmarkKeyMsg);
     }
-    portfolioSummaryBuilder.setTotalMarketValue(portfolioSummary.getTotalMarketValue());
+    portfolioSummaryBuilder.setTotalMarketValue(portfolioSummary.totalMarketValue());
     portfolioSummaryBuilder.setIsAbstract(portfolioSummary.isAbstract());
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();

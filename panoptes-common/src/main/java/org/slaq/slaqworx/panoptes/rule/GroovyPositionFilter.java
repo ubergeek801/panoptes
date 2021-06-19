@@ -39,7 +39,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     // translate "shorthand" expressions like s.coupon into an equivalent
     // getAttributeValue() invocation, which is much faster
     Matcher securityExpressionMatcher = expressionTranslationPattern.matcher(expression);
-    StringBuffer translatedExpression = new StringBuffer();
+    StringBuilder translatedExpression = new StringBuilder();
     while (securityExpressionMatcher.find()) {
       // if the matched substring corresponds to a known SecurityAttribute, substitute an
       // invocation

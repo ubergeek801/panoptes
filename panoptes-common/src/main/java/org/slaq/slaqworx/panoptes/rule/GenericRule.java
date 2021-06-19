@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -12,10 +13,12 @@ import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
  * @author jeremy
  */
 public abstract class GenericRule implements Rule {
+  @Nonnull
   private final RuleKey key;
-
+  @Nonnull
   private final String description;
   private final EvaluationGroupClassifier groupClassifier;
+  @Nonnull
   private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();
 
   /**
@@ -26,7 +29,7 @@ public abstract class GenericRule implements Rule {
    * @param description
    *     the description of the {@link Rule}
    */
-  protected GenericRule(RuleKey key, String description) {
+  protected GenericRule(RuleKey key, @Nonnull String description) {
     this(key, description, null);
   }
 
@@ -42,7 +45,7 @@ public abstract class GenericRule implements Rule {
    *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
    *     implement {@link GroupAggregator}
    */
-  protected GenericRule(RuleKey key, String description,
+  protected GenericRule(RuleKey key, @Nonnull String description,
       EvaluationGroupClassifier groupClassifier) {
     this.key = (key == null ? new RuleKey(null) : key);
     this.description = description;
@@ -74,16 +77,16 @@ public abstract class GenericRule implements Rule {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof GenericRule)) {
+    if (!(obj instanceof GenericRule other)) {
       return false;
     }
-    GenericRule other = (GenericRule) obj;
     return key.equals(other.getKey());
   }
 
   @Override
-  public ValueResult evaluate(PositionSupplier positions, EvaluationGroup evaluationGroup,
-      EvaluationContext evaluationContext) {
+  @Nonnull
+  public ValueResult evaluate(@Nonnull PositionSupplier positions, EvaluationGroup evaluationGroup,
+      @Nonnull EvaluationContext evaluationContext) {
     try {
       return eval(positions,
           evaluationGroup == null ? EvaluationGroup.defaultGroup() : evaluationGroup,
@@ -94,21 +97,25 @@ public abstract class GenericRule implements Rule {
   }
 
   @Override
+  @Nonnull
   public String getDescription() {
     return description;
   }
 
   @Override
+  @Nonnull
   public Iterable<GroupAggregator> getGroupAggregators() {
     return groupAggregators;
   }
 
   @Override
+  @Nonnull
   public EvaluationGroupClassifier getGroupClassifier() {
     return groupClassifier;
   }
 
   @Override
+  @Nonnull
   public RuleKey getKey() {
     return key;
   }
@@ -119,6 +126,7 @@ public abstract class GenericRule implements Rule {
   }
 
   @Override
+  @Nonnull
   public String getParameterDescription() {
     return "unknown configuration";
   }
@@ -151,6 +159,7 @@ public abstract class GenericRule implements Rule {
    *
    * @return the result of the {@link Rule} evaluation
    */
-  protected abstract ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-      EvaluationContext evaluationContext);
+  @Nonnull
+  protected abstract ValueResult eval(@Nonnull PositionSupplier positions,
+      @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext);
 }

@@ -43,7 +43,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
   @Transactional
   public void delete(SecurityKey key) {
     getJdbi().withHandle(
-        handle -> handle.execute("delete from " + getTableName() + " where id = ?", key.getId()));
+        handle -> handle.execute("delete from " + getTableName() + " where id = ?", key.id()));
   }
 
   @Override
@@ -66,7 +66,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
           e);
     }
 
-    batch.bind(1, security.getKey().getId());
+    batch.bind(1, security.getKey().id());
     batch.bind(2, security.getAttributes().hash());
     batch.bind(3, jsonAttributes);
   }
@@ -78,7 +78,7 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
 
   @Override
   protected Object[] getKeyComponents(SecurityKey key) {
-    return new Object[] {key.getId()};
+    return new Object[] {key.id()};
   }
 
   @Override

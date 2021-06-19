@@ -171,7 +171,7 @@ public class TradeEvaluationResult implements ProtobufSerializable {
     }
 
     otherResult.getImpacts().forEach((impactKey, impact) -> impact.forEach(
-        (resultKey, resultValue) -> addImpact(impactKey.getPortfolioKey(), impactKey.getRuleKey(),
+        (resultKey, resultValue) -> addImpact(impactKey.portfolioKey(), impactKey.ruleKey(),
             resultKey, resultValue)));
 
     return this;

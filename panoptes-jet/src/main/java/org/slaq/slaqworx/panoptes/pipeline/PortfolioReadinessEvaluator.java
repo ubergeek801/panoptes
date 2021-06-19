@@ -5,30 +5,43 @@ import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
 import java.io.Serial;
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
-import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 
 /**
- * A process function which collects security and portfolio position data and outputs {@link
- * PortfolioEvaluationInput}s when a portfolio is ready for evaluation.
+ * A transformation which collects security and portfolio position data and outputs {@link
+ * PortfolioKey}s when a portfolio is ready for evaluation. This logic applies to both "standard"
+ * portfolios and benchmarks.
  *
  * @author jeremy
  */
-public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>,
-    TriFunction<PortfolioTracker, PortfolioKey, PortfolioEvent,
-        Traverser<PortfolioEvaluationInput>> {
+public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker> {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private transient PortfolioTracker portfolioTracker;
+  /**
+   * Provides a {@link TriFunction} to handle {@link PortfolioEvent}s, which are keyed/partitioned.
+   *
+   * @return the {@link PortfolioEvent} handling function
+   */
+  public TriFunction<PortfolioTracker, PortfolioKey, PortfolioEvent, Traverser<PortfolioKey>> portfolioEventHandler() {
+    return (t, k, e) -> handlePortfolioEvent(t, e);
+  }
+
+  /**
+   * Provides a {@link TriFunction} to handle {@link Security} events, which are broadcast.
+   *
+   * @return the {@link Security} event handling function
+   */
+  public TriFunction<PortfolioTracker, PortfolioKey, Security, Traverser<PortfolioKey>> securityHandler() {
+    return (t, k, s) -> handleSecurityEvent(t, s.getKey());
+  }
 
   /**
    * Creates a new {@link PortfolioReadinessEvaluator}.
@@ -38,55 +51,38 @@ public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>
   }
 
   @Override
-  public Traverser<PortfolioEvaluationInput> applyEx(PortfolioTracker processState,
-      PortfolioKey eventKey, PortfolioEvent event) {
-    portfolioTracker = processState;
-
-    PortfolioEvaluationInput evaluationInput;
-    if (event instanceof SecurityUpdateEvent) {
-      SecurityKey securityKey = ((SecurityUpdateEvent) event).getSecurityKey();
-      evaluationInput = handleSecurityEvent(securityKey);
-    } else {
-      evaluationInput = handlePortfolioEvent(event);
-    }
-
-    return (evaluationInput != null ? Traversers.singleton(evaluationInput) : Traversers.empty());
-  }
-
-  @Override
+  @Nonnull
   public PortfolioTracker getEx() {
-    return new PortfolioTracker(EvaluationSource.PORTFOLIO);
+    return new PortfolioTracker();
   }
 
   /**
    * Handles a portfolio event.
    *
+   * @param portfolioTracker
+   *     a {@link PortfolioTracker} that manages the portfolio readiness state
    * @param portfolioEvent
    *     an event containing portfolio constituent data
    *
-   * @return a {@link PortfolioEvaluationInput} providing input to the next stage, or {@code null}
-   *     if the portfolio is not ready
+   * @return a {@link Traverser} which emits {@link PortfolioKey}s ready to be evaluated
    */
-  protected PortfolioEvaluationInput handlePortfolioEvent(PortfolioEvent portfolioEvent) {
+  @Nonnull
+  protected Traverser<PortfolioKey> handlePortfolioEvent(@Nonnull PortfolioTracker portfolioTracker,
+      @Nonnull PortfolioEvent portfolioEvent) {
     boolean isPortfolioProcessable;
-    Portfolio portfolio;
+    PortfolioKey portfolioKey;
     if (portfolioEvent instanceof PortfolioCommandEvent) {
-      portfolio = portfolioTracker.getPortfolio();
+      portfolioKey = portfolioTracker.getPortfolioKey();
       // process only if the command refers to the keyed portfolio specifically
-      isPortfolioProcessable = (portfolio != null &&
-          portfolio.getPortfolioKey().equals(portfolioEvent.getPortfolioKey()));
-    } else if (portfolioEvent instanceof PortfolioDataEvent) {
-      portfolio = ((PortfolioDataEvent) portfolioEvent).getPortfolio();
-      // we shouldn't be seeing benchmarks, but ignore them if we do
-      if (portfolio.isAbstract()) {
-        isPortfolioProcessable = false;
-      } else {
-        portfolioTracker.trackPortfolio(portfolio);
-        isPortfolioProcessable = true;
-      }
+      isPortfolioProcessable =
+          (portfolioKey != null && portfolioKey.equals(portfolioEvent.getPortfolioKey()));
+    } else if (portfolioEvent instanceof PortfolioDataEvent portfolioDataEvent) {
+      portfolioKey = portfolioEvent.getPortfolioKey();
+      portfolioTracker.trackPortfolio(portfolioDataEvent.getPortfolio());
+      isPortfolioProcessable = true;
     } else if (portfolioEvent instanceof TransactionEvent) {
       // FIXME implement; right now just process the portfolio
-      portfolio = portfolioTracker.getPortfolio();
+      portfolioKey = portfolioTracker.getPortfolioKey();
       isPortfolioProcessable = true;
     } else {
       // this shouldn't be possible since only the above types of PortfolioEvents exist
@@ -94,24 +90,40 @@ public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>
           "don't know how to process PortfolioEvent of type " + portfolioEvent.getClass());
     }
 
-    if (isPortfolioProcessable) {
-      return portfolioTracker.processPortfolio(portfolio, null, portfolio);
+    boolean isReady =
+        (isPortfolioProcessable && portfolioTracker.evaluateReadiness(portfolioKey, null));
+    if (!isReady) {
+      return Traversers.empty();
     }
 
-    // can't process yet
-    return null;
+    return Traversers.singleton(portfolioTracker.getPortfolioKey());
   }
 
   /**
    * Handles a security event.
    *
+   * @param portfolioTracker
+   *     a {@link PortfolioTracker} that manages the portfolio readiness state
    * @param securityKey
    *     a key identifying the {@link Security} update information obtained from the event
    *
-   * @return a {@link PortfolioEvaluationInput} providing input to the next stage, or {@code null}
-   *     if the portfolio is not ready
+   * @return a {@link Traverser} which emits {@link PortfolioKey}s ready to be evaluated
    */
-  protected PortfolioEvaluationInput handleSecurityEvent(SecurityKey securityKey) {
-    return portfolioTracker.applySecurity(securityKey, portfolioTracker);
+  @Nonnull
+  protected Traverser<PortfolioKey> handleSecurityEvent(PortfolioTracker portfolioTracker,
+      @Nonnull SecurityKey securityKey) {
+    PortfolioTracker.encounterSecurity(securityKey);
+
+    // since securities are broadcast, they can arrive before a portfolio is encountered
+    if (portfolioTracker == null) {
+      return Traversers.empty();
+    }
+
+    boolean isReady = portfolioTracker.applySecurity(securityKey);
+    if (!isReady) {
+      return Traversers.empty();
+    }
+
+    return Traversers.singleton(portfolioTracker.getPortfolioKey());
   }
 }

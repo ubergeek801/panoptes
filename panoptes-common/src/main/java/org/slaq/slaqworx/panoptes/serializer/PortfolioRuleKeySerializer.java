@@ -34,11 +34,11 @@ public class PortfolioRuleKeySerializer implements ProtobufSerializer<PortfolioR
   @Override
   public byte[] write(PortfolioRuleKey key) throws IOException {
     IdVersionKeyMsg.Builder portfolioKeyBuilder = IdVersionKeyMsg.newBuilder();
-    portfolioKeyBuilder.setId(key.getPortfolioKey().getId());
-    portfolioKeyBuilder.setVersion(key.getPortfolioKey().getVersion());
+    portfolioKeyBuilder.setId(key.portfolioKey().getId());
+    portfolioKeyBuilder.setVersion(key.portfolioKey().getVersion());
 
     IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-    ruleKeyBuilder.setId(key.getRuleKey().getId());
+    ruleKeyBuilder.setId(key.ruleKey().getId());
 
     PortfolioRuleKeyMsg.Builder keyBuilder = PortfolioRuleKeyMsg.newBuilder();
     keyBuilder.setPortfolioKey(portfolioKeyBuilder);

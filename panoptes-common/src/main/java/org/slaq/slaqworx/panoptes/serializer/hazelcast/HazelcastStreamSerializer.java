@@ -43,8 +43,7 @@ public abstract class HazelcastStreamSerializer<T extends ProtobufSerializable>
   @Override
   public void write(ObjectDataOutput out, T object) throws IOException {
     byte[] buffer = protobufSerializer.write(object);
-    // when deserializing, ObjectDataInput won't know the size of the byte array unless we tell
-    // it
+    // when deserializing, ObjectDataInput won't know the size of the byte array unless we tell it
     out.writeInt(buffer.length);
     out.write(buffer);
   }
@@ -61,6 +60,6 @@ public abstract class HazelcastStreamSerializer<T extends ProtobufSerializable>
     PORTFOLIO_EVALUATION_REQUEST, ROOM_EVALUATION_REQUEST, TRADE_EVALUATION_REQUEST, EXCEPTION,
     RULE_RESULT, EVALUATION_RESULT, RULE_IMPACT, PORTFOLIO_RULE_IMPACT, TRADE_EVALUATION_RESULT,
     RULE_EVALUATION_RESULT, PORTFOLIO_COMMAND_EVENT, PORTFOLIO_DATA_EVENT, SECURITY_UPDATE_EVENT,
-    TRANSACTION_EVENT
+    TRANSACTION_EVENT, PORTFOLIO_EVALUATION_INPUT
   }
 }

@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -44,14 +45,16 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    *
    * @return the result of the {@link Rule} evaluation
    */
-  public ValueResult evaluate(PositionSupplier positions, EvaluationGroup evaluationGroup,
-      EvaluationContext evaluationContext);
+  @Nonnull
+  public ValueResult evaluate(@Nonnull PositionSupplier positions, EvaluationGroup evaluationGroup,
+      @Nonnull EvaluationContext evaluationContext);
 
   /**
    * Obtains the description of this {@link Rule}.
    *
    * @return the {@link Rule} description
    */
+  @Nonnull
   public String getDescription();
 
   /**
@@ -59,6 +62,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    *
    * @return a (possibly empty) {@link Iterable} of {@link GroupAggregator}s
    */
+  @Nonnull
   public Iterable<GroupAggregator> getGroupAggregators();
 
   /**
@@ -66,6 +70,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    *
    * @return the {@link Rule}'s {@link EvaluationGroupClassifier}
    */
+  @Nonnull
   public EvaluationGroupClassifier getGroupClassifier();
 
   /**
@@ -74,6 +79,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    *
    * @return a {@link String} describing this {@link Rule}'s parameters
    */
+  @Nonnull
   public String getParameterDescription();
 
   /**

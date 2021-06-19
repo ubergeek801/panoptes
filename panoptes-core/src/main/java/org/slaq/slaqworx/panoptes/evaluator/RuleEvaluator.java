@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -45,9 +46,12 @@ import org.slf4j.LoggerFactory;
 public class RuleEvaluator implements Callable<EvaluationResult> {
   private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluator.class);
 
+  @Nonnull
   private final Rule rule;
+  @Nonnull
   private final PositionSupplier portfolioPositions;
   private final PositionSupplier proposedPositions;
+  @Nonnull
   private final EvaluationContext evaluationContext;
 
   /**
@@ -61,8 +65,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
    * @param evaluationContext
    *     the context in which the {@link Rule} is to be evaluated
    */
-  public RuleEvaluator(Rule rule, PositionSupplier portfolioPositions,
-      EvaluationContext evaluationContext) {
+  public RuleEvaluator(@Nonnull Rule rule, @Nonnull PositionSupplier portfolioPositions,
+      @Nonnull EvaluationContext evaluationContext) {
     this(rule, portfolioPositions, null, evaluationContext);
   }
 
@@ -80,8 +84,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
    * @param evaluationContext
    *     the context in which the {@link Rule} is to be evaluated
    */
-  public RuleEvaluator(Rule rule, PositionSupplier portfolioPositions,
-      PositionSupplier proposedPositions, EvaluationContext evaluationContext) {
+  public RuleEvaluator(@Nonnull Rule rule, @Nonnull PositionSupplier portfolioPositions,
+      PositionSupplier proposedPositions, @Nonnull EvaluationContext evaluationContext) {
     this.rule = rule;
     this.portfolioPositions = portfolioPositions;
     this.proposedPositions = proposedPositions;
@@ -92,7 +96,7 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
   @Override
   public EvaluationResult call() {
-    LOG.debug("evaluating Rule {} (\"{}\") on {} Positions for Portfolio {}", rule.getKey(),
+    LOG.debug("evaluating Rule {} (\"{}\") over {} Positions for Portfolio {}", rule.getKey(),
         rule.getDescription(), portfolioPositions.size(), portfolioPositions.getPortfolioKey());
 
     // group the Positions of the Portfolio into classifications according to the Rule's
@@ -146,7 +150,8 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
    * @return a {@link Map} associating each distinct classification group to the {@link Position}s
    *     comprising the group
    */
-  protected Map<EvaluationGroup, PositionSupplier> classify(PositionSupplier positions,
+  @Nonnull
+  protected Map<EvaluationGroup, PositionSupplier> classify(@Nonnull PositionSupplier positions,
       Double portfolioMarketValue) {
     Predicate<PositionEvaluationContext> positionFilter = rule.getPositionFilter();
     if (positionFilter == null) {
@@ -166,16 +171,14 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
    *
    * @return the {@link Rule} evaluation results grouped by {@link EvaluationGroup}
    */
-  protected Map<EvaluationGroup, ValueResult> evaluate(
+  @Nonnull
+  protected Map<EvaluationGroup, ValueResult> evaluate(@Nonnull
       Map<EvaluationGroup, PositionSupplier> evaluatedPositions) {
     return evaluatedPositions.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> {
       EvaluationGroup evaluationGroup = e.getKey();
       PositionSupplier portfolioPositions = e.getValue();
 
-      ValueResult singleResult =
-          rule.evaluate(portfolioPositions, evaluationGroup, evaluationContext);
-
-      return singleResult;
+      return rule.evaluate(portfolioPositions, evaluationGroup, evaluationContext);
     }));
   }
 
@@ -183,27 +186,16 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
    * A {@link Collector} that operates on a {@link Stream} of {@link Position}s to collect into a
    * new {@link PositionSupplier}, using a {@link Collection} as an accumulator.
    *
+   * @param portfolioKey
+   *     the (possibly {@code null} key of the associated {@link Portfolio}
+   * @param portfolioMarketValue
+   *     the (possibly {@code null} portfolio market value to specify on the created {@link
+   *     PositionSupplier}
+   *
    * @author jeremy
    */
-  private class PositionSupplierCollector
+  private record PositionSupplierCollector(PortfolioKey portfolioKey, Double portfolioMarketValue)
       implements Collector<PositionEvaluationContext, Collection<Position>, PositionSupplier> {
-    private final PortfolioKey portfolioKey;
-    private final Double portfolioMarketValue;
-
-    /**
-     * Creates a new {@link PositionSupplierCollector}.
-     *
-     * @param portfolioKey
-     *     the (possibly {@code null} key of the associated {@link Portfolio}
-     * @param portfolioMarketValue
-     *     the (possibly {@code null} portfolio market value to specify on the created {@link
-     *     PositionSupplier}
-     */
-    public PositionSupplierCollector(PortfolioKey portfolioKey, Double portfolioMarketValue) {
-      this.portfolioKey = portfolioKey;
-      this.portfolioMarketValue = portfolioMarketValue;
-    }
-
     @Override
     public BiConsumer<Collection<Position>, PositionEvaluationContext> accumulator() {
       // add the Position to the accumulator collection

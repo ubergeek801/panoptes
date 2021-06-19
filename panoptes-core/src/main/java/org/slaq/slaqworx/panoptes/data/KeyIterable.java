@@ -6,7 +6,6 @@ import io.micronaut.transaction.TransactionDefinition;
 import io.micronaut.transaction.TransactionManager;
 import io.micronaut.transaction.TransactionStatus;
 import java.io.Closeable;
-import java.io.IOException;
 import java.sql.Connection;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -55,7 +54,7 @@ public class KeyIterable<K> implements ResultIterable<K>, Closeable {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     if (jdbiHandle != null) {
       jdbiHandle.close();
     }

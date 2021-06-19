@@ -50,9 +50,9 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
 
     transaction.getPositions().forEach(t -> {
       IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
-      positionKeyBuilder.setId(t.getKey().getId());
+      positionKeyBuilder.setId(t.getKey().id());
       IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-      securityKeyBuilder.setId(t.getSecurityKey().getId());
+      securityKeyBuilder.setId(t.getSecurityKey().id());
 
       PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
       positionBuilder.setKey(positionKeyBuilder);

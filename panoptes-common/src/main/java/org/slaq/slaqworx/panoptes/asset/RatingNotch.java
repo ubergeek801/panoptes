@@ -1,12 +1,15 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
+
 /**
  * Describes an individual step of a {@link RatingScale}.
  *
  * @author jeremy
  */
 public class RatingNotch implements Comparable<RatingNotch> {
-  private final String symbol;
+  private final @Nonnull
+  String symbol;
   private final double lower;
   private double middle;
   private int ordinal;
@@ -19,13 +22,13 @@ public class RatingNotch implements Comparable<RatingNotch> {
    * @param lower
    *     the lower bound of the notch
    */
-  public RatingNotch(String symbol, double lower) {
+  public RatingNotch(@Nonnull String symbol, double lower) {
     this.symbol = symbol;
     this.lower = lower;
   }
 
   @Override
-  public int compareTo(RatingNotch other) {
+  public int compareTo(@Nonnull RatingNotch other) {
     return Double.compare(lower, other.lower);
   }
 
@@ -83,6 +86,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
    *
    * @return the symbol
    */
+  @Nonnull
   public String getSymbol() {
     return symbol;
   }

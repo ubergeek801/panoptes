@@ -70,10 +70,8 @@ public class PanoptesCacheCommonConfiguration {
    */
   @Singleton
   protected ExecutorConfig clusterExecutorConfig() {
-    ExecutorConfig config = new ExecutorConfig(AssetCache.CLUSTER_EXECUTOR_NAME,
+    return new ExecutorConfig(AssetCache.CLUSTER_EXECUTOR_NAME,
         ForkJoinPool.getCommonPoolParallelism());
-
-    return config;
   }
 
   /**

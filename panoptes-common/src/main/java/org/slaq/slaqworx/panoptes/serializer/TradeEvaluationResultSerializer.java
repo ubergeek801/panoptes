@@ -3,9 +3,7 @@ package org.slaq.slaqworx.panoptes.serializer;
 import com.google.protobuf.StringValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
-import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioRuleImpactMsg;
@@ -62,21 +60,17 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
 
     resultBuilder.setTradeKey(tradeKeyBuilder);
 
-    result.getImpacts().entrySet().forEach(impactMapEntry -> {
-      PortfolioRuleKey portfolioRuleKey = impactMapEntry.getKey();
-      Map<EvaluationGroup, Impact> impactMap = impactMapEntry.getValue();
+    result.getImpacts().forEach((portfolioRuleKey, impactMap) -> {
       PortfolioRuleImpactMsg.Builder impactMsgBuilder = PortfolioRuleImpactMsg.newBuilder();
       IdVersionKeyMsg.Builder portfolioKeyBuilder = IdVersionKeyMsg.newBuilder();
-      portfolioKeyBuilder.setId(portfolioRuleKey.getPortfolioKey().getId());
-      portfolioKeyBuilder.setVersion(portfolioRuleKey.getPortfolioKey().getVersion());
+      portfolioKeyBuilder.setId(portfolioRuleKey.portfolioKey().getId());
+      portfolioKeyBuilder.setVersion(portfolioRuleKey.portfolioKey().getVersion());
       IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-      ruleKeyBuilder.setId(portfolioRuleKey.getRuleKey().getId());
+      ruleKeyBuilder.setId(portfolioRuleKey.ruleKey().getId());
 
       impactMsgBuilder.setPortfolioKey(portfolioKeyBuilder);
       impactMsgBuilder.setRuleKey(ruleKeyBuilder);
-      impactMap.entrySet().forEach(impactEntry -> {
-        EvaluationGroup evaluationGroup = impactEntry.getKey();
-        Impact impact = impactEntry.getValue();
+      impactMap.forEach((evaluationGroup, impact) -> {
         RuleImpactMsg.Builder ruleImpactMsgBuilder = RuleImpactMsg.newBuilder();
         ruleImpactMsgBuilder.setId(evaluationGroup.getId());
         String aggregationGroup = evaluationGroup.getAggregationKey();

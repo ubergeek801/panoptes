@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
 /**
@@ -18,12 +19,12 @@ public class CompoundPositionSupplier implements PositionSupplier {
    * @param suppliers
    *     the suppliers to be concatenated
    */
-  public CompoundPositionSupplier(PositionSupplier... suppliers) {
+  public CompoundPositionSupplier(@Nonnull PositionSupplier... suppliers) {
     this.suppliers = suppliers;
   }
 
   @Override
-  public double getMarketValue(EvaluationContext evaluationContext) {
+  public double getMarketValue(@Nonnull EvaluationContext evaluationContext) {
     double totalMarketValue = 0;
     for (PositionSupplier supplier : suppliers) {
       totalMarketValue += evaluationContext.getMarketValue(supplier);
@@ -38,6 +39,7 @@ public class CompoundPositionSupplier implements PositionSupplier {
     return suppliers[0].getPortfolioKey();
   }
 
+  @Nonnull
   @Override
   public Stream<? extends Position> getPositions() {
     Stream<? extends Position> concatStream = suppliers[0].getPositions();

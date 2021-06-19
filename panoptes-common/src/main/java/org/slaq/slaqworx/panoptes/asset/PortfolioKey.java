@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.asset;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 
 /**
@@ -16,7 +17,7 @@ public class PortfolioKey extends IdVersionKey implements ProtobufSerializable {
    * @param version
    *     the version to assign to the key
    */
-  public PortfolioKey(String id, long version) {
+  public PortfolioKey(@Nonnull String id, long version) {
     super(id, version);
   }
 }

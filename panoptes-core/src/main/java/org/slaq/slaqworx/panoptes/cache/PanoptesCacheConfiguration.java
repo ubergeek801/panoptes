@@ -1,11 +1,13 @@
 package org.slaq.slaqworx.panoptes.cache;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
 import com.hazelcast.config.MapStoreConfig.InitialLoadMode;
+import com.hazelcast.config.MaxSizePolicy;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.core.Hazelcast;
@@ -13,6 +15,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ManagedContext;
 import com.hazelcast.map.MapStore;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.cache.HazelcastCacheMetrics;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
@@ -61,8 +64,12 @@ public class PanoptesCacheConfiguration {
     NearCacheConfig nearCacheConfig =
         new NearCacheConfig().setName("near-" + cacheName).setInMemoryFormat(InMemoryFormat.OBJECT)
             .setCacheLocalEntries(true);
+    nearCacheConfig.getEvictionConfig().setEvictionPolicy(EvictionPolicy.NONE)
+        .setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT).setSize(20_000);
+
     MapConfig mapConfig = new MapConfig(cacheName).setBackupCount(2).setReadBackupData(true)
         .setInMemoryFormat(InMemoryFormat.BINARY).setNearCacheConfig(nearCacheConfig);
+
     if (mapStoreFactory != null) {
       MapStoreConfig mapStoreConfig =
           new MapStoreConfig().setFactoryImplementation(mapStoreFactory).setWriteDelaySeconds(15)
@@ -175,14 +182,14 @@ public class PanoptesCacheConfiguration {
     HazelcastInstance hazelcastInstance =
         Hazelcast.getOrCreateHazelcastInstance(hazelcastConfiguration);
 
-    Hazelcast4CacheMetrics
+    HazelcastCacheMetrics
         .monitor(meterRegistry, CacheBootstrap.getPortfolioCache(hazelcastInstance));
-    Hazelcast4CacheMetrics
+    HazelcastCacheMetrics
         .monitor(meterRegistry, CacheBootstrap.getPositionCache(hazelcastInstance));
-    Hazelcast4CacheMetrics.monitor(meterRegistry, CacheBootstrap.getRuleCache(hazelcastInstance));
-    Hazelcast4CacheMetrics
+    HazelcastCacheMetrics.monitor(meterRegistry, CacheBootstrap.getRuleCache(hazelcastInstance));
+    HazelcastCacheMetrics
         .monitor(meterRegistry, CacheBootstrap.getSecurityCache(hazelcastInstance));
-    Hazelcast4CacheMetrics.monitor(meterRegistry, CacheBootstrap.getTradeCache(hazelcastInstance));
+    HazelcastCacheMetrics.monitor(meterRegistry, CacheBootstrap.getTradeCache(hazelcastInstance));
 
     return hazelcastInstance;
   }

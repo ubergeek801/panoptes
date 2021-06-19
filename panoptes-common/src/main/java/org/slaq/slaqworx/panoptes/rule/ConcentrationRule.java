@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -102,7 +103,7 @@ public class ConcentrationRule extends LimitRule {
   }
 
   @Override
-  protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
+  protected double getValue(@Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
     // ConcentrationRule works like a LimitRule in which the calculated value is scaled by the
     // total amount of the Portfolio. (Eventually this could support scaling by other aggregate
     // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
@@ -120,8 +121,8 @@ public class ConcentrationRule extends LimitRule {
         return true;
       }
 
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException) e;
+      if (e instanceof RuntimeException r)  {
+        throw r;
       }
       // TODO wrap in a better exception
       throw new RuntimeException(e);

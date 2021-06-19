@@ -3,10 +3,12 @@ package org.slaq.slaqworx.panoptes.cache;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.map.IMap;
+import io.micronaut.context.ApplicationContext;
 import jakarta.inject.Singleton;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -19,6 +21,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
+import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleProvider;
 import org.slaq.slaqworx.panoptes.trade.Trade;
@@ -135,7 +138,7 @@ public class AssetCache
   }
 
   @Override
-  public Portfolio getPortfolio(PortfolioKey key) {
+  public Portfolio getPortfolio(@Nonnull PortfolioKey key) {
     return getPortfolioCache().get(key);
   }
 
@@ -149,7 +152,7 @@ public class AssetCache
   }
 
   @Override
-  public Position getPosition(PositionKey key) {
+  public Position getPosition(@Nonnull PositionKey key) {
     return getPositionCache().get(key);
   }
 
@@ -197,7 +200,8 @@ public class AssetCache
   }
 
   @Override
-  public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext) {
+  public Security getSecurity(@Nonnull SecurityKey key,
+      @Nonnull EvaluationContext evaluationContext) {
     return getSecurityCache().get(key);
   }
 

@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.asset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.calc.TotalMarketValuePositionCalculator;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 
@@ -31,6 +32,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 public class PositionSet<P extends Position> implements HierarchicalPositionSupplier {
   // even though we assume Set semantics, keeping positions in contiguous memory improves
   // calculation performance by 20%
+  @Nonnull
   private final ArrayList<P> positions;
   private final PortfolioKey portfolioKey;
   private final Double totalMarketValue;
@@ -42,7 +44,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
    * @param positions
    *     the {@link Position}s that will comprise this {@link PositionSet}
    */
-  public PositionSet(Collection<P> positions) {
+  public PositionSet(@Nonnull Collection<P> positions) {
     this(positions, null);
   }
 
@@ -55,7 +57,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
    * @param portfolioKey
    *     the (possibly {@code null}) {@link PortfolioKey} associated with this {@link PositionSet}
    */
-  public PositionSet(Collection<P> positions, PortfolioKey portfolioKey) {
+  public PositionSet(@Nonnull Collection<P> positions, PortfolioKey portfolioKey) {
     this(positions, portfolioKey, null);
   }
 
@@ -70,7 +72,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
    * @param portfolioMarketValue
    *     the (possibly {@code null} portfolio market value to use
    */
-  public PositionSet(Collection<P> positions, PortfolioKey portfolioKey,
+  public PositionSet(@Nonnull Collection<P> positions, PortfolioKey portfolioKey,
       Double portfolioMarketValue) {
     this.positions = new ArrayList<>(positions);
     this.portfolioKey = portfolioKey;
@@ -78,7 +80,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
   }
 
   @Override
-  public double getMarketValue(EvaluationContext evaluationContext) {
+  public double getMarketValue(@Nonnull EvaluationContext evaluationContext) {
     // if a market value override is supplied, use it
     if (totalMarketValue != null) {
       return totalMarketValue;
@@ -95,6 +97,7 @@ public class PositionSet<P extends Position> implements HierarchicalPositionSupp
   }
 
   @Override
+  @Nonnull
   public Stream<P> getPositions() {
     return positions.stream();
   }

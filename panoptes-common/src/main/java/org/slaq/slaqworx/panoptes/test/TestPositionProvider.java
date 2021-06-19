@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.test;
 
 import java.util.HashMap;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
 import org.slaq.slaqworx.panoptes.asset.PositionProvider;
@@ -24,7 +25,7 @@ public class TestPositionProvider implements PositionProvider {
   }
 
   @Override
-  public Position getPosition(PositionKey key) {
+  public Position getPosition(@Nonnull PositionKey key) {
     return positionMap.get(key);
   }
 

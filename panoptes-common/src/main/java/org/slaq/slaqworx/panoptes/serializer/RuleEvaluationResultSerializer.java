@@ -6,9 +6,9 @@ import java.io.IOException;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdVersionKeyMsg;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
 
 /**
  * A {@link ProtobufSerializer} which (de)serializes the state of a {@link RuleEvaluationResult}.

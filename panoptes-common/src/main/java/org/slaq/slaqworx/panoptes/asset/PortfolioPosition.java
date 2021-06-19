@@ -2,8 +2,8 @@ package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.trade.TaxLot;
 
 /**
@@ -13,6 +13,7 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
  * @author jeremy
  */
 public class PortfolioPosition extends AbstractPosition {
+  @Nonnull
   private final ArrayList<TaxLot> taxLots;
   private final double amount;
 
@@ -22,9 +23,9 @@ public class PortfolioPosition extends AbstractPosition {
    * @param taxLots
    *     the {@link TaxLot}s to be aggregated by this {@link Position}
    */
-  public PortfolioPosition(Collection<TaxLot> taxLots) {
+  public PortfolioPosition(@Nonnull Collection<TaxLot> taxLots) {
     this.taxLots = new ArrayList<>(taxLots);
-    amount = this.taxLots.stream().collect(Collectors.summingDouble(TaxLot::getAmount));
+    amount = this.taxLots.stream().mapToDouble(TaxLot::getAmount).sum();
   }
 
   @Override
@@ -33,12 +34,14 @@ public class PortfolioPosition extends AbstractPosition {
   }
 
   @Override
+  @Nonnull
   public SecurityKey getSecurityKey() {
     // all TaxLots must be on the same Security, so just take the first
     return taxLots.get(0).getSecurityKey();
   }
 
   @Override
+  @Nonnull
   public Stream<? extends Position> getTaxLots() {
     return taxLots.stream();
   }

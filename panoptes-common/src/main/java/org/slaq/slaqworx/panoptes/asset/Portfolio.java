@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RulesProvider;
@@ -21,11 +22,15 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 public class Portfolio
     implements Keyed<PortfolioKey>, HierarchicalPositionSupplier, ProtobufSerializable,
     RulesProvider {
-  private final PortfolioKey key;
-  private final String name;
+  private final @Nonnull
+  PortfolioKey key;
+  private final @Nonnull
+  String name;
   private final PortfolioKey benchmarkKey;
-  private final HashSet<Rule> rules;
-  private final PositionSet<Position> positionSet;
+  private final @Nonnull
+  HashSet<Rule> rules;
+  private final @Nonnull
+  PositionSet<Position> positionSet;
   private Portfolio benchmark;
 
   /**
@@ -39,7 +44,8 @@ public class Portfolio
    * @param positions
    *     the {@link Position}s comprising the {@link Portfolio}
    */
-  public Portfolio(PortfolioKey id, String name, Set<Position> positions) {
+  public Portfolio(@Nonnull PortfolioKey id, @Nonnull String name,
+      @Nonnull Set<Position> positions) {
     this(id, name, positions, (PortfolioKey) null, Collections.emptySet());
   }
 
@@ -60,8 +66,8 @@ public class Portfolio
    *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    */
-  public Portfolio(PortfolioKey id, String name, Set<Position> positions, Portfolio benchmark,
-      Collection<? extends Rule> rules) {
+  public Portfolio(@Nonnull PortfolioKey id, @Nonnull String name, @Nonnull Set<Position> positions,
+      Portfolio benchmark, Collection<? extends Rule> rules) {
     this(id, name, positions, (benchmark == null ? null : benchmark.getKey()), rules);
   }
 
@@ -82,8 +88,9 @@ public class Portfolio
    *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    */
-  public Portfolio(PortfolioKey key, String name, Set<Position> positions,
-      PortfolioKey benchmarkKey, Collection<? extends Rule> rules) {
+  public Portfolio(@Nonnull PortfolioKey key, @Nonnull String name,
+      @Nonnull Set<Position> positions, PortfolioKey benchmarkKey,
+      Collection<? extends Rule> rules) {
     this.key = key;
     this.name = name;
     this.benchmarkKey = benchmarkKey;
@@ -138,12 +145,13 @@ public class Portfolio
   }
 
   @Override
+  @Nonnull
   public PortfolioKey getKey() {
     return key;
   }
 
   @Override
-  public double getMarketValue(EvaluationContext evaluationContext) {
+  public double getMarketValue(@Nonnull EvaluationContext evaluationContext) {
     return evaluationContext.getMarketValue(positionSet);
   }
 
@@ -152,22 +160,26 @@ public class Portfolio
    *
    * @return the {@link Portfolio} name
    */
+  @Nonnull
   public String getName() {
     return name;
   }
 
-  @JsonIgnore
   @Override
+  @JsonIgnore
+  @Nonnull
   public PortfolioKey getPortfolioKey() {
     return key;
   }
 
   @Override
+  @Nonnull
   public Stream<? extends Position> getPositions() {
     return positionSet.getPositions();
   }
 
   @Override
+  @Nonnull
   public Stream<Rule> getRules() {
     return rules.stream();
   }
@@ -193,6 +205,7 @@ public class Portfolio
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "Portfolio[id=\"" + key + "\"]";
   }

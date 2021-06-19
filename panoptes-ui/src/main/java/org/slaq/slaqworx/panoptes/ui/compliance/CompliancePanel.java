@@ -60,7 +60,7 @@ public class CompliancePanel extends VerticalLayout {
       }
 
       portfolioIdField.setInvalid(false);
-      portfolioNameField.setValue(portfolio.getName());
+      portfolioNameField.setValue(portfolio.name());
       run.setEnabled(true);
     });
 

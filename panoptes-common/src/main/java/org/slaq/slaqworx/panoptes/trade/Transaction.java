@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.trade;
 
 import java.util.Collection;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -95,6 +96,7 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
     return portfolioKey;
   }
 
+  @Nonnull
   @Override
   public Stream<TaxLot> getPositions() {
     return positions.getPositions();

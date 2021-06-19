@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -14,6 +15,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * @author jeremy
  */
 public abstract class LimitRule extends GenericRule implements ConfigurableRule {
+  @Nonnull
   private final Predicate<PositionEvaluationContext> positionFilter;
 
   private final Double lowerLimit;
@@ -37,7 +39,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
    *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
    *     implement {@link GroupAggregator}
    */
-  protected LimitRule(RuleKey key, String description,
+  protected LimitRule(RuleKey key, @Nonnull String description,
       Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit,
       EvaluationGroupClassifier groupClassifier) {
     super(key, description, groupClassifier);
@@ -48,12 +50,8 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
 
   @Override
   public String getGroovyFilter() {
-    if (positionFilter == null) {
-      return null;
-    }
-
-    if (positionFilter instanceof GroovyPositionFilter) {
-      return ((GroovyPositionFilter) positionFilter).getExpression();
+    if (positionFilter instanceof GroovyPositionFilter groovyFilter) {
+      return groovyFilter.getExpression();
     }
 
     return null;
@@ -65,11 +63,11 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   }
 
   @Override
+  @Nonnull
   public String getParameterDescription() {
     ArrayList<String> descriptions = new ArrayList<>();
-    if (positionFilter != null && positionFilter instanceof GroovyPositionFilter) {
-      descriptions
-          .add("filter=\"" + ((GroovyPositionFilter) positionFilter).getExpression() + "\"");
+    if (positionFilter instanceof GroovyPositionFilter groovyPositionFilter) {
+      descriptions.add("filter=\"" + groovyPositionFilter.getExpression() + "\"");
     }
     if (lowerLimit != null) {
       descriptions.add("lower=" + lowerLimit);
@@ -82,6 +80,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   }
 
   @Override
+  @Nonnull
   public Predicate<PositionEvaluationContext> getPositionFilter() {
     return positionFilter;
   }
@@ -96,13 +95,14 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
     return true;
   }
 
+  @Nonnull
   @Override
-  protected final ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-      EvaluationContext evaluationContext) {
+  protected final ValueResult eval(@Nonnull PositionSupplier positions,
+      @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
     double value = getValue(positions, evaluationContext);
 
-    // note that for a rule that compares against a benchmark, this will not be the "final
-    // answer"; that will be determined by e.g. a BenchmarkComparator
+    // note that for a rule that compares against a benchmark, this will not be the "final answer";
+    // that will be determined by e.g. a BenchmarkComparator
 
     if (lowerLimit != null && (!Double.isNaN(value) && value < lowerLimit)) {
       return new ValueResult(Threshold.BELOW, value);
@@ -126,6 +126,6 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
    *
    * @return the calculation result
    */
-  protected abstract double getValue(PositionSupplier positions,
-      EvaluationContext evaluationContext);
+  protected abstract double getValue(@Nonnull PositionSupplier positions,
+      @Nonnull EvaluationContext evaluationContext);
 }

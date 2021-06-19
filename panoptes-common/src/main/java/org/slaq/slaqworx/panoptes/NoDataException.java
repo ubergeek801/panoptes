@@ -1,5 +1,7 @@
 package org.slaq.slaqworx.panoptes;
 
+import java.io.Serial;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Security;
 
 /**
@@ -9,9 +11,11 @@ import org.slaq.slaqworx.panoptes.asset.Security;
  * @author jeremy
  */
 public class NoDataException extends RuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  private final String attributeName;
+  private final @Nonnull
+  String attributeName;
 
   /**
    * Creates a new {@link NoDataException} indicating that a {@link Security} attribute with the
@@ -20,7 +24,7 @@ public class NoDataException extends RuntimeException {
    * @param attributeName
    *     the attribute name that was not found
    */
-  public NoDataException(String attributeName) {
+  public NoDataException(@Nonnull String attributeName) {
     this.attributeName = attributeName;
   }
 
@@ -29,6 +33,7 @@ public class NoDataException extends RuntimeException {
    *
    * @return an attribute name
    */
+  @Nonnull
   public String getAttributeName() {
     return attributeName;
   }

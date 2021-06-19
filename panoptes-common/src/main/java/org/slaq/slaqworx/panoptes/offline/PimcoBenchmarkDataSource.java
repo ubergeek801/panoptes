@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -39,16 +40,21 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   public static final PortfolioKey GLAD_KEY = new PortfolioKey("GLAD", 1);
   public static final PortfolioKey ILAD_KEY = new PortfolioKey("ILAD", 1);
   public static final PortfolioKey PGOV_KEY = new PortfolioKey("PGOV", 1);
+
   private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDataSource.class);
+
   private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-02-2019.tsv";
   private static final String GLAD_CONSTITUENTS_FILE = "PIMCO_GLAD_Constituents_07-02-2019.tsv";
   private static final String ILAD_CONSTITUENTS_FILE = "PIMCO_ILAD_Constituents_07-02-2019.tsv";
   private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
+
   private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
   private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
   private static final Random random = new Random(0);
   private static final BigDecimal MARKET_VALUE_MULTIPLIER = new BigDecimal("10000.00");
+
   private static PimcoBenchmarkDataSource instance;
+
   private final HashMap<SecurityKey, Security> securityMap = new HashMap<>();
   private final HashMap<PortfolioKey, Portfolio> benchmarkMap = new HashMap<>();
 
@@ -106,13 +112,13 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   }
 
   @Override
-  public Portfolio getPortfolio(PortfolioKey key) {
+  public Portfolio getPortfolio(@Nonnull PortfolioKey key) {
     // we only know about benchmarks
     return getBenchmark(key);
   }
 
   @Override
-  public Security getSecurity(SecurityKey key, EvaluationContext evaluationContext) {
+  public Security getSecurity(@Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext) {
     return securityMap.get(key);
   }
 
@@ -140,7 +146,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
    */
   protected BigDecimal calculatePrice(LocalDate asOfDate, LocalDate maturityDate,
       BigDecimal effectiveYield) {
-    return BigDecimal.valueOf(36500 /
+    return BigDecimal.valueOf(36_500 /
         (365 + asOfDate.until(maturityDate, ChronoUnit.DAYS) * effectiveYield.doubleValue() / 100))
         .setScale(4, RoundingMode.HALF_UP);
   }
@@ -166,7 +172,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     try (BufferedReader constituentReader = new BufferedReader(new InputStreamReader(
         getClass().getClassLoader().getResourceAsStream(RESOURCE_PATH + sourceFile)))) {
       // throw away the header row
-      String row = constituentReader.readLine();
+      constituentReader.readLine();
+      String row;
       while ((row = constituentReader.readLine()) != null) {
         String[] values = row.split("\\t");
         int column = 0;
@@ -238,8 +245,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         attributes.put(SecurityAttribute.yield, yield.doubleValue());
         attributes.put(SecurityAttribute.duration, duration.doubleValue());
 
-        // use the description as the issuer unless the sector is Currency, in which case
-        // don't set the issuer
+        // use the description as the issuer unless the sector is Currency, in which case don't set
+        // the issuer
         if (!("Currency".equals(sector))) {
           attributes.put(SecurityAttribute.issuer, description);
         }

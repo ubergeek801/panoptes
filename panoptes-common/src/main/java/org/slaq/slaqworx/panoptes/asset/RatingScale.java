@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import javax.annotation.Nonnull;
 
 /**
  * Encapsulates an ordered list of {@link RatingNotch}es which are used by a particular rater, and
@@ -13,7 +14,8 @@ import java.util.HashMap;
  * @author jeremy
  */
 public class RatingScale {
-  private static final RatingScale defaultScale;
+  private static final @Nonnull
+  RatingScale defaultScale;
 
   static {
     // these rating symbols are used in the PIMCO benchmarks; the numeric equivalents are a
@@ -56,7 +58,7 @@ public class RatingScale {
    * @param max
    *     the maximum value of the {@link RatingScale}
    */
-  public RatingScale(Collection<RatingNotch> ratings, double max) {
+  public RatingScale(@Nonnull Collection<RatingNotch> ratings, double max) {
     notches = new ArrayList<>(ratings);
     Collections.sort(notches);
 
@@ -85,6 +87,7 @@ public class RatingScale {
    *
    * @return the default {@link RatingScale}
    */
+  @Nonnull
   public static RatingScale defaultScale() {
     return defaultScale;
   }
@@ -100,6 +103,7 @@ public class RatingScale {
    *
    * @return the {@link RatingNotch} corresponding to the given value
    */
+  @Nonnull
   public RatingNotch getRatingNotch(double value) {
     int index = Arrays.binarySearch(notchValues, value);
 

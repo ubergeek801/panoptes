@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.rule;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -109,6 +110,7 @@ public class WeightedAverageRule<T> extends LimitRule {
     }
   }
 
+  @Nonnull
   @Override
   public String getParameterDescription() {
     ArrayList<String> descriptions = new ArrayList<>();
@@ -133,7 +135,7 @@ public class WeightedAverageRule<T> extends LimitRule {
   }
 
   @Override
-  protected double getValue(PositionSupplier positions, EvaluationContext evaluationContext) {
+  protected double getValue(@Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
     WeightedAveragePositionCalculator<T> calculator =
         new WeightedAveragePositionCalculator<>(calculationAttribute);
 

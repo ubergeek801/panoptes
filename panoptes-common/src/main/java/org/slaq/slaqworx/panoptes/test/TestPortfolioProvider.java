@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.test;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -27,7 +28,7 @@ public class TestPortfolioProvider implements PortfolioProvider {
   }
 
   @Override
-  public Portfolio getPortfolio(PortfolioKey key) {
+  public Portfolio getPortfolio(@Nonnull PortfolioKey key) {
     return portfolioMap.get(key);
   }
 

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.operators.co.CoBroadcastWithKeyedOperator;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
@@ -28,7 +29,7 @@ import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.EvaluationGroup;
 import org.slaq.slaqworx.panoptes.rule.GenericRule;
@@ -103,9 +104,10 @@ public class BenchmarkRuleEvaluatorTest {
     // a GenericRule is not benchmark-enabled
     RuleKey rule2Key = new RuleKey("rule2");
     GenericRule rule2 = new GenericRule(rule2Key, "rule2") {
+      @Nonnull
       @Override
-      protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-          EvaluationContext evaluationContext) {
+      protected ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
+          @Nonnull EvaluationContext evaluationContext) {
         return new ValueResult(true);
       }
     };
@@ -189,9 +191,10 @@ public class BenchmarkRuleEvaluatorTest {
     // a GenericRule is not benchmark-enabled
     RuleKey rule2Key = new RuleKey("rule2");
     GenericRule rule2 = new GenericRule(rule2Key, "rule2") {
+      @Nonnull
       @Override
-      protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-          EvaluationContext evaluationContext) {
+      protected ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
+          @Nonnull EvaluationContext evaluationContext) {
         return new ValueResult(true);
       }
     };

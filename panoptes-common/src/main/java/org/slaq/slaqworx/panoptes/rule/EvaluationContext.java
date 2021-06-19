@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.MarketValueProvider;
 import org.slaq.slaqworx.panoptes.asset.MarketValued;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -27,7 +28,9 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 public class EvaluationContext implements MarketValueProvider, ProtobufSerializable {
   private final SecurityProvider securityProvider;
   private final PortfolioProvider portfolioProvider;
+  @Nonnull
   private final EvaluationMode evaluationMode;
+  @Nonnull
   private final Map<SecurityKey, SecurityAttributes> securityOverrides;
   private final Map<RuleKey, EvaluationResult> benchmarkResults = new ConcurrentHashMap<>(100);
   private final Map<MarketValued, Double> marketValues =
@@ -117,7 +120,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *     SecurityAttributes} which should override the current values
    */
   public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
-      EvaluationMode evaluationMode,
+      @Nonnull EvaluationMode evaluationMode,
       Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
     this.securityProvider = securityProvider;
     this.portfolioProvider = portfolioProvider;
@@ -179,12 +182,13 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *
    * @return a {@link EvaluationMode}
    */
+  @Nonnull
   public EvaluationMode getEvaluationMode() {
     return evaluationMode;
   }
 
   @Override
-  public double getMarketValue(MarketValued holding) {
+  public double getMarketValue(@Nonnull MarketValued holding) {
     // compute/cache the market value of this holding
     return marketValues.computeIfAbsent(holding, k -> holding.getMarketValue(this));
   }
@@ -194,6 +198,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *
    * @return a {@link PortfolioProvider}
    */
+  @Nonnull
   public PortfolioProvider getPortfolioProvider() {
     return (portfolioProvider != null ? portfolioProvider : AssetCache.getDefault());
   }
@@ -205,6 +210,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *     a {@link SecurityAttributes} which should override the current values for the purposes of
    *     this evaluation
    */
+  @Nonnull
   public Map<SecurityKey, SecurityAttributes> getSecurityOverrides() {
     return securityOverrides;
   }
@@ -214,6 +220,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *
    * @return a {@link SecurityProvider}
    */
+  @Nonnull
   public SecurityProvider getSecurityProvider() {
     return (securityProvider != null ? securityProvider : AssetCache.getDefault());
   }
@@ -222,8 +229,8 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((evaluationMode == null) ? 0 : evaluationMode.hashCode());
-    result = prime * result + ((securityOverrides == null) ? 0 : securityOverrides.hashCode());
+    result = prime * result + evaluationMode.hashCode();
+    result = prime * result + securityOverrides.hashCode();
 
     return result;
   }

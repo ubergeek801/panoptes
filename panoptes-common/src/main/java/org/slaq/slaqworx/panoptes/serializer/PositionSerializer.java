@@ -35,10 +35,10 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
    */
   public static PositionMsg convert(Position position) {
     IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
-    keyBuilder.setId(position.getKey().getId());
+    keyBuilder.setId(position.getKey().id());
 
     IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-    securityKeyBuilder.setId(position.getSecurityKey().getId());
+    securityKeyBuilder.setId(position.getSecurityKey().id());
 
     PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
     positionBuilder.setKey(keyBuilder);

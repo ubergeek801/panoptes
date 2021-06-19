@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import com.hazelcast.function.FunctionEx;
 import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
@@ -8,21 +9,22 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.pipeline.BenchmarkComparator.BenchmarkComparatorState;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResultMsg.EvaluationSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 
 /**
- * A process function which receives rule evaluation results for portfolios (keyed on the
- * portfolio's <b>benchmark</b> ID + rule key) as well as rule evaluation results for benchmarks
- * (keyed on the benchmark's portfolio ID + rule key). If a portfolio rule evaluation result is
- * received which does not use a benchmark (either its portfolio does not specify a benchmark, or
- * the rule itself does not support benchmarks), the result is passed through. Otherwise, it is
- * matched against the corresponding result for the same rule against the benchmark, buffering if
- * necessary until the benchmark result arrives.
+ * A transformation which receives rule evaluation results for portfolios (keyed on the portfolio's
+ * <b>benchmark</b> ID + rule key) as well as rule evaluation results for benchmarks (keyed on the
+ * benchmark's portfolio ID + rule key). If a portfolio rule evaluation result is received which
+ * does not use a benchmark (either its portfolio does not specify a benchmark, or the rule itself
+ * does not support benchmarks), the result is passed through. Otherwise, it is matched against the
+ * corresponding result for the same rule against the benchmark, buffering if necessary until the
+ * benchmark result arrives.
  *
  * @author jeremy
  */
@@ -35,6 +37,16 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   private transient BenchmarkComparatorState processState;
 
   /**
+   * Provides a key extraction function suitable for partitioning the input to this transformation.
+   *
+   * @return a key extractor
+   */
+  @Nonnull
+  public static FunctionEx<RuleEvaluationResult, PortfolioRuleKey> keyExtractor() {
+    return RuleEvaluationResult::getBenchmarkEvaluationKey;
+  }
+
+  /**
    * Creates a new {@link BenchmarkComparator}.
    */
   public BenchmarkComparator() {
@@ -42,6 +54,7 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   }
 
   @Override
+  @Nonnull
   public Traverser<RuleEvaluationResult> applyEx(BenchmarkComparatorState processState,
       PortfolioRuleKey eventKey, RuleEvaluationResult event) {
     this.processState = processState;
@@ -62,6 +75,7 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   }
 
   @Override
+  @Nonnull
   public BenchmarkComparatorState getEx() {
     return new BenchmarkComparatorState();
   }
@@ -76,8 +90,8 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    * @param comparedResults
    *     a {@link Collection} into which final results, if any, are added
    */
-  protected void handleBenchmarkResultEvent(RuleEvaluationResult benchmarkResult,
-      Collection<RuleEvaluationResult> comparedResults) {
+  protected void handleBenchmarkResultEvent(@Nonnull RuleEvaluationResult benchmarkResult,
+      @Nonnull Collection<RuleEvaluationResult> comparedResults) {
     // store the benchmark result in the process state
     EvaluationResult benchmarkEvaluationResult = benchmarkResult.getEvaluationResult();
     processState.benchmarkResult = benchmarkEvaluationResult;
@@ -103,8 +117,8 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    * @param comparedResults
    *     a {@link Collection} into which final results, if any, are added
    */
-  protected void handlePortfolioResultEvent(RuleEvaluationResult portfolioResult,
-      Collection<RuleEvaluationResult> comparedResults) {
+  protected void handlePortfolioResultEvent(@Nonnull RuleEvaluationResult portfolioResult,
+      @Nonnull Collection<RuleEvaluationResult> comparedResults) {
     // if the portfolio does not have a benchmark or if the rule does not support benchmarks, then
     // we can pass the result through and forget about it
     PortfolioKey benchmarkKey = portfolioResult.getBenchmarkKey();
@@ -139,8 +153,8 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    * @param benchmarkResult
    *     the rule evaluation result from the corresponding benchmark
    */
-  protected void compareResults(Collection<RuleEvaluationResult> comparedResults,
-      RuleEvaluationResult baseResult, EvaluationResult benchmarkResult) {
+  protected void compareResults(@Nonnull Collection<RuleEvaluationResult> comparedResults,
+      @Nonnull RuleEvaluationResult baseResult, @Nonnull EvaluationResult benchmarkResult) {
     EvaluationResult benchmarkComparisonResult =
         new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
             .compare(baseResult.getEvaluationResult(), benchmarkResult, baseResult);

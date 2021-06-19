@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.asset;
 
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
 
@@ -23,7 +24,8 @@ public interface PositionSupplier extends MarketValued {
    *
    * @return a {@link PositionSupplier} representing the concatenation of the suppliers
    */
-  static PositionSupplier concat(PositionSupplier... suppliers) {
+  @Nonnull
+  static PositionSupplier concat(@Nonnull PositionSupplier... suppliers) {
     return new CompoundPositionSupplier(suppliers);
   }
 
@@ -39,6 +41,7 @@ public interface PositionSupplier extends MarketValued {
    *
    * @return a {@link Stream} of {@link Position}s
    */
+  @Nonnull
   Stream<? extends Position> getPositions();
 
   /**
@@ -50,8 +53,9 @@ public interface PositionSupplier extends MarketValued {
    *
    * @return a {@link Stream} of {@link PositionEvaluationContext}s
    */
+  @Nonnull
   default Stream<PositionEvaluationContext> getPositionsWithContext(
-      EvaluationContext evaluationContext) {
+      @Nonnull EvaluationContext evaluationContext) {
     return getPositions().map(p -> new PositionEvaluationContext(p, evaluationContext));
   }
 

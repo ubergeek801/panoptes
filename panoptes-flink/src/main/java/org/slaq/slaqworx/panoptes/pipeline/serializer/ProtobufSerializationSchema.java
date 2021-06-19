@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
 import io.micronaut.context.BeanProvider;
+import javax.annotation.Nonnull;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -55,12 +56,12 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
   }
 
   @Override
-  public Portfolio getPortfolio(PortfolioKey key) {
+  public Portfolio getPortfolio(@Nonnull PortfolioKey key) {
     return get().getPortfolio(key);
   }
 
   @Override
-  public Security getSecurity(SecurityKey key, EvaluationContext context) {
+  public Security getSecurity(@Nonnull SecurityKey key, @Nonnull EvaluationContext context) {
     return get().getSecurity(key, context);
   }
 

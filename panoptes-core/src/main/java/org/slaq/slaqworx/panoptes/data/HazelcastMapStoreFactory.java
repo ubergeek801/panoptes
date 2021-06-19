@@ -4,6 +4,7 @@ import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapLoader;
 import com.hazelcast.map.MapStore;
 import com.hazelcast.map.MapStoreFactory;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.env.Environment;
 import jakarta.inject.Singleton;

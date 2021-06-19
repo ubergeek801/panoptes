@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -433,9 +434,10 @@ public class PortfolioEvaluatorTest {
       this.isPass = isPass;
     }
 
+    @Nonnull
     @Override
-    public ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-        EvaluationContext evaluationContext) {
+    public ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
+        @Nonnull EvaluationContext evaluationContext) {
       return new ValueResult(isPass);
     }
   }
@@ -449,9 +451,10 @@ public class PortfolioEvaluatorTest {
       super(description);
     }
 
+    @Nonnull
     @Override
-    protected ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-        EvaluationContext evaluationContext) {
+    protected ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
+        @Nonnull EvaluationContext evaluationContext) {
       throw new RuntimeException("exception test");
     }
   }
@@ -468,9 +471,10 @@ public class PortfolioEvaluatorTest {
       this.benchmarkKey = benchmarkKey;
     }
 
+    @Nonnull
     @Override
-    public ValueResult eval(PositionSupplier positions, EvaluationGroup evaluationGroup,
-        EvaluationContext evaluationContext) {
+    public ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
+        @Nonnull EvaluationContext evaluationContext) {
       return new ValueResult(benchmarkKey.equals(positions.getPortfolioKey()));
     }
 

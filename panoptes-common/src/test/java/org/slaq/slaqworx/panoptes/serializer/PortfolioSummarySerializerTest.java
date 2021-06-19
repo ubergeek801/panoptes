@@ -31,11 +31,11 @@ public class PortfolioSummarySerializerTest {
 
     assertEquals(portfolioSummary, deserialized,
         "deserialized value should equals() original value");
-    assertEquals(portfolioSummary.getBenchmarkKey(), deserialized.getBenchmarkKey(),
+    assertEquals(portfolioSummary.benchmarkKey(), deserialized.benchmarkKey(),
         "deserialized value should have same benchmark key as original");
-    assertEquals(portfolioSummary.getName(), deserialized.getName(),
+    assertEquals(portfolioSummary.name(), deserialized.name(),
         "deserialized value should have same name as original");
-    assertEquals(portfolioSummary.getTotalMarketValue(), deserialized.getTotalMarketValue(),
+    assertEquals(portfolioSummary.totalMarketValue(), deserialized.totalMarketValue(),
         "deserialized Portfolio should have same total market value as original");
     assertEquals(portfolioSummary.isAbstract(), deserialized.isAbstract(),
         "deserialized Portfolio should have same abstract flag as original");

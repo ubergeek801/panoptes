@@ -29,9 +29,9 @@ import org.slaq.slaqworx.panoptes.cache.PortfolioSummarizer;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
+import org.slaq.slaqworx.panoptes.event.PortfolioEvaluationInput;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
-import org.slaq.slaqworx.panoptes.event.SecurityUpdateEvent;
 import org.slaq.slaqworx.panoptes.event.TransactionEvent;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -141,16 +141,6 @@ public class PanoptesPipelineConfig {
 
     jetConfig.setHazelcastConfig(hazelcastConfig);
 
-    // sacrifice some off-idle latency to be a little more kind to the CPUs when idle
-    //    jetConfig.setProperty(JetProperties.JET_IDLE_COOPERATIVE_MIN_MICROSECONDS.getName(),
-    //    "10000");
-    //    jetConfig.setProperty(JetProperties.JET_IDLE_COOPERATIVE_MAX_MICROSECONDS.getName(),
-    //    "20000");
-    //    jetConfig.setProperty(JetProperties.JET_IDLE_NONCOOPERATIVE_MIN_MICROSECONDS.getName(),
-    //        "10000");
-    //    jetConfig.setProperty(JetProperties.JET_IDLE_NONCOOPERATIVE_MAX_MICROSECONDS.getName(),
-    //        "20000");
-
     return jetConfig;
   }
 
@@ -174,6 +164,8 @@ public class PanoptesPipelineConfig {
         org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioCommandEventSerializer.class);
     jobConfig.registerSerializer(PortfolioDataEvent.class,
         org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioDataEventSerializer.class);
+    jobConfig.registerSerializer(PortfolioEvaluationInput.class,
+        org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioEvaluationInputSerializer.class);
     jobConfig.registerSerializer(PortfolioKey.class,
         org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioKeySerializer.class);
     jobConfig.registerSerializer(PortfolioRuleKey.class,
@@ -198,8 +190,6 @@ public class PanoptesPipelineConfig {
         org.slaq.slaqworx.panoptes.serializer.hazelcast.SecuritySerializer.class);
     jobConfig.registerSerializer(SecurityKey.class,
         org.slaq.slaqworx.panoptes.serializer.hazelcast.SecurityKeySerializer.class);
-    jobConfig.registerSerializer(SecurityUpdateEvent.class,
-        org.slaq.slaqworx.panoptes.serializer.hazelcast.SecurityUpdateEventSerializer.class);
     jobConfig.registerSerializer(TradeEvaluationRequest.class,
         org.slaq.slaqworx.panoptes.serializer.hazelcast.TradeEvaluationRequestSerializer.class);
     jobConfig.registerSerializer(Trade.class,
