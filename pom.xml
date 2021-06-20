@@ -18,7 +18,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
 
-    <micronaut.version>2.5.5</micronaut.version>
+    <micronaut.version>2.5.6</micronaut.version>
   </properties>
 
   <modules>
@@ -40,7 +40,7 @@
         <plugin>
           <groupId>com.google.cloud.tools</groupId>
           <artifactId>jib-maven-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         <!-- enable Micronaut-related Maven actions -->
         <plugin>
@@ -81,7 +81,7 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>2.5.0</version>
+          <version>2.5.1</version>
         </plugin>
         <!-- produce git-info to include in application packages -->
         <plugin>
@@ -109,7 +109,7 @@
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-kubernetes</artifactId>
-        <version>2.2.2</version>
+        <version>2.2.3</version>
       </dependency>
       <dependency>
         <groupId>io.micronaut</groupId>
