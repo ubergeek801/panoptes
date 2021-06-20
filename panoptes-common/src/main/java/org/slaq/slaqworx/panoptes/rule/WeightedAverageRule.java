@@ -89,18 +89,15 @@ public class WeightedAverageRule<T> extends LimitRule {
 
     SecurityAttribute<?> calculationAttribute = SecurityAttribute.of(configuration.attribute);
 
-    WeightedAverageRule<?> rule = new WeightedAverageRule(key, description,
+    return new WeightedAverageRule<>(key, description,
         (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)), calculationAttribute,
         configuration.lowerLimit, configuration.upperLimit, groupClassifier);
-    return rule;
   }
 
   @Override
   public String getJsonConfiguration() {
-    Configuration configuration = new Configuration();
-    configuration.attribute = getCalculationAttribute().getName();
-    configuration.lowerLimit = getLowerLimit();
-    configuration.upperLimit = getUpperLimit();
+    Configuration configuration =
+        new Configuration(getCalculationAttribute().getName(), getLowerLimit(), getUpperLimit());
 
     try {
       return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);
@@ -115,9 +112,7 @@ public class WeightedAverageRule<T> extends LimitRule {
   public String getParameterDescription() {
     ArrayList<String> descriptions = new ArrayList<>();
     String superDescription = super.getParameterDescription();
-    if (superDescription != null) {
-      descriptions.add(superDescription);
-    }
+    descriptions.add(superDescription);
     if (calculationAttribute != null) {
       descriptions.add("attribute=\"" + calculationAttribute.getName() + "\"");
     }
@@ -135,7 +130,8 @@ public class WeightedAverageRule<T> extends LimitRule {
   }
 
   @Override
-  protected double getValue(@Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
+  protected double getValue(@Nonnull PositionSupplier positions,
+      @Nonnull EvaluationContext evaluationContext) {
     WeightedAveragePositionCalculator<T> calculator =
         new WeightedAveragePositionCalculator<>(calculationAttribute);
 
@@ -145,9 +141,7 @@ public class WeightedAverageRule<T> extends LimitRule {
   /**
    * Mirrors the structure of the JSON configuration.
    */
-  static class Configuration {
-    public String attribute;
-    public Double lowerLimit;
-    public Double upperLimit;
+  static record Configuration(@Nonnull String attribute, Double lowerLimit, Double upperLimit) {
+    // trivial
   }
 }

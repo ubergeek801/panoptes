@@ -17,6 +17,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.util.KeyedTwoInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.TestHarnessUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -71,6 +72,7 @@ public class BenchmarkRuleEvaluatorTest {
    *     if an unexpected failure occurs
    */
   @Test
+  @Disabled("Flink not supported until it supports Java records")
   public void testBenchmarkBeforeSecurities() throws Exception {
     String isin1 = "security1";
     Security security1 = new Security(
@@ -106,8 +108,8 @@ public class BenchmarkRuleEvaluatorTest {
     GenericRule rule2 = new GenericRule(rule2Key, "rule2") {
       @Nonnull
       @Override
-      protected ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
-          @Nonnull EvaluationContext evaluationContext) {
+      protected ValueResult eval(@Nonnull PositionSupplier positions,
+          @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
         return new ValueResult(true);
       }
     };
@@ -141,10 +143,10 @@ public class BenchmarkRuleEvaluatorTest {
         Map.of(EvaluationGroup.defaultGroup(), new ValueResult(Threshold.WITHIN, 0)));
     output = harness.getOutput();
     // peek at the output so we can get the event ID
-    RuleEvaluationResult evaluationResult =
+    @SuppressWarnings("unchecked") RuleEvaluationResult evaluationResult =
         ((StreamRecord<RuleEvaluationResult>) output.element()).getValue();
     StreamRecord<RuleEvaluationResult> expectedResult = new StreamRecord<>(
-        new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
+        new RuleEvaluationResult(evaluationResult.eventId(), benchmarkKey, null,
             EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult), 3L);
     expectedOutput.add(expectedResult);
     TestHarnessUtil.assertOutputEquals("unexpected output", expectedOutput, output);
@@ -158,6 +160,7 @@ public class BenchmarkRuleEvaluatorTest {
    *     if an unexpected failure occurs
    */
   @Test
+  @Disabled("Flink not supported until it supports Java records")
   public void testSecuritiesBeforeBenchmark() throws Exception {
     String isin1 = "security1";
     Security security1 = new Security(
@@ -193,8 +196,8 @@ public class BenchmarkRuleEvaluatorTest {
     GenericRule rule2 = new GenericRule(rule2Key, "rule2") {
       @Nonnull
       @Override
-      protected ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
-          @Nonnull EvaluationContext evaluationContext) {
+      protected ValueResult eval(@Nonnull PositionSupplier positions,
+          @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
         return new ValueResult(true);
       }
     };
@@ -228,10 +231,10 @@ public class BenchmarkRuleEvaluatorTest {
         Map.of(EvaluationGroup.defaultGroup(), new ValueResult(Threshold.WITHIN, 0)));
     output = harness.getOutput();
     // peek at the output so we can get the event ID
-    RuleEvaluationResult evaluationResult =
+    @SuppressWarnings("unchecked") RuleEvaluationResult evaluationResult =
         ((StreamRecord<RuleEvaluationResult>) output.element()).getValue();
     StreamRecord<RuleEvaluationResult> expectedResult = new StreamRecord<>(
-        new RuleEvaluationResult(evaluationResult.getEventId(), benchmarkKey, null,
+        new RuleEvaluationResult(evaluationResult.eventId(), benchmarkKey, null,
             EvaluationSource.BENCHMARK, true, 0d, 0d, expectedEvaluationResult), 3L);
     expectedOutput.add(expectedResult);
     TestHarnessUtil.assertOutputEquals("unexpected output", expectedOutput, output);

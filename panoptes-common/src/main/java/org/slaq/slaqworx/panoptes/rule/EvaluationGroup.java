@@ -1,39 +1,31 @@
 package org.slaq.slaqworx.panoptes.rule;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 
 /**
  * A value type used as a key when classifying rule evaluation results.
  *
+ * @param id
+ *     the unique ID of the {@link EvaluationGroup}
+ * @param aggregationKey
+ *     the aggregation key used to define this {@link EvaluationGroup}, or {@code null} for the
+ *     default
+ *
  * @author jeremy
  */
-public class EvaluationGroup {
+public record EvaluationGroup(@Nonnull String id, String aggregationKey) {
   public static final String DEFAULT_EVALUATION_GROUP_ID = "portfolio";
 
   private static final EvaluationGroup DEFAULT_GROUP =
       new EvaluationGroup(DEFAULT_EVALUATION_GROUP_ID, null);
-  private final String id;
-  private final String aggregationKey;
-
-  /**
-   * Creates a new {@link EvaluationGroup} with the given ID and aggregation key.
-   *
-   * @param id
-   *     the unique ID of the {@link EvaluationGroup}
-   * @param aggregationKey
-   *     the aggregation key used to define this {@link EvaluationGroup}, or {@code null} for the
-   *     default
-   */
-  public EvaluationGroup(String id, String aggregationKey) {
-    this.id = id;
-    this.aggregationKey = aggregationKey;
-  }
 
   /**
    * Obtains the default ({@link Portfolio}-level) {@link EvaluationGroup}.
    *
    * @return the default {@link EvaluationGroup}
    */
+  @Nonnull
   public static EvaluationGroup defaultGroup() {
     return DEFAULT_GROUP;
   }
@@ -54,31 +46,13 @@ public class EvaluationGroup {
     return id.equals(other.id);
   }
 
-  /**
-   * Obtains the aggregation key on which this {@link EvaluationGroup} is classified, or {@code
-   * null} if this is the default (unclassified) group.
-   *
-   * @return this {@link EvaluationGroup}'s aggregation key
-   */
-  public String getAggregationKey() {
-    return aggregationKey;
-  }
-
-  /**
-   * Obtains the ID of this {@link EvaluationGroup}.
-   *
-   * @return the {@link EvaluationGroup} ID
-   */
-  public String getId() {
-    return id;
-  }
-
   @Override
   public int hashCode() {
     return id.hashCode();
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return (aggregationKey == null ? DEFAULT_EVALUATION_GROUP_ID : (aggregationKey + "=" + id));
   }

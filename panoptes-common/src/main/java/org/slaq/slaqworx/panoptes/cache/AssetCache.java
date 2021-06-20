@@ -176,7 +176,7 @@ public class AssetCache
   }
 
   @Override
-  public ConfigurableRule getRule(RuleKey key) {
+  public ConfigurableRule getRule(@Nonnull RuleKey key) {
     return getRuleCache().get(key);
   }
 

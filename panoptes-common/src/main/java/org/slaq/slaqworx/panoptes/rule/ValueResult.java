@@ -11,7 +11,7 @@ import org.slaq.slaqworx.panoptes.trade.Trade;
  * aspects of Boolean- and value-based evaluations, which possibly should be separated.
  * <p>
  * For benchmark-relative rules, a {@link ValueResult} is determined for both the base/target
- * portfolio and the benchmark portfolio individually, to be combined eventually by a {@link
+ * portfolio and the benchmark portfolio individually, to be combined eventually by a {@code
  * org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator}.
  *
  * @author jeremy

@@ -28,12 +28,12 @@ public class EvaluationResultPublisher
 
   @Override
   public void acceptEx(Processor.Context context, RuleEvaluationResult evaluationResult) {
-    EvaluationResult result = evaluationResult.getEvaluationResult();
-    LOG.info("produced {} results for rule {} on portfolio {}", result.getResults().size(),
-        result.getKey(), evaluationResult.getPortfolioKey());
+    EvaluationResult result = evaluationResult.evaluationResult();
+    LOG.info("produced {} results for rule {} on portfolio {}", result.results().size(),
+        result.getKey(), evaluationResult.portfolioKey());
 
     synchronized (distinctPortfolios) {
-      if (distinctPortfolios.add(evaluationResult.getPortfolioKey())) {
+      if (distinctPortfolios.add(evaluationResult.portfolioKey())) {
         LOG.info("produced results for {} distinct portfolios", distinctPortfolios.size());
       }
     }

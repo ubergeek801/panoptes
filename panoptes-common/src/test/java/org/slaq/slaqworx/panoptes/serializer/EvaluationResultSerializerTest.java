@@ -52,14 +52,14 @@ public class EvaluationResultSerializerTest {
     assertEquals(ruleKey, deserialized.getRuleKey(),
         "deserialized RuleKey should equals() original");
 
-    assertEquals(results.size(), deserialized.getResults().size(),
+    assertEquals(results.size(), deserialized.results().size(),
         "deserialized results should have same size as original");
     assertEquals(defaultResult, deserialized.getResult(defaultGroup),
         "unexpected result for default group");
     assertEquals(group1Result, deserialized.getResult(group1), "unexpected result for group 1");
     assertEquals(group2Result, deserialized.getResult(group2), "unexpected result for group 2");
 
-    assertEquals(proposedResults.size(), deserialized.getProposedResults().size(),
+    assertEquals(proposedResults.size(), deserialized.proposedResults().size(),
         "deserialized proposed results should have same size as original");
     assertEquals(proposedDefaultResult, deserialized.getProposedResult(defaultGroup),
         "unexpected proposed result for default group");

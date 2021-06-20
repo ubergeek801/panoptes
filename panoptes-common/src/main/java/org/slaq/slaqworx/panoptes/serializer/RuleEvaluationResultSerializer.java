@@ -29,8 +29,7 @@ public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEv
 
     long eventId = msg.getEventId();
     IdVersionKeyMsg keyMsg = msg.getPortfolioKey();
-    PortfolioKey portfolioKey =
-        (keyMsg == null ? null : new PortfolioKey(keyMsg.getId(), keyMsg.getVersion()));
+    PortfolioKey portfolioKey = new PortfolioKey(keyMsg.getId(), keyMsg.getVersion());
     PortfolioKey benchmarkKey;
     if (msg.hasBenchmarkKey()) {
       keyMsg = msg.getBenchmarkKey();
@@ -53,17 +52,17 @@ public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEv
   public byte[] write(RuleEvaluationResult result) throws IOException {
     RuleEvaluationResultMsg.Builder msg = RuleEvaluationResultMsg.newBuilder();
 
-    msg.setEventId(result.getEventId());
+    msg.setEventId(result.eventId());
 
     IdVersionKeyMsg.Builder portfolioKey = IdVersionKeyMsg.newBuilder();
-    portfolioKey.setId(result.getPortfolioKey().getId());
-    portfolioKey.setVersion(result.getPortfolioKey().getVersion());
+    portfolioKey.setId(result.portfolioKey().getId());
+    portfolioKey.setVersion(result.portfolioKey().getVersion());
     msg.setPortfolioKey(portfolioKey);
 
-    if (result.getBenchmarkKey() != null) {
+    if (result.benchmarkKey() != null) {
       IdVersionKeyMsg.Builder benchmarkKey = IdVersionKeyMsg.newBuilder();
-      benchmarkKey.setId(result.getBenchmarkKey().getId());
-      benchmarkKey.setVersion(result.getBenchmarkKey().getVersion());
+      benchmarkKey.setId(result.benchmarkKey().getId());
+      benchmarkKey.setVersion(result.benchmarkKey().getVersion());
       msg.setBenchmarkKey(benchmarkKey);
     }
 
@@ -77,7 +76,7 @@ public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEv
       msg.setUpperLimit(DoubleValue.of(result.getUpperLimit()));
     }
 
-    msg.setEvaluationResult(EvaluationResultSerializer.convert(result.getEvaluationResult()));
+    msg.setEvaluationResult(EvaluationResultSerializer.convert(result.evaluationResult()));
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     msg.build().writeTo(out);

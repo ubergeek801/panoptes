@@ -33,12 +33,12 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
 
   public static EvaluationResultMsg convert(EvaluationResult result) {
     IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-    ruleKeyBuilder.setId(result.getRuleKey().getId());
+    ruleKeyBuilder.setId(result.getRuleKey().id());
 
     EvaluationResultMsg.Builder resultBuilder = EvaluationResultMsg.newBuilder();
     resultBuilder.setRuleKey(ruleKeyBuilder);
-    resultBuilder.addAllResult(convertResults(result.getResults()));
-    resultBuilder.addAllProposedResult(convertResults(result.getProposedResults()));
+    resultBuilder.addAllResult(convertResults(result.results()));
+    resultBuilder.addAllProposedResult(convertResults(result.proposedResults()));
 
     return resultBuilder.build();
   }
@@ -66,8 +66,8 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
    */
   protected static ValueResultMsg convert(EvaluationGroup evaluationGroup, ValueResult ruleResult) {
     ValueResultMsg.Builder resultMsgBuilder = ValueResultMsg.newBuilder();
-    resultMsgBuilder.setId(evaluationGroup.getId());
-    String aggregationKey = evaluationGroup.getAggregationKey();
+    resultMsgBuilder.setId(evaluationGroup.id());
+    String aggregationKey = evaluationGroup.aggregationKey();
     if (aggregationKey != null) {
       resultMsgBuilder.setAggregationKey(StringValue.of(aggregationKey));
     }

@@ -17,6 +17,7 @@ public abstract class GenericRule implements Rule {
   private final RuleKey key;
   @Nonnull
   private final String description;
+  @Nonnull
   private final EvaluationGroupClassifier groupClassifier;
   @Nonnull
   private final ArrayList<GroupAggregator> groupAggregators = new ArrayList<>();

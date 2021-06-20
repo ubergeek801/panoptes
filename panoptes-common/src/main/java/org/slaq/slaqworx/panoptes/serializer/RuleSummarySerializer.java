@@ -32,12 +32,12 @@ public class RuleSummarySerializer implements ProtobufSerializer<RuleSummary> {
   @Override
   public byte[] write(RuleSummary rule) throws IOException {
     IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
-    keyBuilder.setId(rule.getKey().getId());
+    keyBuilder.setId(rule.getKey().id());
 
     RuleSummaryMsg.Builder ruleBuilder = RuleSummaryMsg.newBuilder();
     ruleBuilder.setKey(keyBuilder);
-    ruleBuilder.setDescription(rule.getDescription());
-    ruleBuilder.setParameterDescription(rule.getParameterDescription());
+    ruleBuilder.setDescription(rule.description());
+    ruleBuilder.setParameterDescription(rule.parameterDescription());
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ruleBuilder.build().writeTo(out);

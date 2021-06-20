@@ -26,9 +26,9 @@ public class SecurityAttributeGroupClassifierTest {
         new PositionEvaluationContext(position, TestUtil.defaultTestEvaluationContext());
     EvaluationGroup group = classifier.classify(positionContext);
 
-    assertEquals(SecurityAttribute.country.getName(), group.getAggregationKey(),
+    assertEquals(SecurityAttribute.country.getName(), group.aggregationKey(),
         "aggregation key should match SecurityAttribute name");
-    assertEquals(TestUtil.s1.getAttributeValue(SecurityAttribute.country), group.getId(),
+    assertEquals(TestUtil.s1.getAttributeValue(SecurityAttribute.country), group.id(),
         "group ID should match SecurityAttribute.country value");
   }
 

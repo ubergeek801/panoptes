@@ -96,7 +96,7 @@ public class TradeEvaluationResult implements ProtobufSerializable {
    *     a {@link Map} correlating a {@link Rule}'s key with its results
    */
   public void addImpacts(PortfolioKey portfolioKey, Map<RuleKey, EvaluationResult> ruleResults) {
-    ruleResults.forEach((ruleKey, groupResults) -> groupResults.getProposedResults()
+    ruleResults.forEach((ruleKey, groupResults) -> groupResults.proposedResults()
         .forEach((group, proposedResult) -> {
           ValueResult portfolioResult = groupResults.getResult(group);
           addImpact(portfolioKey, ruleKey, group, proposedResult.compare(portfolioResult));

@@ -247,6 +247,7 @@ public class PortfolioEvaluatorTest {
 
     // the duration rule is grouped by currency, so we should find results for USD, NZD, CAD;
     // USD duration = (300 + 600) / (100 + 200) = 3 which should pass
+    System.err.println(durationResults);
     assertTrue(durationResults.getResult(new EvaluationGroup("USD", null)).isPassed(),
         "duration rule should have passed for USD");
     // NZD duration = (1_200 + 1_600) / (300 + 400) = 4 which should pass
@@ -364,60 +365,42 @@ public class PortfolioEvaluatorTest {
     assertEquals(7, top10IssuerResults.size(),
         "unexpected number of groups for top 10 issuer rule");
 
-    top2IssuerResults.getResults().forEach((group, result) -> {
-      switch (group.getId()) {
-      case "ISSFOO":
-        // this concentration alone (30%) is enough to exceed the rule limit (25%)
-        assertFalse(result.isPassed(), "top 2 issuer rule should have failed for ISSFOO");
-        break;
-      case "ISSBAR":
-      case "ISSBAZ":
-      case "ISSABC":
-      case "ISSDEF":
-      case "ISSGHI":
-        // these concentrations are 20% or less so should pass
-        assertTrue(result.isPassed(), "top 2 issuer rule should have passed for " + group.getId());
-        break;
-      default:
-        // the aggregate is 50% so should fail
-        assertFalse(result.isPassed(),
-            "top 2 issuer rule should have failed for aggregate group " + group.getId());
+    top2IssuerResults.results().forEach((group, result) -> {
+      switch (group.id()) {
+      case "ISSFOO" ->
+          // this concentration alone (30%) is enough to exceed the rule limit (25%)
+          assertFalse(result.isPassed(), "top 2 issuer rule should have failed for ISSFOO");
+      case "ISSBAR", "ISSBAZ", "ISSABC", "ISSDEF", "ISSGHI" ->
+          // these concentrations are 20% or less so should pass
+          assertTrue(result.isPassed(), "top 2 issuer rule should have passed for " + group.id());
+      default ->
+          // the aggregate is 50% so should fail
+          assertFalse(result.isPassed(),
+              "top 2 issuer rule should have failed for aggregate group " + group.id());
       }
     });
 
-    top3IssuerResults.getResults().forEach((group, result) -> {
-      switch (group.getId()) {
-      case "ISSFOO":
-      case "ISSBAR":
-      case "ISSBAZ":
-      case "ISSABC":
-      case "ISSDEF":
-      case "ISSGHI":
-        // none of the concentrations are above 30% so should pass the 75% limit
-        assertTrue(result.isPassed(), "top 3 issuer rule should have passed for " + group.getId());
-        break;
-      default:
-        // the aggregate is 70% so should pass
-        assertTrue(result.isPassed(),
-            "top 3 issuer rule should have passed for aggregate group " + group.getId());
+    top3IssuerResults.results().forEach((group, result) -> {
+      switch (group.id()) {
+      case "ISSFOO", "ISSBAR", "ISSBAZ", "ISSABC", "ISSDEF", "ISSGHI" ->
+          // none of the concentrations are above 30% so should pass the 75% limit
+          assertTrue(result.isPassed(), "top 3 issuer rule should have passed for " + group.id());
+      default ->
+          // the aggregate is 70% so should pass
+          assertTrue(result.isPassed(),
+              "top 3 issuer rule should have passed for aggregate group " + group.id());
       }
     });
 
-    top10IssuerResults.getResults().forEach((group, result) -> {
-      switch (group.getId()) {
-      case "ISSFOO":
-      case "ISSBAR":
-      case "ISSBAZ":
-      case "ISSABC":
-      case "ISSDEF":
-      case "ISSGHI":
-        // none of the concentrations are above 30% so should pass the 99.9% limit
-        assertTrue(result.isPassed(), "top 3 issuer rule should have passed for " + group.getId());
-        break;
-      default:
-        // since there are fewer than 10 issuers, the aggregate is 100% so should fail
-        assertFalse(result.isPassed(),
-            "top 10 issuer rule should have failed for aggregate group " + group.getId());
+    top10IssuerResults.results().forEach((group, result) -> {
+      switch (group.id()) {
+      case "ISSFOO", "ISSBAR", "ISSBAZ", "ISSABC", "ISSDEF", "ISSGHI" ->
+          // none of the concentrations are above 30% so should pass the 99.9% limit
+          assertTrue(result.isPassed(), "top 3 issuer rule should have passed for " + group.id());
+      default ->
+          // since there are fewer than 10 issuers, the aggregate is 100% so should fail
+          assertFalse(result.isPassed(),
+              "top 10 issuer rule should have failed for aggregate group " + group.id());
       }
     });
   }
@@ -436,8 +419,8 @@ public class PortfolioEvaluatorTest {
 
     @Nonnull
     @Override
-    public ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
-        @Nonnull EvaluationContext evaluationContext) {
+    public ValueResult eval(@Nonnull PositionSupplier positions,
+        @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
       return new ValueResult(isPass);
     }
   }
@@ -453,8 +436,8 @@ public class PortfolioEvaluatorTest {
 
     @Nonnull
     @Override
-    protected ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
-        @Nonnull EvaluationContext evaluationContext) {
+    protected ValueResult eval(@Nonnull PositionSupplier positions,
+        @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
       throw new RuntimeException("exception test");
     }
   }
@@ -473,8 +456,8 @@ public class PortfolioEvaluatorTest {
 
     @Nonnull
     @Override
-    public ValueResult eval(@Nonnull PositionSupplier positions, @Nonnull EvaluationGroup evaluationGroup,
-        @Nonnull EvaluationContext evaluationContext) {
+    public ValueResult eval(@Nonnull PositionSupplier positions,
+        @Nonnull EvaluationGroup evaluationGroup, @Nonnull EvaluationContext evaluationContext) {
       return new ValueResult(benchmarkKey.equals(positions.getPortfolioKey()));
     }
 

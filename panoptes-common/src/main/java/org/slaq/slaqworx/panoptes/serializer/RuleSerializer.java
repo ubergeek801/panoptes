@@ -110,7 +110,7 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
    */
   public static RuleMsg convert(ConfigurableRule rule) {
     IdKeyMsg.Builder keyBuilder = IdKeyMsg.newBuilder();
-    keyBuilder.setId(rule.getKey().getId());
+    keyBuilder.setId(rule.getKey().id());
 
     // TODO this code is similar to that in RuleMapStore; try to consolidate
     RuleMsg.Builder ruleBuilder = RuleMsg.newBuilder();
@@ -124,13 +124,11 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
       ruleBuilder.setFilter(rule.getGroovyFilter());
     }
     EvaluationGroupClassifier classifier = rule.getGroupClassifier();
-    if (classifier != null) {
-      ruleBuilder.setClassifierType(classifier.getClass().getName());
-      if (classifier instanceof JsonConfigurable) {
-        String jsonConfiguration = ((JsonConfigurable) classifier).getJsonConfiguration();
-        if (jsonConfiguration != null) {
-          ruleBuilder.setClassifierConfiguration(jsonConfiguration);
-        }
+    ruleBuilder.setClassifierType(classifier.getClass().getName());
+    if (classifier instanceof JsonConfigurable) {
+      String jsonConfiguration = ((JsonConfigurable) classifier).getJsonConfiguration();
+      if (jsonConfiguration != null) {
+        ruleBuilder.setClassifierConfiguration(jsonConfiguration);
       }
     }
 
@@ -175,7 +173,7 @@ public class RuleSerializer implements ProtobufSerializer<ConfigurableRule> {
     }
 
     try {
-      Class<T> clazz = (Class<T>) Class.forName(className);
+      @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>) Class.forName(className);
 
       return clazz;
     } catch (ClassNotFoundException e) {

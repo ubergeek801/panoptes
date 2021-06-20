@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.rule;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
@@ -14,7 +15,8 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  */
 public class SecurityAttributeGroupClassifier
     implements EvaluationGroupClassifier, JsonConfigurable {
-  private final SecurityAttribute<?> securityAttribute;
+  private final @Nonnull
+  SecurityAttribute<?> securityAttribute;
 
   /**
    * Creates a new {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based
@@ -23,7 +25,7 @@ public class SecurityAttributeGroupClassifier
    * @param securityAttribute
    *     the {@link SecurityAttribute} on which to classify {@link Position}s
    */
-  public SecurityAttributeGroupClassifier(SecurityAttribute<?> securityAttribute) {
+  public SecurityAttributeGroupClassifier(@Nonnull SecurityAttribute<?> securityAttribute) {
     this.securityAttribute = securityAttribute;
   }
 
@@ -37,7 +39,8 @@ public class SecurityAttributeGroupClassifier
    *
    * @return a {@link SecurityAttributeGroupClassifier} with the specified configuration
    */
-  public static SecurityAttributeGroupClassifier fromJson(String jsonConfiguration) {
+  @Nonnull
+  public static SecurityAttributeGroupClassifier fromJson(@Nonnull String jsonConfiguration) {
     Configuration configuration;
     try {
       configuration =
@@ -51,7 +54,9 @@ public class SecurityAttributeGroupClassifier
   }
 
   @Override
-  public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier) {
+  @Nonnull
+  public EvaluationGroup classify(
+      @Nonnull Supplier<PositionEvaluationContext> positionContextSupplier) {
     PositionEvaluationContext positionContext = positionContextSupplier.get();
 
     Object attributeValue = positionContext.getPosition()
@@ -61,9 +66,9 @@ public class SecurityAttributeGroupClassifier
   }
 
   @Override
+  @Nonnull
   public String getJsonConfiguration() {
-    Configuration configuration = new Configuration();
-    configuration.attribute = getSecurityAttribute().getName();
+    Configuration configuration = new Configuration(getSecurityAttribute().getName());
 
     try {
       return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);
@@ -78,6 +83,7 @@ public class SecurityAttributeGroupClassifier
    *
    * @return the {@link SecurityAttribute}
    */
+  @Nonnull
   public SecurityAttribute<?> getSecurityAttribute() {
     return securityAttribute;
   }
@@ -85,7 +91,7 @@ public class SecurityAttributeGroupClassifier
   /**
    * Mirrors the structure of the JSON configuration.
    */
-  static class Configuration {
-    public String attribute;
+  static record Configuration(@Nonnull String attribute) {
+    // trivial
   }
 }

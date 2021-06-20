@@ -46,7 +46,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    * @return the result of the {@link Rule} evaluation
    */
   @Nonnull
-  public ValueResult evaluate(@Nonnull PositionSupplier positions, EvaluationGroup evaluationGroup,
+  ValueResult evaluate(@Nonnull PositionSupplier positions, EvaluationGroup evaluationGroup,
       @Nonnull EvaluationContext evaluationContext);
 
   /**
@@ -55,7 +55,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    * @return the {@link Rule} description
    */
   @Nonnull
-  public String getDescription();
+  String getDescription();
 
   /**
    * Obtains this {@link Rule}'s {@link GroupAggregator}s (if any) as an {@link Iterable}.
@@ -63,7 +63,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    * @return a (possibly empty) {@link Iterable} of {@link GroupAggregator}s
    */
   @Nonnull
-  public Iterable<GroupAggregator> getGroupAggregators();
+  Iterable<GroupAggregator> getGroupAggregators();
 
   /**
    * Obtain's this {@link Rule}'s (possibly {@code null}) {@link EvaluationGroupClassifier}.
@@ -71,7 +71,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    * @return the {@link Rule}'s {@link EvaluationGroupClassifier}
    */
   @Nonnull
-  public EvaluationGroupClassifier getGroupClassifier();
+  EvaluationGroupClassifier getGroupClassifier();
 
   /**
    * Obtains a description (more or less suitable for human viewing) of this {@link Rule}'s
@@ -80,7 +80,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    * @return a {@link String} describing this {@link Rule}'s parameters
    */
   @Nonnull
-  public String getParameterDescription();
+  String getParameterDescription();
 
   /**
    * Obtains a {@link Predicate} which serves as a pre-evaluation {@link Position} filter. A {@code
@@ -89,7 +89,7 @@ public interface Rule extends BenchmarkComparable, Keyed<RuleKey> {
    * @return a {@link Predicate} to be used to filter {@link Position}s for evaluation, or {@code
    *     null} to include all {@link Position}s
    */
-  public default Predicate<PositionEvaluationContext> getPositionFilter() {
+  default Predicate<PositionEvaluationContext> getPositionFilter() {
     return null;
   }
 }

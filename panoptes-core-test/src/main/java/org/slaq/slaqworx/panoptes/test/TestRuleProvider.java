@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.test;
 
 import java.util.HashMap;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -108,7 +109,7 @@ public class TestRuleProvider implements RuleProvider {
   }
 
   @Override
-  public Rule getRule(RuleKey key) {
+  public Rule getRule(@Nonnull RuleKey key) {
     return ruleMap.get(key);
   }
 

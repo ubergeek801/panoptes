@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.function.BiFunction;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.RatingNotch;
 import org.slaq.slaqworx.panoptes.asset.RatingScale;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -27,6 +28,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
    *
    * @return a {@link ValueProvider} for converting {@link BigDecimal} values
    */
+  @Nonnull
   static ValueProvider<BigDecimal> forBigDecimal() {
     return (v, c) -> (v == null ? null : v.doubleValue());
   }
@@ -44,6 +46,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
    * @throws IllegalArgumentException
    *     if a {@link ValueProvider} is not available for the requested type
    */
+  @Nonnull
   static <T> ValueProvider<T> forClass(Class<T> clazz) {
     ValueProvider<T> provider = forClassIfAvailable(clazz);
     if (provider != null) {
@@ -90,6 +93,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
    *
    * @return a {@link ValueProvider} for converting {@link LocalDate} values
    */
+  @Nonnull
   static ValueProvider<LocalDate> forDaysUntilDate() {
     // TODO get the effective current date from the EvaluationContext
     return (v, c) -> (v == null ? null : (double) LocalDate.now().until(v, ChronoUnit.DAYS));
@@ -100,6 +104,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
    *
    * @return a {@link ValueProvider} for handling {@link Double} values
    */
+  @Nonnull
   static ValueProvider<Double> forDouble() {
     return (v, c) -> v;
   }

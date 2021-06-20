@@ -6,11 +6,12 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 /**
  * A key used to reference {@link Rule}s.
  *
+ * @param id
+ *     the ID to assign to the key, or {@code null} to generate one
+ *
  * @author jeremy
  */
-public class RuleKey implements ProtobufSerializable {
-  private final String id;
-
+public record RuleKey(String id) implements ProtobufSerializable {
   /**
    * Creates a new {@link RuleKey} with the given ID.
    *
@@ -19,36 +20,6 @@ public class RuleKey implements ProtobufSerializable {
    */
   public RuleKey(String id) {
     this.id = (id == null ? IdVersionKey.generateId() : id);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    RuleKey other = (RuleKey) obj;
-
-    return id.equals(other.id);
-  }
-
-  /**
-   * Obtains this {@link RuleKey}'s ID.
-   *
-   * @return the ID underlying this key
-   */
-  public String getId() {
-    return id;
-  }
-
-  @Override
-  public int hashCode() {
-    return id.hashCode();
   }
 
   @Override

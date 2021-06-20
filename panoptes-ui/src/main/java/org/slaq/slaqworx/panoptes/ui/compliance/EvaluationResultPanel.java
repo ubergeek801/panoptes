@@ -5,6 +5,7 @@ import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataPr
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.data.renderer.NumberRenderer;
+import java.io.Serial;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final NumberFormat valueNumberFormat;
@@ -53,10 +55,10 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
     addColumn(new NumberRenderer<>(EvaluationResultRow::getBenchmarkValue, valueNumberFormat))
         .setAutoWidth(true).setHeader("Benchmark");
     addColumn(EvaluationResultRow::getThreshold).setAutoWidth(true).setHeader("Threshold");
-    addColumn(r -> r.isPassed() == null ? null : (r.isPassed() ? "Pass" : "Fail"))
-        .setAutoWidth(true).setHeader("Result");
+    addColumn(r -> r.isPassed() ? "Pass" : "Fail").setAutoWidth(true).setHeader("Result");
 
     dataProvider = new AbstractBackEndHierarchicalDataProvider<>() {
+      @Serial
       private static final long serialVersionUID = 1L;
 
       @Override
@@ -100,7 +102,7 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
    */
   public void setResult(Map<RuleKey, EvaluationResult> evaluationResult) {
     Comparator<? super EvaluationResultRow> comparator =
-        (r1, r2) -> r1.getRuleDescription().compareTo(r2.getRuleDescription());
+        Comparator.comparing(EvaluationResultRow::getRuleDescription);
     portfolioResults =
         evaluationResult.entrySet().stream().map(e -> new PortfolioRuleResultAdapter(e, assetCache))
             .sorted(comparator).collect(Collectors.toList());

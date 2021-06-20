@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 
 /**
  * The interface for a service that provides a predetermined set of {@link Rule}s.
@@ -14,5 +15,6 @@ public interface RulesProvider {
    *
    * @return the {@link Rule}s furnished by this {@link RulesProvider}
    */
-  public Stream<Rule> getRules();
+  @Nonnull
+  Stream<Rule> getRules();
 }

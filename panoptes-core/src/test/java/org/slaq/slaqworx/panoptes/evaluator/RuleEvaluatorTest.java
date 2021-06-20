@@ -86,7 +86,7 @@ public class RuleEvaluatorTest {
     EvaluationResult result =
         new RuleEvaluator(rule, TestUtil.p1, TestUtil.defaultTestEvaluationContext()).call();
     assertNotNull(result, "result should never be null");
-    Map<EvaluationGroup, ValueResult> groupedResults = result.getResults();
+    Map<EvaluationGroup, ValueResult> groupedResults = result.results();
     assertNotNull(groupedResults, "result groups should never be null");
     assertEquals(1, groupedResults.size(),
         "a single (filtered) Position should result in a single group");
@@ -136,7 +136,7 @@ public class RuleEvaluatorTest {
     EvaluationResult results = new RuleEvaluator(rule, portfolio, context).call();
 
     // there was no grouping so there should be only one result
-    assertEquals(1, results.getResults().size(), "unexpected number of results");
+    assertEquals(1, results.results().size(), "unexpected number of results");
     ValueResult result = results.getResult(EvaluationGroup.defaultGroup());
     assertNotNull(result, "expected to find result for default group");
     // the Rule should have failed due to a NoDataException

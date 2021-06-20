@@ -132,7 +132,7 @@ public class DummyPortfolioMapLoader
   }
 
   @Override
-  public ConfigurableRule getRule(RuleKey key) {
+  public ConfigurableRule getRule(@Nonnull RuleKey key) {
     return ruleMap.get(key);
   }
 

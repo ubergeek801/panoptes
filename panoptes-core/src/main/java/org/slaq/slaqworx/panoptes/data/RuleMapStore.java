@@ -45,8 +45,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
   @Transactional
   public void delete(RuleKey key) {
     getJdbi().withHandle(handle -> {
-      handle.execute("delete from portfolio_rule where rule_id = ?", key.getId());
-      return handle.execute("delete from " + getTableName() + " where id = ?", key.getId());
+      handle.execute("delete from portfolio_rule where rule_id = ?", key.id());
+      return handle.execute("delete from " + getTableName() + " where id = ?", key.id());
     });
   }
 
@@ -69,16 +69,11 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     String classifierType;
     String classifierConfiguration;
     EvaluationGroupClassifier classifier = rule.getGroupClassifier();
-    if (classifier == null) {
-      classifierType = null;
-      classifierConfiguration = null;
-    } else {
-      classifierType = classifier.getClass().getName();
-      classifierConfiguration = (classifier instanceof JsonConfigurable ?
-          ((JsonConfigurable) classifier).getJsonConfiguration() : null);
-    }
+    classifierType = classifier.getClass().getName();
+    classifierConfiguration = (classifier instanceof JsonConfigurable ?
+        ((JsonConfigurable) classifier).getJsonConfiguration() : null);
 
-    batch.bind(1, rule.getKey().getId());
+    batch.bind(1, rule.getKey().id());
     batch.bind(2, rule.getDescription());
     batch.bind(3, rule.getClass().getName());
     batch.bind(4, rule.getJsonConfiguration());
@@ -94,7 +89,7 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
 
   @Override
   protected Object[] getKeyComponents(RuleKey key) {
-    return new Object[] {key.getId()};
+    return new Object[] {key.id()};
   }
 
   @Override

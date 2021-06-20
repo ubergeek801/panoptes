@@ -60,7 +60,7 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
     this.processState = processState;
 
     ArrayList<RuleEvaluationResult> results = new ArrayList<>();
-    switch (event.getSource()) {
+    switch (event.source()) {
     case BENCHMARK:
       handleBenchmarkResultEvent(event, results);
       break;
@@ -93,7 +93,7 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   protected void handleBenchmarkResultEvent(@Nonnull RuleEvaluationResult benchmarkResult,
       @Nonnull Collection<RuleEvaluationResult> comparedResults) {
     // store the benchmark result in the process state
-    EvaluationResult benchmarkEvaluationResult = benchmarkResult.getEvaluationResult();
+    EvaluationResult benchmarkEvaluationResult = benchmarkResult.evaluationResult();
     processState.benchmarkResult = benchmarkEvaluationResult;
 
     // check whether we have the corresponding portfolio (base) results yet
@@ -121,7 +121,7 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
       @Nonnull Collection<RuleEvaluationResult> comparedResults) {
     // if the portfolio does not have a benchmark or if the rule does not support benchmarks, then
     // we can pass the result through and forget about it
-    PortfolioKey benchmarkKey = portfolioResult.getBenchmarkKey();
+    PortfolioKey benchmarkKey = portfolioResult.benchmarkKey();
     if (benchmarkKey == null || !portfolioResult.isBenchmarkSupported()) {
       comparedResults.add(portfolioResult);
       return;
@@ -157,11 +157,11 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
       @Nonnull RuleEvaluationResult baseResult, @Nonnull EvaluationResult benchmarkResult) {
     EvaluationResult benchmarkComparisonResult =
         new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
-            .compare(baseResult.getEvaluationResult(), benchmarkResult, baseResult);
+            .compare(baseResult.evaluationResult(), benchmarkResult, baseResult);
 
     RuleEvaluationResult finalResult =
-        new RuleEvaluationResult(baseResult.getEventId(), baseResult.getPortfolioKey(),
-            baseResult.getBenchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
+        new RuleEvaluationResult(baseResult.eventId(), baseResult.portfolioKey(),
+            baseResult.benchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
             baseResult.isBenchmarkSupported(), baseResult.getLowerLimit(),
             baseResult.getUpperLimit(), benchmarkComparisonResult);
     comparedResults.add(finalResult);

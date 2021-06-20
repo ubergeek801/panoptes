@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 
 /**
@@ -17,8 +18,9 @@ public class DefaultEvaluationGroupClassifier implements EvaluationGroupClassifi
     // nothing to do
   }
 
+  @Nonnull
   @Override
-  public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier) {
+  public EvaluationGroup classify(@Nonnull Supplier<PositionEvaluationContext> positionContextSupplier) {
     return EvaluationGroup.defaultGroup();
   }
 }

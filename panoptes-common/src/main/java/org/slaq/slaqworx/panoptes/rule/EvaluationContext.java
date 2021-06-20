@@ -54,7 +54,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    * @param evaluationMode
    *     the evaluation mode in which to evaluate
    */
-  public EvaluationContext(EvaluationMode evaluationMode) {
+  public EvaluationContext(@Nonnull EvaluationMode evaluationMode) {
     this(null, null, evaluationMode, null);
   }
 
@@ -69,7 +69,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *     a (possibly {@code null} or empty) {@link Map} relating a {@link SecurityKey} to a {@link
    *     SecurityAttributes} which should override the current values
    */
-  public EvaluationContext(EvaluationMode evaluationMode,
+  public EvaluationContext(@Nonnull EvaluationMode evaluationMode,
       Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
     this(null, null, evaluationMode, securityAttributeOverrides);
   }
@@ -100,7 +100,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *     the evaluation mode in which to evaluate
    */
   public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
-      EvaluationMode evaluationMode) {
+      @Nonnull EvaluationMode evaluationMode) {
     this(securityProvider, portfolioProvider, evaluationMode, null);
   }
 
@@ -137,7 +137,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    * @param result
    *     the benchmark result corresponding to the {@link Rule}
    */
-  public void cacheBenchmarkValue(RuleKey ruleKey, EvaluationResult result) {
+  public void cacheBenchmarkValue(@Nonnull RuleKey ruleKey, @Nonnull EvaluationResult result) {
     benchmarkResults.put(ruleKey, result);
   }
 
@@ -155,6 +155,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *
    * @return a new {@link EvaluationContext} copying this one
    */
+  @Nonnull
   public EvaluationContext copy() {
     return new EvaluationContext(securityProvider, portfolioProvider, evaluationMode,
         securityOverrides);

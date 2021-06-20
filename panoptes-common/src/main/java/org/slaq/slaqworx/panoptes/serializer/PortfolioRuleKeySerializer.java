@@ -38,7 +38,7 @@ public class PortfolioRuleKeySerializer implements ProtobufSerializer<PortfolioR
     portfolioKeyBuilder.setVersion(key.portfolioKey().getVersion());
 
     IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-    ruleKeyBuilder.setId(key.ruleKey().getId());
+    ruleKeyBuilder.setId(key.ruleKey().id());
 
     PortfolioRuleKeyMsg.Builder keyBuilder = PortfolioRuleKeyMsg.newBuilder();
     keyBuilder.setPortfolioKey(portfolioKeyBuilder);

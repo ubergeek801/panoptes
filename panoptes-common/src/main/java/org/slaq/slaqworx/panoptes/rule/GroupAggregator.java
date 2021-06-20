@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
 
@@ -26,7 +27,8 @@ public interface GroupAggregator {
    *     filtered) while adding zero or more new mappings of {@link EvaluationGroup}s to their
    *     constituent {@link Position}s
    */
-  public Map<EvaluationGroup, PositionSupplier> aggregate(
-      Map<EvaluationGroup, PositionSupplier> classifiedPositions,
-      EvaluationContext evaluationContext);
+  @Nonnull
+  Map<EvaluationGroup, PositionSupplier> aggregate(
+      @Nonnull Map<EvaluationGroup, PositionSupplier> classifiedPositions,
+      @Nonnull EvaluationContext evaluationContext);
 }

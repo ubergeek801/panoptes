@@ -48,7 +48,7 @@ public class ConcentrationRule extends LimitRule {
    *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
    *     implement {@link GroupAggregator}
    */
-  public ConcentrationRule(RuleKey key, String description,
+  public ConcentrationRule(RuleKey key, @Nonnull String description,
       Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit,
       EvaluationGroupClassifier groupClassifier) {
     super(key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
@@ -72,8 +72,8 @@ public class ConcentrationRule extends LimitRule {
    *
    * @return a {@link ConcentrationRule} with the specified configuration
    */
-  public static ConcentrationRule fromJson(String jsonConfiguration, RuleKey key,
-      String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
+  public static ConcentrationRule fromJson(@Nonnull String jsonConfiguration, RuleKey key,
+      @Nonnull String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
     Configuration configuration;
     try {
       configuration =
@@ -103,7 +103,8 @@ public class ConcentrationRule extends LimitRule {
   }
 
   @Override
-  protected double getValue(@Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
+  protected double getValue(@Nonnull PositionSupplier positions,
+      @Nonnull EvaluationContext evaluationContext) {
     // ConcentrationRule works like a LimitRule in which the calculated value is scaled by the
     // total amount of the Portfolio. (Eventually this could support scaling by other aggregate
     // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
@@ -121,7 +122,7 @@ public class ConcentrationRule extends LimitRule {
         return true;
       }
 
-      if (e instanceof RuntimeException r)  {
+      if (e instanceof RuntimeException r) {
         throw r;
       }
       // TODO wrap in a better exception

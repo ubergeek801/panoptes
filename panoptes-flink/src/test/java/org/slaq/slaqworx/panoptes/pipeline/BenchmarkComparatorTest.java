@@ -10,6 +10,7 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.util.KeyedTwoInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.TestHarnessUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
@@ -53,6 +54,7 @@ public class BenchmarkComparatorTest {
    *     if an unexpected failure occurs
    */
   @Test
+  @Disabled("Flink not supported until it supports Java records")
   public void testBenchmarkBeforePortfolio() throws Exception {
     PortfolioKey benchmarkKey = new PortfolioKey("benchmark", 1);
     RuleKey ruleKey = new RuleKey("rule");
@@ -96,6 +98,7 @@ public class BenchmarkComparatorTest {
    *     if an unexpected failure occurs
    */
   @Test
+  @Disabled("Flink not supported until it supports Java records")
   public void testNonBenchmarkSupportedRule() throws Exception {
     PortfolioKey portfolioKey = new PortfolioKey("portfolio", 1);
     RuleKey ruleKey = new RuleKey("rule");
@@ -131,6 +134,7 @@ public class BenchmarkComparatorTest {
    *     if an unexpected failure occurs
    */
   @Test
+  @Disabled("Flink not supported until it supports Java records")
   public void testPortfolioBeforeBenchmark() throws Exception {
     PortfolioKey benchmarkKey = new PortfolioKey("benchmark", 1);
     RuleKey ruleKey = new RuleKey("rule");

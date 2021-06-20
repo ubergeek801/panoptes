@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.cache.RuleSummarizer;
@@ -26,7 +27,7 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
    * A {@link Comparator} that compares {@link EvaluationGroup}s lexically by ID.
    */
   private static final Comparator<? super Entry<EvaluationGroup, ValueResult>> groupComparator =
-      ((e1, o2) -> e1.getKey().getId().compareTo(o2.getKey().getId()));
+      (Comparator.comparing(e -> e.getKey().id()));
 
   private final Map.Entry<RuleKey, EvaluationResult> evaluationResult;
   private final AssetCache assetCache;
@@ -58,6 +59,7 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   }
 
   @Override
+  @Nonnull
   public Stream<EvaluationResultRow> getChildren() {
     return getGroupResults().entrySet().stream().sorted(groupComparator)
         .map(e -> new GroupResultAdapter(this, e));
@@ -79,8 +81,9 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   }
 
   @Override
+  @Nonnull
   public String getRuleDescription() {
-    return getRule().getDescription() + " (" + getRule().getParameterDescription() + ")";
+    return getRule().description() + " (" + getRule().parameterDescription() + ")";
   }
 
   /**
@@ -88,8 +91,9 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
    *
    * @return a short {@link Rule} description
    */
+  @Nonnull
   public String getShortRuleDescription() {
-    return getRule().getDescription();
+    return getRule().description();
   }
 
   @Override
@@ -105,7 +109,7 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   }
 
   @Override
-  public Boolean isPassed() {
+  public boolean isPassed() {
     return evaluationResult.getValue().isPassed();
   }
 
@@ -115,7 +119,8 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
    *
    * @return a {@link Map} associating {@link EvaluationGroup} to {@link ValueResult}
    */
+  @Nonnull
   protected Map<EvaluationGroup, ValueResult> getGroupResults() {
-    return evaluationResult.getValue().getResults();
+    return evaluationResult.getValue().results();
   }
 }

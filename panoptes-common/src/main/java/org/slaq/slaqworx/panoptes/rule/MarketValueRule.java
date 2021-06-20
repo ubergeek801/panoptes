@@ -32,7 +32,7 @@ public class MarketValueRule extends LimitRule {
    * @param upperLimit
    *     the upper limit of acceptable concentration values
    */
-  public MarketValueRule(RuleKey key, String description,
+  public MarketValueRule(RuleKey key, @Nonnull String description,
       Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit) {
     super(key, description, positionFilter, lowerLimit, upperLimit, null);
   }
@@ -54,8 +54,9 @@ public class MarketValueRule extends LimitRule {
    *
    * @return a {@link MarketValueRule} with the specified configuration
    */
-  public static MarketValueRule fromJson(String jsonConfiguration, RuleKey key, String description,
-      String groovyFilter, EvaluationGroupClassifier groupClassifier) {
+  @Nonnull
+  public static MarketValueRule fromJson(@Nonnull String jsonConfiguration, RuleKey key,
+      @Nonnull String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
     Configuration configuration;
     try {
       configuration =
@@ -71,6 +72,7 @@ public class MarketValueRule extends LimitRule {
   }
 
   @Override
+  @Nonnull
   public String getJsonConfiguration() {
     Configuration configuration = new Configuration();
     configuration.lowerLimit = getLowerLimit();
@@ -85,7 +87,8 @@ public class MarketValueRule extends LimitRule {
   }
 
   @Override
-  protected double getValue(@Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
+  protected double getValue(@Nonnull PositionSupplier positions,
+      @Nonnull EvaluationContext evaluationContext) {
     TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
 
     return calculator.calculate(positions.getPositionsWithContext(evaluationContext));

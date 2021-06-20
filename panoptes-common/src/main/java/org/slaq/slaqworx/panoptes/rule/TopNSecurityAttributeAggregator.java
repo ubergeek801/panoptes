@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionSet;
 import org.slaq.slaqworx.panoptes.asset.PositionSupplier;
@@ -48,7 +49,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
    *     a JSON configuration specifying the {@link SecurityAttribute} on which to aggregate {@link
    *     Position}s
    */
-  public static TopNSecurityAttributeAggregator fromJson(String jsonConfiguration) {
+  @Nonnull
+  public static TopNSecurityAttributeAggregator fromJson(@Nonnull String jsonConfiguration) {
     Configuration configuration;
     try {
       configuration =
@@ -63,9 +65,10 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
   }
 
   @Override
+  @Nonnull
   public Map<EvaluationGroup, PositionSupplier> aggregate(
-      Map<EvaluationGroup, PositionSupplier> classifiedPositions,
-      EvaluationContext evaluationContext) {
+      @Nonnull Map<EvaluationGroup, PositionSupplier> classifiedPositions,
+      @Nonnull EvaluationContext evaluationContext) {
     if (classifiedPositions.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -114,11 +117,10 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     return filteredClassifiedPositions;
   }
 
+  @Nonnull
   @Override
   public String getJsonConfiguration() {
-    Configuration configuration = new Configuration();
-    configuration.attribute = getSecurityAttribute().getName();
-    configuration.count = count;
+    Configuration configuration = new Configuration(getSecurityAttribute().getName(), count);
 
     try {
       return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);
@@ -131,8 +133,7 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
   /**
    * Mirrors the JSON configuration.
    */
-  static class Configuration {
-    public String attribute;
-    public int count;
+  static record Configuration(@Nonnull String attribute, int count) {
+    // trivial
   }
 }

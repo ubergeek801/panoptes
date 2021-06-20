@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -23,7 +24,9 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   private static final ConcurrentHashMap<String, GroovyPositionFilter> expressionFilterMap =
       new ConcurrentHashMap<>(25_000);
   private static final Pattern expressionTranslationPattern = Pattern.compile("s\\.(\\w+)");
+  @Nonnull
   private final String expression;
+  @Nonnull
   private final Predicate<PositionEvaluationContext> groovyFilter;
 
   /**
@@ -33,7 +36,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
    * @param expression
    *     a Groovy expression suitable for use as a {@link Position} filter
    */
-  private GroovyPositionFilter(String expression) {
+  private GroovyPositionFilter(@Nonnull String expression) {
     this.expression = expression;
 
     // translate "shorthand" expressions like s.coupon into an equivalent
@@ -63,6 +66,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     }
 
     try {
+      @SuppressWarnings("unchecked")
       Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
           (Constructor<Predicate<PositionEvaluationContext>>) filterClass.getConstructor();
       groovyFilter = filterClassConstructor.newInstance();
@@ -81,7 +85,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
    * @return a {@link GroovyPositionFilter} compiled from the given expression, or {@code null} if
    *     the expression is empty
    */
-  public static GroovyPositionFilter of(String expression) {
+  public static GroovyPositionFilter of(@Nonnull String expression) {
     if (StringUtils.isEmpty(expression)) {
       return null;
     }
@@ -94,12 +98,13 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
    *
    * @return a Groovy expression
    */
+  @Nonnull
   public String getExpression() {
     return expression;
   }
 
   @Override
-  public boolean test(PositionEvaluationContext evaluationContext) {
+  public boolean test(@Nonnull PositionEvaluationContext evaluationContext) {
     try {
       return groovyFilter.test(evaluationContext);
     } catch (Exception e) {
@@ -121,7 +126,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
    *
    * @return a {@link String} containing a Groovy class definition
    */
-  protected String toClassDefString(String expression, boolean isCompileStatic) {
+  @Nonnull
+  protected String toClassDefString(@Nonnull String expression, boolean isCompileStatic) {
     StringBuilder classDef = new StringBuilder("package org.slaq.slaqworx.panoptes.rule\n");
     classDef.append("import " + Predicate.class.getName() + "\n");
     classDef.append("import " + EvaluationContext.class.getName() + "\n");

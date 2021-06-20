@@ -252,7 +252,7 @@ public class PanoptesPipelineConfig {
             RuleEvaluationResultSerializer.class.getCanonicalName());
 
     return KafkaSinks.kafka(portfolioEvaluationResultSinkProperties, portfolioEvaluationResultTopic,
-        RuleEvaluationResult::getPortfolioKey, r -> r);
+        RuleEvaluationResult::portfolioKey, r -> r);
   }
 
   protected Properties portfolioSourceProperties() {

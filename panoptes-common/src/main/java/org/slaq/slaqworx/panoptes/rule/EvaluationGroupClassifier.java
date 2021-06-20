@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.rule;
 
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.Position;
 
@@ -17,7 +18,8 @@ public interface EvaluationGroupClassifier {
    *
    * @return the default classifier
    */
-  public static EvaluationGroupClassifier defaultClassifier() {
+  @Nonnull
+  static EvaluationGroupClassifier defaultClassifier() {
     return new DefaultEvaluationGroupClassifier();
   }
 
@@ -29,7 +31,8 @@ public interface EvaluationGroupClassifier {
    *
    * @return the {@link EvaluationGroup} to be applied to the {@link Position}
    */
-  public default EvaluationGroup classify(PositionEvaluationContext positionContext) {
+  @Nonnull
+  default EvaluationGroup classify(@Nonnull PositionEvaluationContext positionContext) {
     return classify(() -> positionContext);
   }
 
@@ -42,5 +45,6 @@ public interface EvaluationGroupClassifier {
    *
    * @return the {@link EvaluationGroup} to be applied to the {@link Position}
    */
-  public EvaluationGroup classify(Supplier<PositionEvaluationContext> positionContextSupplier);
+  @Nonnull
+  EvaluationGroup classify(@Nonnull Supplier<PositionEvaluationContext> positionContextSupplier);
 }

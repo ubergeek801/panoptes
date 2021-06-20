@@ -87,7 +87,7 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
   }
 
   @Override
-  public double getMarketValue(EvaluationContext evaluationContext) {
+  public double getMarketValue(@Nonnull EvaluationContext evaluationContext) {
     return evaluationContext.getMarketValue(positions);
   }
 

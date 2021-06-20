@@ -171,7 +171,7 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
         portfolio.getRules().forEach(rule -> {
           batch.bind(1, portfolio.getKey().getId());
           batch.bind(2, portfolio.getKey().getVersion());
-          batch.bind(3, rule.getKey().getId());
+          batch.bind(3, rule.getKey().id());
           batch.add();
         });
         batch.execute();

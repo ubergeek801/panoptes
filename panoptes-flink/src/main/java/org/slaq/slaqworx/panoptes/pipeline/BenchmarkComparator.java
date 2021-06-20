@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.io.Serial;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.configuration.Configuration;
@@ -25,6 +26,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 public class BenchmarkComparator extends
     KeyedCoProcessFunction<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
         RuleEvaluationResult> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final ValueStateDescriptor<RuleEvaluationResult>
@@ -46,7 +48,7 @@ public class BenchmarkComparator extends
   }
 
   @Override
-  public void open(Configuration parameters) throws Exception {
+  public void open(Configuration parameters) {
     baseResultState = getRuntimeContext().getState(PORTFOLIO_RESULT_STATE_DESCRIPTOR);
     benchmarkResultState = getRuntimeContext().getState(BENCHMARK_RESULT_STATE_DESCRIPTOR);
   }
@@ -60,7 +62,7 @@ public class BenchmarkComparator extends
 
     // if the portfolio does not have a benchmark or if the rule does not support benchmarks,
     // then we can pass the result through and forget about it
-    PortfolioKey benchmarkKey = portfolioResult.getBenchmarkKey();
+    PortfolioKey benchmarkKey = portfolioResult.benchmarkKey();
     if (benchmarkKey == null || !portfolioResult.isBenchmarkSupported()) {
       out.collect(portfolioResult);
       return;
@@ -89,7 +91,7 @@ public class BenchmarkComparator extends
     // the element being processed is a benchmark rule evaluation result
 
     // store the benchmark result in the process state
-    EvaluationResult benchmarkEvaluationResult = benchmarkResult.getEvaluationResult();
+    EvaluationResult benchmarkEvaluationResult = benchmarkResult.evaluationResult();
     benchmarkResultState.update(benchmarkEvaluationResult);
 
     // check whether we have the corresponding portfolio (base) results yet
@@ -117,11 +119,11 @@ public class BenchmarkComparator extends
       RuleEvaluationResult baseResult, EvaluationResult benchmarkResult) {
     EvaluationResult benchmarkComparisonResult =
         new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
-            .compare(baseResult.getEvaluationResult(), benchmarkResult, baseResult);
+            .compare(baseResult.evaluationResult(), benchmarkResult, baseResult);
 
     RuleEvaluationResult finalResult =
-        new RuleEvaluationResult(baseResult.getEventId(), baseResult.getPortfolioKey(),
-            baseResult.getBenchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
+        new RuleEvaluationResult(baseResult.eventId(), baseResult.portfolioKey(),
+            baseResult.benchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
             baseResult.isBenchmarkSupported(), baseResult.getLowerLimit(),
             baseResult.getUpperLimit(), benchmarkComparisonResult);
     out.collect(finalResult);

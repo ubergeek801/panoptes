@@ -66,14 +66,14 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
       portfolioKeyBuilder.setId(portfolioRuleKey.portfolioKey().getId());
       portfolioKeyBuilder.setVersion(portfolioRuleKey.portfolioKey().getVersion());
       IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-      ruleKeyBuilder.setId(portfolioRuleKey.ruleKey().getId());
+      ruleKeyBuilder.setId(portfolioRuleKey.ruleKey().id());
 
       impactMsgBuilder.setPortfolioKey(portfolioKeyBuilder);
       impactMsgBuilder.setRuleKey(ruleKeyBuilder);
       impactMap.forEach((evaluationGroup, impact) -> {
         RuleImpactMsg.Builder ruleImpactMsgBuilder = RuleImpactMsg.newBuilder();
-        ruleImpactMsgBuilder.setId(evaluationGroup.getId());
-        String aggregationGroup = evaluationGroup.getAggregationKey();
+        ruleImpactMsgBuilder.setId(evaluationGroup.id());
+        String aggregationGroup = evaluationGroup.aggregationKey();
         if (aggregationGroup != null) {
           ruleImpactMsgBuilder.setAggregationKey(StringValue.of(aggregationGroup));
         }

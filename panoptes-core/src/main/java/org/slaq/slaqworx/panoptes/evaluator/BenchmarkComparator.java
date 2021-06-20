@@ -37,20 +37,15 @@ public class BenchmarkComparator {
     Double lowerLimit = rule.getLowerLimit();
     Double upperLimit = rule.getUpperLimit();
 
-    Map<EvaluationGroup, ValueResult> baseResults = baseResult.getResults().entrySet().stream().map(
+    Map<EvaluationGroup, ValueResult> baseResults = baseResult.results().entrySet().stream().map(
         e -> Pair.of(e.getKey(),
-            compare(e.getValue(), benchmarkResult.getResults().get(e.getKey()), lowerLimit,
+            compare(e.getValue(), benchmarkResult.results().get(e.getKey()), lowerLimit,
                 upperLimit))).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-    Map<EvaluationGroup, ValueResult> proposedResults;
-    if (baseResult.getProposedResults() != null) {
-      proposedResults = baseResult.getProposedResults().entrySet().stream().map(e -> Pair
-          .of(e.getKey(),
-              compare(e.getValue(), benchmarkResult.getResults().get(e.getKey()), lowerLimit,
-                  upperLimit))).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-    } else {
-      proposedResults = null;
-    }
+    Map<EvaluationGroup, ValueResult> proposedResults =
+        baseResult.proposedResults().entrySet().stream().map(e -> Pair.of(e.getKey(),
+            compare(e.getValue(), benchmarkResult.results().get(e.getKey()), lowerLimit,
+                upperLimit))).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
     return new EvaluationResult(baseResult.getRuleKey(), baseResults, proposedResults);
   }
