@@ -48,9 +48,6 @@ public class PortfolioEvaluationService {
    * Obtains a {@link ServiceFactory} which provides a shared {@link PortfolioEvaluationService}
    * instance.
    *
-   * @param assetCache
-   *     the {@link AssetCache} to be used to resolve data references
-   *
    * @return a {@link ServiceFactory}
    */
   @Nonnull

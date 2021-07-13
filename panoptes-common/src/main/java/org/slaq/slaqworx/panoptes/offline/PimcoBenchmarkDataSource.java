@@ -43,10 +43,10 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
   private static final Logger LOG = LoggerFactory.getLogger(PimcoBenchmarkDataSource.class);
 
-  private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-02-2019.tsv";
-  private static final String GLAD_CONSTITUENTS_FILE = "PIMCO_GLAD_Constituents_07-02-2019.tsv";
-  private static final String ILAD_CONSTITUENTS_FILE = "PIMCO_ILAD_Constituents_07-02-2019.tsv";
-  private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-02-2019.tsv";
+  private static final String EMAD_CONSTITUENTS_FILE = "PIMCO_EMAD_Constituents_07-03-2021.tsv";
+  private static final String GLAD_CONSTITUENTS_FILE = "PIMCO_GLAD_Constituents_07-03-2021.tsv";
+  private static final String ILAD_CONSTITUENTS_FILE = "PIMCO_ILAD_Constituents_07-03-2021.tsv";
+  private static final String PGOV_CONSTITUENTS_FILE = "PIMCO_PGOV_Constituents_07-03-2021.tsv";
 
   private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("M/d/yyyy");
   private static final DecimalFormat usdFormatter = new DecimalFormat("#,##0.00");
@@ -118,7 +118,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   }
 
   @Override
-  public Security getSecurity(@Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext) {
+  public Security getSecurity(@Nonnull SecurityKey key,
+      @Nonnull EvaluationContext evaluationContext) {
     return securityMap.get(key);
   }
 
@@ -255,6 +256,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         attributes.put(SecurityAttribute.price, price.doubleValue());
         Security security =
             securityMap.computeIfAbsent(new SecurityKey(isin), i -> new Security(attributes));
+        generateDummySecurities(security);
 
         positions.add(
             new SimplePosition(marketValueUsd.divide(price, RoundingMode.HALF_UP).doubleValue(),
@@ -275,5 +277,33 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
         .getSymbol();
     LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
         positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue), averageRating);
+  }
+
+  /**
+   * Generates some number of "dummy" securities based on the source security, and adds them to the
+   * security map.
+   *
+   * @param sourceSecurity
+   *     the {@link Security} from which to generate dummy securities
+   */
+  protected void generateDummySecurities(Security sourceSecurity) {
+    String sector = sourceSecurity.getAttributeValue(SecurityAttribute.sector, false);
+    if ("Currency".equals(sector)) {
+      // this is a currency forward; don't produce dummies
+      return;
+    }
+
+    for (int i = 0; i < 10; i++) {
+      Map<SecurityAttribute<?>, ? super Object> attributes =
+          new HashMap<>(sourceSecurity.getAttributes().asMap());
+      // vary some of the original attributes
+      attributes.put(SecurityAttribute.isin,
+          sourceSecurity.getAttributeValue(SecurityAttribute.isin) + i);
+      attributes.put(SecurityAttribute.cusip,
+          sourceSecurity.getAttributeValue(SecurityAttribute.cusip) + i);
+
+      Security security = new Security(attributes);
+      securityMap.putIfAbsent(security.getKey(), security);
+    }
   }
 }

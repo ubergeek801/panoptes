@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -154,8 +153,7 @@ public class DummyPortfolioMapLoader
       }
       Random random = new Random(seed);
 
-      List<Security> securityList =
-          Collections.unmodifiableList(new ArrayList<>(dataSource.getSecurityMap().values()));
+      List<Security> securityList = List.copyOf(dataSource.getSecurityMap().values());
       Set<Position> positions = generatePositions(securityList, random);
       Portfolio portfolioBenchmark = benchmarks[random.nextInt(5)];
       Set<ConfigurableRule> rules = generateRules(random, portfolioBenchmark != null);
@@ -190,18 +188,13 @@ public class DummyPortfolioMapLoader
 
       @Override
       public PortfolioKey next() {
-        switch (++currentPosition) {
-        case -3:
-          return PimcoBenchmarkDataSource.EMAD_KEY;
-        case -2:
-          return PimcoBenchmarkDataSource.GLAD_KEY;
-        case -1:
-          return PimcoBenchmarkDataSource.ILAD_KEY;
-        case 0:
-          return PimcoBenchmarkDataSource.PGOV_KEY;
-        default:
-          return new PortfolioKey("test" + currentPosition, 1);
-        }
+        return switch (++currentPosition) {
+          case -3 -> PimcoBenchmarkDataSource.EMAD_KEY;
+          case -2 -> PimcoBenchmarkDataSource.GLAD_KEY;
+          case -1 -> PimcoBenchmarkDataSource.ILAD_KEY;
+          case 0 -> PimcoBenchmarkDataSource.PGOV_KEY;
+          default -> new PortfolioKey("test" + currentPosition, 1);
+        };
       }
     };
   }

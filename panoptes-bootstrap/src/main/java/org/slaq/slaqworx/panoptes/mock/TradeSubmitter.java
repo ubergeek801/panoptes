@@ -79,8 +79,8 @@ public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
    */
   public void submitTrades() throws IOException {
     // generated keys must match those in DummyPortfolioMapLoader
-    HashSet<PortfolioKey> portfolioKeys = new HashSet<>(600);
-    for (int i = 1; i <= 600; i++) {
+    HashSet<PortfolioKey> portfolioKeys = new HashSet<>(900);
+    for (int i = 1; i <= 900; i++) {
       portfolioKeys.add(new PortfolioKey("test" + i, 1));
     }
 

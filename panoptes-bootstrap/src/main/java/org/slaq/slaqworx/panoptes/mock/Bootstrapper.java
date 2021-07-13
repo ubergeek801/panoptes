@@ -104,7 +104,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
   protected void bootstrapPortfolios() throws IOException {
     // generate the portfolios
     LOG.info("generating portfolios");
-    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(600);
+    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(900);
     ArrayList<Portfolio> portfolios = new ArrayList<>();
     for (PortfolioKey key : mapLoader.loadAllKeys()) {
       Portfolio portfolio = mapLoader.load(key);
@@ -131,7 +131,7 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     Map<SecurityKey, Security> securities = PimcoBenchmarkDataSource.getInstance().getSecurityMap();
 
     LOG.info("publishing {} securities", securities.size());
-    securities.forEach((k, s) -> kafkaProducer.publishSecurity(k, s));
+    securities.forEach(kafkaProducer::publishSecurity);
     LOG.info("published securities");
   }
 }

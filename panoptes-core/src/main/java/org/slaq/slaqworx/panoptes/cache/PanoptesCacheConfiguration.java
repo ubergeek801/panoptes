@@ -65,7 +65,7 @@ public class PanoptesCacheConfiguration {
         new NearCacheConfig().setName("near-" + cacheName).setInMemoryFormat(InMemoryFormat.OBJECT)
             .setCacheLocalEntries(true);
     nearCacheConfig.getEvictionConfig().setEvictionPolicy(EvictionPolicy.NONE)
-        .setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT).setSize(20_000);
+        .setMaxSizePolicy(MaxSizePolicy.ENTRY_COUNT).setSize(200_000);
 
     MapConfig mapConfig = new MapConfig(cacheName).setBackupCount(2).setReadBackupData(true)
         .setInMemoryFormat(InMemoryFormat.BINARY).setNearCacheConfig(nearCacheConfig);
