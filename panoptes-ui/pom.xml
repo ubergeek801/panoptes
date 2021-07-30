@@ -15,8 +15,8 @@
   <name>panoptes-ui</name>
 
   <properties>
-    <jetty.version>9.4.42.v20210604</jetty.version>
-    <vaadin.version>20.0.3</vaadin.version>
+    <jetty.version>9.4.43.v20210629</jetty.version>
+    <vaadin.version>20.0.5</vaadin.version>
   </properties>
 
   <build>
