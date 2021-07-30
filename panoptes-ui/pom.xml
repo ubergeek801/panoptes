@@ -15,8 +15,8 @@
   <name>panoptes-ui</name>
 
   <properties>
-    <jetty.version>9.4.42.v20210604</jetty.version>
-    <vaadin.version>20.0.3</vaadin.version>
+    <jetty.version>9.4.43.v20210629</jetty.version>
+    <vaadin.version>20.0.4</vaadin.version>
   </properties>
 
   <build>
@@ -57,8 +57,8 @@
       </plugin>
       <!-- produce git-info to include in the application package -->
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
         <executions>
           <execution>
             <id>get-the-git-infos</id>

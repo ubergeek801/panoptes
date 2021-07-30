@@ -50,9 +50,9 @@
             </goals>
             <configuration>
               <from>
-                <!-- :16.0.1 -->
+                <!-- :16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@sha256:182d25784b68d0f0b0be01961cd24b0b839fd4d273ba51ab88dc0ab4b0e959b0
+                  bellsoft/liberica-openjdk-alpine-musl@sha256:ce30e72bdc70f2e81e2486a3cd0c19d5e654f88f11fd38b56acff90872de8ddd
                 </image>
               </from>
               <to>
@@ -68,9 +68,9 @@
             </goals>
             <configuration>
               <from>
-                <!-- 16.0.1 -->
+                <!-- 16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@sha256:555142b6dbc1f0393b0e1f5a28699334b40773f240482b5e55ce4723c36c0d1c
+                  bellsoft/liberica-openjdk-alpine-musl@sha256:283e9ab190f82dadf69527c0ab1529a75e1b5c09e188fcb809bca526c8d244ed
                 </image>
                 <!-- :java11-21.0.0.2:arm64 -->
                 <!-- ghcr.io/graalvm/graalvm-ce@sha256:f58a5d4056f46a47b54defd38187a4d6fd16e7c15ba6f10de5fdc1e240a27001 -->
@@ -160,8 +160,8 @@
       </plugin>
       <!-- produce git-info to include in the application package -->
       <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
         <executions>
           <execution>
             <id>get-the-git-infos</id>

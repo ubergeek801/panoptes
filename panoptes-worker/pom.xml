@@ -48,9 +48,9 @@
             </goals>
             <configuration>
               <from>
-                <!-- :16.0.1 -->
+                <!-- :16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@sha256:182d25784b68d0f0b0be01961cd24b0b839fd4d273ba51ab88dc0ab4b0e959b0
+                  bellsoft/liberica-openjdk-alpine-musl@sha256:ce30e72bdc70f2e81e2486a3cd0c19d5e654f88f11fd38b56acff90872de8ddd
                 </image>
               </from>
               <to>
@@ -66,9 +66,9 @@
             </goals>
             <configuration>
               <from>
-                <!-- 16.0.1 -->
+                <!-- 16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@sha256:555142b6dbc1f0393b0e1f5a28699334b40773f240482b5e55ce4723c36c0d1c
+                  bellsoft/liberica-openjdk-alpine-musl@283e9ab190f82dadf69527c0ab1529a75e1b5c09e188fcb809bca526c8d244ed
                 </image>
                 <!-- :11.0.7-aarch64 -->
                 <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->

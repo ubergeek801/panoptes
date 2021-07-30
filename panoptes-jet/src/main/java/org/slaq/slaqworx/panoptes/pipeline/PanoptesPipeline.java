@@ -19,6 +19,7 @@ import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.util.Keyed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,9 +105,9 @@ public class PanoptesPipeline {
             AssetCache assetCache = PanoptesApp.getAssetCache();
             assetCache.getPortfolioCache().set(pde.getPortfolioKey(), pde.getPortfolio());
             assetCache.getRuleCache().setAll(pde.getPortfolio().getRules()
-                .collect(Collectors.toMap(r -> r.getKey(), r -> (ConfigurableRule) r)));
+                .collect(Collectors.toMap(Keyed::getKey, r -> (ConfigurableRule) r)));
             assetCache.getPositionCache().setAll(pde.getPortfolio().getPositions()
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p)));
+                .collect(Collectors.toMap(Keyed::getKey, p -> p)));
           }
           return true;
         }).setName("portfolioMapStore");
