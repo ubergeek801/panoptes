@@ -68,7 +68,7 @@
               <from>
                 <!-- 16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@283e9ab190f82dadf69527c0ab1529a75e1b5c09e188fcb809bca526c8d244ed
+                  bellsoft/liberica-openjdk-alpine-musl@sha256:283e9ab190f82dadf69527c0ab1529a75e1b5c09e188fcb809bca526c8d244ed
                 </image>
                 <!-- :11.0.7-aarch64 -->
                 <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->
