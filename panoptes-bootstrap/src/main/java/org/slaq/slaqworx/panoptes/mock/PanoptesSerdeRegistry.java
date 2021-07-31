@@ -6,6 +6,7 @@ import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -93,9 +94,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
   @Override
   public <T> Serde<T> getSerde(Class<T> type) {
     try {
-      Serde<T> serde = (Serde<T>) serdeMap.computeIfAbsent(type, Serdes::serdeFrom);
-
-      return serde;
+      return (Serde<T>) serdeMap.computeIfAbsent(type, Serdes::serdeFrom);
     } catch (IllegalArgumentException e) {
       // unfortunately the message doesn't tell us the offending type, so produce a new
       // exception/message
@@ -114,7 +113,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
    * @return a {@link Serde} that can (de)serialize the given type
    */
   protected <T extends ProtobufSerializable> Serde<T> createSerde(
-      ProtobufSerializer<T> protobufSerializer) {
+      @Nonnull ProtobufSerializer<T> protobufSerializer) {
     return new Serde<>() {
       @Override
       public Deserializer<T> deserializer() {
