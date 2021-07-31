@@ -9,8 +9,8 @@ import javax.annotation.Nonnull;
  * @author jeremy
  */
 public abstract class AbstractPosition implements Position {
-  private final @Nonnull
-  PositionKey key;
+  @Nonnull
+  private final PositionKey key;
 
   /**
    * Creates a new {@link AbstractPosition} with a generated key.

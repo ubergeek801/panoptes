@@ -47,8 +47,9 @@ public class AssetCache
 
   protected static final String CLUSTER_EXECUTOR_NAME = "cluster-executor";
 
-  private static final ForkJoinPool localExecutorThreadPool = ForkJoinPoolFactory
-      .newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(), "local-executor");
+  private static final ForkJoinPool localExecutorThreadPool =
+      ForkJoinPoolFactory.newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(),
+          "local-executor");
 
   private static AssetCache defaultAssetCache;
   private final HazelcastInstance hazelcastInstance;
@@ -81,6 +82,7 @@ public class AssetCache
    *
    * @return the default {@link AssetCache} instance
    */
+  @Nonnull
   public static AssetCache getDefault() {
     return defaultAssetCache;
   }
@@ -91,7 +93,7 @@ public class AssetCache
    * @param assetCache
    *     the default {@link AssetCache} instance
    */
-  public static void setDefault(AssetCache assetCache) {
+  public static void setDefault(@Nonnull AssetCache assetCache) {
     defaultAssetCache = assetCache;
   }
 
@@ -103,6 +105,7 @@ public class AssetCache
    *
    * @return an {@link ExecutorService} used to evaluate {@link Trade}s
    */
+  @Nonnull
   public static ExecutorService getLocalExecutor() {
     return localExecutorThreadPool;
   }
@@ -113,6 +116,7 @@ public class AssetCache
    *
    * @return an {@link IExecutorService}
    */
+  @Nonnull
   public IExecutorService getClusterExecutor() {
     return hazelcastInstance.getExecutorService(CLUSTER_EXECUTOR_NAME);
   }
@@ -122,9 +126,10 @@ public class AssetCache
    *
    * @return a set of country names
    */
+  @Nonnull
   public SortedSet<String> getCountries() {
-    return getSecurityCache()
-        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
+    return getSecurityCache().aggregate(
+        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
   }
 
   /**
@@ -132,9 +137,10 @@ public class AssetCache
    *
    * @return a set of currency symbols
    */
+  @Nonnull
   public SortedSet<String> getCurrencies() {
-    return getSecurityCache()
-        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
+    return getSecurityCache().aggregate(
+        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
   }
 
   @Override
@@ -147,6 +153,7 @@ public class AssetCache
    *
    * @return the {@link Portfolio} cache
    */
+  @Nonnull
   public IMap<PortfolioKey, Portfolio> getPortfolioCache() {
     return portfolioCache;
   }
@@ -161,6 +168,7 @@ public class AssetCache
    *
    * @return the {@link Position} cache
    */
+  @Nonnull
   public IMap<PositionKey, Position> getPositionCache() {
     return positionCache;
   }
@@ -170,9 +178,10 @@ public class AssetCache
    *
    * @return a set of region names
    */
+  @Nonnull
   public SortedSet<String> getRegions() {
-    return getSecurityCache()
-        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
+    return getSecurityCache().aggregate(
+        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
   }
 
   @Override
@@ -185,6 +194,7 @@ public class AssetCache
    *
    * @return the {@link Rule} cache
    */
+  @Nonnull
   public IMap<RuleKey, ConfigurableRule> getRuleCache() {
     return ruleCache;
   }
@@ -194,9 +204,10 @@ public class AssetCache
    *
    * @return a set of sector names
    */
+  @Nonnull
   public SortedSet<String> getSectors() {
-    return getSecurityCache()
-        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
+    return getSecurityCache().aggregate(
+        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
   }
 
   @Override
@@ -210,6 +221,7 @@ public class AssetCache
    *
    * @return the {@link Security} cache
    */
+  @Nonnull
   public IMap<SecurityKey, Security> getSecurityCache() {
     return securityCache;
   }
@@ -224,6 +236,7 @@ public class AssetCache
    *
    * @return the {@link Trade} cache
    */
+  @Nonnull
   public IMap<TradeKey, Trade> getTradeCache() {
     return tradeCache;
   }

@@ -11,5 +11,5 @@ public interface SecurityAttributeLoader {
   /**
    * Initializes the {@link SecurityAttribute}s from persistent data.
    */
-  public void loadSecurityAttributes();
+  void loadSecurityAttributes();
 }

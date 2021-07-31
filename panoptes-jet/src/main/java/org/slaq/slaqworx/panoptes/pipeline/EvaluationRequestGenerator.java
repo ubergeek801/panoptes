@@ -19,6 +19,13 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RulesProvider;
 
+/**
+ * A transformation which collects portfolio events (which specify portfolios to be evaluated) and
+ * rules to be evaluated against the portfolio, emitting {@link PortfolioEvaluationInput} events as
+ * appropriate.
+ *
+ * @author jeremy
+ */
 public class EvaluationRequestGenerator
     implements SupplierEx<EvaluationRequestGenerator.EvaluationRequestGeneratorState> {
   @Serial
@@ -59,34 +66,56 @@ public class EvaluationRequestGenerator
     return new EvaluationRequestGeneratorState();
   }
 
+  /**
+   * Handles a portfolio evaluation event; if there are known rules associated with the specified
+   * portfolio, a {@link PortfolioEvaluationInput} is emitted.
+   *
+   * @param processState
+   *     the state associated with the given key
+   * @param portfolioKey
+   *     a key identifying the portfolio to be evaluated
+   *
+   * @return a {@link Traverser} which emits a {@link PortfolioEvaluationInput} if appropriate
+   */
   @Nonnull
   protected Traverser<PortfolioEvaluationInput> handleEvaluationEvent(
-      @Nonnull EvaluationRequestGeneratorState state, @Nonnull PortfolioKey portfolioKey) {
-    state.setPortfolioKey(portfolioKey);
+      @Nonnull EvaluationRequestGeneratorState processState, @Nonnull PortfolioKey portfolioKey) {
+    processState.setPortfolioKey(portfolioKey);
 
-    if (!state.hasRules()) {
+    if (!processState.hasRules()) {
       // nothing we can/need to do
       return Traversers.empty();
     }
 
-    return Traversers
-        .singleton(new PortfolioEvaluationInput(state.getEvaluationSource(), portfolioKey, state));
+    return Traversers.singleton(
+        new PortfolioEvaluationInput(processState.getEvaluationSource(), portfolioKey,
+            processState));
   }
 
+  /**
+   * Handles a rule event; if there is a known portfolio associated with the rule, a {@link
+   * PortfolioEvaluationInput} is emitted.
+   *
+   * @param processState
+   *     the state associated with the given key
+   * @param rule
+   *     a rule to be evaluated
+   *
+   * @return a {@link Traverser} which emits a {@link PortfolioEvaluationInput} if appropriate
+   */
   @Nonnull
   protected Traverser<PortfolioEvaluationInput> handleRuleEvent(
-      @Nonnull EvaluationRequestGeneratorState state,
+      @Nonnull EvaluationRequestGeneratorState processState,
       @Nonnull Tuple3<EvaluationSource, PortfolioKey, Rule> rule) {
-    state.setEvaluationSource(rule.f0());
-    state.addRule(rule.f2());
-    if (state.getPortfolioKey() == null) {
+    processState.setEvaluationSource(rule.f0());
+    processState.addRule(rule.f2());
+    if (processState.getPortfolioKey() == null) {
       // nothing we can do yet
       return Traversers.empty();
     }
 
-    return Traversers.singleton(
-        new PortfolioEvaluationInput(state.getEvaluationSource(), state.getPortfolioKey(),
-            () -> Stream.of(rule.f2())));
+    return Traversers.singleton(new PortfolioEvaluationInput(processState.getEvaluationSource(),
+        processState.getPortfolioKey(), () -> Stream.of(rule.f2())));
   }
 
   /**

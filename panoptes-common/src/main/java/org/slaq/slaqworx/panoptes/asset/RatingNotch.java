@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
  * @author jeremy
  */
 public class RatingNotch implements Comparable<RatingNotch> {
-  private final @Nonnull
-  String symbol;
+  @Nonnull
+  private final String symbol;
   private final double lower;
   private double middle;
   private int ordinal;

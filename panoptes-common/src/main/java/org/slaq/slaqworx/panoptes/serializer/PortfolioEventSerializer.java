@@ -86,7 +86,7 @@ public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEve
 
       portfolioEventBuilder.setPortfolioCommand(portfolioCommandMsg.build());
     } else if (event instanceof PortfolioDataEvent dataEvent) {
-      PortfolioMsg portfolioMsg = PortfolioSerializer.convert(dataEvent.getPortfolio());
+      PortfolioMsg portfolioMsg = PortfolioSerializer.convert(dataEvent.portfolio());
       portfolioEventBuilder.setPortfolioData(portfolioMsg);
     } else {
       // this shouldn't be possible since only the above subclasses exist

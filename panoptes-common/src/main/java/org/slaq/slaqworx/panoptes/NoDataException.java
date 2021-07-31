@@ -14,8 +14,8 @@ public class NoDataException extends RuntimeException {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private final @Nonnull
-  String attributeName;
+  @Nonnull
+  private final String attributeName;
 
   /**
    * Creates a new {@link NoDataException} indicating that a {@link Security} attribute with the

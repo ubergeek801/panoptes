@@ -23,10 +23,10 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * @author jeremy
  */
 public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
-  private final @Nonnull
-  SecurityKey key;
-  private final @Nonnull
-  SecurityAttributes attributes;
+  @Nonnull
+  private final SecurityKey key;
+  @Nonnull
+  private final SecurityAttributes attributes;
 
   /**
    * Creates a new {@link Security} with the given {@link SecurityAttribute} values. The key is
@@ -65,8 +65,8 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *
    * @return a {@link SecurityAttributes} comprising this {@link Security}'s attributes
    */
-  public @Nonnull
-  SecurityAttributes getAttributes() {
+  @Nonnull
+  public SecurityAttributes getAttributes() {
     return attributes;
   }
 
@@ -82,6 +82,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the requested attribute has no assigned value
    */
+  @Nonnull
   public Object getAttributeValue(int attributeIndex) {
     return getAttributeValue(attributeIndex, true);
   }
@@ -123,6 +124,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the requested attribute has no assigned value
    */
+  @Nonnull
   public <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute) {
     return getAttributeValue(attribute, true);
   }
@@ -194,6 +196,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the attribute value is not assigned
    */
+  @Nonnull
   public Object getEffectiveAttributeValue(int attributeIndex,
       @Nonnull EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attributeIndex, true, evaluationContext);
@@ -239,6 +242,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the attribute value is not assigned
    */
+  @Nonnull
   public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
       @Nonnull EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attribute, true, evaluationContext);

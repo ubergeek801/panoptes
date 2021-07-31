@@ -65,11 +65,11 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   public static final SecurityAttribute<Double> rating3Value =
       of("rating3Value", 20, Double.class, ValueProvider.forDouble());
 
-  private final @Nonnull
-  String name;
+  @Nonnull
+  private final String name;
   private final int index;
-  private final @Nonnull
-  Class<T> type;
+  @Nonnull
+  private final Class<T> type;
   private final ValueProvider<T> valueProvider;
 
   /**
@@ -647,8 +647,8 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   public static <T> SecurityAttribute<T> of(@Nonnull String name, int index, @Nonnull Class<T> type,
       ValueProvider<T> valueProvider) {
     @SuppressWarnings("unchecked") SecurityAttribute<T> attribute =
-        (SecurityAttribute<T>) attributesByName
-            .computeIfAbsent(name, n -> new SecurityAttribute<>(name, index, type, valueProvider));
+        (SecurityAttribute<T>) attributesByName.computeIfAbsent(name,
+            n -> new SecurityAttribute<>(name, index, type, valueProvider));
     attributesByIndex.put(index, attribute);
 
     return attribute;

@@ -78,7 +78,7 @@ public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>
           (portfolioKey != null && portfolioKey.equals(portfolioEvent.getPortfolioKey()));
     } else if (portfolioEvent instanceof PortfolioDataEvent portfolioDataEvent) {
       portfolioKey = portfolioEvent.getPortfolioKey();
-      portfolioTracker.trackPortfolio(portfolioDataEvent.getPortfolio());
+      portfolioTracker.trackPortfolio(portfolioDataEvent.portfolio());
       isPortfolioProcessable = true;
     } else if (portfolioEvent instanceof TransactionEvent) {
       // FIXME implement; right now just process the portfolio

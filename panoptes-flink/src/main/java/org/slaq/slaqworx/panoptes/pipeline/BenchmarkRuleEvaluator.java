@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BenchmarkRuleEvaluator extends
     KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRuleEvaluator.class);
@@ -52,7 +54,7 @@ public class BenchmarkRuleEvaluator extends
   }
 
   @Override
-  public void open(Configuration config) throws Exception {
+  public void open(Configuration config) {
     portfolioTracker = new PortfolioTracker(getRuntimeContext(), EvaluationSource.BENCHMARK);
     benchmarkRulesState = getRuntimeContext().getMapState(BENCHMARK_RULES_STATE_DESCRIPTOR);
   }
@@ -80,15 +82,15 @@ public class BenchmarkRuleEvaluator extends
       return;
     }
 
-    Portfolio portfolio = ((PortfolioDataEvent) portfolioEvent).getPortfolio();
+    Portfolio portfolio = ((PortfolioDataEvent) portfolioEvent).portfolio();
 
     if (portfolio.isAbstract()) {
       portfolioTracker.trackPortfolio(portfolio);
       // the portfolio is a benchmark, so try to process it
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker
-          .processPortfolio(out, portfolio, null, securityState, benchmarkRulesState.values());
+      portfolioTracker.processPortfolio(out, portfolio, null, securityState,
+          benchmarkRulesState.values());
     } else {
       // the portfolio is not a benchmark, but it may have rules that are of interest, so try
       // to extract and process them
@@ -96,8 +98,8 @@ public class BenchmarkRuleEvaluator extends
       // process any newly-encountered rules against the benchmark
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker
-          .processPortfolio(out, portfolioTracker.getPortfolio(), null, securityState, newRules);
+      portfolioTracker.processPortfolio(out, portfolioTracker.getPortfolio(), null, securityState,
+          newRules);
     }
   }
 

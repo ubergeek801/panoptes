@@ -55,6 +55,7 @@ public record RuleEvaluationResult(long eventId, @Nonnull PortfolioKey portfolio
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "RuleEvaluationResult [eventId=" + eventId + ", portfolioKey=" + portfolioKey +
         ", benchmarkKey=" + benchmarkKey + ", source=" + source + ", isBenchmarkSupported=" +

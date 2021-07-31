@@ -61,7 +61,8 @@ public class PanoptesPipeline {
           StreamSource<PortfolioEvaluationRequest> portfolioRequestSource, */
       @Named(PanoptesPipelineConfiguration.PORTFOLIO_EVALUATION_RESULT_SINK)
           Sink<RuleEvaluationResult> portfolioResultSink,
-      @Named(PanoptesPipelineConfiguration.SECURITY_SOURCE) StreamSource<Security> securityKafkaSource
+      @Named(PanoptesPipelineConfiguration.SECURITY_SOURCE)
+          StreamSource<Security> securityKafkaSource
       /*,
       @Named(PanoptesPipelineConfig.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource,
       @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK)
@@ -103,11 +104,11 @@ public class PanoptesPipeline {
         benchmarkSource.merge(portfolioSource).setName("portfolioDataCombiner").filter(e -> {
           if (e instanceof PortfolioDataEvent pde) {
             AssetCache assetCache = PanoptesApp.getAssetCache();
-            assetCache.getPortfolioCache().set(pde.getPortfolioKey(), pde.getPortfolio());
-            assetCache.getRuleCache().setAll(pde.getPortfolio().getRules()
+            assetCache.getPortfolioCache().set(pde.getPortfolioKey(), pde.portfolio());
+            assetCache.getRuleCache().setAll(pde.portfolio().getRules()
                 .collect(Collectors.toMap(Keyed::getKey, r -> (ConfigurableRule) r)));
-            assetCache.getPositionCache().setAll(pde.getPortfolio().getPositions()
-                .collect(Collectors.toMap(Keyed::getKey, p -> p)));
+            assetCache.getPositionCache().setAll(
+                pde.portfolio().getPositions().collect(Collectors.toMap(Keyed::getKey, p -> p)));
           }
           return true;
         }).setName("portfolioMapStore");
@@ -139,11 +140,11 @@ public class PanoptesPipeline {
                 portfolioRules.groupingKey(Tuple3::f1), evaluationRequestor.ruleEventHandler())
             .setName("evaluationRequestGenerator");
 
-    StreamStage<RuleEvaluationResult> portfolioResultStream = portfolioRequestStream
-        .flatMapUsingService(PortfolioEvaluationService.serviceFactory(),
-            PortfolioEvaluationService::evaluate)
-        .setLocalParallelism(Runtime.getRuntime().availableProcessors() - 1)
-        .setName("portfolioEvaluator");
+    StreamStage<RuleEvaluationResult> portfolioResultStream =
+        portfolioRequestStream.flatMapUsingService(PortfolioEvaluationService.serviceFactory(),
+                PortfolioEvaluationService::evaluate)
+            .setLocalParallelism(Runtime.getRuntime().availableProcessors() - 1)
+            .setName("portfolioEvaluator");
 
     // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark evaluation
     // results (keyed by portfolio ID, which *is* the benchmark ID for a benchmark, + rule ID) into
@@ -156,7 +157,7 @@ public class PanoptesPipeline {
 
     // resultStream.writeTo(portfolioResultSink);
     resultStream.writeTo(SinkBuilder.sinkBuilder("evaluationResultSink", c -> c)
-        .receiveFn(new EvaluationResultPublisher()).build())
+            .receiveFn(new EvaluationResultPublisher()).build())
         .setLocalParallelism(Runtime.getRuntime().availableProcessors());
 
     LOG.info("initialized pipeline");

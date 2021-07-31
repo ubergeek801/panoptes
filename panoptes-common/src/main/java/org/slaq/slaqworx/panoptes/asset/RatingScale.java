@@ -14,8 +14,8 @@ import javax.annotation.Nonnull;
  * @author jeremy
  */
 public class RatingScale {
-  private static final @Nonnull
-  RatingScale defaultScale;
+  @Nonnull
+  private static final RatingScale defaultScale;
 
   static {
     // these rating symbols are used in the PIMCO benchmarks; the numeric equivalents are a
@@ -46,8 +46,11 @@ public class RatingScale {
     defaultScale = new RatingScale(notches, 100);
   }
 
+  @Nonnull
   private final double[] notchValues;
+  @Nonnull
   private final ArrayList<RatingNotch> notches;
+  @Nonnull
   private final HashMap<String, RatingNotch> symbolRatingMap;
 
   /**

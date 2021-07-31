@@ -15,8 +15,8 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  */
 public class SecurityAttributeGroupClassifier
     implements EvaluationGroupClassifier, JsonConfigurable {
-  private final @Nonnull
-  SecurityAttribute<?> securityAttribute;
+  @Nonnull
+  private final SecurityAttribute<?> securityAttribute;
 
   /**
    * Creates a new {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based

@@ -22,15 +22,15 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 public class Portfolio
     implements Keyed<PortfolioKey>, HierarchicalPositionSupplier, ProtobufSerializable,
     RulesProvider {
-  private final @Nonnull
-  PortfolioKey key;
-  private final @Nonnull
-  String name;
+  @Nonnull
+  private final PortfolioKey key;
+  @Nonnull
+  private final String name;
   private final PortfolioKey benchmarkKey;
-  private final @Nonnull
-  HashSet<Rule> rules;
-  private final @Nonnull
-  PositionSet<Position> positionSet;
+  @Nonnull
+  private final HashSet<Rule> rules;
+  @Nonnull
+  private final PositionSet<Position> positionSet;
   private Portfolio benchmark;
 
   /**

@@ -16,10 +16,10 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * @author jeremy
  */
 public class PositionEvaluationContext {
-  private final @Nonnull
-  Position position;
-  private final @Nonnull
-  EvaluationContext evaluationContext;
+  @Nonnull
+  private final Position position;
+  @Nonnull
+  private final EvaluationContext evaluationContext;
 
   private Throwable exception;
 

@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.evaluator;
 import jakarta.inject.Singleton;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -18,6 +19,7 @@ import org.slaq.slaqworx.panoptes.util.CompletableFutureAdapter;
  */
 @Singleton
 public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
+  @Nonnull
   private final AssetCache assetCache;
 
   /**
@@ -27,19 +29,22 @@ public class ClusterPortfolioEvaluator implements PortfolioEvaluator {
    * @param assetCache
    *     the {@link AssetCache} to use to obtain distributed resources
    */
-  protected ClusterPortfolioEvaluator(AssetCache assetCache) {
+  protected ClusterPortfolioEvaluator(@Nonnull AssetCache assetCache) {
     this.assetCache = assetCache;
   }
 
   @Override
-  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-      EvaluationContext evaluationContext) {
+  @Nonnull
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(
+      @Nonnull PortfolioKey portfolioKey, @Nonnull EvaluationContext evaluationContext) {
     return evaluate(portfolioKey, null, evaluationContext);
   }
 
   @Override
-  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-      Transaction transaction, EvaluationContext evaluationContext) {
+  @Nonnull
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(
+      @Nonnull PortfolioKey portfolioKey, Transaction transaction,
+      @Nonnull EvaluationContext evaluationContext) {
     // merely submit a request to the cluster executor
     CompletableFutureAdapter<Map<RuleKey, EvaluationResult>> completableFutureAdapter =
         new CompletableFutureAdapter<>();

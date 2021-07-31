@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -44,18 +45,21 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
   }
 
   @Override
-  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-      EvaluationContext evaluationContext) {
+  @Nonnull
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(
+      @Nonnull PortfolioKey portfolioKey, @Nonnull EvaluationContext evaluationContext) {
     return evaluate(portfolioKey, null, evaluationContext);
   }
 
   @Override
-  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(PortfolioKey portfolioKey,
-      Transaction transaction, EvaluationContext evaluationContext) {
+  @Nonnull
+  public CompletableFuture<Map<RuleKey, EvaluationResult>> evaluate(
+      @Nonnull PortfolioKey portfolioKey, Transaction transaction,
+      @Nonnull EvaluationContext evaluationContext) {
     Portfolio portfolio = portfolioProvider.getPortfolio(portfolioKey);
 
-    return CompletableFuture
-        .completedFuture(evaluate(portfolio.getRules(), portfolio, transaction, evaluationContext));
+    return CompletableFuture.completedFuture(
+        evaluate(portfolio.getRules(), portfolio, transaction, evaluationContext));
   }
 
   /**
@@ -83,23 +87,24 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
 
     // evaluate the Rules
     Map<RuleKey, EvaluationResult> results = rules.takeWhile(shortCircuiter).map(r -> {
-      EvaluationResult baseResult =
-          new RuleEvaluator(r, portfolio, transaction, evaluationContext).call();
-      Portfolio benchmark = portfolio.getBenchmark(portfolioProvider);
-      EvaluationResult benchmarkResult;
-      if (benchmark != null && r.isBenchmarkSupported()) {
-        // attempt to get from cache first
-        benchmarkResult = evaluationContext.getBenchmarkResult(r.getKey());
-        if (benchmarkResult == null) {
-          benchmarkResult = new RuleEvaluator(r, benchmark, transaction, evaluationContext).call();
-          evaluationContext.cacheBenchmarkValue(r.getKey(), benchmarkResult);
-        }
-      } else {
-        benchmarkResult = null;
-      }
+          EvaluationResult baseResult =
+              new RuleEvaluator(r, portfolio, transaction, evaluationContext).call();
+          Portfolio benchmark = portfolio.getBenchmark(portfolioProvider);
+          EvaluationResult benchmarkResult;
+          if (benchmark != null && r.isBenchmarkSupported()) {
+            // attempt to get from cache first
+            benchmarkResult = evaluationContext.getBenchmarkResult(r.getKey());
+            if (benchmarkResult == null) {
+              benchmarkResult =
+                  new RuleEvaluator(r, benchmark, transaction, evaluationContext).call();
+              evaluationContext.cacheBenchmarkValue(r.getKey(), benchmarkResult);
+            }
+          } else {
+            benchmarkResult = null;
+          }
 
-      return new BenchmarkComparator().compare(baseResult, benchmarkResult, r);
-    }).peek(shortCircuiter)
+          return new BenchmarkComparator().compare(baseResult, benchmarkResult, r);
+        }).peek(shortCircuiter)
         .collect(Collectors.toMap(EvaluationResult::getRuleKey, result -> result));
 
     LOG.info("evaluated {} Rules ({}) over {} Positions for Portfolio {} in {} ms", results.size(),
@@ -123,6 +128,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
    * @author jeremy
    */
   private static class ShortCircuiter implements Consumer<EvaluationResult>, Predicate<Rule> {
+    @Nonnull
     private final PortfolioKey portfolioKey;
     private final Transaction transaction;
     private final boolean isShortCircuiting;
@@ -140,7 +146,7 @@ public class LocalPortfolioEvaluator implements PortfolioEvaluator {
      *     {@code true} if short-circuiting is to be activated, {@code false} to allow all
      *     evaluations to pass through
      */
-    public ShortCircuiter(PortfolioKey portfolioKey, Transaction transaction,
+    public ShortCircuiter(@Nonnull PortfolioKey portfolioKey, Transaction transaction,
         boolean isShortCircuiting) {
       this.portfolioKey = portfolioKey;
       this.transaction = transaction;

@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.calc;
 
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -60,7 +61,8 @@ public abstract class PositionCalculator<T> {
    *
    * @return the interpreted value of the given attribute value
    */
-  protected Double getValue(T attributeValue, EvaluationContext evaluationContext) {
+  protected Double getValue(@Nonnull T attributeValue,
+      @Nonnull EvaluationContext evaluationContext) {
     return (calculationAttribute == null ? null :
         calculationAttribute.getValueProvider().apply(attributeValue, evaluationContext));
   }

@@ -28,6 +28,7 @@ public class SecurityAttributes implements Serializable {
 
   // while a Map is more convenient, attribute lookups are a very hot piece of code during Rule
   // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
+  @Nonnull
   private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
   private String hash;

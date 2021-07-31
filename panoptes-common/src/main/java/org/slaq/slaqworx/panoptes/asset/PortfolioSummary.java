@@ -34,8 +34,8 @@ public record PortfolioSummary(@Nonnull PortfolioKey key, @Nonnull String name,
    *
    * @return a {@link PortfolioSummary} summarizing the given {@link Portfolio}
    */
-  public static PortfolioSummary fromPortfolio(Portfolio portfolio,
-      MarketValueProvider marketValueProvider) {
+  public static PortfolioSummary fromPortfolio(@Nonnull Portfolio portfolio,
+      @Nonnull MarketValueProvider marketValueProvider) {
     return new PortfolioSummary(portfolio.getKey(), portfolio.getName(),
         portfolio.getBenchmarkKey(), marketValueProvider.getMarketValue(portfolio),
         portfolio.isAbstract());
@@ -48,6 +48,7 @@ public record PortfolioSummary(@Nonnull PortfolioKey key, @Nonnull String name,
   }
 
   @Override
+  @Nonnull
   public String toString() {
     return "PortfolioSummary[key=" + key + ", name=" + name + ", benchmarkKey=" + benchmarkKey +
         ", totalMarketValue=" + totalMarketValue + ", isAbstract=" + isAbstract + "]";

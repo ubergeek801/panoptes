@@ -16,8 +16,8 @@ import javax.annotation.Nonnull;
  * @author jeremy
  */
 public class ScaledPosition extends AbstractPosition {
-  private final @Nonnull
-  Position sourcePosition;
+  @Nonnull
+  private final Position sourcePosition;
   private final double scaledAmount;
 
   /**

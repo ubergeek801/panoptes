@@ -4,6 +4,7 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
@@ -21,8 +22,10 @@ import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
 public class PortfolioEvaluationRequest
     implements Callable<Map<RuleKey, EvaluationResult>>, ApplicationContextAware,
     ProtobufSerializable {
+  @Nonnull
   private final PortfolioKey portfolioKey;
   private final Transaction transaction;
+  @Nonnull
   private final EvaluationContext evaluationContext;
 
   private ApplicationContext applicationContext;
@@ -37,8 +40,8 @@ public class PortfolioEvaluationRequest
    * @param evaluationContext
    *     the {@link EvaluationContext} under which to evaluate
    */
-  public PortfolioEvaluationRequest(PortfolioKey portfolioKey, Transaction transaction,
-      EvaluationContext evaluationContext) {
+  public PortfolioEvaluationRequest(@Nonnull PortfolioKey portfolioKey, Transaction transaction,
+      @Nonnull EvaluationContext evaluationContext) {
     this.portfolioKey = portfolioKey;
     this.transaction = transaction;
     this.evaluationContext = evaluationContext;

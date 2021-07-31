@@ -11,6 +11,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  * @author jeremy
  */
 public class CompoundPositionSupplier implements PositionSupplier {
+  @Nonnull
   private final PositionSupplier[] suppliers;
 
   /**
@@ -25,22 +26,18 @@ public class CompoundPositionSupplier implements PositionSupplier {
 
   @Override
   public double getMarketValue(@Nonnull EvaluationContext evaluationContext) {
-    double totalMarketValue = 0;
-    for (PositionSupplier supplier : suppliers) {
-      totalMarketValue += evaluationContext.getMarketValue(supplier);
-    }
-
-    return totalMarketValue;
+    return Stream.of(suppliers).mapToDouble(s -> evaluationContext.getMarketValue(s)).sum();
   }
 
   @Override
+  @Nonnull
   public PortfolioKey getPortfolioKey() {
     // all suppliers are presumed to belong to the same Portfolio, so just return the first
     return suppliers[0].getPortfolioKey();
   }
 
-  @Nonnull
   @Override
+  @Nonnull
   public Stream<? extends Position> getPositions() {
     Stream<? extends Position> concatStream = suppliers[0].getPositions();
     for (int i = 1; i < suppliers.length; i++) {
@@ -52,11 +49,6 @@ public class CompoundPositionSupplier implements PositionSupplier {
 
   @Override
   public int size() {
-    int size = 0;
-    for (PositionSupplier supplier : suppliers) {
-      size += supplier.size();
-    }
-
-    return size;
+    return Stream.of(suppliers).mapToInt(s -> s.size()).sum();
   }
 }

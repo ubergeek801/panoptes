@@ -17,5 +17,6 @@ public interface Keyed<T> {
    *
    * @return this entity's key
    */
-  public @Nonnull T getKey();
+  @Nonnull
+  T getKey();
 }

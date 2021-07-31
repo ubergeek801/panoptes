@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.io.Serial;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
@@ -23,6 +24,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
  */
 public class PortfolioRuleEvaluator extends
     KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private transient PortfolioTracker portfolioTracker;
@@ -35,7 +37,7 @@ public class PortfolioRuleEvaluator extends
   }
 
   @Override
-  public void open(Configuration config) throws Exception {
+  public void open(Configuration config) {
     portfolioTracker = new PortfolioTracker(getRuntimeContext(), EvaluationSource.PORTFOLIO);
   }
 
@@ -58,7 +60,7 @@ public class PortfolioRuleEvaluator extends
       isPortfolioProcessable = (portfolio != null &&
           portfolio.getPortfolioKey().equals(portfolioEvent.getPortfolioKey()));
     } else if (portfolioEvent instanceof PortfolioDataEvent) {
-      portfolio = ((PortfolioDataEvent) portfolioEvent).getPortfolio();
+      portfolio = ((PortfolioDataEvent) portfolioEvent).portfolio();
       // we shouldn't be seeing benchmarks, but ignore them if we do
       if (!portfolio.isAbstract()) {
         portfolioTracker.trackPortfolio(portfolio);
@@ -76,11 +78,11 @@ public class PortfolioRuleEvaluator extends
           "don't know how to process PortfolioEvent of type " + portfolioEvent.getClass());
     }
 
-    if (isPortfolioProcessable && portfolio != null) {
+    if (isPortfolioProcessable) {
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker
-          .processPortfolio(out, portfolio, null, securityState, portfolio.getRules()::iterator);
+      portfolioTracker.processPortfolio(out, portfolio, null, securityState,
+          portfolio.getRules()::iterator);
     }
   }
 }

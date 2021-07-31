@@ -27,8 +27,8 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
    */
   @Nonnull
   default Stream<? extends Position> getPositions(
-      EnumSet<PositionHierarchyOption> positionHierarchyOptions,
-      EvaluationContext evaluationContext) {
+      @Nonnull EnumSet<PositionHierarchyOption> positionHierarchyOptions,
+      @Nonnull EvaluationContext evaluationContext) {
     Stream<? extends Position> positionStream = getPositions();
 
     if (positionHierarchyOptions.contains(PositionHierarchyOption.LOOKTHROUGH)) {
@@ -42,6 +42,9 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
     return positionStream;
   }
 
+  /**
+   * Enumerates the recognized hierarchies of {@link Position}s.
+   */
   enum PositionHierarchyOption {
     LOOKTHROUGH, TAXLOT
   }

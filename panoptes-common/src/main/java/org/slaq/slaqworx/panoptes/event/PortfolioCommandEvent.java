@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.event;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 
 /**
@@ -10,6 +11,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
  */
 public class PortfolioCommandEvent implements PortfolioEvent {
   private final long eventId;
+  @Nonnull
   private final PortfolioKey portfolioKey;
 
   /**
@@ -20,7 +22,7 @@ public class PortfolioCommandEvent implements PortfolioEvent {
    * @param portfolioKey
    *     a {@link PortfolioKey} identifying the associated portfolio
    */
-  public PortfolioCommandEvent(long eventId, PortfolioKey portfolioKey) {
+  public PortfolioCommandEvent(long eventId, @Nonnull PortfolioKey portfolioKey) {
     this.eventId = eventId;
     this.portfolioKey = portfolioKey;
   }
@@ -35,6 +37,7 @@ public class PortfolioCommandEvent implements PortfolioEvent {
   }
 
   @Override
+  @Nonnull
   public PortfolioKey getKey() {
     return portfolioKey;
   }

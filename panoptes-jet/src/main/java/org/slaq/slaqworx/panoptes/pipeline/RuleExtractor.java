@@ -50,7 +50,7 @@ public class RuleExtractor
       return Traversers.empty();
     }
 
-    Portfolio portfolio = portfolioDataEvent.getPortfolio();
+    Portfolio portfolio = portfolioDataEvent.portfolio();
     if (portfolio.isAbstract()) {
       // this is a benchmark and will have no rules of its own
       return Traversers.empty();

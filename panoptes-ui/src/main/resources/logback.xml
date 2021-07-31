@@ -12,6 +12,7 @@
     </encoder>
   </appender>
 
+  <logger name="com.hazelcast.system.logo" level="error"/>
   <logger name="dev-updater" level="warn"/>
   <logger name="dev-webpack" level="warn"/>
   <logger name="org.atmosphere" level="warn"/>

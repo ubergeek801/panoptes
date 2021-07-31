@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.event;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
@@ -19,7 +20,7 @@ public interface PortfolioEvent extends Keyed<PortfolioKey>, ProtobufSerializabl
    * @return a key identifying the portfolio's benchmark, or {@code null} if there is no associated
    *     benchmark
    */
-  public PortfolioKey getBenchmarkKey();
+  PortfolioKey getBenchmarkKey();
 
   /**
    * Synonymous with {@code getKey()}. Exists because Flink can't figure out {@link Keyed} even when
@@ -27,7 +28,8 @@ public interface PortfolioEvent extends Keyed<PortfolioKey>, ProtobufSerializabl
    *
    * @return the event/portfolio key
    */
-  public default PortfolioKey getPortfolioKey() {
+  @Nonnull
+  default PortfolioKey getPortfolioKey() {
     return getKey();
   }
 }

@@ -15,8 +15,8 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 public class SimplePosition extends AbstractPosition {
   private final double amount;
-  private final @Nonnull
-  SecurityKey securityKey;
+  @Nonnull
+  private final SecurityKey securityKey;
 
   /**
    * Creates a new {@link SimplePosition} with a generated key and the specified amount and {@link
