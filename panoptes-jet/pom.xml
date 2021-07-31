@@ -32,7 +32,6 @@
       jdk.management/com.sun.management.internal=ALL-UNNAMED
       -Xms2560m -Xmx2560m
     </globalJvmArgs>
-    <jet.version>4.6-SNAPSHOT</jet.version>
   </properties>
 
   <build>
@@ -193,24 +192,12 @@
       <groupId>org.slaq.slaqworx</groupId>
       <artifactId>panoptes-core</artifactId>
       <version>${project.version}</version>
-      <exclusions>
-        <!-- Jet includes a shaded Hazelcast, so exclude it -->
-        <exclusion>
-          <artifactId>hazelcast</artifactId>
-          <groupId>com.hazelcast</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>com.hazelcast.jet</groupId>
-      <artifactId>hazelcast-jet</artifactId>
-      <version>${jet.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.hazelcast.jet</groupId>
       <artifactId>hazelcast-jet-kafka</artifactId>
-      <version>${jet.version}</version>
+      <version>${hazelcast.version}</version>
     </dependency>
 
     <dependency>

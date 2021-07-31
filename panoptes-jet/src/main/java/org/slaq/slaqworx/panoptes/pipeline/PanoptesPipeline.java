@@ -53,15 +53,15 @@ public class PanoptesPipeline {
    * @param tradeResultSink
    *     a {@link Sink} consuming trade evaluation results
    */
-  protected PanoptesPipeline(@Named(PanoptesPipelineConfig.BENCHMARK_SOURCE)
+  protected PanoptesPipeline(@Named(PanoptesPipelineConfiguration.BENCHMARK_SOURCE)
       StreamSource<PortfolioEvent> benchmarkKafkaSource,
-      @Named(PanoptesPipelineConfig.PORTFOLIO_SOURCE)
+      @Named(PanoptesPipelineConfiguration.PORTFOLIO_SOURCE)
           StreamSource<PortfolioEvent> portfolioKafkaSource, /*
       @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_REQUEST_SOURCE)
           StreamSource<PortfolioEvaluationRequest> portfolioRequestSource, */
-      @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_RESULT_SINK)
+      @Named(PanoptesPipelineConfiguration.PORTFOLIO_EVALUATION_RESULT_SINK)
           Sink<RuleEvaluationResult> portfolioResultSink,
-      @Named(PanoptesPipelineConfig.SECURITY_SOURCE) StreamSource<Security> securityKafkaSource
+      @Named(PanoptesPipelineConfiguration.SECURITY_SOURCE) StreamSource<Security> securityKafkaSource
       /*,
       @Named(PanoptesPipelineConfig.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource,
       @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK)

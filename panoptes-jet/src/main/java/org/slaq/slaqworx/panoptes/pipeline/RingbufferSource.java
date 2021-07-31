@@ -32,7 +32,7 @@ public class RingbufferSource {
   public static <T> StreamSource<T> buildRingbufferSource(@Nonnull String name,
       @Nonnull String ringbufferName) {
     return SourceBuilder.stream(name, context -> new RingbufferSourceContext<T>(
-        context.jetInstance().getHazelcastInstance().getRingbuffer(ringbufferName)))
+        context.hazelcastInstance().getRingbuffer(ringbufferName)))
         .fillBufferFn(new RingbufferBufferFiller<>())
         .createSnapshotFn(RingbufferSourceContext::getCurrentSequence)
         .restoreSnapshotFn((context, saved) -> context.setCurrentSequence(saved.get(0))).build();

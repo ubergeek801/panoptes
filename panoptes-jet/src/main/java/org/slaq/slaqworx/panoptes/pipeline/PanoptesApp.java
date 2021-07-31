@@ -1,8 +1,7 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import com.hazelcast.jet.Jet;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.config.JetConfig;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.jet.JetService;
 import com.hazelcast.jet.config.JobConfig;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
@@ -69,12 +68,12 @@ public class PanoptesApp {
       globalAppContext = appContext;
       LOG.info("configuring PanoptesPipeline");
 
-      JetConfig jetConfig = appContext.getBean(JetConfig.class);
-      JetInstance jetInstance = Jet.newJetInstance(jetConfig);
+      HazelcastInstance hazelcastInstance = appContext.getBean(HazelcastInstance.class);
+      JetService jetService = hazelcastInstance.getJet();
 
       PanoptesPipeline pipeline = appContext.getBean(PanoptesPipeline.class);
       JobConfig jobConfig = appContext.getBean(JobConfig.class);
-      jetInstance.newJobIfAbsent(pipeline.getJetPipeline(), jobConfig).join();
+      jetService.newJobIfAbsent(pipeline.getJetPipeline(), jobConfig).join();
     }
   }
 

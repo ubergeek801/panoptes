@@ -13,6 +13,7 @@ import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ManagedContext;
+import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.map.MapStore;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.cache.HazelcastCacheMetrics;
@@ -97,6 +98,8 @@ public class PanoptesCacheConfiguration {
    *     the {@link SerializationConfig} to use for the cache
    * @param clusterExecutorConfig
    *     the {@link ExecutorConfig} to use for clustered execution
+   * @param jetConfig
+   *     the {@link JetConfig} from which to configure Jet, if used
    * @param applicationContext
    *     the current {@link ApplicationContext}
    *
@@ -109,7 +112,7 @@ public class PanoptesCacheConfiguration {
       @Named(AssetCache.SECURITY_CACHE_NAME) MapConfig securityMapConfig,
       @Named(AssetCache.RULE_CACHE_NAME) MapConfig ruleMapConfig,
       SerializationConfig serializationConfig, ExecutorConfig clusterExecutorConfig,
-      ApplicationContext applicationContext) {
+      Optional<JetConfig> jetConfig, ApplicationContext applicationContext) {
     securityAttributeLoader.loadSecurityAttributes();
 
     boolean isClustered =
@@ -162,6 +165,8 @@ public class PanoptesCacheConfiguration {
       config.getNetworkConfig().getJoin().getKubernetesConfig().setEnabled(false);
     }
 
+    jetConfig.ifPresent(config::setJetConfig);
+
     return config;
   }
 
@@ -182,13 +187,13 @@ public class PanoptesCacheConfiguration {
     HazelcastInstance hazelcastInstance =
         Hazelcast.getOrCreateHazelcastInstance(hazelcastConfiguration);
 
-    HazelcastCacheMetrics
-        .monitor(meterRegistry, CacheBootstrap.getPortfolioCache(hazelcastInstance));
-    HazelcastCacheMetrics
-        .monitor(meterRegistry, CacheBootstrap.getPositionCache(hazelcastInstance));
+    HazelcastCacheMetrics.monitor(meterRegistry,
+        CacheBootstrap.getPortfolioCache(hazelcastInstance));
+    HazelcastCacheMetrics.monitor(meterRegistry,
+        CacheBootstrap.getPositionCache(hazelcastInstance));
     HazelcastCacheMetrics.monitor(meterRegistry, CacheBootstrap.getRuleCache(hazelcastInstance));
-    HazelcastCacheMetrics
-        .monitor(meterRegistry, CacheBootstrap.getSecurityCache(hazelcastInstance));
+    HazelcastCacheMetrics.monitor(meterRegistry,
+        CacheBootstrap.getSecurityCache(hazelcastInstance));
     HazelcastCacheMetrics.monitor(meterRegistry, CacheBootstrap.getTradeCache(hazelcastInstance));
 
     return hazelcastInstance;

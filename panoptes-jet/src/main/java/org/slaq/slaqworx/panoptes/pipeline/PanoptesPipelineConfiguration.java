@@ -1,6 +1,5 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
-import com.hazelcast.config.Config;
 import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.jet.config.JobConfig;
 import com.hazelcast.jet.kafka.KafkaSinks;
@@ -63,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 @Factory
-public class PanoptesPipelineConfig {
+public class PanoptesPipelineConfiguration {
   public static final String BENCHMARK_SOURCE = "benchmarkSource";
   public static final String PORTFOLIO_SOURCE = "portfolioSource";
   public static final String PORTFOLIO_EVALUATION_REQUEST_SOURCE =
@@ -73,7 +72,7 @@ public class PanoptesPipelineConfig {
   public static final String TRADE_SOURCE = "tradeSource";
   public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
 
-  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfiguration.class);
 
   @Property(name = "kafka")
   private Properties kafkaProperties;
@@ -93,13 +92,18 @@ public class PanoptesPipelineConfig {
   private String tradeEvaluationResultTopic;
 
   /**
-   * Creates a new {@link PanoptesPipelineConfig}. Restricted because this class is managed by
-   * Micronaut.
+   * Creates a new {@link PanoptesPipelineConfiguration}. Restricted because this class is managed
+   * by Micronaut.
    */
-  protected PanoptesPipelineConfig() {
+  protected PanoptesPipelineConfiguration() {
     // nothing to do
   }
 
+  /**
+   * Provides configuration properties for the benchmark Kafka consumer.
+   *
+   * @return a {@link Properties} with which to configure the consumer
+   */
   protected Properties benchmarkSourceProperties() {
     Properties properties = new Properties();
     properties.putAll(kafkaProperties);
@@ -122,24 +126,19 @@ public class PanoptesPipelineConfig {
   protected StreamSource<PortfolioEvent> benchmarkSource() {
     LOG.info("using {} as benchmark topic", benchmarkTopic);
 
-    return KafkaSources
-        .kafka(benchmarkSourceProperties(), ConsumerRecord<PortfolioKey, PortfolioEvent>::value,
-            benchmarkTopic);
+    return KafkaSources.kafka(benchmarkSourceProperties(),
+        ConsumerRecord<PortfolioKey, PortfolioEvent>::value, benchmarkTopic);
   }
 
   /**
    * Configures and provides a {@link JetConfig} suitable for executing the Panoptes pipeline.
    *
-   * @param hazelcastConfig
-   *     the configuration to use for the underlying Hazelcast instance
-   *
    * @return a {@link JetConfig}
    */
   @Singleton
-  protected JetConfig jetConfig(Config hazelcastConfig) {
+  protected JetConfig jetConfig() {
     JetConfig jetConfig = new JetConfig();
-
-    jetConfig.setHazelcastConfig(hazelcastConfig);
+    jetConfig.setEnabled(true);
 
     return jetConfig;
   }
@@ -219,14 +218,14 @@ public class PanoptesPipelineConfig {
 
     Properties portfolioEvaluationRequestSourceProperties = new Properties();
     portfolioEvaluationRequestSourceProperties.putAll(kafkaProperties);
-    portfolioEvaluationRequestSourceProperties
-        .setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    portfolioEvaluationRequestSourceProperties
-        .setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-            PortfolioKeySerializer.class.getCanonicalName());
-    portfolioEvaluationRequestSourceProperties
-        .setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-            PortfolioEvaluationRequestSerializer.class.getCanonicalName());
+    portfolioEvaluationRequestSourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        "earliest");
+    portfolioEvaluationRequestSourceProperties.setProperty(
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        PortfolioKeySerializer.class.getCanonicalName());
+    portfolioEvaluationRequestSourceProperties.setProperty(
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        PortfolioEvaluationRequestSerializer.class.getCanonicalName());
 
     return KafkaSources.kafka(portfolioEvaluationRequestSourceProperties,
         ConsumerRecord<PortfolioKey, PortfolioEvaluationRequest>::value,
@@ -247,14 +246,19 @@ public class PanoptesPipelineConfig {
     portfolioEvaluationResultSinkProperties.putAll(kafkaProperties);
     portfolioEvaluationResultSinkProperties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
         PortfolioKeySerializer.class.getCanonicalName());
-    portfolioEvaluationResultSinkProperties
-        .setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-            RuleEvaluationResultSerializer.class.getCanonicalName());
+    portfolioEvaluationResultSinkProperties.setProperty(
+        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+        RuleEvaluationResultSerializer.class.getCanonicalName());
 
     return KafkaSinks.kafka(portfolioEvaluationResultSinkProperties, portfolioEvaluationResultTopic,
         RuleEvaluationResult::portfolioKey, r -> r);
   }
 
+  /**
+   * Provides configuration properties for the portfolio Kafka consumer.
+   *
+   * @return a {@link Properties} with which to configure the consumer
+   */
   protected Properties portfolioSourceProperties() {
     Properties portfolioSourceProperties = new Properties();
     portfolioSourceProperties.putAll(kafkaProperties);
@@ -277,11 +281,15 @@ public class PanoptesPipelineConfig {
   protected StreamSource<PortfolioEvent> portfolioSource() {
     LOG.info("using {} as portfolio topic", portfolioTopic);
 
-    return KafkaSources
-        .kafka(portfolioSourceProperties(), ConsumerRecord<PortfolioKey, PortfolioEvent>::value,
-            portfolioTopic);
+    return KafkaSources.kafka(portfolioSourceProperties(),
+        ConsumerRecord<PortfolioKey, PortfolioEvent>::value, portfolioTopic);
   }
 
+  /**
+   * Provides configuration properties for the security Kafka consumer.
+   *
+   * @return a {@link Properties} with which to configure the consumer
+   */
   protected Properties securitySourceProperties() {
     Properties securitySourceProperties = new Properties();
     securitySourceProperties.putAll(kafkaProperties);
@@ -304,9 +312,8 @@ public class PanoptesPipelineConfig {
   protected StreamSource<Security> securitySource() {
     LOG.info("using {} as security topic", securityTopic);
 
-    return KafkaSources
-        .kafka(securitySourceProperties(), ConsumerRecord<SecurityKey, Security>::value,
-            securityTopic);
+    return KafkaSources.kafka(securitySourceProperties(),
+        ConsumerRecord<SecurityKey, Security>::value, securityTopic);
   }
 
   /**
@@ -348,7 +355,7 @@ public class PanoptesPipelineConfig {
     tradeSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         TradeSerializer.class.getCanonicalName());
 
-    return KafkaSources
-        .kafka(tradeSourceProperties, ConsumerRecord<TradeKey, Trade>::value, tradeTopic);
+    return KafkaSources.kafka(tradeSourceProperties, ConsumerRecord<TradeKey, Trade>::value,
+        tradeTopic);
   }
 }
