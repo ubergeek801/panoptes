@@ -1,22 +1,28 @@
 package org.slaq.slaqworx.panoptes.mock;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.context.event.ApplicationEventListener;
-import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
+import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EligibilityListMsg.ListType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +33,11 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 @Singleton
-@Context
 @Requires(env = {"bootstrap"})
-public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
+public class Bootstrapper {
   private static final Logger LOG = LoggerFactory.getLogger(Bootstrapper.class);
+  private static final Random random = new Random(0);
+
   private final KafkaProducer kafkaProducer;
 
   /**
@@ -48,11 +55,15 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
    *
    * @param args
    *     the program arguments (unused)
+   *
+   * @throws Exception
+   *     if any error occurs
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     try (ApplicationContext appContext = Micronaut.build(args).mainClass(Bootstrapper.class)
-        .environments("bootstrap", "offline").args(args).start()) {
-      // nothing else to do
+        .environments("bootstrap", "offline").args(args).build().start()) {
+      Bootstrapper bootstrapper = appContext.getBean(Bootstrapper.class);
+      bootstrapper.bootstrap();
     }
   }
 
@@ -63,20 +74,10 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
    *     if the data could not be read
    */
   public void bootstrap() throws IOException {
+    bootstrapEligibilityLists();
     bootstrapSecurities();
     bootstrapBenchmarks();
     bootstrapPortfolios();
-  }
-
-  @Override
-  public void onApplicationEvent(StartupEvent event) {
-    Bootstrapper bootstrapper = event.getSource().getBean(Bootstrapper.class);
-    try {
-      bootstrapper.bootstrap();
-    } catch (Exception e) {
-      // FIXME throw a better exception
-      throw new RuntimeException("could not perform bootstrap", e);
-    }
   }
 
   /**
@@ -93,6 +94,65 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     LOG.info("publishing {} benchmarks", benchmarks.size());
     benchmarks.forEach((k, b) -> kafkaProducer.publishBenchmarkEvent(k, new PortfolioDataEvent(b)));
     LOG.info("published benchmarks");
+  }
+
+  /**
+   * Bootstraps the seed eligibility list data.
+   *
+   * @throws IOException
+   *     if the data could not be read
+   */
+  protected void bootstrapEligibilityLists() throws IOException {
+    LOG.info("generating eligibility lists");
+    // collect distinct values of various attributes
+    Map<SecurityKey, Security> securities = PimcoBenchmarkDataSource.getInstance().getSecurityMap();
+    List<String> countries =
+        securities.values().stream().map(s -> s.getAttributeValue(SecurityAttribute.country, false))
+            .filter(Objects::nonNull).distinct().collect(Collectors.toCollection(ArrayList::new));
+    LOG.info("{} distinct countries", countries.size());
+    List<String> cusips =
+        securities.values().stream().map(s -> s.getAttributeValue(SecurityAttribute.cusip, false))
+            .filter(Objects::nonNull).distinct().collect(Collectors.toCollection(ArrayList::new));
+    LOG.info("{} distinct CUSIPs", cusips.size());
+    List<String> issuers =
+        securities.values().stream().map(s -> s.getAttributeValue(SecurityAttribute.issuer, false))
+            .filter(Objects::nonNull).distinct().collect(Collectors.toCollection(ArrayList::new));
+    LOG.info("{} distinct issuers", issuers.size());
+
+    // generate some random eligibility lists
+    ArrayList<EligibilityList> eligibilityLists = new ArrayList<>(300);
+    for (int i = 1; i <= 100; i++) {
+      Set<String> countryList = new HashSet<>(30);
+      int numCountries = 10 + random.nextInt(21);
+      for (int j = 0; j < numCountries; j++) {
+        countryList.add(countries.get(random.nextInt(countries.size())));
+      }
+      eligibilityLists.add(
+          new EligibilityList("country" + i, ListType.COUNTRY, "generated country list " + i,
+              countryList));
+
+      Set<String> cusipList = new HashSet<>(1000);
+      int numCusips = 20 + random.nextInt(981);
+      for (int j = 0; j < numCusips; j++) {
+        cusipList.add(cusips.get(random.nextInt(cusips.size())));
+      }
+      eligibilityLists.add(
+          new EligibilityList("cusip" + i, ListType.SECURITY, "generated security list " + i,
+              cusipList));
+
+      Set<String> issuerList = new HashSet<>(200);
+      int numIssuers = 20 + random.nextInt(181);
+      for (int j = 0; j < numIssuers; j++) {
+        issuerList.add(issuers.get(random.nextInt(issuers.size())));
+      }
+      eligibilityLists.add(
+          new EligibilityList("issuer" + i, ListType.ISSUER, "generated issuer list " + i,
+              issuerList));
+    }
+
+    LOG.info("publishing {} eligibility lists", eligibilityLists.size());
+    eligibilityLists.forEach(l -> kafkaProducer.publishEligibilityList(l.name(), l));
+    LOG.info("published eligibility lists");
   }
 
   /**
@@ -115,8 +175,8 @@ public class Bootstrapper implements ApplicationEventListener<StartupEvent> {
     }
 
     LOG.info("publishing {} portfolios", portfolios.size());
-    portfolios
-        .forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
+    portfolios.forEach(
+        p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
     LOG.info("published portfolios");
   }
 

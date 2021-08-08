@@ -11,6 +11,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serializer;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
@@ -24,6 +25,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
+import org.slaq.slaqworx.panoptes.serializer.EligibilityListSerializer;
 import org.slaq.slaqworx.panoptes.serializer.EvaluationContextSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioEventSerializer;
 import org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer;
@@ -70,6 +72,7 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
   protected PanoptesSerdeRegistry() {
     serdeMap = new HashMap<>();
 
+    serdeMap.put(EligibilityList.class, createSerde(new EligibilityListSerializer()));
     serdeMap.put(EvaluationContext.class, createSerde(new EvaluationContextSerializer()));
     serdeMap.put(Portfolio.class, createSerde(new PortfolioSerializer()));
     serdeMap.put(PortfolioEvent.class, createSerde(new PortfolioEventSerializer()));

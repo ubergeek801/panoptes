@@ -16,6 +16,7 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
@@ -36,6 +37,7 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
+import org.slaq.slaqworx.panoptes.serializer.kafka.EligibilityListSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioEvaluationRequestSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioEventSerializer;
 import org.slaq.slaqworx.panoptes.serializer.kafka.PortfolioKeySerializer;
@@ -64,6 +66,7 @@ import org.slf4j.LoggerFactory;
 @Factory
 public class PanoptesPipelineConfiguration {
   public static final String BENCHMARK_SOURCE = "benchmarkSource";
+  public static final String ELIGIBILITY_LIST_SOURCE = "eligibilityListSource";
   public static final String PORTFOLIO_SOURCE = "portfolioSource";
   public static final String PORTFOLIO_EVALUATION_REQUEST_SOURCE =
       "portfolioEvaluationRequestSource";
@@ -78,6 +81,8 @@ public class PanoptesPipelineConfiguration {
   private Properties kafkaProperties;
   @Property(name = "kafka-topic.benchmark-topic")
   private String benchmarkTopic;
+  @Property(name = "kafka-topic.eligibility-list-topic")
+  private String eligibilityListTopic;
   @Property(name = "kafka-topic.portfolio-topic")
   private String portfolioTopic;
   @Property(name = "kafka-topic.portfolio-request-topic")
@@ -128,6 +133,38 @@ public class PanoptesPipelineConfiguration {
 
     return KafkaSources.kafka(benchmarkSourceProperties(),
         ConsumerRecord<PortfolioKey, PortfolioEvent>::value, benchmarkTopic);
+  }
+
+  /**
+   * Provides configuration properties for the eligibility list Kafka consumer.
+   *
+   * @return a {@link Properties} with which to configure the consumer
+   */
+  protected Properties eligibilityListSourceProperties() {
+    Properties eligibilityListSourceProperties = new Properties();
+    eligibilityListSourceProperties.putAll(kafkaProperties);
+    eligibilityListSourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        "earliest");
+    eligibilityListSourceProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        PortfolioKeySerializer.class.getCanonicalName());
+    eligibilityListSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        EligibilityListSerializer.class.getCanonicalName());
+
+    return eligibilityListSourceProperties;
+  }
+
+  /**
+   * Configures and provides a {@link StreamSource} to source eligibility list data from Kafka.
+   *
+   * @return a {@link StreamSource}
+   */
+  @Singleton
+  @Named(ELIGIBILITY_LIST_SOURCE)
+  protected StreamSource<EligibilityList> eligibilityListSource() {
+    LOG.info("using {} as eligibility list topic", eligibilityListTopic);
+
+    return KafkaSources.kafka(eligibilityListSourceProperties(),
+        ConsumerRecord<String, EligibilityList>::value, eligibilityListTopic);
   }
 
   /**

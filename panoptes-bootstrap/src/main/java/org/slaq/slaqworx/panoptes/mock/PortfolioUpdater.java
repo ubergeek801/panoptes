@@ -1,10 +1,7 @@
 package org.slaq.slaqworx.panoptes.mock;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.context.event.ApplicationEventListener;
-import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Singleton;
 import java.io.IOException;
@@ -22,9 +19,8 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 @Singleton
-@Context
 @Requires(env = {"portfolio-update"})
-public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> {
+public class PortfolioUpdater {
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioUpdater.class);
   private final KafkaProducer kafkaProducer;
 
@@ -43,22 +39,15 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
    *
    * @param args
    *     the program arguments (unused)
+   *
+   * @throws Exception
+   *     if any error occurs
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     try (ApplicationContext appContext = Micronaut.build(args).mainClass(PortfolioUpdater.class)
         .environments("portfolio-update", "offline").args(args).start()) {
-      // nothing else to do
-    }
-  }
-
-  @Override
-  public void onApplicationEvent(StartupEvent event) {
-    PortfolioUpdater updater = event.getSource().getBean(PortfolioUpdater.class);
-    try {
+      PortfolioUpdater updater = appContext.getBean(PortfolioUpdater.class);
       updater.updatePortfolios();
-    } catch (Exception e) {
-      // FIXME throw a better exception
-      throw new RuntimeException("could not perform bootstrap", e);
     }
   }
 
@@ -71,8 +60,7 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
   public void updatePortfolios() throws IOException {
     // generate the portfolios
     LOG.info("generating portfolios");
-    DummyPortfolioMapLoader mapLoader =
-        new DummyPortfolioMapLoader(900);
+    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(900);
     ArrayList<Portfolio> portfolios = new ArrayList<>();
     for (PortfolioKey key : mapLoader.loadAllKeys()) {
       Portfolio portfolio = mapLoader.load(key);
@@ -82,8 +70,6 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
       }
     }
 
-    long startTime = System.currentTimeMillis();
-//    while (System.currentTimeMillis() - startTime < 120_000) {
     for (int j = 0; j < 50; j++) {
       // republish some random portfolios
       ArrayList<Portfolio> portfoliosCopy = new ArrayList<>(portfolios);
@@ -94,8 +80,8 @@ public class PortfolioUpdater implements ApplicationEventListener<StartupEvent> 
 
       long[] eventId = new long[] {System.currentTimeMillis()};
       LOG.info("publishing {} portfolios", randomPortfolios.size());
-      randomPortfolios.forEach(p -> kafkaProducer
-          .publishPortfolioEvent(p.getKey(), new PortfolioCommandEvent(eventId[0]++, p.getKey())));
+      randomPortfolios.forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(),
+          new PortfolioCommandEvent(eventId[0]++, p.getKey())));
     }
 
     LOG.info("published portfolios");

@@ -86,6 +86,8 @@ public class PanoptesCacheConfiguration {
    *
    * @param securityAttributeLoader
    *     the {@link SecurityAttributeLoader} used to initialize {@link SecurityAttribute}s
+   * @param eligibilityMapConfig
+   *     the {@link MapConfig} to use for eligibility data
    * @param portfolioMapConfig
    *     the {@link MapConfig} to use for {@link Portfolio} data
    * @param positionMapConfig
@@ -107,6 +109,7 @@ public class PanoptesCacheConfiguration {
    */
   @Singleton
   protected Config hazelcastConfig(SecurityAttributeLoader securityAttributeLoader,
+      @Named(AssetCache.ELIGIBILITY_CACHE_NAME) MapConfig eligibilityMapConfig,
       @Named(AssetCache.PORTFOLIO_CACHE_NAME) MapConfig portfolioMapConfig,
       @Named(AssetCache.POSITION_CACHE_NAME) MapConfig positionMapConfig,
       @Named(AssetCache.SECURITY_CACHE_NAME) MapConfig securityMapConfig,
@@ -143,8 +146,8 @@ public class PanoptesCacheConfiguration {
     // set up the entity caches (Portfolio, Position, etc.); note that Trades and Transactions
     // are non-persistent for now
 
-    config.addMapConfig(portfolioMapConfig).addMapConfig(positionMapConfig)
-        .addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
+    config.addMapConfig(eligibilityMapConfig).addMapConfig(portfolioMapConfig)
+        .addMapConfig(positionMapConfig).addMapConfig(securityMapConfig).addMapConfig(ruleMapConfig)
         .addMapConfig(createMapConfiguration(AssetCache.TRADE_CACHE_NAME, null));
 
     config.addExecutorConfig(clusterExecutorConfig);
@@ -197,6 +200,17 @@ public class PanoptesCacheConfiguration {
     HazelcastCacheMetrics.monitor(meterRegistry, CacheBootstrap.getTradeCache(hazelcastInstance));
 
     return hazelcastInstance;
+  }
+
+  /**
+   * Provides a {@link MapConfig} for the eligibility cache.
+   *
+   * @return a {@link MapConfig}
+   */
+  @Named(AssetCache.ELIGIBILITY_CACHE_NAME)
+  @Singleton
+  protected MapConfig eligibilityMapConfig() {
+    return createMapConfiguration(AssetCache.ELIGIBILITY_CACHE_NAME, null);
   }
 
   /**

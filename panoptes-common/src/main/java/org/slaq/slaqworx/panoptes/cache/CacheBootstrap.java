@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.cache;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -27,6 +28,20 @@ class CacheBootstrap {
    */
   private CacheBootstrap() {
     // nothing to do
+  }
+
+  /**
+   * Obtains the eligibility cache from the given {@link HazelcastInstance}.
+   *
+   * @param hazelcastInstance
+   *     the {@link HazelcastInstance} from which to obtain the cache
+   *
+   * @return the eligibility cache
+   */
+  @Nonnull
+  protected static IMap<String, Set<String>> getEligibilityCache(
+      @Nonnull HazelcastInstance hazelcastInstance) {
+    return hazelcastInstance.getMap(AssetCache.ELIGIBILITY_CACHE_NAME);
   }
 
   /**

@@ -1,10 +1,7 @@
 package org.slaq.slaqworx.panoptes.mock;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.context.event.ApplicationEventListener;
-import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Singleton;
 import java.io.IOException;
@@ -31,9 +28,8 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 @Singleton
-@Context
 @Requires(env = {"trade-submit"})
-public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
+public class TradeSubmitter {
   private static final Logger LOG = LoggerFactory.getLogger(TradeSubmitter.class);
   private final KafkaProducer kafkaProducer;
 
@@ -52,22 +48,15 @@ public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
    *
    * @param args
    *     the program arguments (unused)
+   *
+   * @throws Exception
+   *     if any error occurs
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     try (ApplicationContext appContext = Micronaut.build(args).mainClass(TradeSubmitter.class)
-        .environments("trade-submit", "offline").args(args).start()) {
-      // nothing else to do
-    }
-  }
-
-  @Override
-  public void onApplicationEvent(StartupEvent event) {
-    TradeSubmitter submitter = event.getSource().getBean(TradeSubmitter.class);
-    try {
+        .environments("trade-submit", "offline").args(args).build().start()) {
+      TradeSubmitter submitter = appContext.getBean(TradeSubmitter.class);
       submitter.submitTrades();
-    } catch (Exception e) {
-      // FIXME throw a better exception
-      throw new RuntimeException("could not perform bootstrap", e);
     }
   }
 
@@ -102,11 +91,10 @@ public class TradeSubmitter implements ApplicationEventListener<StartupEvent> {
       for (int j = 0; j < numTransactions; j++) {
         // don't use a portfolio key more than once
         PortfolioKey portfolioKey =
-            unusedPortfolioKeys.remove((int) (random.nextDouble() * unusedPortfolioKeys.size()));
+            unusedPortfolioKeys.remove(random.nextInt(unusedPortfolioKeys.size()));
 
         // pick a security, any security
-        SecurityKey securityKey =
-            securities.get((int) (random.nextDouble() * securities.size())).getKey();
+        SecurityKey securityKey = securities.get(random.nextInt(securities.size())).getKey();
 
         // generate an amount in the approximate range of 100.00 ~ 10_000.00
         double amount =

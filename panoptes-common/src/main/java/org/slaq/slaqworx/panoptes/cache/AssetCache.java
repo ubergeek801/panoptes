@@ -5,6 +5,7 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.map.IMap;
 import io.micronaut.context.ApplicationContext;
 import jakarta.inject.Singleton;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
@@ -39,6 +40,7 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
 @Singleton
 public class AssetCache
     implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider, TradeProvider {
+  public static final String ELIGIBILITY_CACHE_NAME = "eligibility";
   public static final String PORTFOLIO_CACHE_NAME = "portfolio";
   public static final String POSITION_CACHE_NAME = "position";
   public static final String SECURITY_CACHE_NAME = "security";
@@ -53,6 +55,7 @@ public class AssetCache
 
   private static AssetCache defaultAssetCache;
   private final HazelcastInstance hazelcastInstance;
+  private final IMap<String, Set<String>> eligibilityCache;
   private final IMap<PortfolioKey, Portfolio> portfolioCache;
   private final IMap<PositionKey, Position> positionCache;
   private final IMap<RuleKey, ConfigurableRule> ruleCache;
@@ -68,6 +71,7 @@ public class AssetCache
    */
   protected AssetCache(HazelcastInstance hazelcastInstance) {
     this.hazelcastInstance = hazelcastInstance;
+    eligibilityCache = CacheBootstrap.getEligibilityCache(hazelcastInstance);
     portfolioCache = CacheBootstrap.getPortfolioCache(hazelcastInstance);
     positionCache = CacheBootstrap.getPositionCache(hazelcastInstance);
     ruleCache = CacheBootstrap.getRuleCache(hazelcastInstance);
@@ -141,6 +145,16 @@ public class AssetCache
   public SortedSet<String> getCurrencies() {
     return getSecurityCache().aggregate(
         new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
+  }
+
+  /**
+   * Obtains the eligibility cache.
+   *
+   * @return the eligibility cache
+   */
+  @Nonnull
+  public IMap<String, Set<String>> getEligibilityCache() {
+    return eligibilityCache;
   }
 
   @Override

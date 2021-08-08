@@ -4,6 +4,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
@@ -18,6 +19,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  */
 public abstract class HazelcastStreamSerializer<T extends ProtobufSerializable>
     implements StreamSerializer<T> {
+  @Nonnull
   private final ProtobufSerializer<T> protobufSerializer;
 
   /**
@@ -27,11 +29,12 @@ public abstract class HazelcastStreamSerializer<T extends ProtobufSerializable>
    * @param protobufSerializer
    *     the {@link ProtobufSerializer} to which to delegate
    */
-  protected HazelcastStreamSerializer(ProtobufSerializer<T> protobufSerializer) {
+  protected HazelcastStreamSerializer(@Nonnull ProtobufSerializer<T> protobufSerializer) {
     this.protobufSerializer = protobufSerializer;
   }
 
   @Override
+  @Nonnull
   public T read(ObjectDataInput in) throws IOException {
     int length = in.readInt();
     byte[] buffer = new byte[length];
@@ -41,7 +44,7 @@ public abstract class HazelcastStreamSerializer<T extends ProtobufSerializable>
   }
 
   @Override
-  public void write(ObjectDataOutput out, T object) throws IOException {
+  public void write(@Nonnull ObjectDataOutput out, @Nonnull T object) throws IOException {
     byte[] buffer = protobufSerializer.write(object);
     // when deserializing, ObjectDataInput won't know the size of the byte array unless we tell it
     out.writeInt(buffer.length);
@@ -56,7 +59,7 @@ public abstract class HazelcastStreamSerializer<T extends ProtobufSerializable>
   public enum SerializerTypeId {
     DONT_USE_ZERO, POSITION_KEY, POSITION, PORTFOLIO_KEY, PORTFOLIO_RULE_KEY, PORTFOLIO,
     PORTFOLIO_SUMMARIZER, PORTFOLIO_SUMMARY, SECURITY_KEY, SECURITY, RULE_KEY, RULE, RULE_SUMMARY,
-    TRANSACTION_KEY, TRANSACTION, TRADE_KEY, TRADE, EVALUATION_CONTEXT,
+    TRANSACTION_KEY, TRANSACTION, TRADE_KEY, TRADE, ELIGIBILITY_LIST, EVALUATION_CONTEXT,
     PORTFOLIO_EVALUATION_REQUEST, ROOM_EVALUATION_REQUEST, TRADE_EVALUATION_REQUEST, EXCEPTION,
     RULE_RESULT, EVALUATION_RESULT, RULE_IMPACT, PORTFOLIO_RULE_IMPACT, TRADE_EVALUATION_RESULT,
     RULE_EVALUATION_RESULT, PORTFOLIO_COMMAND_EVENT, PORTFOLIO_DATA_EVENT, SECURITY_UPDATE_EVENT,

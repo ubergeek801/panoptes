@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.mock;
 import io.micronaut.configuration.kafka.annotation.KafkaClient;
 import io.micronaut.configuration.kafka.annotation.KafkaKey;
 import io.micronaut.configuration.kafka.annotation.Topic;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Position;
 import org.slaq.slaqworx.panoptes.asset.PositionKey;
@@ -27,6 +28,9 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
 public interface KafkaProducer {
   @Topic("${kafka-topic.benchmark-topic}")
   void publishBenchmarkEvent(@KafkaKey PortfolioKey benchmarkKey, PortfolioEvent benchmarkEvent);
+
+  @Topic("${kafka-topic.eligibility-list-topic}")
+  void publishEligibilityList(@KafkaKey String listName, EligibilityList eligibilityList);
 
   @Topic("${kafka-topic.portfolio-topic}")
   void publishPortfolioEvent(@KafkaKey PortfolioKey portfolioKey, PortfolioEvent portfolioEvent);

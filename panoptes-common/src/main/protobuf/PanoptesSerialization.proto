@@ -79,6 +79,18 @@ message TradeMsg {
   repeated TransactionMsg transaction = 4;
 }
 
+message EligibilityListMsg {
+  string name = 1;
+  enum ListType {
+    COUNTRY = 0;
+    ISSUER = 1;
+    SECURITY = 2;
+  }
+  ListType type = 2;
+  string description = 3;
+  repeated string item = 4;
+}
+
 message EvaluationContextMsg {
   string evaluationMode = 1;
   map<string, SecurityMsg> securityOverrides = 2;

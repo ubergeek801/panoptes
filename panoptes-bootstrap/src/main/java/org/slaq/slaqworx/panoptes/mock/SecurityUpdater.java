@@ -1,10 +1,7 @@
 package org.slaq.slaqworx.panoptes.mock;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.context.event.ApplicationEventListener;
-import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Singleton;
 import java.io.IOException;
@@ -20,9 +17,8 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 @Singleton
-@Context
 @Requires(env = {"security-update"})
-public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
+public class SecurityUpdater {
   private static final Logger LOG = LoggerFactory.getLogger(SecurityUpdater.class);
   private final KafkaProducer kafkaProducer;
 
@@ -41,22 +37,15 @@ public class SecurityUpdater implements ApplicationEventListener<StartupEvent> {
    *
    * @param args
    *     the program arguments (unused)
+   *
+   * @throws Exception
+   *     if any error occurs
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     try (ApplicationContext appContext = Micronaut.build(args).mainClass(SecurityUpdater.class)
-        .environments("security-update", "offline").args(args).start()) {
-      // nothing else to do
-    }
-  }
-
-  @Override
-  public void onApplicationEvent(StartupEvent event) {
-    SecurityUpdater updater = event.getSource().getBean(SecurityUpdater.class);
-    try {
+        .environments("security-update", "offline").args(args).build().start()) {
+      SecurityUpdater updater = appContext.getBean(SecurityUpdater.class);
       updater.updateSecurities();
-    } catch (Exception e) {
-      // FIXME throw a better exception
-      throw new RuntimeException("could not perform bootstrap", e);
     }
   }
 
