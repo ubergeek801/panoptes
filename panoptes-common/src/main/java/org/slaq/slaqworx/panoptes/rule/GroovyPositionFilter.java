@@ -66,8 +66,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     }
 
     try {
-      @SuppressWarnings("unchecked")
-      Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
+      @SuppressWarnings("unchecked") Constructor<Predicate<PositionEvaluationContext>>
+          filterClassConstructor =
           (Constructor<Predicate<PositionEvaluationContext>>) filterClass.getConstructor();
       groovyFilter = filterClassConstructor.newInstance();
     } catch (Exception e) {
@@ -138,11 +138,13 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     if (isCompileStatic) {
       classDef.append("@groovy.transform.CompileStatic\n");
     }
-    classDef.append("class GroovyFilter implements Predicate<PositionEvaluationContext> {\n");
-    classDef.append(" boolean test(PositionEvaluationContext pctx) {\n");
-    classDef.append("  EvaluationContext ctx = pctx.evaluationContext\n");
-    classDef.append("  Position p = pctx.position\n");
-    classDef.append("  Security s = p.getSecurity(ctx)\n");
+    classDef.append("""
+        class GroovyFilter implements Predicate<PositionEvaluationContext> {
+         boolean test(PositionEvaluationContext pctx) {
+          EvaluationContext ctx = pctx.evaluationContext
+          Position p = pctx.position
+          Security s = p.getSecurity(ctx)
+        """);
     classDef.append("  return " + expression + "\n");
     classDef.append(" }\n");
     classDef.append("}");

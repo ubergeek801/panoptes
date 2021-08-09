@@ -191,7 +191,7 @@ public class Bootstrapper {
     Map<SecurityKey, Security> securities = PimcoBenchmarkDataSource.getInstance().getSecurityMap();
 
     LOG.info("publishing {} securities", securities.size());
-    securities.forEach(kafkaProducer::publishSecurity);
+    securities.values().parallelStream().forEach(s -> kafkaProducer.publishSecurity(s.getKey(), s));
     LOG.info("published securities");
   }
 }

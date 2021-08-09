@@ -13,7 +13,10 @@
   </appender>
 
   <logger name="com.hazelcast.system.logo" level="error"/>
+  <logger name="org.apache.kafka.clients.Metadata" level="warn"/>
+  <logger name="org.apache.kafka.clients.consumer.ConsumerConfig" level="warn"/>
   <logger name="org.apache.kafka.clients.producer.ProducerConfig" level="warn"/>
+  <logger name="org.apache.kafka.common.utils.AppInfoParser" level="warn"/>
   <logger name="p6spy" level="error"/>
 
   <root level="info">

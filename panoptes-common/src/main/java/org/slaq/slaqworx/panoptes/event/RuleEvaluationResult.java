@@ -17,7 +17,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  * @param portfolioKey
  *     a key identifying the portfolio/benchmark that this rule was evaluated against
  * @param benchmarkKey
- *     a key identifying the benchmark associated with the evaluated portoflio, or {@code null} if
+ *     a key identifying the benchmark associated with the evaluated portfolio, or {@code null} if
  *     the portfolio has no benchmark (or is itself a benchmark)
  * @param source
  *     the type of entity which was the source of the evaluation result

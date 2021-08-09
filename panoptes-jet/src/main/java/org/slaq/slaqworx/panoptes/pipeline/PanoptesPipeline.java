@@ -4,11 +4,14 @@ import com.hazelcast.jet.datamodel.Tuple3;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sink;
 import com.hazelcast.jet.pipeline.SinkBuilder;
+import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.stream.Collectors;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
@@ -38,6 +41,8 @@ public class PanoptesPipeline {
    * Creates a new {@link PanoptesPipeline} using the given resources. Restricted because this class
    * should be instantiated through Micronaut.
    *
+   * @param eligibilityListKafkaSource
+   *     a {@link StreamSource} producing eligibility list-related events
    * @param benchmarkKafkaSource
    *     a {@link StreamSource} producing benchmark-related events
    * @param portfolioKafkaSource
@@ -52,9 +57,13 @@ public class PanoptesPipeline {
    *     a {@link StreamSource} producing trade evaluation requests
    * @param tradeResultSink
    *     a {@link Sink} consuming trade evaluation results
+   * @param meterRegistry
+   *     a {@link MeterRegistry} through which to publish metrics
    */
-  protected PanoptesPipeline(@Named(PanoptesPipelineConfiguration.BENCHMARK_SOURCE)
-      StreamSource<PortfolioEvent> benchmarkKafkaSource,
+  protected PanoptesPipeline(@Named(PanoptesPipelineConfiguration.ELIGIBILITY_LIST_SOURCE)
+      StreamSource<EligibilityList> eligibilityListKafkaSource,
+      @Named(PanoptesPipelineConfiguration.BENCHMARK_SOURCE)
+          StreamSource<PortfolioEvent> benchmarkKafkaSource,
       @Named(PanoptesPipelineConfiguration.PORTFOLIO_SOURCE)
           StreamSource<PortfolioEvent> portfolioKafkaSource, /*
       @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_REQUEST_SOURCE)
@@ -63,13 +72,21 @@ public class PanoptesPipeline {
           Sink<RuleEvaluationResult> portfolioResultSink,
       @Named(PanoptesPipelineConfiguration.SECURITY_SOURCE)
           StreamSource<Security> securityKafkaSource
-      /*,
-      @Named(PanoptesPipelineConfig.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource,
+      /*, @Named(PanoptesPipelineConfig.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource,
       @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK)
-          Sink<TradeEvaluationResult> tradeResultSink */) {
+          Sink<TradeEvaluationResult> tradeResultSink */, MeterRegistry meterRegistry) {
     LOG.info("initializing pipeline");
 
     pipeline = Pipeline.create();
+
+    // we would like to just use a Map sink here, but Jet can't sink to a Map that has both a
+    // near cache and a custom serializer
+    pipeline.readFrom(eligibilityListKafkaSource).withIngestionTimestamps()
+        .setName("eligibilityListSource").filter(l -> {
+          AssetCache assetCache = PanoptesApp.getAssetCache();
+          assetCache.getEligibilityCache().set(l.name(), l.items());
+          return true;
+        }).writeTo(Sinks.noop());
 
     // obtain trade sequence information from the source ringbuffer
     /*
@@ -155,9 +172,9 @@ public class PanoptesPipeline {
             .flatMapStateful(benchmarkComparator, benchmarkComparator)
             .setName("benchmarkComparator");
 
-    // resultStream.writeTo(portfolioResultSink);
+    resultStream.writeTo(portfolioResultSink);
     resultStream.writeTo(SinkBuilder.sinkBuilder("evaluationResultSink", c -> c)
-            .receiveFn(new EvaluationResultPublisher()).build())
+            .receiveFn(new EvaluationResultPublisher(meterRegistry)).build())
         .setLocalParallelism(Runtime.getRuntime().availableProcessors());
 
     LOG.info("initialized pipeline");

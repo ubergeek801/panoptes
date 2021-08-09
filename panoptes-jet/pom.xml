@@ -199,6 +199,10 @@
       <artifactId>hazelcast-jet-kafka</artifactId>
       <version>${hazelcast.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.micronaut</groupId>
+      <artifactId>micronaut-http-server-netty</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slaq.slaqworx</groupId>

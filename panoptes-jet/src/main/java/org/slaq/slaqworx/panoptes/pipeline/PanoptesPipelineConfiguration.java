@@ -16,6 +16,7 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -146,7 +147,7 @@ public class PanoptesPipelineConfiguration {
     eligibilityListSourceProperties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
         "earliest");
     eligibilityListSourceProperties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-        PortfolioKeySerializer.class.getCanonicalName());
+        StringDeserializer.class.getCanonicalName());
     eligibilityListSourceProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         EligibilityListSerializer.class.getCanonicalName());
 

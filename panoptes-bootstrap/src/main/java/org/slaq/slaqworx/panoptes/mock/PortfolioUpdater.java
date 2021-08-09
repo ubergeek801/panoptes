@@ -45,7 +45,7 @@ public class PortfolioUpdater {
    */
   public static void main(String[] args) throws Exception {
     try (ApplicationContext appContext = Micronaut.build(args).mainClass(PortfolioUpdater.class)
-        .environments("portfolio-update", "offline").args(args).start()) {
+        .environments("portfolio-update", "offline").args(args).build().start()) {
       PortfolioUpdater updater = appContext.getBean(PortfolioUpdater.class);
       updater.updatePortfolios();
     }
@@ -70,7 +70,7 @@ public class PortfolioUpdater {
       }
     }
 
-    for (int j = 0; j < 50; j++) {
+    for (int j = 0; j < 500; j++) {
       // republish some random portfolios
       ArrayList<Portfolio> portfoliosCopy = new ArrayList<>(portfolios);
       ArrayList<Portfolio> randomPortfolios = new ArrayList<>();

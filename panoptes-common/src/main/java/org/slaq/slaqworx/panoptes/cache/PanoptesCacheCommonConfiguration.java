@@ -8,6 +8,7 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import jakarta.inject.Singleton;
 import java.util.concurrent.ForkJoinPool;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
@@ -21,6 +22,7 @@ import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.RuleSummary;
+import org.slaq.slaqworx.panoptes.serializer.hazelcast.EligibilityListSerializer;
 import org.slaq.slaqworx.panoptes.serializer.hazelcast.EvaluationContextSerializer;
 import org.slaq.slaqworx.panoptes.serializer.hazelcast.EvaluationResultSerializer;
 import org.slaq.slaqworx.panoptes.serializer.hazelcast.PortfolioEvaluationRequestSerializer;
@@ -83,6 +85,9 @@ public class PanoptesCacheCommonConfiguration {
   @Singleton
   protected SerializationConfig serializationConfig() {
     SerializationConfig config = new SerializationConfig();
+    config.addSerializerConfig(
+        new SerializerConfig().setImplementation(new EligibilityListSerializer())
+            .setTypeClass(EligibilityList.class));
     config.addSerializerConfig(
         new SerializerConfig().setImplementation(new EvaluationContextSerializer())
             .setTypeClass(EvaluationContext.class));

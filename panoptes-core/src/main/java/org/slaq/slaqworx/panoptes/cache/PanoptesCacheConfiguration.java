@@ -128,7 +128,7 @@ public class PanoptesCacheConfiguration {
     config.setProperty("hazelcast.health.monitoring.threshold.cpu.percentage", "70");
     // this probably isn't good for fault tolerance but it improves startup time
     if (isClustered) {
-      config.setProperty("hazelcast.initial.min.cluster.size", "3");
+      config.setProperty("hazelcast.initial.min.cluster.size", "4");
     }
 
     // use Hazelcast's ManagedContext mechanism to make the ApplicationContext available to
@@ -190,6 +190,8 @@ public class PanoptesCacheConfiguration {
     HazelcastInstance hazelcastInstance =
         Hazelcast.getOrCreateHazelcastInstance(hazelcastConfiguration);
 
+    HazelcastCacheMetrics.monitor(meterRegistry,
+        CacheBootstrap.getEligibilityCache(hazelcastInstance));
     HazelcastCacheMetrics.monitor(meterRegistry,
         CacheBootstrap.getPortfolioCache(hazelcastInstance));
     HazelcastCacheMetrics.monitor(meterRegistry,

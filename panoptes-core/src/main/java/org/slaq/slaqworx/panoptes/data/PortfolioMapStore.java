@@ -64,9 +64,8 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
       handle.execute(
           "delete from portfolio_rule where portfolio_id = ? and portfolio_version" + " = ?",
           key.getId(), key.getVersion());
-      return handle
-          .execute("delete from " + getTableName() + " where id = ? and version = ?", key.getId(),
-              key.getVersion());
+      return handle.execute("delete from " + getTableName() + " where id = ? and version = ?",
+          key.getId(), key.getVersion());
     });
   }
 
@@ -81,16 +80,16 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     return getJdbi().withHandle(handle -> {
       // get the keys for the related Positions
       Stream<PositionKey> positionKeys = handle.select(
-          "select position_id from portfolio_position where portfolio_id = ? and" +
-              " portfolio_version = ?", id, version)
+              "select position_id from portfolio_position where portfolio_id = ? and" +
+                  " portfolio_version = ?", id, version)
           .map((posRs, ctx) -> new PositionKey(posRs.getString(1))).stream();
       Set<Position> positions = positionKeys.map(k -> assetCacheProvider.get().getPosition(k))
           .collect(Collectors.toSet());
 
       // get the keys for the related Rules
       Stream<RuleKey> ruleKeys = handle.select(
-          "select rule_id from portfolio_rule where portfolio_id = ? and" +
-              " portfolio_version = ?", id, version)
+              "select rule_id from portfolio_rule where portfolio_id = ? and" +
+                  " portfolio_version = ?", id, version)
           .map((ruleRs, ctx) -> new RuleKey(ruleRs.getString(1))).stream();
       Set<ConfigurableRule> rules =
           ruleKeys.map(k -> assetCacheProvider.get().getRule(k)).collect(Collectors.toSet());
@@ -133,11 +132,13 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() +
-        " (id, version, name, benchmark_id, benchmark_version, partition_id) values (?," +
-        " ?, ?, ?, ?, 0) on conflict on constraint portfolio_pk do update" +
-        " set name = excluded.name, benchmark_id = excluded.benchmark_id," +
-        " benchmark_version = excluded.benchmark_version";
+    return "insert into " + getTableName() + """
+         (id, version, name, benchmark_id, benchmark_version, partition_id)
+         values (?, ?, ?, ?, ?, 0)
+         on conflict on constraint portfolio_pk do update
+          set name = excluded.name, benchmark_id = excluded.benchmark_id,
+            benchmark_version = excluded.benchmark_version
+        """;
   }
 
   @Override
@@ -151,10 +152,11 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
 
     getJdbi().withHandle(handle -> {
       for (Portfolio portfolio : map.values()) {
-        PreparedBatch batch = handle.prepareBatch(
-            "insert into portfolio_position (portfolio_id, portfolio_version," +
-                " position_id) values (?, ?, ?) on conflict on constraint" +
-                " portfolio_position_pk ignore");
+        PreparedBatch batch = handle.prepareBatch("""
+            insert into portfolio_position (portfolio_id, portfolio_version, position_id)
+            values (?, ?, ?)
+            on conflict on constraint portfolio_position_pk ignore");
+            """);
         portfolio.getPositions().forEach(position -> {
           batch.bind(1, portfolio.getKey().getId());
           batch.bind(2, portfolio.getKey().getVersion());
@@ -165,9 +167,11 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
       }
 
       for (Portfolio portfolio : map.values()) {
-        PreparedBatch batch = handle.prepareBatch(
-            "insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)" +
-                " values (?, ?, ?) on conflict on constraint portfolio_rule_pk" + " ignore");
+        PreparedBatch batch = handle.prepareBatch("""
+            insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)
+            values (?, ?, ?)
+            on conflict on constraint portfolio_rule_pk ignore
+            """);
         portfolio.getRules().forEach(rule -> {
           batch.bind(1, portfolio.getKey().getId());
           batch.bind(2, portfolio.getKey().getVersion());
