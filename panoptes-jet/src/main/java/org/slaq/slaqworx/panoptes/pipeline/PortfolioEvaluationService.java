@@ -93,8 +93,8 @@ public class PortfolioEvaluationService {
       // enrich the result with some other essential information
       RuleEvaluationResult ruleEvaluationResult =
           new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),
-              evaluationSource, rule.isBenchmarkSupported(), rule.getLowerLimit(),
-              rule.getUpperLimit(), evaluationResult);
+              evaluationSource, rule.isBenchmarkSupported(), rule.lowerLimit(), rule.upperLimit(),
+              evaluationResult);
       results.add(ruleEvaluationResult);
     });
     LOG.info("processed {} rules for {} {} (\"{}\") in {} ms", numRules, evaluationSource,

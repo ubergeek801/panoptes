@@ -69,11 +69,7 @@ public class PortfolioEvaluationRequest
       return false;
     }
     PortfolioEvaluationRequest other = (PortfolioEvaluationRequest) obj;
-    if (portfolioKey == null) {
-      if (other.portfolioKey != null) {
-        return false;
-      }
-    } else if (!portfolioKey.equals(other.portfolioKey)) {
+    if (!portfolioKey.equals(other.portfolioKey)) {
       return false;
     }
     if (transaction == null) {
@@ -88,6 +84,7 @@ public class PortfolioEvaluationRequest
    *
    * @return a {@link EvaluationContext}
    */
+  @Nonnull
   public EvaluationContext getEvaluationContext() {
     return evaluationContext;
   }
@@ -97,6 +94,7 @@ public class PortfolioEvaluationRequest
    *
    * @return the evaluated {@link Portfolio}'s key
    */
+  @Nonnull
   public PortfolioKey getPortfolioKey() {
     return portfolioKey;
   }
@@ -114,7 +112,7 @@ public class PortfolioEvaluationRequest
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((portfolioKey == null) ? 0 : portfolioKey.hashCode());
+    result = prime * result + portfolioKey.hashCode();
     result = prime * result + ((transaction == null) ? 0 : transaction.hashCode());
 
     return result;

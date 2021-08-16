@@ -97,7 +97,7 @@ public class WeightedAverageRule<T> extends LimitRule {
   @Override
   public String getJsonConfiguration() {
     Configuration configuration =
-        new Configuration(getCalculationAttribute().getName(), getLowerLimit(), getUpperLimit());
+        new Configuration(getCalculationAttribute().getName(), lowerLimit(), upperLimit());
 
     try {
       return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);

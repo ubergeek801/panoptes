@@ -32,6 +32,13 @@ public class EvaluationRequestGenerator
   private static final long serialVersionUID = 1L;
 
   /**
+   * Creates a new {@link EvaluationRequestGenerator}.
+   */
+  public EvaluationRequestGenerator() {
+    // nothing to do
+  }
+
+  /**
    * Provides a {@link TriFunction} to handle {@link Portfolio} evaluation events.
    *
    * @return the {@link PortfolioEvaluationInput} handling function
@@ -51,13 +58,6 @@ public class EvaluationRequestGenerator
   public TriFunction<EvaluationRequestGeneratorState, PortfolioKey, Tuple3<EvaluationSource,
       PortfolioKey, Rule>, Traverser<PortfolioEvaluationInput>> ruleEventHandler() {
     return (s, k, e) -> handleRuleEvent(s, e);
-  }
-
-  /**
-   * Creates a new {@link EvaluationRequestGenerator}.
-   */
-  public EvaluationRequestGenerator() {
-    // nothing to do
   }
 
   @Override

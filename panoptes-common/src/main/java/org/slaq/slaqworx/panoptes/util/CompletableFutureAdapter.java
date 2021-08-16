@@ -16,7 +16,7 @@ public class CompletableFutureAdapter<T> extends CompletableFuture<T>
     implements ExecutionCallback<T> {
   /**
    * Creates a new {@link CompletableFutureAdapter} with an empty value; the actual value is
-   * supplied by the {@link onResponse()} caller.
+   * supplied by the {@link #onResponse(T)} caller.
    */
   public CompletableFutureAdapter() {
     // nothing to do

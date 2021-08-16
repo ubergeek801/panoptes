@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.pipeline;
 import com.hazelcast.function.BiConsumerEx;
 import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.pipeline.Sink;
-import io.micrometer.core.instrument.MeterRegistry;
 import java.io.Serial;
 import java.util.HashSet;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -27,18 +26,11 @@ public class EvaluationResultPublisher
 
   private static final HashSet<PortfolioKey> distinctPortfolios = new HashSet<>();
 
-  // EvaluationResultPublisher must be Serializable but this is not; FIXME find a better way
-  private static MeterRegistry meterRegistry;
-
   /**
-   * Creates a new {@link EvaluationResultPublisher} which publishes metrics to the given {@link
-   * MeterRegistry}.
-   *
-   * @param meterRegistry
-   *     the {@link MeterRegistry} to which to publish metrics
+   * Creates a new {@link EvaluationResultPublisher}.
    */
-  public EvaluationResultPublisher(MeterRegistry meterRegistry) {
-    this.meterRegistry = meterRegistry;
+  public EvaluationResultPublisher() {
+    // nothing to do
   }
 
   @Override
@@ -46,16 +38,6 @@ public class EvaluationResultPublisher
     EvaluationResult result = evaluationResult.evaluationResult();
     LOG.info("produced {} results for rule {} on portfolio {}", result.results().size(),
         result.getKey(), evaluationResult.portfolioKey());
-
-    String counter = switch (evaluationResult.source()) {
-      case BENCHMARK -> "benchmark";
-      case PORTFOLIO -> "portfolio";
-      case BENCHMARK_COMPARISON -> "benchmarkComparison";
-      case UNRECOGNIZED -> "unrecognized";
-    };
-
-    meterRegistry.counter(counter + "Results").increment();
-    meterRegistry.counter(counter + "RuleResults").increment(result.results().size());
 
     synchronized (distinctPortfolios) {
       if (distinctPortfolios.add(evaluationResult.portfolioKey())) {

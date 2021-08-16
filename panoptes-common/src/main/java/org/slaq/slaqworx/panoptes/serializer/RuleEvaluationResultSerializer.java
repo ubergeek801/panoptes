@@ -66,14 +66,16 @@ public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEv
       msg.setBenchmarkKey(benchmarkKey);
     }
 
+    msg.setSource(result.source());
+
     msg.setIsBenchmarkSupported(result.isBenchmarkSupported());
 
-    if (result.getLowerLimit() != null) {
-      msg.setLowerLimit(DoubleValue.of(result.getLowerLimit()));
+    if (result.lowerLimit() != null) {
+      msg.setLowerLimit(DoubleValue.of(result.lowerLimit()));
     }
 
-    if (result.getUpperLimit() != null) {
-      msg.setUpperLimit(DoubleValue.of(result.getUpperLimit()));
+    if (result.upperLimit() != null) {
+      msg.setUpperLimit(DoubleValue.of(result.upperLimit()));
     }
 
     msg.setEvaluationResult(EvaluationResultSerializer.convert(result.evaluationResult()));

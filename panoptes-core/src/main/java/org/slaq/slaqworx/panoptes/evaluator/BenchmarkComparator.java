@@ -51,8 +51,8 @@ public class BenchmarkComparator {
       return baseResult;
     }
 
-    Double lowerLimit = rule.getLowerLimit();
-    Double upperLimit = rule.getUpperLimit();
+    Double lowerLimit = rule.lowerLimit();
+    Double upperLimit = rule.upperLimit();
 
     Map<EvaluationGroup, ValueResult> baseResults = baseResult.results().entrySet().stream().map(
         e -> Pair.of(e.getKey(),

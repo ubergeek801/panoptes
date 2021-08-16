@@ -56,15 +56,13 @@ public class TradeSerializerTest {
     assertEquals(trade.getTransactions().size(), deserialized.getTransactions().size(),
         "deserialized value should have same number of transactions as original");
 
-    Comparator<Transaction> transactionComparator =
-        (tx1, tx2) -> tx1.getKey().getId().compareTo(tx2.getKey().getId());
+    Comparator<Transaction> transactionComparator = Comparator.comparing(tx -> tx.getKey().getId());
 
     // sort the Transaction lists so we can compare elements
-    ArrayList<Transaction> originalTransactions = new ArrayList<>();
-    trade.getTransactions().values().forEach(originalTransactions::add);
+    ArrayList<Transaction> originalTransactions = new ArrayList<>(trade.getTransactions().values());
     originalTransactions.sort(transactionComparator);
-    ArrayList<Transaction> deserializedTransactions = new ArrayList<>();
-    deserialized.getTransactions().values().forEach(deserializedTransactions::add);
+    ArrayList<Transaction> deserializedTransactions =
+        new ArrayList<>(deserialized.getTransactions().values());
     deserializedTransactions.sort(transactionComparator);
 
     Iterator<Transaction> tradeTransactionIter = originalTransactions.iterator();

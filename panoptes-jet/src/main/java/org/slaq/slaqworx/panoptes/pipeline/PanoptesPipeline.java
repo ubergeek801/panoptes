@@ -166,7 +166,7 @@ public class PanoptesPipeline {
     // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark evaluation
     // results (keyed by portfolio ID, which *is* the benchmark ID for a benchmark, + rule ID) into
     // a benchmark comparator
-    BenchmarkComparator benchmarkComparator = new BenchmarkComparator();
+    BenchmarkComparator benchmarkComparator = new BenchmarkComparator(meterRegistry);
     StreamStage<RuleEvaluationResult> resultStream =
         portfolioResultStream.groupingKey(BenchmarkComparator.keyExtractor())
             .flatMapStateful(benchmarkComparator, benchmarkComparator)
@@ -174,7 +174,7 @@ public class PanoptesPipeline {
 
     resultStream.writeTo(portfolioResultSink);
     resultStream.writeTo(SinkBuilder.sinkBuilder("evaluationResultSink", c -> c)
-            .receiveFn(new EvaluationResultPublisher(meterRegistry)).build())
+            .receiveFn(new EvaluationResultPublisher()).build())
         .setLocalParallelism(Runtime.getRuntime().availableProcessors());
 
     LOG.info("initialized pipeline");

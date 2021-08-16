@@ -58,7 +58,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   }
 
   @Override
-  public Double getLowerLimit() {
+  public Double lowerLimit() {
     return lowerLimit;
   }
 
@@ -86,7 +86,7 @@ public abstract class LimitRule extends GenericRule implements ConfigurableRule 
   }
 
   @Override
-  public Double getUpperLimit() {
+  public Double upperLimit() {
     return upperLimit;
   }
 

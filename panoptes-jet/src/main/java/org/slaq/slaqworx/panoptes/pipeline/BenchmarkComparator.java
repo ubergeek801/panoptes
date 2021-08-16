@@ -5,6 +5,7 @@ import com.hazelcast.function.SupplierEx;
 import com.hazelcast.jet.Traverser;
 import com.hazelcast.jet.Traversers;
 import com.hazelcast.jet.function.TriFunction;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +26,16 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
  * does not support benchmarks), the result is passed through. Otherwise, it is matched against the
  * corresponding result for the same rule against the benchmark, buffering if necessary until the
  * benchmark result arrives.
+ * <p>
+ * This operator affects the following metrics:
+ * <ul>
+ * <li>increments the {@code benchmarkRuleResults} counter for each benchmark rule result that is
+ * encountered</li>;
+ * <li>increments the {@code portfolioRuleResults} counter for each portfolio rule result that is
+ * encountered; and</li>
+ * <li>increments the {@code benchmarkComparisonRuleResults} counter for each individual rule
+ * compared against a benchmark</li>
+ * </ul>
  *
  * @author jeremy
  */
@@ -35,6 +46,9 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   private static final long serialVersionUID = 1L;
 
   private transient BenchmarkComparatorState processState;
+
+  // FIXME provide this at state creation time somehow
+  private static MeterRegistry meterRegistry;
 
   /**
    * Provides a key extraction function suitable for partitioning the input to this transformation.
@@ -47,10 +61,14 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   }
 
   /**
-   * Creates a new {@link BenchmarkComparator}.
+   * Creates a new {@link BenchmarkComparator} which publishes metrics to the given {@link
+   * MeterRegistry}.
+   *
+   * @param meterRegistry
+   *     the {@link MeterRegistry} to which to publish metrics
    */
-  public BenchmarkComparator() {
-    // nothing to do
+  public BenchmarkComparator(MeterRegistry meterRegistry) {
+    BenchmarkComparator.meterRegistry = meterRegistry;
   }
 
   @Override
@@ -92,6 +110,8 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    */
   protected void handleBenchmarkResultEvent(@Nonnull RuleEvaluationResult benchmarkResult,
       @Nonnull Collection<RuleEvaluationResult> comparedResults) {
+    meterRegistry.counter("benchmarkRuleResults").increment();
+
     // store the benchmark result in the process state
     EvaluationResult benchmarkEvaluationResult = benchmarkResult.evaluationResult();
     processState.benchmarkResult = benchmarkEvaluationResult;
@@ -119,6 +139,8 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
    */
   protected void handlePortfolioResultEvent(@Nonnull RuleEvaluationResult portfolioResult,
       @Nonnull Collection<RuleEvaluationResult> comparedResults) {
+    meterRegistry.counter("portfolioRuleResults").increment();
+
     // if the portfolio does not have a benchmark or if the rule does not support benchmarks, then
     // we can pass the result through and forget about it
     PortfolioKey benchmarkKey = portfolioResult.benchmarkKey();
@@ -143,11 +165,11 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   }
 
   /**
-   * Compares the base portfolio result and corresponding benchmark result and publishes the
-   * comparison result to the given collector.
+   * Compares the base portfolio result and corresponding benchmark result and adds the comparison
+   * result to the given collection.
    *
    * @param comparedResults
-   *     the {@link Collection} to which to publish the comparison result
+   *     the {@link Collection} to which to add the comparison result
    * @param baseResult
    *     the rule evaluation result from the base portfolio
    * @param benchmarkResult
@@ -156,15 +178,17 @@ public class BenchmarkComparator implements SupplierEx<BenchmarkComparatorState>
   protected void compareResults(@Nonnull Collection<RuleEvaluationResult> comparedResults,
       @Nonnull RuleEvaluationResult baseResult, @Nonnull EvaluationResult benchmarkResult) {
     EvaluationResult benchmarkComparisonResult =
-        new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
-            .compare(baseResult.evaluationResult(), benchmarkResult, baseResult);
+        new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator().compare(
+            baseResult.evaluationResult(), benchmarkResult, baseResult);
 
     RuleEvaluationResult finalResult =
         new RuleEvaluationResult(baseResult.eventId(), baseResult.portfolioKey(),
             baseResult.benchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
-            baseResult.isBenchmarkSupported(), baseResult.getLowerLimit(),
-            baseResult.getUpperLimit(), benchmarkComparisonResult);
+            baseResult.isBenchmarkSupported(), baseResult.lowerLimit(), baseResult.upperLimit(),
+            benchmarkComparisonResult);
     comparedResults.add(finalResult);
+
+    meterRegistry.counter("benchmarkComparisonRuleResults").increment();
   }
 
   /**

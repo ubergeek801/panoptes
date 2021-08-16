@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.util;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Predicate;
+import javax.annotation.Nonnull;
 
 /**
  * A {@link Predicate} which is also {@link Serializable}; can be helpful in coercing certain
@@ -29,7 +30,8 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    * @return a predicate that tests if two arguments are equal according to {@link
    *     Objects#equals(Object, Object)}
    */
-  public static <T> SerializablePredicate<T> isEqual(Object targetRef) {
+  @Nonnull
+  static <T> SerializablePredicate<T> isEqual(Object targetRef) {
     return (null == targetRef) ? Objects::isNull : targetRef::equals;
   }
 
@@ -48,7 +50,8 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    *     if target is null
    * @since 11
    */
-  public static <T> SerializablePredicate<T> not(Predicate<? super T> target) {
+  @Nonnull
+  static <T> SerializablePredicate<T> not(Predicate<? super T> target) {
     Objects.requireNonNull(target);
     return (SerializablePredicate<T>) target.negate();
   }
@@ -72,7 +75,8 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    *     if other is null
    */
   @Override
-  public default SerializablePredicate<T> and(Predicate<? super T> other) {
+  @Nonnull
+  default SerializablePredicate<T> and(@Nonnull Predicate<? super T> other) {
     Objects.requireNonNull(other);
     return t -> test(t) && other.test(t);
   }
@@ -83,7 +87,8 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    * @return a predicate that represents the logical negation of this predicate
    */
   @Override
-  public default SerializablePredicate<T> negate() {
+  @Nonnull
+  default SerializablePredicate<T> negate() {
     return t -> !test(t);
   }
 
@@ -106,7 +111,8 @@ public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
    *     if other is null
    */
   @Override
-  public default SerializablePredicate<T> or(Predicate<? super T> other) {
+  @Nonnull
+  default SerializablePredicate<T> or(@Nonnull Predicate<? super T> other) {
     Objects.requireNonNull(other);
     return t -> test(t) || other.test(t);
   }

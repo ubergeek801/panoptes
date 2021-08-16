@@ -45,16 +45,6 @@ public record RuleEvaluationResult(long eventId, @Nonnull PortfolioKey portfolio
   }
 
   @Override
-  public Double getLowerLimit() {
-    return lowerLimit;
-  }
-
-  @Override
-  public Double getUpperLimit() {
-    return upperLimit;
-  }
-
-  @Override
   @Nonnull
   public String toString() {
     return "RuleEvaluationResult [eventId=" + eventId + ", portfolioKey=" + portfolioKey +

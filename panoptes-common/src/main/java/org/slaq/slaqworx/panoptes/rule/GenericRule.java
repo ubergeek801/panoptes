@@ -122,7 +122,7 @@ public abstract class GenericRule implements Rule {
   }
 
   @Override
-  public Double getLowerLimit() {
+  public Double lowerLimit() {
     return null;
   }
 
@@ -133,7 +133,7 @@ public abstract class GenericRule implements Rule {
   }
 
   @Override
-  public Double getUpperLimit() {
+  public Double upperLimit() {
     return null;
   }
 

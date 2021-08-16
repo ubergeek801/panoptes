@@ -12,14 +12,14 @@ public interface BenchmarkComparable {
    *
    * @return the lower limit against which to evaluate
    */
-  Double getLowerLimit();
+  Double lowerLimit();
 
   /**
    * Obtains the related {@link Rule}'s (possibly {@code null}) upper limit.
    *
    * @return the upper limit against which to evaluate
    */
-  Double getUpperLimit();
+  Double upperLimit();
 
   /**
    * Indicates whether the related {@link Rule} supports a comparison against a benchmark.

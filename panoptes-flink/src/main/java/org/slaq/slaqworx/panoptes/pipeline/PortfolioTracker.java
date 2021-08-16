@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class PortfolioTracker implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioTracker.class);
@@ -156,8 +158,8 @@ public class PortfolioTracker implements Serializable {
       // enrich the result with some other essential information
       RuleEvaluationResult ruleEvaluationResult =
           new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),
-              evaluationSource, rule.isBenchmarkSupported(), rule.getLowerLimit(),
-              rule.getUpperLimit(), evaluationResult);
+              evaluationSource, rule.isBenchmarkSupported(), rule.lowerLimit(), rule.upperLimit(),
+              evaluationResult);
       out.collect(ruleEvaluationResult);
     });
     LOG.info("processed {} rules for {} {} (\"{}\")", rules.size(), evaluationSource,

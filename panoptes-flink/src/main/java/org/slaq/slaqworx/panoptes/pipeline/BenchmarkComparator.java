@@ -118,14 +118,14 @@ public class BenchmarkComparator extends
   protected void processPortfolioResult(Collector<RuleEvaluationResult> out,
       RuleEvaluationResult baseResult, EvaluationResult benchmarkResult) {
     EvaluationResult benchmarkComparisonResult =
-        new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
-            .compare(baseResult.evaluationResult(), benchmarkResult, baseResult);
+        new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator().compare(
+            baseResult.evaluationResult(), benchmarkResult, baseResult);
 
     RuleEvaluationResult finalResult =
         new RuleEvaluationResult(baseResult.eventId(), baseResult.portfolioKey(),
             baseResult.benchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
-            baseResult.isBenchmarkSupported(), baseResult.getLowerLimit(),
-            baseResult.getUpperLimit(), benchmarkComparisonResult);
+            baseResult.isBenchmarkSupported(), baseResult.lowerLimit(), baseResult.upperLimit(),
+            benchmarkComparisonResult);
     out.collect(finalResult);
   }
 }

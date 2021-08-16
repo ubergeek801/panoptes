@@ -91,8 +91,8 @@ public class ConcentrationRule extends LimitRule {
   @Override
   public String getJsonConfiguration() {
     Configuration configuration = new Configuration();
-    configuration.lowerLimit = getLowerLimit();
-    configuration.upperLimit = getUpperLimit();
+    configuration.lowerLimit = lowerLimit();
+    configuration.upperLimit = upperLimit();
 
     try {
       return JsonConfigurable.defaultObjectMapper().writeValueAsString(configuration);

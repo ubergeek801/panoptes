@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
 import jakarta.inject.Named;
@@ -168,11 +169,8 @@ public class PanoptesPipelineConfig {
   protected SourceFunction<PortfolioEvaluationRequest> portfolioEvaluationRequestSource() {
     LOG.info("using {} as portfolioEvaluationRequest topic", portfolioEvaluationRequestTopic);
 
-    FlinkKafkaConsumer<PortfolioEvaluationRequest> consumer =
-        new FlinkKafkaConsumer<>(portfolioEvaluationRequestTopic,
-            new PortfolioEvaluationRequestDeserializationSchema(), kafkaProperties);
-
-    return consumer;
+    return new FlinkKafkaConsumer<>(portfolioEvaluationRequestTopic,
+        new PortfolioEvaluationRequestDeserializationSchema(), kafkaProperties);
   }
 
   /**
@@ -260,9 +258,6 @@ public class PanoptesPipelineConfig {
   protected SourceFunction<Trade> tradeSource() {
     LOG.info("using {} as trade topic", tradeTopic);
 
-    FlinkKafkaConsumer<Trade> consumer =
-        new FlinkKafkaConsumer<>(tradeTopic, new TradeDeserializationSchema(), kafkaProperties);
-
-    return consumer;
+    return new FlinkKafkaConsumer<>(tradeTopic, new TradeDeserializationSchema(), kafkaProperties);
   }
 }

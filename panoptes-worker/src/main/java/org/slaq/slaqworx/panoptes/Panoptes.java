@@ -105,7 +105,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
   }
 
   /**
-   * Initializes the cache for offline mode from dummy data, in much the same way as {@link
+   * Initializes the cache for offline mode from dummy data, in much the same way as {@code
    * org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDatabaseLoader} initializes the persistent
    * store.
    *
