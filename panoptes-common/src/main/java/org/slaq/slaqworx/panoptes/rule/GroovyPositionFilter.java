@@ -39,8 +39,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   private GroovyPositionFilter(@Nonnull String expression) {
     this.expression = expression;
 
-    // translate "shorthand" expressions like s.coupon into an equivalent
-    // getAttributeValue() invocation, which is much faster
+    // translate "shorthand" expressions like s.coupon into an equivalent getAttributeValue()
+    // invocation, which is much faster
     Matcher securityExpressionMatcher = expressionTranslationPattern.matcher(expression);
     StringBuilder translatedExpression = new StringBuilder();
     while (securityExpressionMatcher.find()) {
@@ -121,8 +121,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
    * @param expression
    *     the expression to be translated to a class definition
    * @param isCompileStatic
-   *     {@code true} if the translated class should be annotated with {@code @groovy.transform
-   *     .CompileStatic}, {@code false} otherwise
+   *     {@code true} if the translated class should be annotated with {@code
+   *     groovy.transform.CompileStatic}, {@code false} otherwise
    *
    * @return a {@link String} containing a Groovy class definition
    */

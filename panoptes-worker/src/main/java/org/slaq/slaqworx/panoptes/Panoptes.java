@@ -128,12 +128,12 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
       portfolios.add(portfolio);
     }
 
-    portfolios.stream().forEach(pf -> {
+    portfolios.forEach(pf -> {
       LOG.info("initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(), pf.getName());
       pf.getRules().forEach(r -> assetCache.getRuleCache().set(r.getKey(), (ConfigurableRule) r));
     });
 
-    portfolios.stream().forEach(pf -> {
+    portfolios.forEach(pf -> {
       LOG.info("initializing {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
           pf.getName());
       pf.getPositions().forEach(p -> assetCache.getPositionCache().set(p.getKey(), p));
@@ -186,10 +186,8 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
           completionService = new ExecutorCompletionService<>(evaluationExecutor);
 
       portfolioStartTime = System.currentTimeMillis();
-      portfolioKeys.forEach(key -> {
-        completionService
-            .submit(() -> Pair.of(key, evaluator.evaluate(key, new EvaluationContext()).get()));
-      });
+      portfolioKeys.forEach(key -> completionService.submit(
+          () -> Pair.of(key, evaluator.evaluate(key, new EvaluationContext()).get())));
       // wait for all of the evaluations to complete
       for (int i = 0; i < numPortfolios; i++) {
         Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result = completionService.take().get();
@@ -212,7 +210,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
       TaxLot allocation1 = new TaxLot(100_000, security1Key);
       taxLots.add(allocation1);
       TradeEvaluator tradeEvaluator =
-          new LocalTradeEvaluator(new LocalPortfolioEvaluator(assetCache), assetCache, assetCache);
+          new LocalTradeEvaluator(new LocalPortfolioEvaluator(assetCache), assetCache);
       HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
       portfolioKeys.stream().limit(i * 62).forEach(key -> {
         Transaction transaction = new Transaction(key, taxLots);

@@ -10,6 +10,8 @@ import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import javax.annotation.Nonnull;
+import org.slaq.slaqworx.panoptes.asset.EligibilityList;
+import org.slaq.slaqworx.panoptes.asset.EligibilityListProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -39,7 +41,8 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
  */
 @Singleton
 public class AssetCache
-    implements PortfolioProvider, PositionProvider, RuleProvider, SecurityProvider, TradeProvider {
+    implements EligibilityListProvider, PortfolioProvider, PositionProvider, RuleProvider,
+    SecurityProvider, TradeProvider {
   public static final String ELIGIBILITY_CACHE_NAME = "eligibility";
   public static final String PORTFOLIO_CACHE_NAME = "portfolio";
   public static final String POSITION_CACHE_NAME = "position";
@@ -155,6 +158,11 @@ public class AssetCache
   @Nonnull
   public IMap<String, Set<String>> getEligibilityCache() {
     return eligibilityCache;
+  }
+
+  @Override
+  public Set<String> getEligibilityList(@Nonnull String name) {
+    return getEligibilityCache().get(name);
   }
 
   @Override

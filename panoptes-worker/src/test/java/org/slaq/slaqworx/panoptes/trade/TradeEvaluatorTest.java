@@ -109,7 +109,8 @@ public class TradeEvaluatorTest {
     Trade trade = new Trade(tradeDate, tradeDate, transactions);
     TradeEvaluator evaluator =
         new LocalTradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-            TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
+            TestUtil.testEligibilityListProvider(), TestUtil.testPortfolioProvider(),
+            TestUtil.testSecurityProvider());
     TradeEvaluationResult result =
         evaluator.evaluate(trade, TestUtil.defaultTestEvaluationContext()).get();
 
@@ -177,7 +178,8 @@ public class TradeEvaluatorTest {
 
     TradeEvaluator evaluator =
         new LocalTradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-            TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider());
+            TestUtil.testEligibilityListProvider(), TestUtil.testPortfolioProvider(),
+            TestUtil.testSecurityProvider());
     TradeEvaluationResult result =
         evaluator.evaluate(buyTrade, TestUtil.defaultTestEvaluationContext()).get();
     assertFalse(result.isCompliant(), "attempt to buy restricted Security should have failed");
@@ -196,7 +198,7 @@ public class TradeEvaluatorTest {
     // create a Portfolio with an initial Position in sec1
     portfolioPositions = new HashSet<>();
     portfolioPositions.add(TestUtil.createTestPosition(assetCache, 1000d, sec1));
-    portfolio = TestUtil.testPortfolioProvider()
+    TestUtil.testPortfolioProvider()
         .newPortfolio("TradeEvaluatorTestPortfolio", "test", portfolioPositions, null, rules);
 
     // try to buy again
@@ -242,13 +244,14 @@ public class TradeEvaluatorTest {
     // 4.0, so the Portfolio should have room for 1_000_000 (+/- specified tolerance).
 
     EvaluationContext evaluationContext = TestUtil.defaultTestEvaluationContext();
-    assertEquals(3.0, new WeightedAveragePositionCalculator<>(SecurityAttribute.duration)
-            .calculate(portfolio.getPositionsWithContext(evaluationContext)), TestUtil.EPSILON,
+    assertEquals(3.0, new WeightedAveragePositionCalculator<>(SecurityAttribute.duration).calculate(
+            portfolio.getPositionsWithContext(evaluationContext)), TestUtil.EPSILON,
         "unexpected current Portfolio duration");
     double room =
         new LocalTradeEvaluator(new LocalPortfolioEvaluator(TestUtil.testPortfolioProvider()),
-            TestUtil.testPortfolioProvider(), TestUtil.testSecurityProvider())
-            .evaluateRoom(portfolio.getKey(), trialSecurity.getKey(), 3_000_000).get();
+            TestUtil.testEligibilityListProvider(), TestUtil.testPortfolioProvider(),
+            TestUtil.testSecurityProvider()).evaluateRoom(portfolio.getKey(),
+            trialSecurity.getKey(), 3_000_000).get();
     assertEquals(1_000_000, room, LocalTradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
 
     // perform the same test with the clustered evaluator
@@ -257,17 +260,16 @@ public class TradeEvaluatorTest {
         TestUtil.createTestSecurity(assetCache, "TradeEvaluatorTestSec3", security1Attributes);
     position1 = TestUtil.createTestPosition(assetCache, 1_000_000, security1);
     p1Positions = Set.of(position1);
-    rule1 = TestRuleProvider
-        .createTestWeightedAverageRule(assetCache, null, "weighted average: duration <= 3.5", null,
-            SecurityAttribute.duration, null, 3.5, null);
+    rule1 = TestRuleProvider.createTestWeightedAverageRule(assetCache, null,
+        "weighted average: duration <= 3.5", null, SecurityAttribute.duration, null, 3.5, null);
     Map<RuleKey, ? extends ConfigurableRule> cachedP1Rules = Map.of(rule1.getKey(), rule1);
     trialSecurity =
         TestUtil.createTestSecurity(assetCache, "TradeEvaluatorTestSec4", security2Attributes);
-    portfolio = TestUtil
-        .createTestPortfolio(assetCache, null, "test 1", p1Positions, null, cachedP1Rules.values());
+    portfolio = TestUtil.createTestPortfolio(assetCache, null, "test 1", p1Positions, null,
+        cachedP1Rules.values());
 
-    room = new LocalTradeEvaluator(clusterEvaluator, assetCache)
-        .evaluateRoom(portfolio.getKey(), trialSecurity.getKey(), 3_000_000).get();
+    room = new LocalTradeEvaluator(clusterEvaluator, assetCache).evaluateRoom(portfolio.getKey(),
+        trialSecurity.getKey(), 3_000_000).get();
     assertEquals(1_000_000, room, LocalTradeEvaluator.ROOM_TOLERANCE, "unexpected room result");
   }
 }

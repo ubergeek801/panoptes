@@ -154,7 +154,7 @@ public class PortfolioTracker implements Serializable {
 
       EvaluationResult evaluationResult =
           new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
-              new EvaluationContext(securityProvider, portfolioProvider)).call();
+              new EvaluationContext(null, securityProvider, portfolioProvider)).call();
       // enrich the result with some other essential information
       RuleEvaluationResult ruleEvaluationResult =
           new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),

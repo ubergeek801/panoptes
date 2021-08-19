@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slaq.slaqworx.panoptes.asset.EligibilityListProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -37,6 +38,7 @@ public class LocalTradeEvaluator implements TradeEvaluator {
   private static final double LOG_2 = Math.log(2);
 
   private final PortfolioEvaluator evaluator;
+  private final EligibilityListProvider eligibilityListProvider;
   private final PortfolioProvider portfolioProvider;
   private final SecurityProvider securityProvider;
 
@@ -46,10 +48,10 @@ public class LocalTradeEvaluator implements TradeEvaluator {
    * @param evaluator
    *     the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level evaluations
    * @param assetCache
-   *     the {@link AssetCache} to use to resolve {@link Portfolio} and {@link Security} references
+   *     the {@link AssetCache} to use to resolve references
    */
   public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator, AssetCache assetCache) {
-    this(evaluator, assetCache, assetCache);
+    this(evaluator, assetCache, assetCache, assetCache);
   }
 
   /**
@@ -57,14 +59,18 @@ public class LocalTradeEvaluator implements TradeEvaluator {
    *
    * @param evaluator
    *     the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level evaluations
+   * @param eligibilityListProvider
+   *     the {@link EligibilityListProvider} to use to obtain eligibility list information
    * @param portfolioProvider
    *     the {@link PortfolioProvider} to use to obtain {@link Portfolio} information
    * @param securityProvider
    *     the {@link SecurityProvider} to use to obtain {@link Security} information
    */
   public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator,
-      PortfolioProvider portfolioProvider, SecurityProvider securityProvider) {
+      EligibilityListProvider eligibilityListProvider, PortfolioProvider portfolioProvider,
+      SecurityProvider securityProvider) {
     this.evaluator = evaluator;
+    this.eligibilityListProvider = eligibilityListProvider;
     this.portfolioProvider = portfolioProvider;
     this.securityProvider = securityProvider;
   }
@@ -97,8 +103,9 @@ public class LocalTradeEvaluator implements TradeEvaluator {
       double targetValue) throws ExecutionException, InterruptedException {
     // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
-    EvaluationContext evaluationContext = new EvaluationContext(securityProvider, portfolioProvider,
-        EvaluationMode.SHORT_CIRCUIT_EVALUATION);
+    EvaluationContext evaluationContext =
+        new EvaluationContext(eligibilityListProvider, securityProvider, portfolioProvider,
+            EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
     double minCompliantValue = MIN_ALLOCATION;
     double trialValue = minCompliantValue;

@@ -22,4 +22,5 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 public record EligibilityList(@Nonnull String name, @Nonnull ListType type,
                               @Nonnull String description, @Nonnull Set<String> items)
     implements ProtobufSerializable {
+  // trivial implementation
 }

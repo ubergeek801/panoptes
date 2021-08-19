@@ -96,22 +96,25 @@ public class PortfolioEvaluatorTest {
     positions.add(iss6Sec1Pos);
 
     HashMap<RuleKey, Rule> rules = new HashMap<>();
-    ConcentrationRule top2issuerRule = TestRuleProvider
-        .createTestConcentrationRule(assetCache, new RuleKey("top2"), "top 2 issuer concentration",
-            null, null, 0.25, new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
+    ConcentrationRule top2issuerRule =
+        TestRuleProvider.createTestConcentrationRule(assetCache, new RuleKey("top2"),
+            "top 2 issuer concentration", null, null, 0.25,
+            new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 2));
     rules.put(top2issuerRule.getKey(), top2issuerRule);
-    ConcentrationRule top3issuerRule = TestRuleProvider
-        .createTestConcentrationRule(assetCache, new RuleKey("top3"), "top 3 issuer concentration",
-            null, null, 0.75, new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
+    ConcentrationRule top3issuerRule =
+        TestRuleProvider.createTestConcentrationRule(assetCache, new RuleKey("top3"),
+            "top 3 issuer concentration", null, null, 0.75,
+            new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 3));
     rules.put(top3issuerRule.getKey(), top3issuerRule);
-    ConcentrationRule top10issuerRule = TestRuleProvider
-        .createTestConcentrationRule(assetCache, new RuleKey("top10"),
+    ConcentrationRule top10issuerRule =
+        TestRuleProvider.createTestConcentrationRule(assetCache, new RuleKey("top10"),
             "top 10 issuer concentration", null, null, 0.999,
             new TopNSecurityAttributeAggregator(SecurityAttribute.issuer, 10));
     rules.put(top10issuerRule.getKey(), top10issuerRule);
 
-    Portfolio portfolio = TestUtil
-        .createTestPortfolio(assetCache, "test portfolio", "test", positions, null, rules.values());
+    Portfolio portfolio =
+        TestUtil.createTestPortfolio(assetCache, "test portfolio", "test", positions, null,
+            rules.values());
 
     LocalPortfolioEvaluator localEvaluator = new LocalPortfolioEvaluator(assetCache);
     Map<RuleKey, EvaluationResult> allResults =
@@ -142,8 +145,8 @@ public class PortfolioEvaluatorTest {
     Position dummyPosition = new SimplePosition(1, TestUtil.s1.getKey());
     Set<Position> dummyPositions = Set.of(dummyPosition);
 
-    Map<RuleKey, EvaluationResult> results = new LocalPortfolioEvaluator(assetCache)
-        .evaluate(rules.values().stream(),
+    Map<RuleKey, EvaluationResult> results =
+        new LocalPortfolioEvaluator(assetCache).evaluate(rules.values().stream(),
             new Portfolio(new PortfolioKey("testPortfolio", 1), "test", dummyPositions), null,
             TestUtil.defaultTestEvaluationContext());
     // 3 distinct rules should result in 3 evaluations
@@ -169,21 +172,21 @@ public class PortfolioEvaluatorTest {
   public void testEvaluateGroups() throws Exception {
     LocalPortfolioEvaluator evaluator = new LocalPortfolioEvaluator(assetCache);
 
-    Map<SecurityAttribute<?>, ? super Object> usdAttributes = SecurityAttribute
-        .mapOf(SecurityAttribute.currency, "USD", SecurityAttribute.rating1Value, 90d,
-            SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
+    Map<SecurityAttribute<?>, ? super Object> usdAttributes =
+        SecurityAttribute.mapOf(SecurityAttribute.currency, "USD", SecurityAttribute.rating1Value,
+            90d, SecurityAttribute.duration, 3d, SecurityAttribute.issuer, "ISSFOO",
             SecurityAttribute.price, 1d);
     Security usdSecurity = TestUtil.createTestSecurity(assetCache, "usd", usdAttributes);
 
-    Map<SecurityAttribute<?>, ? super Object> nzdAttributes = SecurityAttribute
-        .mapOf(SecurityAttribute.currency, "NZD", SecurityAttribute.rating1Value, 80d,
-            SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
+    Map<SecurityAttribute<?>, ? super Object> nzdAttributes =
+        SecurityAttribute.mapOf(SecurityAttribute.currency, "NZD", SecurityAttribute.rating1Value,
+            80d, SecurityAttribute.duration, 4d, SecurityAttribute.issuer, "ISSFOO",
             SecurityAttribute.price, 1d);
     Security nzdSecurity = TestUtil.createTestSecurity(assetCache, "nzd", nzdAttributes);
 
-    Map<SecurityAttribute<?>, ? super Object> cadAttributes = SecurityAttribute
-        .mapOf(SecurityAttribute.currency, "CAD", SecurityAttribute.rating1Value, 75d,
-            SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
+    Map<SecurityAttribute<?>, ? super Object> cadAttributes =
+        SecurityAttribute.mapOf(SecurityAttribute.currency, "CAD", SecurityAttribute.rating1Value,
+            75d, SecurityAttribute.duration, 5d, SecurityAttribute.issuer, "ISSBAR",
             SecurityAttribute.price, 1d);
     Security cadSecurity = TestUtil.createTestSecurity(assetCache, "cad", cadAttributes);
 
@@ -208,18 +211,17 @@ public class PortfolioEvaluatorTest {
     positions.add(cadPosition2);
 
     HashMap<RuleKey, ConfigurableRule> rules = new HashMap<>();
-    ConfigurableRule durationRule = TestRuleProvider
-        .createTestWeightedAverageRule(assetCache, null, "currency-grouped duration rule", null,
-            SecurityAttribute.duration, null, 4d,
-            new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
+    ConfigurableRule durationRule = TestRuleProvider.createTestWeightedAverageRule(assetCache, null,
+        "currency-grouped duration rule", null, SecurityAttribute.duration, null, 4d,
+        new SecurityAttributeGroupClassifier(SecurityAttribute.currency));
     rules.put(durationRule.getKey(), durationRule);
-    ConfigurableRule qualityRule = TestRuleProvider
-        .createTestWeightedAverageRule(assetCache, null, "ungrouped quality rule", null,
-            SecurityAttribute.rating1Value, 80d, null, null);
+    ConfigurableRule qualityRule =
+        TestRuleProvider.createTestWeightedAverageRule(assetCache, null, "ungrouped quality rule",
+            null, SecurityAttribute.rating1Value, 80d, null, null);
     rules.put(qualityRule.getKey(), qualityRule);
-    ConfigurableRule issuerRule = TestRuleProvider
-        .createTestConcentrationRule(assetCache, null, "issuer-grouped concentration rule", null,
-            null, 0.5, new SecurityAttributeGroupClassifier(SecurityAttribute.issuer));
+    ConfigurableRule issuerRule = TestRuleProvider.createTestConcentrationRule(assetCache, null,
+        "issuer-grouped concentration rule", null, null, 0.5,
+        new SecurityAttributeGroupClassifier(SecurityAttribute.issuer));
     rules.put(issuerRule.getKey(), issuerRule);
 
     // total value = 2_100, weighted rating = 165_500, weighted duration = 9_200,
@@ -306,7 +308,7 @@ public class PortfolioEvaluatorTest {
 
     // test the form of evaluate() that should use the portfolio defaults
     Map<RuleKey, EvaluationResult> results = evaluator.evaluate(portfolio.getKey(),
-        new EvaluationContext(TestUtil.testSecurityProvider(), portfolioProvider)).get();
+        new EvaluationContext(null, TestUtil.testSecurityProvider(), portfolioProvider)).get();
 
     // 3 distinct rules should result in 3 evaluations
     assertEquals(3, results.size(), "unexpected number of results");
@@ -322,8 +324,8 @@ public class PortfolioEvaluatorTest {
     overrideRules.add(usePortfolioBenchmarkRule);
 
     // test the form of evaluate() that should override the Portfolio rules
-    results = evaluator
-        .evaluate(overrideRules.stream(), portfolio, null, TestUtil.defaultTestEvaluationContext());
+    results = evaluator.evaluate(overrideRules.stream(), portfolio, null,
+        TestUtil.defaultTestEvaluationContext());
 
     assertEquals(1, results.size(), "unexpected number of results");
     assertTrue(

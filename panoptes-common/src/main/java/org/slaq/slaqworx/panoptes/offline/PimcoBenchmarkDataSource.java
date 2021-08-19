@@ -148,7 +148,7 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
   protected BigDecimal calculatePrice(LocalDate asOfDate, LocalDate maturityDate,
       BigDecimal effectiveYield) {
     return BigDecimal.valueOf(36_500 /
-        (365 + asOfDate.until(maturityDate, ChronoUnit.DAYS) * effectiveYield.doubleValue() / 100))
+            (365 + asOfDate.until(maturityDate, ChronoUnit.DAYS) * effectiveYield.doubleValue() / 100))
         .setScale(4, RoundingMode.HALF_UP);
   }
 
@@ -272,9 +272,8 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
     // average rating is kind of interesting, so let's calculate it
     WeightedAveragePositionCalculator<Double> averageRatingCalc =
         new WeightedAveragePositionCalculator<>(SecurityAttribute.rating1Value);
-    String averageRating = RatingScale.defaultScale().getRatingNotch(averageRatingCalc
-        .calculate(benchmark.getPositionsWithContext(new EvaluationContext(this, this))))
-        .getSymbol();
+    String averageRating = RatingScale.defaultScale().getRatingNotch(averageRatingCalc.calculate(
+        benchmark.getPositionsWithContext(new EvaluationContext(null, this, this)))).getSymbol();
     LOG.info("loaded {} positions for {} benchmark (total amount {}, avg rating {})",
         positions.size(), benchmarkKey, usdFormatter.format(portfolioMarketValue), averageRating);
   }

@@ -3,6 +3,8 @@ package org.slaq.slaqworx.panoptes.asset;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.NoDataException;
+import org.slaq.slaqworx.panoptes.cache.EligibilityResolver;
+import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EligibilityListMsg.ListType;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
@@ -170,7 +172,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
   public Object getEffectiveAttributeValue(int attributeIndex, boolean isRequired,
-      EvaluationContext evaluationContext) {
+      @Nonnull EvaluationContext evaluationContext) {
     SecurityAttributes overrideAttributes = evaluationContext.getSecurityOverrides().get(key);
     if (overrideAttributes != null) {
       Object overrideValue = overrideAttributes.getValue(attributeIndex);
@@ -220,8 +222,8 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @throws NoDataException
    *     if the attribute value is not assigned and {@code isRequired} is {@code true}
    */
-  public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute, boolean isRequired,
-      @Nonnull EvaluationContext evaluationContext) {
+  public <T> T getEffectiveAttributeValue(@Nonnull SecurityAttribute<T> attribute,
+      boolean isRequired, @Nonnull EvaluationContext evaluationContext) {
     @SuppressWarnings("unchecked") T value =
         (T) getEffectiveAttributeValue(attribute.getIndex(), isRequired, evaluationContext);
     return value;
@@ -243,7 +245,7 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    *     if the attribute value is not assigned
    */
   @Nonnull
-  public <T> T getEffectiveAttributeValue(SecurityAttribute<T> attribute,
+  public <T> T getEffectiveAttributeValue(@Nonnull SecurityAttribute<T> attribute,
       @Nonnull EvaluationContext evaluationContext) {
     return getEffectiveAttributeValue(attribute, true, evaluationContext);
   }
@@ -257,6 +259,34 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
   @Override
   public int hashCode() {
     return attributes.hashCode();
+  }
+
+  /**
+   * Indicates whether this {@link Security} is a member of the specified list.
+   *
+   * @param listType
+   *     the type of list for which to determine membership
+   * @param listName
+   *     the name of the list for which to determine membership
+   * @param evaluationContext
+   *     the {@link EvaluationContext} in which to make the determination
+   *
+   * @return {@code true} if this {@link Security} is a member of the specified list, {@code false}
+   *     otherwise
+   */
+  public boolean isListMember(@Nonnull ListType listType, @Nonnull String listName,
+      @Nonnull EvaluationContext evaluationContext) {
+    return switch (listType) {
+      case COUNTRY -> new EligibilityResolver(
+          evaluationContext.getEligibilityListProvider()).isCountryListMember(this, listName);
+      case ISSUER -> new EligibilityResolver(
+          evaluationContext.getEligibilityListProvider()).isIssuerListMember(this, listName);
+      case SECURITY -> new EligibilityResolver(
+          evaluationContext.getEligibilityListProvider()).isSecurityListMember(this, listName);
+      default ->
+          // TODO maybe throw an exception
+          false;
+    };
   }
 
   @Override

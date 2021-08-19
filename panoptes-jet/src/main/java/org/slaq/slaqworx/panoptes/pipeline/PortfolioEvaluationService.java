@@ -89,7 +89,7 @@ public class PortfolioEvaluationService {
 
       EvaluationResult evaluationResult =
           new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
-              new EvaluationContext(securityProvider, portfolioProvider)).call();
+              new EvaluationContext(assetCache, securityProvider, portfolioProvider)).call();
       // enrich the result with some other essential information
       RuleEvaluationResult ruleEvaluationResult =
           new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import org.slaq.slaqworx.panoptes.asset.EligibilityListProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioProvider;
@@ -44,6 +45,8 @@ public class TestUtil {
   public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes = SecurityAttribute
       .mapOf(moovyRating, 80d, npRating, 82d, SecurityAttribute.duration, 2.1d,
           SecurityAttribute.country, "CA", SecurityAttribute.price, 1d);
+  private static final TestEligibilityListProvider eligibilityListProvider =
+      new TestEligibilityListProvider();
   private static final TestPortfolioProvider portfolioProvider = new TestPortfolioProvider();
   private static final TestPositionProvider positionProvider = new TestPositionProvider();
   private static final TestSecurityProvider securityProvider = new TestSecurityProvider();
@@ -217,7 +220,16 @@ public class TestUtil {
    * @return an {@link EvaluationContext}
    */
   public static EvaluationContext defaultTestEvaluationContext() {
-    return new EvaluationContext(securityProvider, portfolioProvider);
+    return new EvaluationContext(eligibilityListProvider, securityProvider, portfolioProvider);
+  }
+
+  /**
+   * Obtains an {@link EligibilityListProvider} suitable for unit testing.
+   *
+   * @return an {@link EligibilityListProvider}
+   */
+  public static EligibilityListProvider testEligibilityListProvider() {
+    return eligibilityListProvider;
   }
 
   /**

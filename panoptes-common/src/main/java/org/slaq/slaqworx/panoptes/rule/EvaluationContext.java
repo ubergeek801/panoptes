@@ -5,6 +5,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
+import org.slaq.slaqworx.panoptes.asset.EligibilityListProvider;
 import org.slaq.slaqworx.panoptes.asset.MarketValueProvider;
 import org.slaq.slaqworx.panoptes.asset.MarketValued;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -26,6 +27,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  * @author jeremy
  */
 public class EvaluationContext implements MarketValueProvider, ProtobufSerializable {
+  private final EligibilityListProvider eligibilityListProvider;
   private final SecurityProvider securityProvider;
   private final PortfolioProvider portfolioProvider;
   @Nonnull
@@ -38,12 +40,11 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
 
   /**
    * Creates a new {@link EvaluationContext} which uses the default {@link AssetCache} to resolve
-   * {@link Security} and {@link Portfolio} references, performs full (non-short-circuit) {@link
-   * Rule} evaluation, uses the given {@link SecurityProvider} to resolve {@link Security}
-   * references, and which supplies no {@link Security} attribute overrides.
+   * references, performs full (non-short-circuit) {@link Rule} evaluation, and which supplies no
+   * {@link Security} attribute overrides.
    */
   public EvaluationContext() {
-    this(null, null, EvaluationMode.FULL_EVALUATION);
+    this(null, null, null, EvaluationMode.FULL_EVALUATION);
   }
 
   /**
@@ -55,7 +56,7 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *     the evaluation mode in which to evaluate
    */
   public EvaluationContext(@Nonnull EvaluationMode evaluationMode) {
-    this(null, null, evaluationMode, null);
+    this(null, null, null, evaluationMode, null);
   }
 
   /**
@@ -71,21 +72,23 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    */
   public EvaluationContext(@Nonnull EvaluationMode evaluationMode,
       Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
-    this(null, null, evaluationMode, securityAttributeOverrides);
+    this(null, null, null, evaluationMode, securityAttributeOverrides);
   }
 
   /**
    * Creates a new {@link EvaluationContext} which performs full (non-short-circuit) {@link Rule}
-   * evaluation, uses the given {@link SecurityProvider} to resolve {@link Security} references, and
-   * which supplies no {@link Security} attribute overrides.
+   * evaluation, uses the given providers to resolve references, and which supplies no {@link
+   * Security} attribute overrides.
    *
    * @param securityProvider
    *     the {@link SecurityProvider} to use to resolve {@link Security} references
    * @param portfolioProvider
    *     the {@link PortfolioProvider} to use to resolve {@link Portfolio} references
    */
-  public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider) {
-    this(securityProvider, portfolioProvider, EvaluationMode.FULL_EVALUATION);
+  public EvaluationContext(EligibilityListProvider eligibilityListProvider,
+      SecurityProvider securityProvider, PortfolioProvider portfolioProvider) {
+    this(eligibilityListProvider, securityProvider, portfolioProvider,
+        EvaluationMode.FULL_EVALUATION);
   }
 
   /**
@@ -99,9 +102,10 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    * @param evaluationMode
    *     the evaluation mode in which to evaluate
    */
-  public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
+  public EvaluationContext(EligibilityListProvider eligibilityListProvider,
+      SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
       @Nonnull EvaluationMode evaluationMode) {
-    this(securityProvider, portfolioProvider, evaluationMode, null);
+    this(eligibilityListProvider, securityProvider, portfolioProvider, evaluationMode, null);
   }
 
   /**
@@ -119,9 +123,11 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    *     a (possibly {@code null} or empty) {@link Map} relating a {@link SecurityKey} to a {@link
    *     SecurityAttributes} which should override the current values
    */
-  public EvaluationContext(SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
+  public EvaluationContext(EligibilityListProvider eligibilityListProvider,
+      SecurityProvider securityProvider, PortfolioProvider portfolioProvider,
       @Nonnull EvaluationMode evaluationMode,
       Map<SecurityKey, SecurityAttributes> securityAttributeOverrides) {
+    this.eligibilityListProvider = eligibilityListProvider;
     this.securityProvider = securityProvider;
     this.portfolioProvider = portfolioProvider;
     this.evaluationMode = evaluationMode;
@@ -157,8 +163,8 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    */
   @Nonnull
   public EvaluationContext copy() {
-    return new EvaluationContext(securityProvider, portfolioProvider, evaluationMode,
-        securityOverrides);
+    return new EvaluationContext(eligibilityListProvider, securityProvider, portfolioProvider,
+        evaluationMode, securityOverrides);
   }
 
   @Override
@@ -176,6 +182,16 @@ public class EvaluationContext implements MarketValueProvider, ProtobufSerializa
    */
   public EvaluationResult getBenchmarkResult(RuleKey ruleKey) {
     return benchmarkResults.get(ruleKey);
+  }
+
+  /**
+   * Obtains the {@link EligibilityListProvider} in effect for the current evaluation.
+   *
+   * @return a {@link EligibilityListProvider}
+   */
+  @Nonnull
+  public EligibilityListProvider getEligibilityListProvider() {
+    return (eligibilityListProvider != null ? eligibilityListProvider : AssetCache.getDefault());
   }
 
   /**
