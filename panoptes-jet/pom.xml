@@ -30,7 +30,7 @@
       java.management/sun.management=ALL-UNNAMED
       --add-opens
       jdk.management/com.sun.management.internal=ALL-UNNAMED
-      -Xms2560m -Xmx2560m
+      -Xms2816m -Xmx2816m
     </globalJvmArgs>
   </properties>
 
@@ -51,7 +51,7 @@
               <from>
                 <!-- :16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@sha256:ce30e72bdc70f2e81e2486a3cd0c19d5e654f88f11fd38b56acff90872de8ddd
+                  bellsoft/liberica-openjre-alpine-musl@sha256:d0ae8e5975a7d4265c4c3762ad0b538efa6d5f2d8b0098bbd2c2632a59b4d0bb
                 </image>
               </from>
               <to>
@@ -69,16 +69,8 @@
               <from>
                 <!-- 16.0.2 -->
                 <image>
-                  bellsoft/liberica-openjdk-alpine-musl@sha256:283e9ab190f82dadf69527c0ab1529a75e1b5c09e188fcb809bca526c8d244ed
+                  bellsoft/liberica-openjre-alpine-musl@sha256:8ef45829a8bb0622baea4e0ba3a08bcce045c500f21d3f3255ddca4011232cfd
                 </image>
-                <!-- :java11-21.0.0.2:arm64 -->
-                <!-- ghcr.io/graalvm/graalvm-ce@sha256:f58a5d4056f46a47b54defd38187a4d6fd16e7c15ba6f10de5fdc1e240a27001 -->
-                <!-- :20.2.0-java11-arm64 -->
-                <!-- <image>oracle/graalvm-ce@sha256:494222b828e6096bd00b16b9626b54665546fc5b60a8080c99be8d29af829638</image> -->
-                <!-- :11.0.7-aarch64 -->
-                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:c03fc99110c1e1f89eef77a81ecb470d8ea6d636aa2ff68a2cfbe40e12412d6c</image> -->
-                <!-- :14.0.1-8-aarch64 -->
-                <!-- <image>bellsoft/liberica-openjdk-alpine@sha256:70fcbb909ade5160c7d26cf798ee1e3af2d2d1bb4cde25aaaa4ff4b9d4f196c0</image> -->
               </from>
               <to>
                 <image>uberkube01.slaq.org:5000/slaqworx/panoptes-jet:arm64</image>
@@ -109,8 +101,8 @@
               <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
               <jvmFlag>--add-opens</jvmFlag>
               <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
-              <jvmFlag>-Xms2560m</jvmFlag>
-              <jvmFlag>-Xmx2560m</jvmFlag>
+              <jvmFlag>-Xms2816m</jvmFlag>
+              <jvmFlag>-Xmx2816m</jvmFlag>
               <jvmFlag>-Dmicronaut.environments=offline</jvmFlag>
 
               <jvmFlag>-noverify</jvmFlag>

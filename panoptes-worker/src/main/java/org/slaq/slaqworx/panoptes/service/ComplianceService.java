@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -54,7 +54,7 @@ public class ComplianceService {
    */
   @Get(uri = "/all", produces = MediaType.APPLICATION_JSON_STREAM)
   public Flowable<String> evaluateCompliance() {
-    Flowable<String> response = Flowable.create(emitter -> {
+    return Flowable.create(emitter -> {
       Collection<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
       int numPortfolios = portfolioKeys.size();
       ResultState state = new ResultState();
@@ -92,8 +92,6 @@ public class ComplianceService {
         });
       });
     }, BackpressureStrategy.BUFFER);
-
-    return response;
   }
 
   static class ResultState {
