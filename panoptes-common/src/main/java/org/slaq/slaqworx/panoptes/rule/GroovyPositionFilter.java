@@ -23,6 +23,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   private static final GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
   private static final ConcurrentHashMap<String, GroovyPositionFilter> expressionFilterMap =
       new ConcurrentHashMap<>(25_000);
+  private static final Pattern eligibilityListPattern =
+      Pattern.compile("s\\.in(Country|Issuer|Security)List\\(\"(\\w+)\"\\)");
   private static final Pattern expressionTranslationPattern = Pattern.compile("s\\.(\\w+)");
   @Nonnull
   private final String expression;
@@ -39,10 +41,24 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   private GroovyPositionFilter(@Nonnull String expression) {
     this.expression = expression;
 
+    // translate eligibility list tests like s.inCountryList("list1") into an actual method
+    // invocation
+    Matcher eligibilityExpressionMatcher = eligibilityListPattern.matcher(expression);
+    StringBuilder translatedExpression = new StringBuilder();
+    while (eligibilityExpressionMatcher.find()) {
+      String listType = eligibilityExpressionMatcher.group(1);
+      String listName = eligibilityExpressionMatcher.group(2);
+      String replacement = "s.in" + listType + "List(\"" + listName + "\", ctx)";
+      eligibilityExpressionMatcher.appendReplacement(translatedExpression, replacement);
+    }
+    eligibilityExpressionMatcher.appendTail(translatedExpression);
+    String translatedExpressionString = translatedExpression.toString();
+
     // translate "shorthand" expressions like s.coupon into an equivalent getAttributeValue()
     // invocation, which is much faster
-    Matcher securityExpressionMatcher = expressionTranslationPattern.matcher(expression);
-    StringBuilder translatedExpression = new StringBuilder();
+    Matcher securityExpressionMatcher =
+        expressionTranslationPattern.matcher(translatedExpressionString);
+    translatedExpression = new StringBuilder();
     while (securityExpressionMatcher.find()) {
       // if the matched substring corresponds to a known SecurityAttribute, substitute an
       // invocation
@@ -53,7 +69,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
       securityExpressionMatcher.appendReplacement(translatedExpression, replacement);
     }
     securityExpressionMatcher.appendTail(translatedExpression);
-    String translatedExpressionString = translatedExpression.toString();
+    translatedExpressionString = translatedExpression.toString();
 
     Class<?> filterClass;
     try {

@@ -499,6 +499,25 @@ public class DummyPortfolioMapLoader
           new MarketValueRule(null, "No Anheuser-Busch Issues", anheuserBuschFilter, null, 0d));
     }
 
+    // add at least two and as many as five eligibility list rules
+    int numEligibilityRules = 2 + random.nextInt(4);
+    for (int i = 0; i < numEligibilityRules; i++) {
+      int listTypeIndex = random.nextInt(3);
+      String listType = switch (listTypeIndex) {
+        case 0 -> "Country";
+        case 1 -> "Issuer";
+        default -> "Security";
+      };
+      // generated list names are e.g. country1, country2, ...; issuer1, issuer2, ...; etc.
+      String listName = listType.toLowerCase() + (1 + random.nextInt(100));
+
+      GroovyPositionFilter eligibilityFilter =
+          GroovyPositionFilter.of("!s.in" + listType + "List" + "(\"" + listName + "\")");
+      rules.add(
+          new MarketValueRule(null, listType + " Restriction List " + listName, eligibilityFilter,
+              null, 0d));
+    }
+
     ruleMap.putAll(rules.stream().collect(Collectors.toMap(ConfigurableRule::getKey, r -> r)));
     return rules;
   }

@@ -36,14 +36,15 @@ public class TestUtil {
       SecurityAttribute.of("N&P", 17, Double.class, ValueProvider.forDouble());
   public static final SecurityAttribute<Double> fetchRating =
       SecurityAttribute.of("Fetch", 18, Double.class, ValueProvider.forDouble());
-  public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes = SecurityAttribute
-      .mapOf(moovyRating, 90d, npRating, 92d, fetchRating, 88d, SecurityAttribute.duration, 4d,
-          SecurityAttribute.country, "US", SecurityAttribute.price, 1d);
-  public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes = SecurityAttribute
-      .mapOf(moovyRating, 85d, npRating, 78d, SecurityAttribute.duration, 4d,
+  public static final Map<SecurityAttribute<?>, ? super Object> s1Attributes =
+      SecurityAttribute.mapOf(moovyRating, 90d, npRating, 92d, fetchRating, 88d,
+          SecurityAttribute.duration, 4d, SecurityAttribute.country, "US", SecurityAttribute.price,
+          1d);
+  public static final Map<SecurityAttribute<?>, ? super Object> s2Attributes =
+      SecurityAttribute.mapOf(moovyRating, 85d, npRating, 78d, SecurityAttribute.duration, 4d,
           SecurityAttribute.country, "NZ", SecurityAttribute.price, 1d);
-  public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes = SecurityAttribute
-      .mapOf(moovyRating, 80d, npRating, 82d, SecurityAttribute.duration, 2.1d,
+  public static final Map<SecurityAttribute<?>, ? super Object> s3Attributes =
+      SecurityAttribute.mapOf(moovyRating, 80d, npRating, 82d, SecurityAttribute.duration, 2.1d,
           SecurityAttribute.country, "CA", SecurityAttribute.price, 1d);
   private static final TestEligibilityListProvider eligibilityListProvider =
       new TestEligibilityListProvider();
@@ -55,26 +56,43 @@ public class TestUtil {
   public static final Set<Position> p1Positions =
       Set.of(positionProvider.newPosition(null, 1000, s1),
           positionProvider.newPosition(null, 500, s2));
-  public static final Portfolio p1 = portfolioProvider
-      .newPortfolio("TestUtilP1", "TestUtilP1", p1Positions, null, Collections.emptyList());
+  public static final Portfolio p1 =
+      portfolioProvider.newPortfolio("TestUtilP1", "TestUtilP1", p1Positions, null,
+          Collections.emptyList());
   public static final Set<Position> p2Positions =
       Set.of(positionProvider.newPosition(null, 500, s1),
           positionProvider.newPosition(null, 1000, s2));
-  public static final Portfolio p2 = portfolioProvider
-      .newPortfolio("TestUtilP2", "TestUtilP2", p2Positions, null, Collections.emptyList());
+  public static final Portfolio p2 =
+      portfolioProvider.newPortfolio("TestUtilP2", "TestUtilP2", p2Positions, null,
+          Collections.emptyList());
   public static final Security s3 = securityProvider.newSecurity("TestUtilS3", s3Attributes);
   public static final Set<Position> p3Positions =
       Set.of(positionProvider.newPosition(null, 500, s1),
           positionProvider.newPosition(null, 1000, s2),
           positionProvider.newPosition(null, 200, s3));
-  public static final Portfolio p3 = portfolioProvider
-      .newPortfolio("TestUtilP3", "TestUtilP3", p3Positions, null, Collections.emptyList());
+  public static final Portfolio p3 =
+      portfolioProvider.newPortfolio("TestUtilP3", "TestUtilP3", p3Positions, null,
+          Collections.emptyList());
 
   /**
    * Creates a new {@link TestUtil}. Restricted to enforce class utility semantics.
    */
   private TestUtil() {
     // nothing to do
+  }
+
+  /**
+   * Caches the given eligibility list.
+   *
+   * @param name
+   *     the name identifying the eligibility list
+   * @param members
+   *     the eligibility list members
+   *
+   * @return the eligibility list members
+   */
+  public static Set<String> createTestEligibilityList(String name, Set<String> members) {
+    return eligibilityListProvider.newEligibilityList(name, members);
   }
 
   /**

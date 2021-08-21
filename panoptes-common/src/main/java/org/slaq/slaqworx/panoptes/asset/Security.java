@@ -4,7 +4,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.NoDataException;
 import org.slaq.slaqworx.panoptes.cache.EligibilityResolver;
-import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EligibilityListMsg.ListType;
 import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.util.Keyed;
@@ -262,10 +261,8 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
   }
 
   /**
-   * Indicates whether this {@link Security} is a member of the specified list.
+   * Indicates whether this {@link Security} is a member of the specified country list.
    *
-   * @param listType
-   *     the type of list for which to determine membership
    * @param listName
    *     the name of the list for which to determine membership
    * @param evaluationContext
@@ -274,19 +271,44 @@ public class Security implements Keyed<SecurityKey>, ProtobufSerializable {
    * @return {@code true} if this {@link Security} is a member of the specified list, {@code false}
    *     otherwise
    */
-  public boolean isListMember(@Nonnull ListType listType, @Nonnull String listName,
+  public boolean inCountryList(@Nonnull String listName,
       @Nonnull EvaluationContext evaluationContext) {
-    return switch (listType) {
-      case COUNTRY -> new EligibilityResolver(
-          evaluationContext.getEligibilityListProvider()).isCountryListMember(this, listName);
-      case ISSUER -> new EligibilityResolver(
-          evaluationContext.getEligibilityListProvider()).isIssuerListMember(this, listName);
-      case SECURITY -> new EligibilityResolver(
-          evaluationContext.getEligibilityListProvider()).isSecurityListMember(this, listName);
-      default ->
-          // TODO maybe throw an exception
-          false;
-    };
+    return new EligibilityResolver(
+        evaluationContext.getEligibilityListProvider()).isCountryListMember(this, listName);
+  }
+
+  /**
+   * Indicates whether this {@link Security} is a member of the specified issuer list.
+   *
+   * @param listName
+   *     the name of the list for which to determine membership
+   * @param evaluationContext
+   *     the {@link EvaluationContext} in which to make the determination
+   *
+   * @return {@code true} if this {@link Security} is a member of the specified list, {@code false}
+   *     otherwise
+   */
+  public boolean inIssuerList(@Nonnull String listName,
+      @Nonnull EvaluationContext evaluationContext) {
+    return new EligibilityResolver(
+        evaluationContext.getEligibilityListProvider()).isIssuerListMember(this, listName);
+  }
+
+  /**
+   * Indicates whether this {@link Security} is a member of the specified security list.
+   *
+   * @param listName
+   *     the name of the list for which to determine membership
+   * @param evaluationContext
+   *     the {@link EvaluationContext} in which to make the determination
+   *
+   * @return {@code true} if this {@link Security} is a member of the specified list, {@code false}
+   *     otherwise
+   */
+  public boolean inSecurityList(@Nonnull String listName,
+      @Nonnull EvaluationContext evaluationContext) {
+    return new EligibilityResolver(
+        evaluationContext.getEligibilityListProvider()).isSecurityListMember(this, listName);
   }
 
   @Override
