@@ -21,7 +21,8 @@ public class PortfolioPosition extends AbstractPosition {
    * Creates a new {@link PortfolioPosition} aggregating the given {@link TaxLot}s.
    *
    * @param taxLots
-   *     the {@link TaxLot}s to be aggregated by this {@link Position}
+   *     a {@link Collection} of one or more {@link TaxLot}s to be aggregated by this {@link
+   *     Position}
    */
   public PortfolioPosition(@Nonnull Collection<TaxLot> taxLots) {
     this.taxLots = new ArrayList<>(taxLots);

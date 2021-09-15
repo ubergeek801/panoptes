@@ -10,7 +10,6 @@ import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import javax.annotation.Nonnull;
-import org.slaq.slaqworx.panoptes.asset.EligibilityList;
 import org.slaq.slaqworx.panoptes.asset.EligibilityListProvider;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -57,12 +56,19 @@ public class AssetCache
           "local-executor");
 
   private static AssetCache defaultAssetCache;
+  @Nonnull
   private final HazelcastInstance hazelcastInstance;
+  @Nonnull
   private final IMap<String, Set<String>> eligibilityCache;
+  @Nonnull
   private final IMap<PortfolioKey, Portfolio> portfolioCache;
+  @Nonnull
   private final IMap<PositionKey, Position> positionCache;
+  @Nonnull
   private final IMap<RuleKey, ConfigurableRule> ruleCache;
+  @Nonnull
   private final IMap<SecurityKey, Security> securityCache;
+  @Nonnull
   private final IMap<TradeKey, Trade> tradeCache;
 
   /**
@@ -72,7 +78,7 @@ public class AssetCache
    * @param hazelcastInstance
    *     the {@link HazelcastInstance} through which to access cached data
    */
-  protected AssetCache(HazelcastInstance hazelcastInstance) {
+  protected AssetCache(@Nonnull HazelcastInstance hazelcastInstance) {
     this.hazelcastInstance = hazelcastInstance;
     eligibilityCache = CacheBootstrap.getEligibilityCache(hazelcastInstance);
     portfolioCache = CacheBootstrap.getPortfolioCache(hazelcastInstance);

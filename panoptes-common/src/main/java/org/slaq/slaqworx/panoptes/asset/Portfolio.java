@@ -30,7 +30,7 @@ public class Portfolio
   @Nonnull
   private final HashSet<Rule> rules;
   @Nonnull
-  private final PositionSet<Position> positionSet;
+  private final PositionSet<? extends Position> positionSet;
   private Portfolio benchmark;
 
   /**
@@ -45,7 +45,7 @@ public class Portfolio
    *     the {@link Position}s comprising the {@link Portfolio}
    */
   public Portfolio(@Nonnull PortfolioKey id, @Nonnull String name,
-      @Nonnull Set<Position> positions) {
+      @Nonnull Set<? extends Position> positions) {
     this(id, name, positions, (PortfolioKey) null, Collections.emptySet());
   }
 
@@ -66,8 +66,9 @@ public class Portfolio
    *     the (possibly empty) {@link Collection} of {@link Rule}s associated with the {@link
    *     Portfolio}
    */
-  public Portfolio(@Nonnull PortfolioKey id, @Nonnull String name, @Nonnull Set<Position> positions,
-      Portfolio benchmark, Collection<? extends Rule> rules) {
+  public Portfolio(@Nonnull PortfolioKey id, @Nonnull String name,
+      @Nonnull Set<? extends Position> positions, Portfolio benchmark,
+      Collection<? extends Rule> rules) {
     this(id, name, positions, (benchmark == null ? null : benchmark.getKey()), rules);
   }
 
@@ -89,7 +90,7 @@ public class Portfolio
    *     Portfolio}
    */
   public Portfolio(@Nonnull PortfolioKey key, @Nonnull String name,
-      @Nonnull Set<Position> positions, PortfolioKey benchmarkKey,
+      @Nonnull Set<? extends Position> positions, PortfolioKey benchmarkKey,
       Collection<? extends Rule> rules) {
     this.key = key;
     this.name = name;

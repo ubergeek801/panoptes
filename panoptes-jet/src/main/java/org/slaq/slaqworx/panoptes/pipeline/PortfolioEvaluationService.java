@@ -14,6 +14,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
 import org.slaq.slaqworx.panoptes.asset.SecurityProvider;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
+import org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvaluationInput;
 import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class PortfolioEvaluationService {
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioEvaluationService.class);
 
+  @Nonnull
   private final AssetCache assetCache;
 
   /**
@@ -87,9 +89,8 @@ public class PortfolioEvaluationService {
       // FIXME get/generate eventId
       long eventId = System.currentTimeMillis();
 
-      EvaluationResult evaluationResult =
-          new org.slaq.slaqworx.panoptes.evaluator.RuleEvaluator(rule, portfolio,
-              new EvaluationContext(assetCache, securityProvider, portfolioProvider)).call();
+      EvaluationResult evaluationResult = new RuleEvaluator(rule, portfolio,
+          new EvaluationContext(assetCache, securityProvider, portfolioProvider)).call();
       // enrich the result with some other essential information
       RuleEvaluationResult ruleEvaluationResult =
           new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),

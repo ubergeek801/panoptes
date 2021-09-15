@@ -73,7 +73,7 @@
               }
             ]
           },
-          "unit": "cps"
+          "unit": "binBps"
         },
         "overrides": []
       },
@@ -83,7 +83,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 10,
+      "id": 14,
       "options": {
         "legend": {
           "calcs": [],
@@ -97,54 +97,30 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(irate(portfolioResults_total{}[20s]))",
+          "expr": "irate(kafka_server_kafkaserver_linux_disk_read_bytes{}[30s])",
           "interval": "",
-          "legendFormat": "portfolios",
+          "legendFormat": "read {{instance}}",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "sum(irate(portfolioRuleResults_total{}[20s]))",
+          "expr": "irate(kafka_server_kafkaserver_linux_disk_write_bytes{}[30s])",
           "hide": false,
           "interval": "",
-          "legendFormat": "portfolio rules",
+          "legendFormat": "write {{instance}}",
           "refId": "B"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(irate(benchmarkResults_total{}[20s]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "benchmarks",
-          "refId": "C"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(irate(benchmarkRuleResults_total{}[20s]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "benchmark rules",
-          "refId": "D"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(irate(benchmarkComparisonResults_total{}[20s]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "benchmark comparisons",
-          "refId": "E"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(irate(benchmarkComparisonRuleResults_total{}[20s]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "benchmark rule comparisons",
-          "refId": "F"
         }
       ],
-      "title": "Evaluation Counts",
-      "transparent": true,
+      "title": "Kafka Disk I/O",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".slaq.org:7072",
+            "renamePattern": ""
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -183,6 +159,8 @@
             }
           },
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -290,6 +268,224 @@
           },
           "unit": "cps"
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(irate(portfolioResults_total{}[20s]))",
+          "interval": "",
+          "legendFormat": "portfolios",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(irate(portfolioRuleResults_total{}[20s]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "portfolio rules",
+          "refId": "B"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(irate(benchmarkResults_total{}[20s]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "benchmarks",
+          "refId": "C"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(irate(benchmarkRuleResults_total{}[20s]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "benchmark rules",
+          "refId": "D"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(irate(benchmarkComparisonResults_total{}[20s]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "benchmark comparisons",
+          "refId": "E"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(irate(benchmarkComparisonRuleResults_total{}[20s]))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "benchmark rule comparisons",
+          "refId": "F"
+        }
+      ],
+      "title": "Evaluation Counts",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "max": 2684354559,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 2415919104
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (instance) (jvm_memory_used_bytes{area=\"heap\"})",
+          "interval": "",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Heap Usage",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": ".slaq.org:8080",
+            "renamePattern": ""
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "cps"
+        },
         "overrides": [
           {
             "__systemRef": "hideSeriesFrom",
@@ -325,7 +521,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 4,
       "options": {
@@ -401,7 +597,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -409,7 +605,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 8,
       "options": {
@@ -521,7 +717,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 2,
       "options": {
@@ -572,5 +768,5 @@
   "timezone": "",
   "title": "Panoptes Jet Monitoring",
   "uid": "5YPxmyM7k",
-  "version": 6
+  "version": 12
 }

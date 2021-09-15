@@ -254,8 +254,16 @@ public class PimcoBenchmarkDataSource implements PortfolioProvider, SecurityProv
 
         BigDecimal price = calculatePrice(asOfDate, maturityDate, yield);
         attributes.put(SecurityAttribute.price, price.doubleValue());
+        // fabricate some number of additional attributes which serve no purpose than to take up
+        // additional space, to approximate the size of a "real world" security
+        int numAttributes = 50 + random.nextInt(51);
+        for (int i = 1; i <= numAttributes; i++) {
+          attributes.put(SecurityAttribute.of("attribute" + i), random.nextDouble() * 100);
+        }
         Security security =
             securityMap.computeIfAbsent(new SecurityKey(isin), i -> new Security(attributes));
+        // to simulate a larger universe of securities than we actually have to work with, we
+        // generate additional "dummy" securities which essentially clone the existing ones
         generateDummySecurities(security);
 
         positions.add(

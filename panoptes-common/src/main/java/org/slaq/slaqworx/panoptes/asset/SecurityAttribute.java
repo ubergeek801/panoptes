@@ -65,6 +65,14 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   public static final SecurityAttribute<Double> rating3Value =
       of("rating3Value", 20, Double.class, ValueProvider.forDouble());
 
+  static {
+    // initialize the dummy attributes which serve no purpose other than enlarging the size of
+    // securities to something more realistic
+    for (int i = 1; i <= 100; i++) {
+      of("attribute" + i, 20 + i, Double.class, ValueProvider.forDouble());
+    }
+  }
+
   @Nonnull
   private final String name;
   private final int index;

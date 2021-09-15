@@ -30,7 +30,6 @@
       java.management/sun.management=ALL-UNNAMED
       --add-opens
       jdk.management/com.sun.management.internal=ALL-UNNAMED
-      -Xms2560m -Xmx2560m
     </globalJvmArgs>
   </properties>
 
@@ -101,8 +100,6 @@
               <jvmFlag>java.management/sun.management=ALL-UNNAMED</jvmFlag>
               <jvmFlag>--add-opens</jvmFlag>
               <jvmFlag>jdk.management/com.sun.management.internal=ALL-UNNAMED</jvmFlag>
-              <jvmFlag>-Xms2560m</jvmFlag>
-              <jvmFlag>-Xmx2560m</jvmFlag>
               <jvmFlag>-Dmicronaut.environments=offline</jvmFlag>
 
               <jvmFlag>-Dcom.sun.management.jmxremote.rmi.port=8000</jvmFlag>

@@ -111,11 +111,10 @@
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
     </dependency>
-    <!-- groovy 3.x doesn't work with Java 16 (as of 3.0.8) -->
     <dependency>
       <groupId>org.apache.groovy</groupId>
       <artifactId>groovy</artifactId>
-      <version>4.0.0-alpha-3</version>
+      <version>4.0.0-beta-1</version>
     </dependency>
 
     <dependency>

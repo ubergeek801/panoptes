@@ -62,8 +62,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    */
   default <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute, boolean isRequired,
       @Nonnull EvaluationContext evaluationContext) {
-    return getSecurity(evaluationContext)
-        .getEffectiveAttributeValue(attribute, isRequired, evaluationContext);
+    return getSecurity(evaluationContext).getEffectiveAttributeValue(attribute, isRequired,
+        evaluationContext);
   }
 
   /**
@@ -83,6 +83,7 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * @throws NoDataException
    *     if the requested attribute has no assigned value
    */
+  @Nonnull
   default <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute,
       @Nonnull EvaluationContext evaluationContext) {
     return getAttributeValue(attribute, true, evaluationContext);
@@ -100,8 +101,9 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
   @Nonnull
   default Stream<? extends Position> getLookthroughPositions(
       @Nonnull EvaluationContext evaluationContext) {
-    PortfolioKey lookthroughPortfolioKey = getSecurity(evaluationContext)
-        .getEffectiveAttributeValue(SecurityAttribute.portfolio, false, evaluationContext);
+    PortfolioKey lookthroughPortfolioKey =
+        getSecurity(evaluationContext).getEffectiveAttributeValue(SecurityAttribute.portfolio,
+            false, evaluationContext);
     if (lookthroughPortfolioKey == null) {
       // lookthrough not applicable
       return Stream.of(this);
@@ -110,13 +112,12 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
     Portfolio lookthroughPortfolio =
         evaluationContext.getPortfolioProvider().getPortfolio(lookthroughPortfolioKey);
     // For a Security representing a fund, the amount attribute represents the number of fund shares
-    // outstanding, so the effective lookthrough Positions should have their amounts scaled by
-    // (this Position's amount in fund) / (total amount of fund). Each Position of the held
-    // Portfolio is mapped to a ScaledPosition using this multiplier.
+    // outstanding, so the effective lookthrough Positions should have their amounts scaled by (this
+    // Position's amount in fund) / (total amount of fund). Each Position of the held Portfolio is
+    // mapped to a ScaledPosition using this multiplier.
     double portfolioAmount = getAttributeValue(SecurityAttribute.amount, evaluationContext);
-    return lookthroughPortfolio
-        .getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH), evaluationContext)
-        .map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
+    return lookthroughPortfolio.getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH),
+        evaluationContext).map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
   }
 
   @Override

@@ -3,7 +3,6 @@ package org.slaq.slaqworx.panoptes.pipeline;
 import com.hazelcast.jet.datamodel.Tuple3;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sink;
-import com.hazelcast.jet.pipeline.SinkBuilder;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.jet.pipeline.StreamStage;
@@ -22,6 +21,7 @@ import org.slaq.slaqworx.panoptes.event.RuleEvaluationResult;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
 import org.slaq.slaqworx.panoptes.rule.ConfigurableRule;
 import org.slaq.slaqworx.panoptes.rule.Rule;
+import org.slaq.slaqworx.panoptes.trade.Trade;
 import org.slaq.slaqworx.panoptes.util.Keyed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +71,9 @@ public class PanoptesPipeline {
       @Named(PanoptesPipelineConfiguration.PORTFOLIO_EVALUATION_RESULT_SINK)
           Sink<RuleEvaluationResult> portfolioResultSink,
       @Named(PanoptesPipelineConfiguration.SECURITY_SOURCE)
-          StreamSource<Security> securityKafkaSource
-      /*, @Named(PanoptesPipelineConfig.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource,
-      @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK)
+          StreamSource<Security> securityKafkaSource,
+      @Named(PanoptesPipelineConfiguration.TRADE_SOURCE) StreamSource<Trade> tradeKafkaSource
+      /* @Named(PanoptesPipelineConfiguration.TRADE_EVALUATION_RESULT_SINK)
           Sink<TradeEvaluationResult> tradeResultSink */, MeterRegistry meterRegistry) {
     LOG.info("initializing pipeline");
 
@@ -85,6 +85,15 @@ public class PanoptesPipeline {
         .setName("eligibilityListSource").filter(l -> {
           AssetCache assetCache = PanoptesApp.getAssetCache();
           assetCache.getEligibilityCache().set(l.name(), l.items());
+          return true;
+        }).writeTo(Sinks.noop());
+
+    // we would like to just use a Map sink here, but Jet can't sink to a Map that has both a
+    // near cache and a custom serializer
+    pipeline.readFrom(tradeKafkaSource).withIngestionTimestamps().setName("tradeSource")
+        .filter(t -> {
+          AssetCache assetCache = PanoptesApp.getAssetCache();
+          assetCache.getTradeCache().set(t.getKey(), t);
           return true;
         }).writeTo(Sinks.noop());
 
@@ -156,11 +165,12 @@ public class PanoptesPipeline {
             .incrementalJoin(evaluationRequestor, evaluationRequestor.evaluationEventHandler(),
                 portfolioRules.groupingKey(Tuple3::f1), evaluationRequestor.ruleEventHandler())
             .setName("evaluationRequestGenerator");
-
+    // evaluation parallelism of 5 appears to work best for the 6-core Odroid N2, while the 4-core
+    // Core i5 seems to like parallelism 4 (although consistent utilization of all nodes is elusive)
     StreamStage<RuleEvaluationResult> portfolioResultStream =
         portfolioRequestStream.flatMapUsingService(PortfolioEvaluationService.serviceFactory(),
                 PortfolioEvaluationService::evaluate)
-            .setLocalParallelism(Runtime.getRuntime().availableProcessors() - 1)
+            .setLocalParallelism(Math.max(Runtime.getRuntime().availableProcessors() - 1, 4))
             .setName("portfolioEvaluator");
 
     // feed the rule evaluation results (keyed by benchmark ID + rule ID) and benchmark evaluation
@@ -173,9 +183,11 @@ public class PanoptesPipeline {
             .setName("benchmarkComparator");
 
     resultStream.writeTo(portfolioResultSink);
+    /*
     resultStream.writeTo(SinkBuilder.sinkBuilder("evaluationResultSink", c -> c)
             .receiveFn(new EvaluationResultPublisher()).build())
         .setLocalParallelism(Runtime.getRuntime().availableProcessors());
+     */
 
     LOG.info("initialized pipeline");
   }

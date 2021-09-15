@@ -5,7 +5,7 @@ metadata:
   labels:
     app: panoptes
 spec:
-  replicas: 4
+  replicas: 5
   selector:
     matchLabels:
       app: panoptes
@@ -14,20 +14,11 @@ spec:
       labels:
         app: panoptes
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: NotIn
-                values:
-                - uberkube01
-                - uberkube06
-                - uberkube07
+      nodeSelector:
+        kubernetes.io/arch: amd64
       containers:
       - name: panoptes-jet
-        image: uberkube01.slaq.org:5000/slaqworx/panoptes-jet:arm64
+        image: uberkube01.slaq.org:5000/slaqworx/panoptes-jet:amd64
         imagePullPolicy: Always
         env:
         - name: HOST_IP
@@ -39,7 +30,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: JAVA_TOOL_OPTIONS
-          value: "-Xms2560m -Xmx2560m -Djava.rmi.server.hostname=$(HOST_IP) -XX:ActiveProcessorCount=6"
+          value: "-Xms6560m -Xmx6560m -Djava.rmi.server.hostname=$(HOST_IP) -XX:ActiveProcessorCount=4"
         ports:
         - containerPort: 8080
           hostPort: 8080

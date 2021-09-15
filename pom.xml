@@ -19,7 +19,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
 
     <hazelcast.version>5.0-SNAPSHOT</hazelcast.version>
-    <micronaut.version>3.0.0</micronaut.version>
+    <micronaut.version>3.0.1</micronaut.version>
   </properties>
 
   <modules>
@@ -47,7 +47,7 @@
         <plugin>
           <groupId>io.micronaut.build</groupId>
           <artifactId>micronaut-maven-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.0.2</version>
         </plugin>
         <!-- process the Micronaut annotations -->
         <plugin>
@@ -67,7 +67,7 @@
               <path>
                 <groupId>io.micronaut.data</groupId>
                 <artifactId>micronaut-data-processor</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -99,7 +99,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.2.5</version>
+        <version>1.2.6</version>
       </dependency>
       <dependency>
         <groupId>com.hazelcast</groupId>

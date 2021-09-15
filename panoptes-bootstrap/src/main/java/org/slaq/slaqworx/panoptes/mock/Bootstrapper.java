@@ -23,6 +23,8 @@ import org.slaq.slaqworx.panoptes.event.PortfolioDataEvent;
 import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slaq.slaqworx.panoptes.offline.PimcoBenchmarkDataSource;
 import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EligibilityListMsg.ListType;
+import org.slaq.slaqworx.panoptes.trade.Trade;
+import org.slaq.slaqworx.panoptes.trade.TradeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +79,8 @@ public class Bootstrapper {
     bootstrapEligibilityLists();
     bootstrapSecurities();
     bootstrapBenchmarks();
-    bootstrapPortfolios();
+    DummyPortfolioMapLoader portfolioMapLoader = bootstrapPortfolios();
+    bootstrapTrades(portfolioMapLoader);
   }
 
   /**
@@ -92,7 +95,9 @@ public class Bootstrapper {
         PimcoBenchmarkDataSource.getInstance().getBenchmarkMap();
 
     LOG.info("publishing {} benchmarks", benchmarks.size());
-    benchmarks.forEach((k, b) -> kafkaProducer.publishBenchmarkEvent(k, new PortfolioDataEvent(b)));
+    benchmarks.entrySet().parallelStream().forEach(
+        (e -> kafkaProducer.publishBenchmarkEvent(e.getKey(),
+            new PortfolioDataEvent(e.getValue()))));
     LOG.info("published benchmarks");
   }
 
@@ -151,20 +156,23 @@ public class Bootstrapper {
     }
 
     LOG.info("publishing {} eligibility lists", eligibilityLists.size());
-    eligibilityLists.forEach(l -> kafkaProducer.publishEligibilityList(l.name(), l));
+    eligibilityLists.parallelStream()
+        .forEach(l -> kafkaProducer.publishEligibilityList(l.name(), l));
     LOG.info("published eligibility lists");
   }
 
   /**
    * Bootstraps the seed portfolio data.
    *
+   * @return the {@link DummyPortfolioMapLoader} used to bootstrap the portfolios
+   *
    * @throws IOException
    *     if the data could not be read
    */
-  protected void bootstrapPortfolios() throws IOException {
+  protected DummyPortfolioMapLoader bootstrapPortfolios() throws IOException {
     // generate the portfolios
     LOG.info("generating portfolios");
-    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(900);
+    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(800);
     ArrayList<Portfolio> portfolios = new ArrayList<>();
     for (PortfolioKey key : mapLoader.loadAllKeys()) {
       Portfolio portfolio = mapLoader.load(key);
@@ -175,9 +183,11 @@ public class Bootstrapper {
     }
 
     LOG.info("publishing {} portfolios", portfolios.size());
-    portfolios.forEach(
-        p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
+    portfolios.parallelStream()
+        .forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(), new PortfolioDataEvent(p)));
     LOG.info("published portfolios");
+
+    return mapLoader;
   }
 
   /**
@@ -193,5 +203,21 @@ public class Bootstrapper {
     LOG.info("publishing {} securities", securities.size());
     securities.values().parallelStream().forEach(s -> kafkaProducer.publishSecurity(s.getKey(), s));
     LOG.info("published securities");
+  }
+
+  /**
+   * Bootstraps the seed trade data.
+   *
+   * @param portfolioMapLoader
+   *     the {@link DummyPortfolioMapLoader} which was previously used to bootstrap portfolios
+   */
+  protected void bootstrapTrades(DummyPortfolioMapLoader portfolioMapLoader) {
+    // simply publish all known trades to Kafka
+    Map<TradeKey, Trade> tradeMap = portfolioMapLoader.getGeneratedTrades();
+
+    LOG.info("publishing {} trades", tradeMap.size());
+    tradeMap.entrySet().parallelStream()
+        .forEach(e -> kafkaProducer.publishTrade(e.getKey(), e.getValue()));
+    LOG.info("published trades");
   }
 }

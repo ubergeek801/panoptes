@@ -4,12 +4,10 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.runtime.Micronaut;
 import jakarta.inject.Singleton;
-import java.io.IOException;
 import java.util.ArrayList;
-import org.slaq.slaqworx.panoptes.asset.Portfolio;
+import java.util.HashSet;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.event.PortfolioCommandEvent;
-import org.slaq.slaqworx.panoptes.offline.DummyPortfolioMapLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,35 +51,25 @@ public class PortfolioUpdater {
 
   /**
    * Publishes random portfolio updates to Kafka.
-   *
-   * @throws IOException
-   *     if the data could not be read
    */
-  public void updatePortfolios() throws IOException {
-    // generate the portfolios
-    LOG.info("generating portfolios");
-    DummyPortfolioMapLoader mapLoader = new DummyPortfolioMapLoader(900);
-    ArrayList<Portfolio> portfolios = new ArrayList<>();
-    for (PortfolioKey key : mapLoader.loadAllKeys()) {
-      Portfolio portfolio = mapLoader.load(key);
-      // skip "abstract" portfolios (e.g. benchmarks) since we deal with them elsewhere
-      if (!portfolio.isAbstract()) {
-        portfolios.add(portfolio);
-      }
+  public void updatePortfolios() {
+    HashSet<PortfolioKey> portfolioKeys = new HashSet<>(800 * 2);
+    for (int i = 1; i <= 800; i++) {
+      portfolioKeys.add(new PortfolioKey("test" + i, 1));
     }
 
-    for (int j = 0; j < 500; j++) {
+    for (int i = 0; i < 500; i++) {
       // republish some random portfolios
-      ArrayList<Portfolio> portfoliosCopy = new ArrayList<>(portfolios);
-      ArrayList<Portfolio> randomPortfolios = new ArrayList<>();
-      for (int i = 0; i < 100; i++) {
+      ArrayList<PortfolioKey> portfoliosCopy = new ArrayList<>(portfolioKeys);
+      HashSet<PortfolioKey> randomPortfolios = new HashSet<>();
+      for (int j = 0; j < 100; j++) {
         randomPortfolios.add(portfoliosCopy.remove((int) (Math.random() * portfoliosCopy.size())));
       }
 
       long[] eventId = new long[] {System.currentTimeMillis()};
       LOG.info("publishing {} portfolios", randomPortfolios.size());
-      randomPortfolios.forEach(p -> kafkaProducer.publishPortfolioEvent(p.getKey(),
-          new PortfolioCommandEvent(eventId[0]++, p.getKey())));
+      randomPortfolios.parallelStream().forEach(
+          p -> kafkaProducer.publishPortfolioEvent(p, new PortfolioCommandEvent(eventId[0]++, p)));
     }
 
     LOG.info("published portfolios");

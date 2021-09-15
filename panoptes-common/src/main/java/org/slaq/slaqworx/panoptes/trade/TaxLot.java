@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.trade;
 
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioPosition;
 import org.slaq.slaqworx.panoptes.asset.Position;
@@ -15,7 +16,7 @@ import org.slaq.slaqworx.panoptes.asset.SimplePosition;
  * <p>
  * Note that a {@link TaxLot} is always associated with a {@link Trade}, but since {@link TaxLot}s
  * are supplied to a {@link Trade} at construction time, the relationship must be set during this
- * process. Thus {@code tradeKey} may be regarded as non-{@code null} and immutable.
+ * process. Thus {@code tradeKey} may be regarded as effectively non-{@code null} and immutable.
  *
  * @author jeremy
  */
@@ -54,6 +55,7 @@ public class TaxLot extends SimplePosition {
    *
    * @return a {@link TradeKey} identifying this {@link TaxLot}'s {@link Trade}
    */
+  @Nonnull
   public TradeKey getTradeKey() {
     return tradeKey;
   }
@@ -65,7 +67,7 @@ public class TaxLot extends SimplePosition {
    * @param tradeKey
    *     a {@link TradeKey} identifying this {@link TaxLot}'s {@link Trade}
    */
-  protected void setTradeKey(TradeKey tradeKey) {
+  protected void setTradeKey(@Nonnull TradeKey tradeKey) {
     this.tradeKey = tradeKey;
   }
 }

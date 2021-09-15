@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.annotation.Nonnull;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -24,7 +25,9 @@ public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
   private static final long serialVersionUID = 1L;
 
   // we use a String rather than the SecurityAttribute itself to simplify serialization
+  @Nonnull
   private final String attributeName;
+  @Nonnull
   private final TreeSet<T> distinctValues = new TreeSet<>();
 
   /**
@@ -34,7 +37,7 @@ public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
    * @param attribute
    *     the {@link SecurityAttribute} for which to aggregate distinct values
    */
-  public DistinctSecurityAttributeValuesAggregator(SecurityAttribute<T> attribute) {
+  public DistinctSecurityAttributeValuesAggregator(@Nonnull SecurityAttribute<T> attribute) {
     attributeName = attribute.getName();
   }
 
@@ -47,6 +50,7 @@ public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
   }
 
   @Override
+  @Nonnull
   public SortedSet<T> aggregate() {
     return distinctValues;
   }
