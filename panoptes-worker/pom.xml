@@ -48,9 +48,9 @@
             </goals>
             <configuration>
               <from>
-                <!-- :16.0.2 -->
+                <!-- 17-35 -->
                 <image>
-                  bellsoft/liberica-openjre-alpine-musl@sha256:d0ae8e5975a7d4265c4c3762ad0b538efa6d5f2d8b0098bbd2c2632a59b4d0bb
+                  bellsoft/liberica-openjre-alpine-musl@sha256:026a92d84cc8e3ae36b5360c83c80eea6d04669ea943aab7df487c0ee5e7b635
                 </image>
               </from>
               <to>
@@ -66,9 +66,9 @@
             </goals>
             <configuration>
               <from>
-                <!-- 16.0.2 -->
+                <!-- 17-35 -->
                 <image>
-                  bellsoft/liberica-openjre-alpine-musl@sha256:8ef45829a8bb0622baea4e0ba3a08bcce045c500f21d3f3255ddca4011232cfd
+                  bellsoft/liberica-openjre-alpine-musl@sha256:3c26fa1cba9e9c95eb49d01a1c1312a9845f9a186ba0c3f119bc85fb8255689c
                 </image>
               </from>
               <to>
