@@ -121,6 +121,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -377,7 +378,6 @@
             }
           },
           "mappings": [],
-          "max": 2684354559,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -385,10 +385,6 @@
               {
                 "color": "transparent",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 2415919104
               }
             ]
           },
@@ -768,5 +764,5 @@
   "timezone": "",
   "title": "Panoptes Jet Monitoring",
   "uid": "5YPxmyM7k",
-  "version": 12
+  "version": 14
 }
