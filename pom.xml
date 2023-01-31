@@ -41,19 +41,19 @@
         <plugin>
           <groupId>com.google.cloud.tools</groupId>
           <artifactId>jib-maven-plugin</artifactId>
-          <version>3.1.4</version>
+          <version>3.3.0</version>
         </plugin>
         <!-- enable Micronaut-related Maven actions -->
         <plugin>
           <groupId>io.micronaut.build</groupId>
           <artifactId>micronaut-maven-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.4.0</version>
         </plugin>
         <!-- process the Micronaut annotations -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.10.1</version>
           <configuration>
             <compilerArgs>
               <arg>-parameters</arg>
@@ -67,7 +67,7 @@
               <path>
                 <groupId>io.micronaut.data</groupId>
                 <artifactId>micronaut-data-processor</artifactId>
-                <version>3.0.1</version>
+                <version>3.8.0</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
@@ -99,7 +99,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.2.6</version>
+        <version>1.4.1</version>
       </dependency>
       <dependency>
         <groupId>com.hazelcast</groupId>

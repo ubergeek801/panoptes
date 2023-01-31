@@ -15,7 +15,7 @@
   <name>panoptes-flink</name>
 
   <properties>
-    <flink.version>1.13.2</flink.version>
+    <flink.version>1.15.2</flink.version>
     <flink.scala.binary.version>2.12</flink.scala.binary.version>
   </properties>
 
@@ -159,19 +159,18 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <!-- in Flink >= 1.11.x, this is included by flink-clients_${scala.binary.version} -->
-      <artifactId>flink-clients_${flink.scala.binary.version}</artifactId>
+      <artifactId>flink-clients</artifactId>
       <version>${flink.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
+      <artifactId>flink-connector-kafka</artifactId>
       <version>${flink.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-metrics-jmx_${flink.scala.binary.version}</artifactId>
+      <artifactId>flink-metrics-jmx</artifactId>
       <version>${flink.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -190,20 +189,20 @@
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
+      <artifactId>flink-test-utils</artifactId>
       <version>${flink.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-runtime_${flink.scala.binary.version}</artifactId>
+      <artifactId>flink-runtime</artifactId>
       <version>${flink.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-streaming-java_${flink.scala.binary.version}</artifactId>
+      <artifactId>flink-streaming-java</artifactId>
       <version>${flink.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>

@@ -161,7 +161,7 @@ public class CompliancePanel extends VerticalLayout {
 
     violationReviewPanel = createViolationReviewPanel(VaadinIcon.EXCLAMATION_CIRCLE, "10013579",
         "Average quality must be ≥ 90 (warning threshold)", new BigDecimal("90.234"),
-        new BigDecimal("89.985"), VaadinIcon.TRENDIND_DOWN);
+        new BigDecimal("89.985"), VaadinIcon.TRENDING_DOWN);
     panel.add(violationReviewPanel);
     panel.setColspan(violationReviewPanel, NUM_COLUMNS);
 
