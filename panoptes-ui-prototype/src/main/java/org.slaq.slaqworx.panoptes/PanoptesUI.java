@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 public class PanoptesUI implements ApplicationEventListener<ApplicationStartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesUI.class);
 
-  /**
-   * Creates a new instance of the Panoptes UI application.
-   */
+  /** Creates a new instance of the Panoptes UI application. */
   protected PanoptesUI() {
     // nothing to do
   }
@@ -35,8 +33,7 @@ public class PanoptesUI implements ApplicationEventListener<ApplicationStartupEv
   /**
    * The entry point for the Panoptes application.
    *
-   * @param args
-   *     the program arguments
+   * @param args the program arguments
    */
   public static void main(String[] args) {
     Micronaut.run(PanoptesUI.class, args);

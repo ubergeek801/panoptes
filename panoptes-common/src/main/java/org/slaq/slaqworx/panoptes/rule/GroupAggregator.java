@@ -18,11 +18,8 @@ public interface GroupAggregator {
    * issuers and create a new "top 5 issuer" {@link EvaluationGroup} consisting of those {@link
    * Position}s.
    *
-   * @param classifiedPositions
-   *     the {@link Position}s already classified
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which to perform the evaluation
-   *
+   * @param classifiedPositions the {@link Position}s already classified
+   * @param evaluationContext the {@link EvaluationContext} in which to perform the evaluation
    * @return a {@link Map} consisting of the existing classified {@link Position}s (possibly
    *     filtered) while adding zero or more new mappings of {@link EvaluationGroup}s to their
    *     constituent {@link Position}s

@@ -13,9 +13,7 @@ import org.junit.jupiter.api.Test;
  * @author jeremy
  */
 public class FakeSetTest {
-  /**
-   * Tests that {@link FakeSet} behaves as expected.
-   */
+  /** Tests that {@link FakeSet} behaves as expected. */
   @Test
   public void testFakeSet() {
     List<String> sourceList = List.of("a", "b", "c");
@@ -26,7 +24,9 @@ public class FakeSetTest {
     ArrayList<String> contents = new ArrayList<>();
     fakeSet.iterator().forEachRemaining(contents::add);
 
-    assertEquals(sourceList.size(), contents.size(),
+    assertEquals(
+        sourceList.size(),
+        contents.size(),
         "contents from Iterator should have same size as source");
     assertTrue(contents.contains("a"), "FakeSet should contain same elements as source");
     assertTrue(contents.contains("b"), "FakeSet should contain same elements as source");

@@ -11,9 +11,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  * @author jeremy
  */
 public class TradeKeySerializer implements ProtobufSerializer<TradeKey> {
-  /**
-   * Creates a new {@link TradeKeySerializer}.
-   */
+  /** Creates a new {@link TradeKeySerializer}. */
   public TradeKeySerializer() {
     // nothing to do
   }

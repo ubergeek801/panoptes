@@ -21,19 +21,18 @@ public class MarketValueRule extends LimitRule {
   /**
    * Creates a new {@link MarketValueRule} with the given parameters.
    *
-   * @param key
-   *     the unique key of this rule, or {@code null} to generate one
-   * @param description
-   *     the rule description
-   * @param positionFilter
-   *     the (possibly {@code null}) filter to be applied to {@link Position}s
-   * @param lowerLimit
-   *     the lower limit of acceptable concentration values
-   * @param upperLimit
-   *     the upper limit of acceptable concentration values
+   * @param key the unique key of this rule, or {@code null} to generate one
+   * @param description the rule description
+   * @param positionFilter the (possibly {@code null}) filter to be applied to {@link Position}s
+   * @param lowerLimit the lower limit of acceptable concentration values
+   * @param upperLimit the upper limit of acceptable concentration values
    */
-  public MarketValueRule(RuleKey key, @Nonnull String description,
-      Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit) {
+  public MarketValueRule(
+      RuleKey key,
+      @Nonnull String description,
+      Predicate<PositionEvaluationContext> positionFilter,
+      Double lowerLimit,
+      Double upperLimit) {
     super(key, description, positionFilter, lowerLimit, upperLimit, null);
   }
 
@@ -41,22 +40,23 @@ public class MarketValueRule extends LimitRule {
    * Creates a new {@link MarketValueRule} with the given JSON configuration, key, description,
    * filter and classifier.
    *
-   * @param jsonConfiguration
-   *     the JSON configuration specifying calculation attribute, lower and upper limits
-   * @param key
-   *     the unique key of this rule, or {@code null} to generate one
-   * @param description
-   *     the rule description
-   * @param groovyFilter
-   *     a (possibly {@code null}) Groovy expression to be used as a {@link Position} filter
-   * @param groupClassifier
-   *     not used; merely included to conform to expected {@code fromJson()} signature
-   *
+   * @param jsonConfiguration the JSON configuration specifying calculation attribute, lower and
+   *     upper limits
+   * @param key the unique key of this rule, or {@code null} to generate one
+   * @param description the rule description
+   * @param groovyFilter a (possibly {@code null}) Groovy expression to be used as a {@link
+   *     Position} filter
+   * @param groupClassifier not used; merely included to conform to expected {@code fromJson()}
+   *     signature
    * @return a {@link MarketValueRule} with the specified configuration
    */
   @Nonnull
-  public static MarketValueRule fromJson(@Nonnull String jsonConfiguration, RuleKey key,
-      @Nonnull String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
+  public static MarketValueRule fromJson(
+      @Nonnull String jsonConfiguration,
+      RuleKey key,
+      @Nonnull String description,
+      String groovyFilter,
+      EvaluationGroupClassifier groupClassifier) {
     Configuration configuration;
     try {
       configuration =
@@ -66,9 +66,12 @@ public class MarketValueRule extends LimitRule {
       throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration, e);
     }
 
-    return new MarketValueRule(key, description,
+    return new MarketValueRule(
+        key,
+        description,
         (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
-        configuration.lowerLimit, configuration.upperLimit);
+        configuration.lowerLimit,
+        configuration.upperLimit);
   }
 
   @Override
@@ -87,16 +90,14 @@ public class MarketValueRule extends LimitRule {
   }
 
   @Override
-  protected double getValue(@Nonnull PositionSupplier positions,
-      @Nonnull EvaluationContext evaluationContext) {
+  protected double getValue(
+      @Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
     TotalMarketValuePositionCalculator calculator = new TotalMarketValuePositionCalculator();
 
     return calculator.calculate(positions.getPositionsWithContext(evaluationContext));
   }
 
-  /**
-   * Mirrors the structure of the JSON configuration.
-   */
+  /** Mirrors the structure of the JSON configuration. */
   static class Configuration {
     public Double lowerLimit;
     public Double upperLimit;

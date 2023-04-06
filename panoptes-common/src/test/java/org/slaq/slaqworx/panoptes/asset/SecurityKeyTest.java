@@ -11,9 +11,7 @@ import org.junit.jupiter.api.Test;
  * @author jeremy
  */
 public class SecurityKeyTest {
-  /**
-   * Tests that {@link SecurityKey}s are sortable.
-   */
+  /** Tests that {@link SecurityKey}s are sortable. */
   @Test
   public void testSort() {
     SecurityKey key1 = new SecurityKey("asset1");

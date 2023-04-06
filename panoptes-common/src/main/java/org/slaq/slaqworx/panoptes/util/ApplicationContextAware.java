@@ -13,8 +13,7 @@ public interface ApplicationContextAware {
   /**
    * Injects the {@link ApplicationContext} into the object state.
    *
-   * @param applicationContext
-   *     the {@link ApplicationContext} to be injected
+   * @param applicationContext the {@link ApplicationContext} to be injected
    */
   public void setApplicationContext(ApplicationContext applicationContext);
 }

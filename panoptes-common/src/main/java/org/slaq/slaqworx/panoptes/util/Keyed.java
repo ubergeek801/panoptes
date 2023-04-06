@@ -5,9 +5,7 @@ import javax.annotation.Nonnull;
 /**
  * Indicates that an entity can be referenced by a key of the specified type.
  *
- * @param <T>
- *     the ID/key type
- *
+ * @param <T> the ID/key type
  * @author jeremy
  */
 @FunctionalInterface

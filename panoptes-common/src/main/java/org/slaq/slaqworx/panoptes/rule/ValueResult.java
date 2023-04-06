@@ -9,8 +9,8 @@ import org.slaq.slaqworx.panoptes.trade.Trade;
  * Encapsulates the results of a single {@link Rule} evaluation, typically grouped by {@link
  * EvaluationGroup} and aggregated into an {@link EvaluationResult}. Currently this class contains
  * aspects of Boolean- and value-based evaluations, which possibly should be separated.
- * <p>
- * For benchmark-relative rules, a {@link ValueResult} is determined for both the base/target
+ *
+ * <p>For benchmark-relative rules, a {@link ValueResult} is determined for both the base/target
  * portfolio and the benchmark portfolio individually, to be combined eventually by a {@code
  * org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator}.
  *
@@ -28,8 +28,7 @@ public class ValueResult {
   /**
    * Creates a new Boolean-based {@link ValueResult} indicating whether the evaluation passed.
    *
-   * @param isPassed
-   *     {@code true} if the evaluation passed, {@code false} otherwise
+   * @param isPassed {@code true} if the evaluation passed, {@code false} otherwise
    */
   public ValueResult(boolean isPassed) {
     this.isPassed = isPassed;
@@ -43,10 +42,9 @@ public class ValueResult {
    * Creates a new value-based {@link ValueResult} indicating the threshold status for evaluation
    * and the actual result value.
    *
-   * @param threshold
-   *     a {@link Threshold} value indicating whether the value is within the evaluation threshold
-   * @param value
-   *     the actual evaluation result value
+   * @param threshold a {@link Threshold} value indicating whether the value is within the
+   *     evaluation threshold
+   * @param value the actual evaluation result value
    */
   public ValueResult(Threshold threshold, double value) {
     this(threshold, value, null);
@@ -56,12 +54,10 @@ public class ValueResult {
    * Creates a new value-based {@link ValueResult} indicating the threshold status for evaluation
    * and the actual result value.
    *
-   * @param threshold
-   *     a {@link Threshold} value indicating whether the value is within the evaluation threshold
-   * @param value
-   *     the actual evaluation result value
-   * @param benchmarkValue
-   *     the (possibly {@code null}) benchmark evaluation result value
+   * @param threshold a {@link Threshold} value indicating whether the value is within the
+   *     evaluation threshold
+   * @param value the actual evaluation result value
+   * @param benchmarkValue the (possibly {@code null}) benchmark evaluation result value
    */
   public ValueResult(Threshold threshold, double value, Double benchmarkValue) {
     isPassed = (threshold == Threshold.WITHIN);
@@ -75,8 +71,7 @@ public class ValueResult {
    * Creates a new Boolean-based {@link ValueResult} indicating that the evaluation failed due to
    * some exception.
    *
-   * @param exception
-   *     the exception causing the failure
+   * @param exception the exception causing the failure
    */
   public ValueResult(Throwable exception) {
     isPassed = false;
@@ -91,9 +86,7 @@ public class ValueResult {
    * such as a {@link Trade}) to the given {@link ValueResult} (which is interpreted as the value
    * prior to the proposed change).
    *
-   * @param originalResult
-   *     the {@link ValueResult} to compare to
-   *
+   * @param originalResult the {@link ValueResult} to compare to
    * @return an {@link Impact} describing the impact of the change on the evaluations
    */
   public Impact compare(ValueResult originalResult) {
@@ -103,8 +96,10 @@ public class ValueResult {
       return (isPassed ? Impact.NEUTRAL : Impact.NEGATIVE);
     }
 
-    if (value == null || originalResult.value == null || threshold == null ||
-        originalResult.threshold == null) {
+    if (value == null
+        || originalResult.value == null
+        || threshold == null
+        || originalResult.threshold == null) {
       // values are unavailable so only compare pass/fail
       if (isPassed) {
         return (originalResult.isPassed ? Impact.NEUTRAL : Impact.POSITIVE);
@@ -114,54 +109,54 @@ public class ValueResult {
     }
 
     switch (threshold) {
-    case WITHIN:
-      // if we are now within the limit, then the result is either neutral (if originally
-      // within the limit) or positive (if not)
-      return (originalResult.threshold == Threshold.WITHIN ? Impact.NEUTRAL : Impact.POSITIVE);
-    case BELOW:
-      switch (originalResult.threshold) {
       case WITHIN:
-        // now outside the limit; must be negative impact
-        return Impact.NEGATIVE;
+        // if we are now within the limit, then the result is either neutral (if originally
+        // within the limit) or positive (if not)
+        return (originalResult.threshold == Threshold.WITHIN ? Impact.NEUTRAL : Impact.POSITIVE);
       case BELOW:
-        // impact is negative, neutral or positive depending on if value decreased, remained
-        // or increased
-        double diff = value - originalResult.value;
-        if (Math.abs(diff) < EPSILON) {
-          return Impact.NEUTRAL;
+        switch (originalResult.threshold) {
+          case WITHIN:
+            // now outside the limit; must be negative impact
+            return Impact.NEGATIVE;
+          case BELOW:
+            // impact is negative, neutral or positive depending on if value decreased, remained
+            // or increased
+            double diff = value - originalResult.value;
+            if (Math.abs(diff) < EPSILON) {
+              return Impact.NEUTRAL;
+            }
+            if (diff < 0) {
+              return Impact.NEGATIVE;
+            }
+            return Impact.POSITIVE;
+          case ABOVE:
+          default:
+            // going from one extreme to the other seems unusual, but is possible; simply treat
+            // as a negative impact
+            return Impact.NEGATIVE;
         }
-        if (diff < 0) {
-          return Impact.NEGATIVE;
-        }
-        return Impact.POSITIVE;
       case ABOVE:
       default:
-        // going from one extreme to the other seems unusual, but is possible; simply treat
-        // as a negative impact
-        return Impact.NEGATIVE;
-      }
-    case ABOVE:
-    default:
-      switch (originalResult.threshold) {
-      case WITHIN:
-        // now outside the limit; must be negative impact
-        return Impact.NEGATIVE;
-      case BELOW:
-        // same unusual case as described above
-        return Impact.NEGATIVE;
-      case ABOVE:
-      default:
-        // impact is negative, neutral or positive depending on if value increased, remained
-        // or decreased
-        double diff = value - originalResult.value;
-        if (Math.abs(diff) < EPSILON) {
-          return Impact.NEUTRAL;
+        switch (originalResult.threshold) {
+          case WITHIN:
+            // now outside the limit; must be negative impact
+            return Impact.NEGATIVE;
+          case BELOW:
+            // same unusual case as described above
+            return Impact.NEGATIVE;
+          case ABOVE:
+          default:
+            // impact is negative, neutral or positive depending on if value increased, remained
+            // or decreased
+            double diff = value - originalResult.value;
+            if (Math.abs(diff) < EPSILON) {
+              return Impact.NEUTRAL;
+            }
+            if (diff > 0) {
+              return Impact.NEGATIVE;
+            }
+            return Impact.POSITIVE;
         }
-        if (diff > 0) {
-          return Impact.NEGATIVE;
-        }
-        return Impact.POSITIVE;
-      }
     }
   }
 
@@ -253,19 +248,23 @@ public class ValueResult {
 
   @Override
   public String toString() {
-    return "RuleResult [isPassed=" + isPassed + ", threshold=" + threshold + ", value=" + value +
-        ", exception=" + exception + "]";
+    return "RuleResult [isPassed="
+        + isPassed
+        + ", threshold="
+        + threshold
+        + ", value="
+        + value
+        + ", exception="
+        + exception
+        + "]";
   }
 
   /**
    * Determines whether the given exceptions are considered equivalent for our purposes, since
    * {@link Exception} does not implement {@code equals()}.
    *
-   * @param exception1
-   *     the first exception to be compared
-   * @param exception2
-   *     the second exception to be compared
-   *
+   * @param exception1 the first exception to be compared
+   * @param exception2 the second exception to be compared
    * @return {@code true} if the exceptions are considered to be equivalent, {@code false} otherwise
    */
   protected boolean exceptionEquals(Throwable exception1, Throwable exception2) {
@@ -294,31 +293,25 @@ public class ValueResult {
    * evaluated before and after the proposed changes are considered.
    */
   public enum Impact {
-    /**
-     * the change negatively impacts the {@link Rule} evaluation
-     */
+    /** the change negatively impacts the {@link Rule} evaluation */
     NEGATIVE,
-    /**
-     * the change has no actionable impact on the {@link Rule} evaluation
-     */
+    /** the change has no actionable impact on the {@link Rule} evaluation */
     NEUTRAL,
-    /**
-     * the change positively impacts the {@link Rule} evaluation
-     */
+    /** the change positively impacts the {@link Rule} evaluation */
     POSITIVE,
-    /**
-     * the impact of the change cannot be determined
-     */
+    /** the impact of the change cannot be determined */
     UNKNOWN
   }
 
   /**
    * Indicates whether a value-based result is below, within or above the evaluated {@link Rule}'s
    * threshold.
-   * <p>
-   * TODO there are probably better names for these
+   *
+   * <p>TODO there are probably better names for these
    */
   public enum Threshold {
-    BELOW, WITHIN, ABOVE
+    BELOW,
+    WITHIN,
+    ABOVE
   }
 }

@@ -17,8 +17,7 @@ public class PositionSerializerTest {
   /**
    * Tests that (de)serialization works as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testSerialization() throws Exception {
@@ -29,9 +28,13 @@ public class PositionSerializerTest {
     Position deserialized = serializer.read(buffer);
 
     assertEquals(position, deserialized, "deserialized value should equals() original value");
-    assertEquals(position.getAmount(), deserialized.getAmount(),
+    assertEquals(
+        position.getAmount(),
+        deserialized.getAmount(),
         "deserialized value should have same amount as original");
-    assertEquals(position.getSecurityKey(), deserialized.getSecurityKey(),
+    assertEquals(
+        position.getSecurityKey(),
+        deserialized.getSecurityKey(),
         "deserialized value should have same SecurityKey as original");
   }
 }

@@ -108,11 +108,8 @@ public class PanoptesSerdeRegistry implements SerdeRegistry {
   /**
    * Creates a {@link Serde} that delegates to the given {@link ProtobufSerializer}.
    *
-   * @param <T>
-   *     the type to be (de)serialized
-   * @param protobufSerializer
-   *     a {@link ProtobufSerializer} that can (de)serialize the given type
-   *
+   * @param <T> the type to be (de)serialized
+   * @param protobufSerializer a {@link ProtobufSerializer} that can (de)serialize the given type
    * @return a {@link Serde} that can (de)serialize the given type
    */
   protected <T extends ProtobufSerializable> Serde<T> createSerde(

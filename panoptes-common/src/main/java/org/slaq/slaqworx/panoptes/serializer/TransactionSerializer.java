@@ -21,9 +21,7 @@ import org.slaq.slaqworx.panoptes.trade.TransactionKey;
  */
 @Singleton
 public class TransactionSerializer implements ProtobufSerializer<Transaction> {
-  /**
-   * Creates a new {@link TransactionSerializer}.
-   */
+  /** Creates a new {@link TransactionSerializer}. */
   public TransactionSerializer() {
     // nothing to do
   }
@@ -31,9 +29,7 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
   /**
    * Converts a {@link Transaction} into a new {@link TransactionMsg}.
    *
-   * @param transaction
-   *     the {@link Transaction} to be converted
-   *
+   * @param transaction the {@link Transaction} to be converted
    * @return a {@link TransactionMsg}
    */
   public static TransactionMsg convert(Transaction transaction) {
@@ -48,19 +44,22 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
     transactionBuilder.setKey(transactionKeyBuilder);
     transactionBuilder.setPortfolioKey(portfolioKeyBuilder);
 
-    transaction.getPositions().forEach(t -> {
-      IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
-      positionKeyBuilder.setId(t.getKey().id());
-      IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
-      securityKeyBuilder.setId(t.getSecurityKey().id());
+    transaction
+        .getPositions()
+        .forEach(
+            t -> {
+              IdKeyMsg.Builder positionKeyBuilder = IdKeyMsg.newBuilder();
+              positionKeyBuilder.setId(t.getKey().id());
+              IdKeyMsg.Builder securityKeyBuilder = IdKeyMsg.newBuilder();
+              securityKeyBuilder.setId(t.getSecurityKey().id());
 
-      PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
-      positionBuilder.setKey(positionKeyBuilder);
-      positionBuilder.setAmount(t.getAmount());
-      positionBuilder.setSecurityKey(securityKeyBuilder);
+              PositionMsg.Builder positionBuilder = PositionMsg.newBuilder();
+              positionBuilder.setKey(positionKeyBuilder);
+              positionBuilder.setAmount(t.getAmount());
+              positionBuilder.setSecurityKey(securityKeyBuilder);
 
-      transactionBuilder.addPosition(positionBuilder);
-    });
+              transactionBuilder.addPosition(positionBuilder);
+            });
 
     return transactionBuilder.build();
   }
@@ -68,9 +67,7 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
   /**
    * Converts a {@link TransactionMsg} into a new {@link Transaction}.
    *
-   * @param transactionMsg
-   *     the message to be converted
-   *
+   * @param transactionMsg the message to be converted
    * @return a {@link Transaction}
    */
   public static Transaction convert(TransactionMsg transactionMsg) {
@@ -80,7 +77,8 @@ public class TransactionSerializer implements ProtobufSerializer<Transaction> {
     PortfolioKey portfolioKey =
         new PortfolioKey(portfolioKeyMsg.getId(), portfolioKeyMsg.getVersion());
     List<TaxLot> allocations =
-        transactionMsg.getPositionList().stream().map(PositionSerializer::convertTaxLot)
+        transactionMsg.getPositionList().stream()
+            .map(PositionSerializer::convertTaxLot)
             .collect(Collectors.toList());
 
     return new Transaction(transactionKey, portfolioKey, allocations);

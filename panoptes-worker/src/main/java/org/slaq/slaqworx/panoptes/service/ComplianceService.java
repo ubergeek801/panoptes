@@ -35,13 +35,11 @@ public class ComplianceService {
   /**
    * Creates a new {@link ComplianceService}.
    *
-   * @param clusterPortfolioEvaluator
-   *     the evaluator to use for compliance checking
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve cached resources
+   * @param clusterPortfolioEvaluator the evaluator to use for compliance checking
+   * @param assetCache the {@link AssetCache} to use to resolve cached resources
    */
-  protected ComplianceService(ClusterPortfolioEvaluator clusterPortfolioEvaluator,
-      AssetCache assetCache) {
+  protected ComplianceService(
+      ClusterPortfolioEvaluator clusterPortfolioEvaluator, AssetCache assetCache) {
     evaluator = clusterPortfolioEvaluator;
     this.assetCache = assetCache;
   }
@@ -54,44 +52,55 @@ public class ComplianceService {
    */
   @Get(uri = "/all", produces = MediaType.APPLICATION_JSON_STREAM)
   public Flowable<String> evaluateCompliance() {
-    return Flowable.create(emitter -> {
-      Collection<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
-      int numPortfolios = portfolioKeys.size();
-      ResultState state = new ResultState();
-      long startTime = System.currentTimeMillis();
+    return Flowable.create(
+        emitter -> {
+          Collection<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
+          int numPortfolios = portfolioKeys.size();
+          ResultState state = new ResultState();
+          long startTime = System.currentTimeMillis();
 
-      portfolioKeys.forEach(key -> {
-        CompletableFuture<Map<RuleKey, EvaluationResult>> futureResult =
-            evaluator.evaluate(key, new EvaluationContext());
-        futureResult.whenComplete((result, exception) -> {
-          synchronized (emitter) {
-            if (emitter.isCancelled()) {
-              // TODO maybe cancel remaining Futures too
-              return;
-            }
-            try {
-              emitter.onNext(SerializerUtil.defaultJsonMapper()
-                  .writeValueAsString(Triple.of(key, result, exception)) + "\n");
-            } catch (JsonProcessingException e) {
-              // FIXME handle JsonProcessingException somehow
-            }
-            if (result != null) {
-              state.numEvaluations += result.size();
-            }
+          portfolioKeys.forEach(
+              key -> {
+                CompletableFuture<Map<RuleKey, EvaluationResult>> futureResult =
+                    evaluator.evaluate(key, new EvaluationContext());
+                futureResult.whenComplete(
+                    (result, exception) -> {
+                      synchronized (emitter) {
+                        if (emitter.isCancelled()) {
+                          // TODO maybe cancel remaining Futures too
+                          return;
+                        }
+                        try {
+                          emitter.onNext(
+                              SerializerUtil.defaultJsonMapper()
+                                      .writeValueAsString(Triple.of(key, result, exception))
+                                  + "\n");
+                        } catch (JsonProcessingException e) {
+                          // FIXME handle JsonProcessingException somehow
+                        }
+                        if (result != null) {
+                          state.numEvaluations += result.size();
+                        }
 
-            if (++state.resultIndex == numPortfolios) {
-              long endTime = System.currentTimeMillis();
-              String message =
-                  "processed " + numPortfolios + " Portfolios using " + state.numEvaluations +
-                      " Rule evaluations in " + (endTime - startTime) + " ms";
-              LOG.info(message);
-              emitter.onNext("{ \"message\": \"" + message + "\" }");
-              emitter.onComplete();
-            }
-          }
-        });
-      });
-    }, BackpressureStrategy.BUFFER);
+                        if (++state.resultIndex == numPortfolios) {
+                          long endTime = System.currentTimeMillis();
+                          String message =
+                              "processed "
+                                  + numPortfolios
+                                  + " Portfolios using "
+                                  + state.numEvaluations
+                                  + " Rule evaluations in "
+                                  + (endTime - startTime)
+                                  + " ms";
+                          LOG.info(message);
+                          emitter.onNext("{ \"message\": \"" + message + "\" }");
+                          emitter.onComplete();
+                        }
+                      }
+                    });
+              });
+        },
+        BackpressureStrategy.BUFFER);
   }
 
   static class ResultState {

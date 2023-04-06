@@ -23,9 +23,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * @author jeremy
  */
 public class PortfolioRuleResultAdapter implements EvaluationResultRow {
-  /**
-   * A {@link Comparator} that compares {@link EvaluationGroup}s lexically by ID.
-   */
+  /** A {@link Comparator} that compares {@link EvaluationGroup}s lexically by ID. */
   private static final Comparator<? super Entry<EvaluationGroup, ValueResult>> groupComparator =
       (Comparator.comparing(e -> e.getKey().id()));
 
@@ -36,13 +34,11 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
    * Creates a new {@link PortfolioRuleResultAdapter} adapting the given portfolio-level result and
    * using the given {@link AssetCache} to resolve cached references.
    *
-   * @param evaluationResult
-   *     the {@link EvaluationResult} to be adapted
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve cached references
+   * @param evaluationResult the {@link EvaluationResult} to be adapted
+   * @param assetCache the {@link AssetCache} to use to resolve cached references
    */
-  public PortfolioRuleResultAdapter(Map.Entry<RuleKey, EvaluationResult> evaluationResult,
-      AssetCache assetCache) {
+  public PortfolioRuleResultAdapter(
+      Map.Entry<RuleKey, EvaluationResult> evaluationResult, AssetCache assetCache) {
     this.evaluationResult = evaluationResult;
     this.assetCache = assetCache;
   }
@@ -61,7 +57,8 @@ public class PortfolioRuleResultAdapter implements EvaluationResultRow {
   @Override
   @Nonnull
   public Stream<EvaluationResultRow> getChildren() {
-    return getGroupResults().entrySet().stream().sorted(groupComparator)
+    return getGroupResults().entrySet().stream()
+        .sorted(groupComparator)
         .map(e -> new GroupResultAdapter(this, e));
   }
 

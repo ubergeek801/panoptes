@@ -24,8 +24,7 @@ public class TradeSerializerTest {
   /**
    * Tests that (de)serialization works as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testSerialization() throws Exception {
@@ -40,20 +39,29 @@ public class TradeSerializerTest {
 
     LocalDate tradeDate = LocalDate.of(2020, 2, 1);
     LocalDate settlementDate = LocalDate.of(2020, 2, 4);
-    Trade trade = new Trade(tradeDate, settlementDate,
-        Map.of(t1.getPortfolioKey(), t1, t2.getPortfolioKey(), t2));
+    Trade trade =
+        new Trade(
+            tradeDate, settlementDate, Map.of(t1.getPortfolioKey(), t1, t2.getPortfolioKey(), t2));
 
     byte[] buffer = serializer.write(trade);
     Trade deserialized = serializer.read(buffer);
 
     assertEquals(trade, deserialized, "deserialized value should equals() original value");
-    assertEquals(trade.getKey(), deserialized.getKey(),
+    assertEquals(
+        trade.getKey(),
+        deserialized.getKey(),
         "deserialized value should have same key as original");
-    assertEquals(trade.getTradeDate(), deserialized.getTradeDate(),
+    assertEquals(
+        trade.getTradeDate(),
+        deserialized.getTradeDate(),
         "deserialized value should have same trade date as original");
-    assertEquals(trade.getSettlementDate(), deserialized.getSettlementDate(),
+    assertEquals(
+        trade.getSettlementDate(),
+        deserialized.getSettlementDate(),
         "deserialized value should have same settlement date as original");
-    assertEquals(trade.getTransactions().size(), deserialized.getTransactions().size(),
+    assertEquals(
+        trade.getTransactions().size(),
+        deserialized.getTransactions().size(),
         "deserialized value should have same number of transactions as original");
 
     Comparator<Transaction> transactionComparator = Comparator.comparing(tx -> tx.getKey().getId());
@@ -71,13 +79,20 @@ public class TradeSerializerTest {
       Transaction transaction = tradeTransactionIter.next();
       Transaction deserializedTransaction = deserializedTransactionIter.next();
 
-      assertEquals(transaction, deserializedTransaction,
+      assertEquals(
+          transaction,
+          deserializedTransaction,
           "deserialized Transaction should equals() original");
-      assertEquals(transaction.getKey(), deserializedTransaction.getKey(),
+      assertEquals(
+          transaction.getKey(),
+          deserializedTransaction.getKey(),
           "deserialized Transaction should have same key as original");
-      assertEquals(transaction.getPortfolioKey(), deserializedTransaction.getPortfolioKey(),
+      assertEquals(
+          transaction.getPortfolioKey(),
+          deserializedTransaction.getPortfolioKey(),
           "deserialized Transaction should have same Portfolio as original");
-      assertEquals(transaction.getPositions().count(),
+      assertEquals(
+          transaction.getPositions().count(),
           deserializedTransaction.getPositions().count(),
           "deserialized Transaction should have same number of allocations as original");
 
@@ -88,13 +103,20 @@ public class TradeSerializerTest {
         Position allocation = tradeAllocationIter.next();
         Position deserializedAllocation = deserializedAllocationIter.next();
 
-        assertEquals(allocation, deserializedAllocation,
-            "deserialized allocation should equals() original");
-        assertEquals(allocation.getKey(), deserializedAllocation.getKey(),
+        assertEquals(
+            allocation, deserializedAllocation, "deserialized allocation should equals() original");
+        assertEquals(
+            allocation.getKey(),
+            deserializedAllocation.getKey(),
             "deserialized allocation should have same key as original");
-        assertEquals(allocation.getAmount(), deserializedAllocation.getAmount(), TestUtil.EPSILON,
+        assertEquals(
+            allocation.getAmount(),
+            deserializedAllocation.getAmount(),
+            TestUtil.EPSILON,
             "deserialized allocation should have same amount as original");
-        assertEquals(allocation.getSecurityKey(), deserializedAllocation.getSecurityKey(),
+        assertEquals(
+            allocation.getSecurityKey(),
+            deserializedAllocation.getSecurityKey(),
             "deserialized allocation should have same SecurityKey as original");
       }
     }

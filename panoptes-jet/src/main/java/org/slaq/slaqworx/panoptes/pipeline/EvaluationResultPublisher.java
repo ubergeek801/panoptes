@@ -19,16 +19,13 @@ import org.slf4j.LoggerFactory;
  */
 public class EvaluationResultPublisher
     implements BiConsumerEx<Processor.Context, RuleEvaluationResult> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(EvaluationResultPublisher.class);
 
   private static final HashSet<PortfolioKey> distinctPortfolios = new HashSet<>();
 
-  /**
-   * Creates a new {@link EvaluationResultPublisher}.
-   */
+  /** Creates a new {@link EvaluationResultPublisher}. */
   public EvaluationResultPublisher() {
     // nothing to do
   }
@@ -36,8 +33,11 @@ public class EvaluationResultPublisher
   @Override
   public void acceptEx(Processor.Context context, RuleEvaluationResult evaluationResult) {
     EvaluationResult result = evaluationResult.evaluationResult();
-    LOG.info("produced {} results for rule {} on portfolio {}", result.results().size(),
-        result.getKey(), evaluationResult.portfolioKey());
+    LOG.info(
+        "produced {} results for rule {} on portfolio {}",
+        result.results().size(),
+        result.getKey(),
+        evaluationResult.portfolioKey());
 
     synchronized (distinctPortfolios) {
       if (distinctPortfolios.add(evaluationResult.portfolioKey())) {

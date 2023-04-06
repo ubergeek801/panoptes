@@ -32,13 +32,9 @@ public class TestPositionProvider implements PositionProvider {
   /**
    * Creates a new {@link Position} and makes it available through this provider.
    *
-   * @param id
-   *     the ID of the {@link Position} to create, or {@code null} to generate an ID
-   * @param amount
-   *     the amount of the {@link Position}
-   * @param security
-   *     the {@link Security} held by the {@link Position}
-   *
+   * @param id the ID of the {@link Position} to create, or {@code null} to generate an ID
+   * @param amount the amount of the {@link Position}
+   * @param security the {@link Security} held by the {@link Position}
    * @return the newly created {@link Position}
    */
   public Position newPosition(String id, double amount, Security security) {

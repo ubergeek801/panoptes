@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author jeremy
  */
-public class BenchmarkRuleEvaluator extends
-    KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class BenchmarkRuleEvaluator
+    extends KeyedBroadcastProcessFunction<
+        PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRuleEvaluator.class);
 
@@ -46,9 +46,7 @@ public class BenchmarkRuleEvaluator extends
   private transient PortfolioTracker portfolioTracker;
   private transient MapState<RuleKey, Rule> benchmarkRulesState;
 
-  /**
-   * Creates a new {@link BenchmarkRuleEvaluator}.
-   */
+  /** Creates a new {@link BenchmarkRuleEvaluator}. */
   public BenchmarkRuleEvaluator() {
     // nothing to do
   }
@@ -60,23 +58,35 @@ public class BenchmarkRuleEvaluator extends
   }
 
   @Override
-  public void processBroadcastElement(Security security,
-      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.Context context,
-      Collector<RuleEvaluationResult> out) throws Exception {
-    portfolioTracker.applySecurity(context, security, (p -> {
-      try {
-        return benchmarkRulesState.values();
-      } catch (Exception e) {
-        // FIXME throw a real exception
-        throw new RuntimeException("could not get rules for benchmark", e);
-      }
-    }), out);
+  public void processBroadcastElement(
+      Security security,
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>
+              .Context
+          context,
+      Collector<RuleEvaluationResult> out)
+      throws Exception {
+    portfolioTracker.applySecurity(
+        context,
+        security,
+        (p -> {
+          try {
+            return benchmarkRulesState.values();
+          } catch (Exception e) {
+            // FIXME throw a real exception
+            throw new RuntimeException("could not get rules for benchmark", e);
+          }
+        }),
+        out);
   }
 
   @Override
-  public void processElement(PortfolioEvent portfolioEvent,
-      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.ReadOnlyContext context,
-      Collector<RuleEvaluationResult> out) throws Exception {
+  public void processElement(
+      PortfolioEvent portfolioEvent,
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>
+              .ReadOnlyContext
+          context,
+      Collector<RuleEvaluationResult> out)
+      throws Exception {
     if (!(portfolioEvent instanceof PortfolioDataEvent)) {
       // not interesting to us
       return;
@@ -89,8 +99,8 @@ public class BenchmarkRuleEvaluator extends
       // the portfolio is a benchmark, so try to process it
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker.processPortfolio(out, portfolio, null, securityState,
-          benchmarkRulesState.values());
+      portfolioTracker.processPortfolio(
+          out, portfolio, null, securityState, benchmarkRulesState.values());
     } else {
       // the portfolio is not a benchmark, but it may have rules that are of interest, so try
       // to extract and process them
@@ -98,17 +108,15 @@ public class BenchmarkRuleEvaluator extends
       // process any newly-encountered rules against the benchmark
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker.processPortfolio(out, portfolioTracker.getPortfolio(), null, securityState,
-          newRules);
+      portfolioTracker.processPortfolio(
+          out, portfolioTracker.getPortfolio(), null, securityState, newRules);
     }
   }
 
   /**
    * Extracts benchmark-enabled rules from the given portfolio.
    *
-   * @param portfolio
-   *     the {@link Portfolio} from which to extract rules
-   *
+   * @param portfolio the {@link Portfolio} from which to extract rules
    * @return a {@link Collection} of rules which are benchmark-enabled
    */
   protected Collection<Rule> extractRules(Portfolio portfolio) {
@@ -120,20 +128,24 @@ public class BenchmarkRuleEvaluator extends
       List<Rule> benchmarkEnabledRules =
           portfolio.getRules().filter(Rule::isBenchmarkSupported).collect(Collectors.toList());
       if (!benchmarkEnabledRules.isEmpty()) {
-        LOG.info("adding {} rules to benchmark {} from portfolio {}", benchmarkEnabledRules.size(),
-            portfolio.getBenchmarkKey(), portfolio.getKey());
-        benchmarkEnabledRules.forEach(r -> {
-          try {
-            if (!benchmarkRulesState.contains(r.getKey())) {
-              // we haven't seen this rule before
-              newRules.add(r);
-            }
-            benchmarkRulesState.put(r.getKey(), r);
-          } catch (Exception e) {
-            // FIXME throw a real exception
-            throw new RuntimeException("could not add rules to process state", e);
-          }
-        });
+        LOG.info(
+            "adding {} rules to benchmark {} from portfolio {}",
+            benchmarkEnabledRules.size(),
+            portfolio.getBenchmarkKey(),
+            portfolio.getKey());
+        benchmarkEnabledRules.forEach(
+            r -> {
+              try {
+                if (!benchmarkRulesState.contains(r.getKey())) {
+                  // we haven't seen this rule before
+                  newRules.add(r);
+                }
+                benchmarkRulesState.put(r.getKey(), r);
+              } catch (Exception e) {
+                // FIXME throw a real exception
+                throw new RuntimeException("could not add rules to process state", e);
+              }
+            });
       }
     }
 

@@ -16,9 +16,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.RuleEvaluationResu
  * @author jeremy
  */
 public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEvaluationResult> {
-  /**
-   * Creates a new {@link RuleEvaluationResultSerializer}.
-   */
+  /** Creates a new {@link RuleEvaluationResultSerializer}. */
   public RuleEvaluationResultSerializer() {
     // nothing to do
   }
@@ -44,8 +42,15 @@ public class RuleEvaluationResultSerializer implements ProtobufSerializer<RuleEv
     EvaluationResult evaluationResult =
         EvaluationResultSerializer.convert(msg.getEvaluationResult());
 
-    return new RuleEvaluationResult(eventId, portfolioKey, benchmarkKey, source,
-        isBenchmarkSupported, lowerLimit, upperLimit, evaluationResult);
+    return new RuleEvaluationResult(
+        eventId,
+        portfolioKey,
+        benchmarkKey,
+        source,
+        isBenchmarkSupported,
+        lowerLimit,
+        upperLimit,
+        evaluationResult);
   }
 
   @Override

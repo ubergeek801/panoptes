@@ -54,9 +54,7 @@ import org.slf4j.LoggerFactory;
 public class Panoptes implements ApplicationEventListener<ApplicationStartupEvent> {
   private static final Logger LOG = LoggerFactory.getLogger(Panoptes.class);
 
-  /**
-   * Creates a new instance of the Panoptes application.
-   */
+  /** Creates a new instance of the Panoptes application. */
   protected Panoptes() {
     // nothing to do
   }
@@ -64,8 +62,7 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
   /**
    * The entry point for the Panoptes application.
    *
-   * @param args
-   *     the program arguments
+   * @param args the program arguments
    */
   public static void main(String[] args) {
     Micronaut.run(Panoptes.class, args);
@@ -106,14 +103,10 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
 
   /**
    * Initializes the cache for offline mode from dummy data, in much the same way as {@code
-   * org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDatabaseLoader} initializes the persistent
-   * store.
+   * org.slaq.slaqworx.panoptes.data.PimcoBenchmarkDatabaseLoader} initializes the persistent store.
    *
-   * @param assetCache
-   *     the cache to be initialized
-   *
-   * @throws IOException
-   *     if source data could not be read
+   * @param assetCache the cache to be initialized
+   * @throws IOException if source data could not be read
    */
   protected void initializeCache(AssetCache assetCache) throws IOException {
     PimcoBenchmarkDataSource pimcoDataSource = PimcoBenchmarkDataSource.getInstance();
@@ -128,32 +121,53 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
       portfolios.add(portfolio);
     }
 
-    portfolios.forEach(pf -> {
-      LOG.info("initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(), pf.getName());
-      pf.getRules().forEach(r -> assetCache.getRuleCache().set(r.getKey(), (ConfigurableRule) r));
-    });
+    portfolios.forEach(
+        pf -> {
+          LOG.info(
+              "initializing {} Rules for Portfolio \"{}\"", pf.getRules().count(), pf.getName());
+          pf.getRules()
+              .forEach(r -> assetCache.getRuleCache().set(r.getKey(), (ConfigurableRule) r));
+        });
 
-    portfolios.forEach(pf -> {
-      LOG.info("initializing {} Positions for Portfolio \"{}\"", pf.getPositions().count(),
-          pf.getName());
-      pf.getPositions().forEach(p -> assetCache.getPositionCache().set(p.getKey(), p));
-    });
+    portfolios.forEach(
+        pf -> {
+          LOG.info(
+              "initializing {} Positions for Portfolio \"{}\"",
+              pf.getPositions().count(),
+              pf.getName());
+          pf.getPositions().forEach(p -> assetCache.getPositionCache().set(p.getKey(), p));
+        });
 
     // initialize the benchmarks first
     LOG.info("initializing 4 benchmark Portfolios");
-    assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.EMAD_KEY,
-        pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.EMAD_KEY));
-    assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.GLAD_KEY,
-        pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.GLAD_KEY));
-    assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.ILAD_KEY,
-        pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.ILAD_KEY));
-    assetCache.getPortfolioCache().set(PimcoBenchmarkDataSource.PGOV_KEY,
-        pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.PGOV_KEY));
+    assetCache
+        .getPortfolioCache()
+        .set(
+            PimcoBenchmarkDataSource.EMAD_KEY,
+            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.EMAD_KEY));
+    assetCache
+        .getPortfolioCache()
+        .set(
+            PimcoBenchmarkDataSource.GLAD_KEY,
+            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.GLAD_KEY));
+    assetCache
+        .getPortfolioCache()
+        .set(
+            PimcoBenchmarkDataSource.ILAD_KEY,
+            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.ILAD_KEY));
+    assetCache
+        .getPortfolioCache()
+        .set(
+            PimcoBenchmarkDataSource.PGOV_KEY,
+            pimcoDataSource.getPortfolio(PimcoBenchmarkDataSource.PGOV_KEY));
 
-    portfolios.stream().filter(p -> p.getKey().getId().length() != 4).forEach(p -> {
-      LOG.info("initializing Portfolio {}", p.getKey());
-      assetCache.getPortfolioCache().set(p.getKey(), p);
-    });
+    portfolios.stream()
+        .filter(p -> p.getKey().getId().length() != 4)
+        .forEach(
+            p -> {
+              LOG.info("initializing Portfolio {}", p.getKey());
+              assetCache.getPortfolioCache().set(p.getKey(), p);
+            });
 
     LOG.info("completed cache initialization");
   }
@@ -162,13 +176,9 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
    * Executes a performance test which performs evaluations on all Portfolios, as well as a number
    * of multi-allocation Trades.
    *
-   * @param assetCache
-   *     the {@link AssetCache} from which to obtain {@link Portfolio} data
-   *
-   * @throws ExecutionException
-   *     if evaluations could not be executed
-   * @throws InterruptedException
-   *     if an interruption occurs during evaluation
+   * @param assetCache the {@link AssetCache} from which to obtain {@link Portfolio} data
+   * @throws ExecutionException if evaluations could not be executed
+   * @throws InterruptedException if an interruption occurs during evaluation
    */
   protected void runPerformanceTest(AssetCache assetCache)
       throws ExecutionException, InterruptedException {
@@ -186,8 +196,10 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
           completionService = new ExecutorCompletionService<>(evaluationExecutor);
 
       portfolioStartTime = System.currentTimeMillis();
-      portfolioKeys.forEach(key -> completionService.submit(
-          () -> Pair.of(key, evaluator.evaluate(key, new EvaluationContext()).get())));
+      portfolioKeys.forEach(
+          key ->
+              completionService.submit(
+                  () -> Pair.of(key, evaluator.evaluate(key, new EvaluationContext()).get())));
       // wait for all of the evaluations to complete
       for (int i = 0; i < numPortfolios; i++) {
         Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> result = completionService.take().get();
@@ -212,15 +224,19 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
       TradeEvaluator tradeEvaluator =
           new LocalTradeEvaluator(new LocalPortfolioEvaluator(assetCache), assetCache);
       HashMap<PortfolioKey, Transaction> transactions = new HashMap<>();
-      portfolioKeys.stream().limit(i * 62).forEach(key -> {
-        Transaction transaction = new Transaction(key, taxLots);
-        transactions.put(key, transaction);
-      });
+      portfolioKeys.stream()
+          .limit(i * 62)
+          .forEach(
+              key -> {
+                Transaction transaction = new Transaction(key, taxLots);
+                transactions.put(key, transaction);
+              });
       Trade trade = new Trade(tradeDate, tradeDate, transactions);
 
       tradeStartTimes.add(System.currentTimeMillis());
       TradeEvaluationResult result =
-          tradeEvaluator.evaluate(trade, new EvaluationContext(EvaluationMode.FULL_EVALUATION))
+          tradeEvaluator
+              .evaluate(trade, new EvaluationContext(EvaluationMode.FULL_EVALUATION))
               .get();
       long numEvaluationGroups =
           result.getImpacts().values().stream().collect(Collectors.summingLong(Map::size));
@@ -230,11 +246,16 @@ public class Panoptes implements ApplicationEventListener<ApplicationStartupEven
     }
 
     // log the timing results
-    LOG.info("processed {} Portfolios using {} Rule evaluations in {} ms", numPortfolios,
-        numPortfolioRuleEvalutions, portfolioEndTime - portfolioStartTime);
+    LOG.info(
+        "processed {} Portfolios using {} Rule evaluations in {} ms",
+        numPortfolios,
+        numPortfolioRuleEvalutions,
+        portfolioEndTime - portfolioStartTime);
     for (int i = 0; i < tradeStartTimes.size(); i++) {
-      LOG.info("processed Trade with {} allocations producing {} evaluation groups in {} ms",
-          allocationCounts.get(i), evaluationGroupCounts.get(i),
+      LOG.info(
+          "processed Trade with {} allocations producing {} evaluation groups in {} ms",
+          allocationCounts.get(i),
+          evaluationGroupCounts.get(i),
           tradeEndTimes.get(i) - tradeStartTimes.get(i));
     }
   }

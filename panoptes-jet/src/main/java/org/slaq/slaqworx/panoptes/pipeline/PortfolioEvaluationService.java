@@ -27,16 +27,15 @@ import org.slf4j.LoggerFactory;
  * A service (in the Hazelcast Jet sense) which performs rule evaluations and emits results. Receipt
  * of a {@link PortfolioEvaluationInput} implies that the target {@link Portfolio} is "ready" for
  * evaluation, that is, all of its held securities are known to have been encountered.
- * <p>
- * Rule evaluation is provided in this manner because, while generally non-blocking, the process may
- * take on the order of tens to hundreds of milliseconds, for which Jet recommends designating the
- * process as non-cooperative.
+ *
+ * <p>Rule evaluation is provided in this manner because, while generally non-blocking, the process
+ * may take on the order of tens to hundreds of milliseconds, for which Jet recommends designating
+ * the process as non-cooperative.
  */
 public class PortfolioEvaluationService {
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioEvaluationService.class);
 
-  @Nonnull
-  private final AssetCache assetCache;
+  @Nonnull private final AssetCache assetCache;
 
   /**
    * Creates a new {@link PortfolioEvaluationService}. Restricted because instances should be
@@ -61,9 +60,8 @@ public class PortfolioEvaluationService {
   /**
    * Performs a portfolio evaluation and publishes the result.
    *
-   * @param portfolioEvaluationInput
-   *     a {@link PortfolioEvaluationInput} containing the input parameters of the evaluation
-   *
+   * @param portfolioEvaluationInput a {@link PortfolioEvaluationInput} containing the input
+   *     parameters of the evaluation
    * @return a {@link Traverser} over the results of portfolio rule evaluation
    */
   @Nonnull
@@ -76,30 +74,54 @@ public class PortfolioEvaluationService {
     IMap<SecurityKey, Security> securityMap = assetCache.getSecurityCache();
     SecurityProvider securityProvider = (k, context) -> securityMap.get(k);
 
-    Portfolio portfolio = PanoptesApp.getAssetCache().getPortfolioCache()
-        .get(portfolioEvaluationInput.getPortfolioKey());
+    Portfolio portfolio =
+        PanoptesApp.getAssetCache()
+            .getPortfolioCache()
+            .get(portfolioEvaluationInput.getPortfolioKey());
     // this is questionable but there shouldn't be any other Portfolios requested by rule evaluation
     PortfolioProvider portfolioProvider = (k -> portfolio);
 
-    LOG.info("processing {} rules for {} {} (\"{}\")", numRules, evaluationSource,
-        portfolio.getKey(), portfolio.getName());
+    LOG.info(
+        "processing {} rules for {} {} (\"{}\")",
+        numRules,
+        evaluationSource,
+        portfolio.getKey(),
+        portfolio.getName());
     ArrayList<RuleEvaluationResult> results = new ArrayList<>(numRules);
     long startTime = System.currentTimeMillis();
-    rulesProvider.getRules().forEach(rule -> {
-      // FIXME get/generate eventId
-      long eventId = System.currentTimeMillis();
+    rulesProvider
+        .getRules()
+        .forEach(
+            rule -> {
+              // FIXME get/generate eventId
+              long eventId = System.currentTimeMillis();
 
-      EvaluationResult evaluationResult = new RuleEvaluator(rule, portfolio,
-          new EvaluationContext(assetCache, securityProvider, portfolioProvider)).call();
-      // enrich the result with some other essential information
-      RuleEvaluationResult ruleEvaluationResult =
-          new RuleEvaluationResult(eventId, portfolio.getKey(), portfolio.getBenchmarkKey(),
-              evaluationSource, rule.isBenchmarkSupported(), rule.lowerLimit(), rule.upperLimit(),
-              evaluationResult);
-      results.add(ruleEvaluationResult);
-    });
-    LOG.info("processed {} rules for {} {} (\"{}\") in {} ms", numRules, evaluationSource,
-        portfolio.getKey(), portfolio.getName(), System.currentTimeMillis() - startTime);
+              EvaluationResult evaluationResult =
+                  new RuleEvaluator(
+                          rule,
+                          portfolio,
+                          new EvaluationContext(assetCache, securityProvider, portfolioProvider))
+                      .call();
+              // enrich the result with some other essential information
+              RuleEvaluationResult ruleEvaluationResult =
+                  new RuleEvaluationResult(
+                      eventId,
+                      portfolio.getKey(),
+                      portfolio.getBenchmarkKey(),
+                      evaluationSource,
+                      rule.isBenchmarkSupported(),
+                      rule.lowerLimit(),
+                      rule.upperLimit(),
+                      evaluationResult);
+              results.add(ruleEvaluationResult);
+            });
+    LOG.info(
+        "processed {} rules for {} {} (\"{}\") in {} ms",
+        numRules,
+        evaluationSource,
+        portfolio.getKey(),
+        portfolio.getName(),
+        System.currentTimeMillis() - startTime);
 
     return Traversers.traverseIterable(results);
   }

@@ -14,8 +14,7 @@ import javax.annotation.Nonnull;
  * @author jeremy
  */
 public class RatingScale {
-  @Nonnull
-  private static final RatingScale defaultScale;
+  @Nonnull private static final RatingScale defaultScale;
 
   static {
     // these rating symbols are used in the PIMCO benchmarks; the numeric equivalents are a
@@ -46,20 +45,16 @@ public class RatingScale {
     defaultScale = new RatingScale(notches, 100);
   }
 
-  @Nonnull
-  private final double[] notchValues;
-  @Nonnull
-  private final ArrayList<RatingNotch> notches;
-  @Nonnull
-  private final HashMap<String, RatingNotch> symbolRatingMap;
+  @Nonnull private final double[] notchValues;
+  @Nonnull private final ArrayList<RatingNotch> notches;
+  @Nonnull private final HashMap<String, RatingNotch> symbolRatingMap;
 
   /**
    * Creates a new {@link RatingScale} of the given notches and the given maximum scale value.
    *
-   * @param ratings
-   *     the {@link RatingNotch}es (in no particular order) comprising this {@link RatingScale}
-   * @param max
-   *     the maximum value of the {@link RatingScale}
+   * @param ratings the {@link RatingNotch}es (in no particular order) comprising this {@link
+   *     RatingScale}
+   * @param max the maximum value of the {@link RatingScale}
    */
   public RatingScale(@Nonnull Collection<RatingNotch> ratings, double max) {
     notches = new ArrayList<>(ratings);
@@ -101,9 +96,7 @@ public class RatingScale {
    * higher than the minimum or maximum value of the scale, the lowest or highest {@link
    * RatingNotch}, respectively, is returned.
    *
-   * @param value
-   *     the value for which to find the corresponding {@link RatingNotch}
-   *
+   * @param value the value for which to find the corresponding {@link RatingNotch}
    * @return the {@link RatingNotch} corresponding to the given value
    */
   @Nonnull
@@ -128,9 +121,7 @@ public class RatingScale {
   /**
    * Obtains the {@link RatingNotch} corresponding to the given symbol.
    *
-   * @param symbol
-   *     the symbol for which to find the {@link RatingNotch}
-   *
+   * @param symbol the symbol for which to find the {@link RatingNotch}
    * @return the {@link RatingNotch} corresponding to the given symbol, or {@code null} if it does
    *     not exist
    */

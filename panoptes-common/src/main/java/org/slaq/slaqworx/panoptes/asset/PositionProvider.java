@@ -12,9 +12,7 @@ public interface PositionProvider {
   /**
    * Obtains the {@link Position} corresponding to the given key.
    *
-   * @param key
-   *     the key identifying the {@link Position} to be obtained
-   *
+   * @param key the key identifying the {@link Position} to be obtained
    * @return the {@link Position} corresponding to the given key, or {@code null} if it could not be
    *     located
    */

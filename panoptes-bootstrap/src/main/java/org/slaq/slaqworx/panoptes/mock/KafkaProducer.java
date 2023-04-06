@@ -36,8 +36,8 @@ public interface KafkaProducer {
   void publishPortfolioEvent(@KafkaKey PortfolioKey portfolioKey, PortfolioEvent portfolioEvent);
 
   @Topic("${kafka-topic.portfolio-request-topic}")
-  void publishPortfolioRequest(@KafkaKey PortfolioKey portfolioKey,
-      PortfolioEvaluationRequest request);
+  void publishPortfolioRequest(
+      @KafkaKey PortfolioKey portfolioKey, PortfolioEvaluationRequest request);
 
   @Topic("${kafka-topic.portfolio-result-topic}")
   void publishPortfolioResult(@KafkaKey PortfolioKey portfolioKey, EvaluationResult result);

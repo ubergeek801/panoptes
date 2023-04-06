@@ -14,23 +14,19 @@ import org.junit.jupiter.api.Test;
  * @author jeremy
  */
 public class ValueProviderTest {
-  /**
-   * Tests that a {@link ValueProvider} for {@link BigDecimal} behaves as expected.
-   */
+  /** Tests that a {@link ValueProvider} for {@link BigDecimal} behaves as expected. */
   @Test
   public void testValueProvider_BigDecimal() {
     ValueProvider<BigDecimal> valueProvider = ValueProvider.forBigDecimal();
-    assertEquals(1.5, valueProvider.apply(new BigDecimal("1.5"), null),
-        "unexpected value from provider");
+    assertEquals(
+        1.5, valueProvider.apply(new BigDecimal("1.5"), null), "unexpected value from provider");
     valueProvider = ValueProvider.forClass(BigDecimal.class);
-    assertEquals(1.5, valueProvider.apply(new BigDecimal("1.5"), null),
-        "unexpected value from provider");
+    assertEquals(
+        1.5, valueProvider.apply(new BigDecimal("1.5"), null), "unexpected value from provider");
     assertNull(valueProvider.apply(null, null), "null input should always produce null output");
   }
 
-  /**
-   * Tests that a {@link ValueProvider} for {@link Double} behaves as expected.
-   */
+  /** Tests that a {@link ValueProvider} for {@link Double} behaves as expected. */
   @Test
   public void testValueProvider_Double() {
     ValueProvider<Double> valueProvider = ValueProvider.forDouble();
@@ -40,9 +36,7 @@ public class ValueProviderTest {
     assertNull(valueProvider.apply(null, null), "null input should always produce null output");
   }
 
-  /**
-   * Tests that a {@link ValueProvider} for {@link LocalDate} behaves as expected.
-   */
+  /** Tests that a {@link ValueProvider} for {@link LocalDate} behaves as expected. */
   @Test
   public void testValueProvider_LocalDate() {
     // this test could theoretically break if run right at midnight
@@ -55,9 +49,7 @@ public class ValueProviderTest {
     assertNull(valueProvider.apply(null, null), "null input should always produce null output");
   }
 
-  /**
-   * Tests that a {@link ValueProvider} for rating symbols/notches behaves as expected.
-   */
+  /** Tests that a {@link ValueProvider} for rating symbols/notches behaves as expected. */
   @Test
   public void testValueProvider_RatingSymbol() {
     ValueProvider<String> valueProvider = ValueProvider.forRatingSymbol();
@@ -73,9 +65,7 @@ public class ValueProviderTest {
     assertNull(valueProvider.apply(null, null), "null input should always produce null output");
   }
 
-  /**
-   * Tests that {@link ValueProvider} behaves as expected for an unsupported type.
-   */
+  /** Tests that {@link ValueProvider} behaves as expected for an unsupported type. */
   @Test
   public void testValueProvider_unsupported() {
     try {

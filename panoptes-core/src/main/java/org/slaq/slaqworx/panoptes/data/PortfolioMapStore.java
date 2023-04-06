@@ -40,16 +40,15 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
    * Creates a new {@link PortfolioMapStore}. Restricted because instances of this class should be
    * created through the {@link HazelcastMapStoreFactory}.
    *
-   * @param transactionManager
-   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
-   * @param jdbi
-   *     the {@link Jdbi} instance through which to access the database
-   * @param assetCacheProvider
-   *     the {@link AssetCache} from which to obtained cached data, wrapped in a {@link
-   *     BeanProvider} to avoid a circular injection dependency
+   * @param transactionManager the {@link TransactionManager} to use for {@code loadAllKeys()}
+   * @param jdbi the {@link Jdbi} instance through which to access the database
+   * @param assetCacheProvider the {@link AssetCache} from which to obtained cached data, wrapped in
+   *     a {@link BeanProvider} to avoid a circular injection dependency
    */
-  protected PortfolioMapStore(SynchronousTransactionManager<Connection> transactionManager,
-      Jdbi jdbi, BeanProvider<AssetCache> assetCacheProvider) {
+  protected PortfolioMapStore(
+      SynchronousTransactionManager<Connection> transactionManager,
+      Jdbi jdbi,
+      BeanProvider<AssetCache> assetCacheProvider) {
     super(transactionManager, jdbi);
     this.assetCacheProvider = assetCacheProvider;
   }
@@ -57,16 +56,24 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
   @Override
   @Transactional
   public void delete(PortfolioKey key) {
-    getJdbi().withHandle(handle -> {
-      handle.execute(
-          "delete from portfolio_position where portfolio_id = ? and" + " portfolio_version = ?",
-          key.getId(), key.getVersion());
-      handle.execute(
-          "delete from portfolio_rule where portfolio_id = ? and portfolio_version" + " = ?",
-          key.getId(), key.getVersion());
-      return handle.execute("delete from " + getTableName() + " where id = ? and version = ?",
-          key.getId(), key.getVersion());
-    });
+    getJdbi()
+        .withHandle(
+            handle -> {
+              handle.execute(
+                  "delete from portfolio_position where portfolio_id = ? and"
+                      + " portfolio_version = ?",
+                  key.getId(),
+                  key.getVersion());
+              handle.execute(
+                  "delete from portfolio_rule where portfolio_id = ? and portfolio_version"
+                      + " = ?",
+                  key.getId(),
+                  key.getVersion());
+              return handle.execute(
+                  "delete from " + getTableName() + " where id = ? and version = ?",
+                  key.getId(),
+                  key.getVersion());
+            });
   }
 
   @Override
@@ -77,26 +84,46 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     String benchmarkId = rs.getString(4);
     int benchmarkVersion = rs.getInt(5);
 
-    return getJdbi().withHandle(handle -> {
-      // get the keys for the related Positions
-      Stream<PositionKey> positionKeys = handle.select(
-              "select position_id from portfolio_position where portfolio_id = ? and" +
-                  " portfolio_version = ?", id, version)
-          .map((posRs, ctx) -> new PositionKey(posRs.getString(1))).stream();
-      Set<Position> positions = positionKeys.map(k -> assetCacheProvider.get().getPosition(k))
-          .collect(Collectors.toSet());
+    return getJdbi()
+        .withHandle(
+            handle -> {
+              // get the keys for the related Positions
+              Stream<PositionKey> positionKeys =
+                  handle
+                      .select(
+                          "select position_id from portfolio_position where portfolio_id = ? and"
+                              + " portfolio_version = ?",
+                          id,
+                          version)
+                      .map((posRs, ctx) -> new PositionKey(posRs.getString(1)))
+                      .stream();
+              Set<Position> positions =
+                  positionKeys
+                      .map(k -> assetCacheProvider.get().getPosition(k))
+                      .collect(Collectors.toSet());
 
-      // get the keys for the related Rules
-      Stream<RuleKey> ruleKeys = handle.select(
-              "select rule_id from portfolio_rule where portfolio_id = ? and" +
-                  " portfolio_version = ?", id, version)
-          .map((ruleRs, ctx) -> new RuleKey(ruleRs.getString(1))).stream();
-      Set<ConfigurableRule> rules =
-          ruleKeys.map(k -> assetCacheProvider.get().getRule(k)).collect(Collectors.toSet());
+              // get the keys for the related Rules
+              Stream<RuleKey> ruleKeys =
+                  handle
+                      .select(
+                          "select rule_id from portfolio_rule where portfolio_id = ? and"
+                              + " portfolio_version = ?",
+                          id,
+                          version)
+                      .map((ruleRs, ctx) -> new RuleKey(ruleRs.getString(1)))
+                      .stream();
+              Set<ConfigurableRule> rules =
+                  ruleKeys
+                      .map(k -> assetCacheProvider.get().getRule(k))
+                      .collect(Collectors.toSet());
 
-      return new Portfolio(new PortfolioKey(id, version), name, positions,
-          (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)), rules);
-    });
+              return new Portfolio(
+                  new PortfolioKey(id, version),
+                  name,
+                  positions,
+                  (benchmarkId == null ? null : new PortfolioKey(benchmarkId, benchmarkVersion)),
+                  rules);
+            });
   }
 
   @Override
@@ -132,7 +159,9 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() + """
+    return "insert into "
+        + getTableName()
+        + """
          (id, version, name, benchmark_id, benchmark_version, partition_id)
          values (?, ?, ?, ?, ?, 0)
          on conflict on constraint portfolio_pk do update
@@ -150,38 +179,50 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
   protected void postStoreAll(Map<PortfolioKey, Portfolio> map) {
     // now that the Portfolios have been inserted, store the Position and Rule relationships
 
-    getJdbi().withHandle(handle -> {
-      for (Portfolio portfolio : map.values()) {
-        PreparedBatch batch = handle.prepareBatch("""
+    getJdbi()
+        .withHandle(
+            handle -> {
+              for (Portfolio portfolio : map.values()) {
+                PreparedBatch batch =
+                    handle.prepareBatch(
+                        """
             insert into portfolio_position (portfolio_id, portfolio_version, position_id)
             values (?, ?, ?)
             on conflict on constraint portfolio_position_pk ignore");
             """);
-        portfolio.getPositions().forEach(position -> {
-          batch.bind(1, portfolio.getKey().getId());
-          batch.bind(2, portfolio.getKey().getVersion());
-          batch.bind(3, position.getKey().id());
-          batch.add();
-        });
-        batch.execute();
-      }
+                portfolio
+                    .getPositions()
+                    .forEach(
+                        position -> {
+                          batch.bind(1, portfolio.getKey().getId());
+                          batch.bind(2, portfolio.getKey().getVersion());
+                          batch.bind(3, position.getKey().id());
+                          batch.add();
+                        });
+                batch.execute();
+              }
 
-      for (Portfolio portfolio : map.values()) {
-        PreparedBatch batch = handle.prepareBatch("""
+              for (Portfolio portfolio : map.values()) {
+                PreparedBatch batch =
+                    handle.prepareBatch(
+                        """
             insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)
             values (?, ?, ?)
             on conflict on constraint portfolio_rule_pk ignore
             """);
-        portfolio.getRules().forEach(rule -> {
-          batch.bind(1, portfolio.getKey().getId());
-          batch.bind(2, portfolio.getKey().getVersion());
-          batch.bind(3, rule.getKey().id());
-          batch.add();
-        });
-        batch.execute();
-      }
+                portfolio
+                    .getRules()
+                    .forEach(
+                        rule -> {
+                          batch.bind(1, portfolio.getKey().getId());
+                          batch.bind(2, portfolio.getKey().getVersion());
+                          batch.bind(3, rule.getKey().id());
+                          batch.add();
+                        });
+                batch.execute();
+              }
 
-      return null;
-    });
+              return null;
+            });
   }
 }

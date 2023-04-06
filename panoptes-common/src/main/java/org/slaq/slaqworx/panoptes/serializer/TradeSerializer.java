@@ -21,9 +21,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 @Singleton
 public class TradeSerializer implements ProtobufSerializer<Trade> {
-  /**
-   * Creates a new {@link TradeSerializer}.
-   */
+  /** Creates a new {@link TradeSerializer}. */
   public TradeSerializer() {
     // nothing to do
   }
@@ -37,10 +35,12 @@ public class TradeSerializer implements ProtobufSerializer<Trade> {
     LocalDate tradeDate =
         LocalDate.of(tradeDateMsg.getYear(), tradeDateMsg.getMonth(), tradeDateMsg.getDay());
     DateMsg settlementDateMsg = tradeMsg.getSettlementDate();
-    LocalDate settlementDate = LocalDate
-        .of(settlementDateMsg.getYear(), settlementDateMsg.getMonth(), settlementDateMsg.getDay());
+    LocalDate settlementDate =
+        LocalDate.of(
+            settlementDateMsg.getYear(), settlementDateMsg.getMonth(), settlementDateMsg.getDay());
     Map<PortfolioKey, Transaction> transactions =
-        tradeMsg.getTransactionList().stream().map(TransactionSerializer::convert)
+        tradeMsg.getTransactionList().stream()
+            .map(TransactionSerializer::convert)
             .collect(Collectors.toMap(Transaction::getPortfolioKey, t -> t));
     return new Trade(tradeKey, tradeDate, settlementDate, transactions);
   }
@@ -66,9 +66,13 @@ public class TradeSerializer implements ProtobufSerializer<Trade> {
     tradeBuilder.setKey(tradeKeyBuilder);
     tradeBuilder.setTradeDate(tradeDateBuilder);
     tradeBuilder.setSettlementDate(settlementDateBuilder);
-    trade.getTransactions().values().forEach(t -> {
-      tradeBuilder.addTransaction(TransactionSerializer.convert(t));
-    });
+    trade
+        .getTransactions()
+        .values()
+        .forEach(
+            t -> {
+              tradeBuilder.addTransaction(TransactionSerializer.convert(t));
+            });
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     tradeBuilder.build().writeTo(out);

@@ -28,11 +28,9 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
    * Creates a new {@link Transaction}, with a generated ID, acting on the given {@link Portfolio}
    * with the given allocations.
    *
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} affected by this {@link
-   *     Transaction}
-   * @param allocations
-   *     the allocations of the {@link Transaction}
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} affected by this
+   *     {@link Transaction}
+   * @param allocations the allocations of the {@link Transaction}
    */
   public Transaction(PortfolioKey portfolioKey, Collection<TaxLot> allocations) {
     this(null, portfolioKey, allocations);
@@ -42,16 +40,13 @@ public class Transaction implements PositionSupplier, ProtobufSerializable {
    * Creates a new {@link Transaction} with the given ID, acting on the given {@link Portfolio} with
    * the given allocations.
    *
-   * @param key
-   *     the unique key of the {@link Transaction}
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} affected by this {@link
-   *     Transaction}
-   * @param allocations
-   *     the allocations of the {@link Transaction}
+   * @param key the unique key of the {@link Transaction}
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} affected by this
+   *     {@link Transaction}
+   * @param allocations the allocations of the {@link Transaction}
    */
-  public Transaction(TransactionKey key, PortfolioKey portfolioKey,
-      Collection<TaxLot> allocations) {
+  public Transaction(
+      TransactionKey key, PortfolioKey portfolioKey, Collection<TaxLot> allocations) {
     this.key = (key == null ? new TransactionKey(null) : key);
     this.portfolioKey = portfolioKey;
     if (allocations.isEmpty()) {

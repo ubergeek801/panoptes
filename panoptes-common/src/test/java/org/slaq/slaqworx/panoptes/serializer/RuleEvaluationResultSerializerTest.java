@@ -19,8 +19,7 @@ public class RuleEvaluationResultSerializerTest {
   /**
    * Tests that (de)serialization works as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testSerialization() throws Exception {
@@ -36,8 +35,15 @@ public class RuleEvaluationResultSerializerTest {
     RuleKey ruleKey = new RuleKey("testRule");
     EvaluationResult evaluationResult = new EvaluationResult(ruleKey, Collections.emptyMap());
     RuleEvaluationResult result =
-        new RuleEvaluationResult(eventId, portfolioKey, benchmarkKey, source,
-            isBenchmarkSupported, lowerLimit, upperLimit, evaluationResult);
+        new RuleEvaluationResult(
+            eventId,
+            portfolioKey,
+            benchmarkKey,
+            source,
+            isBenchmarkSupported,
+            lowerLimit,
+            upperLimit,
+            evaluationResult);
 
     byte[] buffer = serializer.write(result);
     RuleEvaluationResult deserialized = serializer.read(buffer);

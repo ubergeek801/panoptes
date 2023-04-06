@@ -8,19 +8,15 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@link ApplicationContextTest} tests the {@link ApplicationContext} for the Panoptes
- * application.
+ * {@link ApplicationContextTest} tests the {@link ApplicationContext} for the Panoptes application.
  *
  * @author jeremy
  */
 @MicronautTest
 public class ApplicationContextTest {
-  @Inject
-  private ApplicationContext applicationContext;
+  @Inject private ApplicationContext applicationContext;
 
-  /**
-   * Tests that the {@link ApplicationContext} can be constructed.
-   */
+  /** Tests that the {@link ApplicationContext} can be constructed. */
   @Test
   public void testApplicationContext() {
     assertNotNull(applicationContext, "should have obtained an ApplicationContext");

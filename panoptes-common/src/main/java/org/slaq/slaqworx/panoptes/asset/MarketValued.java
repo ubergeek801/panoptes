@@ -13,9 +13,7 @@ public interface MarketValued {
   /**
    * Obtains the market value of this holding.
    *
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which to perform the evaluation
-   *
+   * @param evaluationContext the {@link EvaluationContext} in which to perform the evaluation
    * @return the total market value of whatever comprises this holding
    */
   double getMarketValue(@Nonnull EvaluationContext evaluationContext);

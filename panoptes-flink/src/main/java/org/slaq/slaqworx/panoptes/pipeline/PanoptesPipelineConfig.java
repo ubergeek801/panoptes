@@ -69,18 +69,25 @@ public class PanoptesPipelineConfig {
 
   @Property(name = "kafka")
   private Properties kafkaProperties;
+
   @Property(name = "kafka-topic.benchmark-topic")
   private String benchmarkTopic;
+
   @Property(name = "kafka-topic.portfolio-topic")
   private String portfolioTopic;
+
   @Property(name = "kafka-topic.portfolio-request-topic")
   private String portfolioEvaluationRequestTopic;
+
   @Property(name = "kafka-topic.portfolio-result-topic")
   private String portfolioEvaluationResultTopic;
+
   @Property(name = "kafka-topic.security-topic")
   private String securityTopic;
+
   @Property(name = "kafka-topic.trade-topic")
   private String tradeTopic;
+
   @Property(name = "kafka-topic.trade-result-topic")
   private String tradeEvaluationResultTopic;
 
@@ -103,8 +110,8 @@ public class PanoptesPipelineConfig {
     LOG.info("using {} as benchmark topic", benchmarkTopic);
 
     FlinkKafkaConsumer<PortfolioEvent> consumer =
-        new FlinkKafkaConsumer<>(benchmarkTopic, new PortfolioEventDeserializationSchema(),
-            kafkaProperties);
+        new FlinkKafkaConsumer<>(
+            benchmarkTopic, new PortfolioEventDeserializationSchema(), kafkaProperties);
     consumer.setStartFromEarliest();
 
     return consumer;
@@ -130,19 +137,23 @@ public class PanoptesPipelineConfig {
     // in Flink, Protobuf serialization is supported via custom serializers registered with
     // Flink; we need these for any (top-level) classes passed between Flink operators, classes
     // used in operator state, etc.
-    env.getConfig().registerTypeWithKryoSerializer(EvaluationResult.class,
-        EvaluationResultKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(
+            EvaluationResult.class, EvaluationResultKryoSerializer.class);
     env.getConfig().registerTypeWithKryoSerializer(Portfolio.class, PortfolioKryoSerializer.class);
     env.getConfig()
         .registerTypeWithKryoSerializer(PortfolioEvent.class, PortfolioEventKryoSerializer.class);
     env.getConfig()
         .registerTypeWithKryoSerializer(PortfolioKey.class, PortfolioKeyKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(PortfolioRuleKey.class,
-        PortfolioRuleKeyKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(PortfolioSummary.class,
-        PortfolioSummaryKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(RuleEvaluationResult.class,
-        RuleEvaluationResultKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(
+            PortfolioRuleKey.class, PortfolioRuleKeyKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(
+            PortfolioSummary.class, PortfolioSummaryKryoSerializer.class);
+    env.getConfig()
+        .registerTypeWithKryoSerializer(
+            RuleEvaluationResult.class, RuleEvaluationResultKryoSerializer.class);
     env.getConfig().registerTypeWithKryoSerializer(RuleKey.class, RuleKeyKryoSerializer.class);
     // theoretically we should just be able to register a Rule (or maybe ConfigurableRule)
     // serializer, but Flink/Kryo aren't happy unless we register the concrete rule classes
@@ -169,8 +180,10 @@ public class PanoptesPipelineConfig {
   protected SourceFunction<PortfolioEvaluationRequest> portfolioEvaluationRequestSource() {
     LOG.info("using {} as portfolioEvaluationRequest topic", portfolioEvaluationRequestTopic);
 
-    return new FlinkKafkaConsumer<>(portfolioEvaluationRequestTopic,
-        new PortfolioEvaluationRequestDeserializationSchema(), kafkaProperties);
+    return new FlinkKafkaConsumer<>(
+        portfolioEvaluationRequestTopic,
+        new PortfolioEvaluationRequestDeserializationSchema(),
+        kafkaProperties);
   }
 
   /**
@@ -185,9 +198,11 @@ public class PanoptesPipelineConfig {
     LOG.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
 
     FlinkKafkaProducer<EvaluationResult> producer =
-        new FlinkKafkaProducer<>(portfolioEvaluationResultTopic,
+        new FlinkKafkaProducer<>(
+            portfolioEvaluationResultTopic,
             new EvaluationResultSerializationSchema(portfolioEvaluationResultTopic),
-            kafkaProperties, Semantic.AT_LEAST_ONCE);
+            kafkaProperties,
+            Semantic.AT_LEAST_ONCE);
     producer.setWriteTimestampToKafka(true);
 
     return producer;
@@ -204,8 +219,8 @@ public class PanoptesPipelineConfig {
     LOG.info("using {} as portfolio topic", portfolioTopic);
 
     FlinkKafkaConsumer<PortfolioEvent> consumer =
-        new FlinkKafkaConsumer<>(portfolioTopic, new PortfolioEventDeserializationSchema(),
-            kafkaProperties);
+        new FlinkKafkaConsumer<>(
+            portfolioTopic, new PortfolioEventDeserializationSchema(), kafkaProperties);
     consumer.setStartFromEarliest();
 
     return consumer;
@@ -222,8 +237,8 @@ public class PanoptesPipelineConfig {
     LOG.info("using {} as security topic", securityTopic);
 
     FlinkKafkaConsumer<Security> consumer =
-        new FlinkKafkaConsumer<>(securityTopic, new SecurityDeserializationSchema(),
-            kafkaProperties);
+        new FlinkKafkaConsumer<>(
+            securityTopic, new SecurityDeserializationSchema(), kafkaProperties);
     consumer.setStartFromEarliest();
 
     return consumer;
@@ -240,9 +255,11 @@ public class PanoptesPipelineConfig {
     LOG.info("using {} as tradeEvaluationResult topic", tradeEvaluationResultTopic);
 
     FlinkKafkaProducer<TradeEvaluationResult> producer =
-        new FlinkKafkaProducer<>(tradeEvaluationResultTopic,
+        new FlinkKafkaProducer<>(
+            tradeEvaluationResultTopic,
             new TradeEvaluationResultSerializationSchema(tradeEvaluationResultTopic),
-            kafkaProperties, Semantic.AT_LEAST_ONCE);
+            kafkaProperties,
+            Semantic.AT_LEAST_ONCE);
     producer.setWriteTimestampToKafka(true);
 
     return producer;

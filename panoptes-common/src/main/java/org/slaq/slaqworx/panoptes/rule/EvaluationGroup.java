@@ -6,12 +6,9 @@ import org.slaq.slaqworx.panoptes.asset.Portfolio;
 /**
  * A value type used as a key when classifying rule evaluation results.
  *
- * @param id
- *     the unique ID of the {@link EvaluationGroup}
- * @param aggregationKey
- *     the aggregation key used to define this {@link EvaluationGroup}, or {@code null} for the
- *     default
- *
+ * @param id the unique ID of the {@link EvaluationGroup}
+ * @param aggregationKey the aggregation key used to define this {@link EvaluationGroup}, or {@code
+ *     null} for the default
  * @author jeremy
  */
 public record EvaluationGroup(@Nonnull String id, String aggregationKey) {

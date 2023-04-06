@@ -8,9 +8,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 public class RuleKeySerializer extends KafkaSerializer<RuleKey> {
-  /**
-   * Creates a new {@link RuleKeySerializer}. Kafka requires a public default constructor.
-   */
+  /** Creates a new {@link RuleKeySerializer}. Kafka requires a public default constructor. */
   public RuleKeySerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.RuleKeySerializer());
   }

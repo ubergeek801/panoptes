@@ -11,9 +11,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 public class RuleKeySerializer implements ProtobufSerializer<RuleKey> {
-  /**
-   * Creates a new {@link RuleKeySerializer}.
-   */
+  /** Creates a new {@link RuleKeySerializer}. */
   public RuleKeySerializer() {
     // nothing to do
   }

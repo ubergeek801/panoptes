@@ -14,8 +14,7 @@ public class TradeKey implements ProtobufSerializable {
   /**
    * Creates a new {@link TradeKey} with the given ID.
    *
-   * @param id
-   *     the ID to assign to the key, or {@code null} to generate one
+   * @param id the ID to assign to the key, or {@code null} to generate one
    */
   public TradeKey(String id) {
     this.id = (id == null ? IdVersionKey.generateId() : id);

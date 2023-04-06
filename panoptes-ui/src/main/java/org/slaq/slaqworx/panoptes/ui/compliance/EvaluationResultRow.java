@@ -40,8 +40,7 @@ public interface EvaluationResultRow {
   Stream<EvaluationResultRow> getChildren();
 
   /**
-   * Obtains the {@link EvaluationGroup} corresponding to this row's result, in {@link String}
-   * form.
+   * Obtains the {@link EvaluationGroup} corresponding to this row's result, in {@link String} form.
    *
    * @return a {@link String} representation of this row's {@link EvaluationGroup}, or {@code null}
    *     if not applicable

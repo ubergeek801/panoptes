@@ -29,27 +29,25 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
    * Creates a new {@link SecurityMapStore}. Restricted because instances of this class should be
    * created through the {@link HazelcastMapStoreFactory}.
    *
-   * @param transactionManager
-   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
-   * @param jdbi
-   *     the {@link Jdbi} instance through which to access the database
+   * @param transactionManager the {@link TransactionManager} to use for {@code loadAllKeys()}
+   * @param jdbi the {@link Jdbi} instance through which to access the database
    */
-  protected SecurityMapStore(SynchronousTransactionManager<Connection> transactionManager,
-      Jdbi jdbi) {
+  protected SecurityMapStore(
+      SynchronousTransactionManager<Connection> transactionManager, Jdbi jdbi) {
     super(transactionManager, jdbi);
   }
 
   @Override
   @Transactional
   public void delete(SecurityKey key) {
-    getJdbi().withHandle(
-        handle -> handle.execute("delete from " + getTableName() + " where id = ?", key.id()));
+    getJdbi()
+        .withHandle(
+            handle -> handle.execute("delete from " + getTableName() + " where id = ?", key.id()));
   }
 
   @Override
   public Security map(ResultSet rs, StatementContext context) throws SQLException {
-    /* String id = */
-    rs.getString(1);
+    /* String id = */ rs.getString(1);
     String attributes = rs.getString(2);
 
     return new Security(SerializerUtil.jsonToAttributes(attributes));
@@ -62,8 +60,8 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
       jsonAttributes = SerializerUtil.attributesToJson(security.getAttributes().asMap());
     } catch (Exception e) {
       // TODO throw a better exception
-      throw new RuntimeException("could not serialize SecurityAttributes for " + security.getKey(),
-          e);
+      throw new RuntimeException(
+          "could not serialize SecurityAttributes for " + security.getKey(), e);
     }
 
     batch.bind(1, security.getKey().id());
@@ -93,7 +91,9 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() + """
+    return "insert into "
+        + getTableName()
+        + """
          (id, hash, attributes, partition_id)
          values (?, ?, ?::json, 0)
          on conflict on constraint security_pk do update

@@ -40,8 +40,12 @@ import org.slaq.slaqworx.panoptes.util.ForkJoinPoolFactory;
  */
 @Singleton
 public class AssetCache
-    implements EligibilityListProvider, PortfolioProvider, PositionProvider, RuleProvider,
-    SecurityProvider, TradeProvider {
+    implements EligibilityListProvider,
+        PortfolioProvider,
+        PositionProvider,
+        RuleProvider,
+        SecurityProvider,
+        TradeProvider {
   public static final String ELIGIBILITY_CACHE_NAME = "eligibility";
   public static final String PORTFOLIO_CACHE_NAME = "portfolio";
   public static final String POSITION_CACHE_NAME = "position";
@@ -52,31 +56,23 @@ public class AssetCache
   protected static final String CLUSTER_EXECUTOR_NAME = "cluster-executor";
 
   private static final ForkJoinPool localExecutorThreadPool =
-      ForkJoinPoolFactory.newForkJoinPool(ForkJoinPool.getCommonPoolParallelism(),
-          "local-executor");
+      ForkJoinPoolFactory.newForkJoinPool(
+          ForkJoinPool.getCommonPoolParallelism(), "local-executor");
 
   private static AssetCache defaultAssetCache;
-  @Nonnull
-  private final HazelcastInstance hazelcastInstance;
-  @Nonnull
-  private final IMap<String, Set<String>> eligibilityCache;
-  @Nonnull
-  private final IMap<PortfolioKey, Portfolio> portfolioCache;
-  @Nonnull
-  private final IMap<PositionKey, Position> positionCache;
-  @Nonnull
-  private final IMap<RuleKey, ConfigurableRule> ruleCache;
-  @Nonnull
-  private final IMap<SecurityKey, Security> securityCache;
-  @Nonnull
-  private final IMap<TradeKey, Trade> tradeCache;
+  @Nonnull private final HazelcastInstance hazelcastInstance;
+  @Nonnull private final IMap<String, Set<String>> eligibilityCache;
+  @Nonnull private final IMap<PortfolioKey, Portfolio> portfolioCache;
+  @Nonnull private final IMap<PositionKey, Position> positionCache;
+  @Nonnull private final IMap<RuleKey, ConfigurableRule> ruleCache;
+  @Nonnull private final IMap<SecurityKey, Security> securityCache;
+  @Nonnull private final IMap<TradeKey, Trade> tradeCache;
 
   /**
    * Creates a new {@link AssetCache}. Restricted because instances of this class should be obtained
    * through the {@link ApplicationContext}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} through which to access cached data
+   * @param hazelcastInstance the {@link HazelcastInstance} through which to access cached data
    */
   protected AssetCache(@Nonnull HazelcastInstance hazelcastInstance) {
     this.hazelcastInstance = hazelcastInstance;
@@ -103,8 +99,7 @@ public class AssetCache
   /**
    * Sets the default {@link AssetCache} instance, to be used "in case of emergency."
    *
-   * @param assetCache
-   *     the default {@link AssetCache} instance
+   * @param assetCache the default {@link AssetCache} instance
    */
   public static void setDefault(@Nonnull AssetCache assetCache) {
     defaultAssetCache = assetCache;
@@ -141,8 +136,8 @@ public class AssetCache
    */
   @Nonnull
   public SortedSet<String> getCountries() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country));
   }
 
   /**
@@ -152,8 +147,8 @@ public class AssetCache
    */
   @Nonnull
   public SortedSet<String> getCurrencies() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.currency));
   }
 
   /**
@@ -208,8 +203,8 @@ public class AssetCache
    */
   @Nonnull
   public SortedSet<String> getRegions() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.region));
   }
 
   @Override
@@ -234,13 +229,13 @@ public class AssetCache
    */
   @Nonnull
   public SortedSet<String> getSectors() {
-    return getSecurityCache().aggregate(
-        new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
+    return getSecurityCache()
+        .aggregate(new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.sector));
   }
 
   @Override
-  public Security getSecurity(@Nonnull SecurityKey key,
-      @Nonnull EvaluationContext evaluationContext) {
+  public Security getSecurity(
+      @Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext) {
     return getSecurityCache().get(key);
   }
 

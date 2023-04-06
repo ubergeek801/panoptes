@@ -19,7 +19,9 @@ public class TradeSplitter implements FlatMapFunction<Trade, PortfolioEvent> {
   @Override
   public void flatMap(Trade trade, Collector<PortfolioEvent> out) {
     // FIXME create a proper event ID
-    trade.getTransactions().values()
+    trade
+        .getTransactions()
+        .values()
         .forEach(t -> out.collect(new TransactionEvent(System.currentTimeMillis(), t)));
   }
 }

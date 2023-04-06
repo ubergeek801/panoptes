@@ -24,9 +24,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * @author jeremy
  */
 public class EvaluationResultSerializer implements ProtobufSerializer<EvaluationResult> {
-  /**
-   * Creates a new {@link EvaluationResultSerializer}.
-   */
+  /** Creates a new {@link EvaluationResultSerializer}. */
   public EvaluationResultSerializer() {
     // nothing to do
   }
@@ -57,11 +55,9 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
   /**
    * Converts an {@link EvaluationGroup}/{@link ValueResult} pair into its serialized form.
    *
-   * @param evaluationGroup
-   *     the {@link EvaluationGroup} from which to create a {@link ValueResultMsg}
-   * @param ruleResult
-   *     the {@link ValueResult} from which to create a {@link ValueResultMsg}
-   *
+   * @param evaluationGroup the {@link EvaluationGroup} from which to create a {@link
+   *     ValueResultMsg}
+   * @param ruleResult the {@link ValueResult} from which to create a {@link ValueResultMsg}
    * @return a {@link ValueResultMsg} providing a serialization of the given data
    */
   protected static ValueResultMsg convert(EvaluationGroup evaluationGroup, ValueResult ruleResult) {
@@ -92,9 +88,7 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
   /**
    * Converts a {@link ValueResultMsg} into its deserialized form.
    *
-   * @param resultMsg
-   *     the {@link ValueResultMsg} to be deserialized
-   *
+   * @param resultMsg the {@link ValueResultMsg} to be deserialized
    * @return a {@link ValueResult} constructed from the serialized data
    */
   protected static ValueResult convert(ValueResultMsg resultMsg) {
@@ -102,8 +96,11 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
       ExceptionMsg exceptionMsg = resultMsg.getException();
 
       // FIXME fully reconstruct the exception
-      return new ValueResult(new Exception(
-          exceptionMsg.getExceptionClass() + " thrown with message: " + exceptionMsg.getMessage()));
+      return new ValueResult(
+          new Exception(
+              exceptionMsg.getExceptionClass()
+                  + " thrown with message: "
+                  + exceptionMsg.getMessage()));
     }
 
     if (!resultMsg.hasThreshold() || !resultMsg.hasValue()) {
@@ -112,40 +109,41 @@ public class EvaluationResultSerializer implements ProtobufSerializer<Evaluation
     }
 
     // must be a "value" result
-    return new ValueResult(Threshold.valueOf(resultMsg.getThreshold().getValue()),
-        resultMsg.getValue().getValue());
+    return new ValueResult(
+        Threshold.valueOf(resultMsg.getThreshold().getValue()), resultMsg.getValue().getValue());
   }
 
   /**
    * Converts a collection of {@link ValueResultMsg}s into deserialized form.
    *
-   * @param resultMsgs
-   *     the {@link ValueResultMsg}s to be deserialized
-   *
+   * @param resultMsgs the {@link ValueResultMsg}s to be deserialized
    * @return a {@link Map} correlating each {@link EvaluationGroup} to the {@link ValueResult}
    *     computed for that group
    */
   protected static Map<EvaluationGroup, ValueResult> convertResults(
       Collection<ValueResultMsg> resultMsgs) {
-    return resultMsgs.stream().map(resultMsg -> {
-      String aggregationKey =
-          (resultMsg.hasAggregationKey() ? resultMsg.getAggregationKey().getValue() : null);
-      return Pair.of(new EvaluationGroup(resultMsg.getId(), aggregationKey), convert(resultMsg));
-    }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    return resultMsgs.stream()
+        .map(
+            resultMsg -> {
+              String aggregationKey =
+                  (resultMsg.hasAggregationKey() ? resultMsg.getAggregationKey().getValue() : null);
+              return Pair.of(
+                  new EvaluationGroup(resultMsg.getId(), aggregationKey), convert(resultMsg));
+            })
+        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
   }
 
   /**
    * Converts a map of evaluation results to serialized form.
    *
-   * @param results
-   *     a {@link Map} correlating each {@link EvaluationGroup} to the {@link ValueResult} computed
-   *     for that group
-   *
+   * @param results a {@link Map} correlating each {@link EvaluationGroup} to the {@link
+   *     ValueResult} computed for that group
    * @return a {@link Collection<ValueResultMsg>} representing the serialized form
    */
   protected static Collection<ValueResultMsg> convertResults(
       Map<EvaluationGroup, ValueResult> results) {
-    return results.entrySet().stream().map(e -> convert(e.getKey(), e.getValue()))
+    return results.entrySet().stream()
+        .map(e -> convert(e.getKey(), e.getValue()))
         .collect(Collectors.toList());
   }
 

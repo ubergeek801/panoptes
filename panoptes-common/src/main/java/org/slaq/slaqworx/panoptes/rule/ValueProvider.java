@@ -17,9 +17,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  * SecurityAttribute}s. Implements {@link Serializable} for convenience of implementing
  * cluster-friendly {@link Security} filters.
  *
- * @param <T>
- *     the type that can be converted by the {@link ValueProvider}
- *
+ * @param <T> the type that can be converted by the {@link ValueProvider}
  * @author jeremy
  */
 public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Double>, Serializable {
@@ -36,15 +34,11 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
   /**
    * Produces a {@link ValueProvider} that converts from values of the given {@link Class}.
    *
-   * @param <T>
-   *     the class type of values to be converted
-   * @param clazz
-   *     the {@link Class} of values to be converted
-   *
+   * @param <T> the class type of values to be converted
+   * @param clazz the {@link Class} of values to be converted
    * @return a {@link ValueProvider} of the requested type, if available
-   *
-   * @throws IllegalArgumentException
-   *     if a {@link ValueProvider} is not available for the requested type
+   * @throws IllegalArgumentException if a {@link ValueProvider} is not available for the requested
+   *     type
    */
   @Nonnull
   static <T> ValueProvider<T> forClass(Class<T> clazz) {
@@ -60,11 +54,8 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
    * Produces, if available, a {@link ValueProvider} that converts from values of the given {@link
    * Class}.
    *
-   * @param <T>
-   *     the class type of values to be converted
-   * @param clazz
-   *     the {@link Class} of values to be converted
-   *
+   * @param <T> the class type of values to be converted
+   * @param clazz the {@link Class} of values to be converted
    * @return a {@link ValueProvider} of the requested type, or {@code null} if not available
    */
   static <T> ValueProvider<T> forClassIfAvailable(Class<T> clazz) {
@@ -117,7 +108,7 @@ public interface ValueProvider<T> extends BiFunction<T, EvaluationContext, Doubl
    */
   static ValueProvider<String> forRatingSymbol() {
     // TODO support other RatingScales
-    return (v, c) -> (v == null ? null :
-        (double) RatingScale.defaultScale().getRatingNotch(v).getOrdinal());
+    return (v, c) ->
+        (v == null ? null : (double) RatingScale.defaultScale().getRatingNotch(v).getOrdinal());
   }
 }

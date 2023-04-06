@@ -32,10 +32,8 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
    * Creates a new {@link RuleMapStore}. Restricted because instances of this class should be
    * created through the {@link HazelcastMapStoreFactory}.
    *
-   * @param transactionManager
-   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
-   * @param jdbi
-   *     the {@link Jdbi} instance through which to access the database
+   * @param transactionManager the {@link TransactionManager} to use for {@code loadAllKeys()}
+   * @param jdbi the {@link Jdbi} instance through which to access the database
    */
   protected RuleMapStore(SynchronousTransactionManager<Connection> transactionManager, Jdbi jdbi) {
     super(transactionManager, jdbi);
@@ -44,10 +42,12 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
   @Override
   @Transactional
   public void delete(RuleKey key) {
-    getJdbi().withHandle(handle -> {
-      handle.execute("delete from portfolio_rule where rule_id = ?", key.id());
-      return handle.execute("delete from " + getTableName() + " where id = ?", key.id());
-    });
+    getJdbi()
+        .withHandle(
+            handle -> {
+              handle.execute("delete from portfolio_rule where rule_id = ?", key.id());
+              return handle.execute("delete from " + getTableName() + " where id = ?", key.id());
+            });
   }
 
   @Override
@@ -60,8 +60,14 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     String classifierTypeName = rs.getString(6);
     String classifierConfiguration = rs.getString(7);
 
-    return RuleSerializer.constructRule(id, description, ruleTypeName, configuration, groovyFilter,
-        classifierTypeName, classifierConfiguration);
+    return RuleSerializer.constructRule(
+        id,
+        description,
+        ruleTypeName,
+        configuration,
+        groovyFilter,
+        classifierTypeName,
+        classifierConfiguration);
   }
 
   @Override
@@ -70,8 +76,10 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
     String classifierConfiguration;
     EvaluationGroupClassifier classifier = rule.getGroupClassifier();
     classifierType = classifier.getClass().getName();
-    classifierConfiguration = (classifier instanceof JsonConfigurable ?
-        ((JsonConfigurable) classifier).getJsonConfiguration() : null);
+    classifierConfiguration =
+        (classifier instanceof JsonConfigurable
+            ? ((JsonConfigurable) classifier).getJsonConfiguration()
+            : null);
 
     batch.bind(1, rule.getKey().id());
     batch.bind(2, rule.getDescription());
@@ -99,13 +107,16 @@ public class RuleMapStore extends HazelcastMapStore<RuleKey, ConfigurableRule> {
 
   @Override
   protected String getLoadSelect() {
-    return "select id, description, type, configuration, filter, classifier_type," +
-        " classifier_configuration from " + getTableName();
+    return "select id, description, type, configuration, filter, classifier_type,"
+        + " classifier_configuration from "
+        + getTableName();
   }
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() + """
+    return "insert into "
+        + getTableName()
+        + """
          (id, description, type, configuration, filter, classifier_type, classifier_configuration,
            partition_id)
          values (?, ?, ?, ?::json, ?, ?, ?::json, 0)

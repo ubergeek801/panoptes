@@ -15,9 +15,7 @@ import org.junit.jupiter.api.Test;
  * @author jeremy
  */
 public class StreamUtilTest {
-  /**
-   * Tests that {@code partition()} behaves as expected.
-   */
+  /** Tests that {@code partition()} behaves as expected. */
   @Test
   public void testPartition() {
     List<Integer> list = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
@@ -30,7 +28,9 @@ public class StreamUtilTest {
     HashSet<Integer> encounteredElements = new HashSet<>();
     // whatever the partitioning, we should expect all the original elements to be there
     partitionedList.forEach(p -> p.forEachRemaining(encounteredElements::add));
-    assertEquals(list.size(), encounteredElements.size(),
+    assertEquals(
+        list.size(),
+        encounteredElements.size(),
         "should have same number of encountered elements as original");
 
     // test some pathological inputs
@@ -40,7 +40,9 @@ public class StreamUtilTest {
     assertTrue(partitionedList.isEmpty(), "null input should produce empty output");
 
     partitionedList = StreamUtil.partition(list.stream(), 0);
-    assertEquals(list.size(), partitionedList.size(),
+    assertEquals(
+        list.size(),
+        partitionedList.size(),
         "expected size <= 1 should result in full partitioning");
   }
 }

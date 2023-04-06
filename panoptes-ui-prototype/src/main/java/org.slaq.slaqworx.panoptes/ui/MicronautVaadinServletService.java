@@ -20,15 +20,14 @@ public class MicronautVaadinServletService extends VaadinServletService {
   /**
    * Creates a new {@link MicronautVaadinServletService}.
    *
-   * @param vaadinServlet
-   *     the {@link VaadinServlet} hosting the Vaadin application
-   * @param deploymentConfiguration
-   *     the application's {@link DeploymentConfiguration}
-   * @param applicationContext
-   *     the {@link ApplicationContext} to use to resolve beans
+   * @param vaadinServlet the {@link VaadinServlet} hosting the Vaadin application
+   * @param deploymentConfiguration the application's {@link DeploymentConfiguration}
+   * @param applicationContext the {@link ApplicationContext} to use to resolve beans
    */
-  public MicronautVaadinServletService(VaadinServlet vaadinServlet,
-      DeploymentConfiguration deploymentConfiguration, ApplicationContext applicationContext) {
+  public MicronautVaadinServletService(
+      VaadinServlet vaadinServlet,
+      DeploymentConfiguration deploymentConfiguration,
+      ApplicationContext applicationContext) {
     super(vaadinServlet, deploymentConfiguration);
     instantiator = new MicronautVaadinInstantiator(this, applicationContext);
   }

@@ -12,17 +12,13 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * A convenient base class for implementing a Kryo {@link Serializer} (for Flink compatibility)
  * using Protobuf.
  *
- * @param <T>
- *     the type to be serialized
- *
+ * @param <T> the type to be serialized
  * @author jeremy
  */
 public abstract class ProtobufKryoSerializer<T extends ProtobufSerializable> extends Serializer<T> {
   private ProtobufSerializer<T> serializer;
 
-  /**
-   * Creates a new {@link ProtobufKryoSerializer}.
-   */
+  /** Creates a new {@link ProtobufKryoSerializer}. */
   protected ProtobufKryoSerializer() {
     // nothing to do
   }

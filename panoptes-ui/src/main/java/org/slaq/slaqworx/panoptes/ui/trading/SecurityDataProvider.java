@@ -30,8 +30,7 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
   /**
    * Creates a new {@link SecurityDataProvider} using the given {@link AssetCache} to obtain data.
    *
-   * @param assetCache
-   *     the {@link AssetCache} from which to obtain {@link Security} data
+   * @param assetCache the {@link AssetCache} from which to obtain {@link Security} data
    */
   public SecurityDataProvider(AssetCache assetCache) {
     this.assetCache = assetCache;
@@ -42,8 +41,8 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
    * Specifies a filter to be used when querying {@link Security} data, and signals consumers of a
    * refresh event.
    *
-   * @param filter
-   *     the filter to be used in the {@link Security} query, or {@code null} to return all results
+   * @param filter the filter to be used in the {@link Security} query, or {@code null} to return
+   *     all results
    */
   public void setFilter(SecurityFilter filter) {
     Set<SecurityKey> matchingKeys;
@@ -60,9 +59,14 @@ public class SecurityDataProvider extends AbstractBackEndDataProvider<Security, 
 
   @Override
   protected Stream<Security> fetchFromBackEnd(Query<Security, Void> query) {
-    return assetCache.getSecurityCache().getAll(new FakeSet<>(securityKeys
-        .subList(query.getOffset(),
-            Math.min(query.getOffset() + query.getLimit(), securityKeys.size())))).values()
+    return assetCache
+        .getSecurityCache()
+        .getAll(
+            new FakeSet<>(
+                securityKeys.subList(
+                    query.getOffset(),
+                    Math.min(query.getOffset() + query.getLimit(), securityKeys.size()))))
+        .values()
         .stream();
   }
 

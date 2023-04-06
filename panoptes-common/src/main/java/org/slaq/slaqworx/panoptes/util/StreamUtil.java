@@ -12,9 +12,7 @@ import java.util.stream.Stream;
  * @author jeremy
  */
 public class StreamUtil {
-  /**
-   * Creates a new {@link StreamUtil}. Restricted to enforce class utility semantics.
-   */
+  /** Creates a new {@link StreamUtil}. Restricted to enforce class utility semantics. */
   private StreamUtil() {
     // nothing to do
   }
@@ -24,13 +22,9 @@ public class StreamUtil {
    * specified maximum size. While not enforced, this is likely to be useful only on {@code SIZED}
    * streams.
    *
-   * @param <T>
-   *     the type of elements in the {@link Stream}
-   * @param stream
-   *     the {@link Stream} to be partitioned
-   * @param maxPartitionSize
-   *     the maximum desired size of an individual partition
-   *
+   * @param <T> the type of elements in the {@link Stream}
+   * @param stream the {@link Stream} to be partitioned
+   * @param maxPartitionSize the maximum desired size of an individual partition
    * @return a {@link List} of {@link Spliterator}s which comprise the individual partitions
    */
   public static <T> List<Spliterator<T>> partition(Stream<T> stream, int maxPartitionSize) {

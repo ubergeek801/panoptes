@@ -18,24 +18,33 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  * @author jeremy
  */
 public class DistinctSecurityAttributeValuesAggregatorTest {
-  /**
-   * Tests that {@code aggregate()} behaves as expected.
-   */
+  /** Tests that {@code aggregate()} behaves as expected. */
   @Test
   public void testAggregate() {
-    Security us1 = new Security(
-        SecurityAttribute.mapOf(SecurityAttribute.isin, "us1", SecurityAttribute.country, "US"));
-    Security us2 = new Security(
-        SecurityAttribute.mapOf(SecurityAttribute.isin, "us2", SecurityAttribute.country, "US"));
-    Security us3 = new Security(
-        SecurityAttribute.mapOf(SecurityAttribute.isin, "us3", SecurityAttribute.country, "US"));
-    Security nz1 = new Security(
-        SecurityAttribute.mapOf(SecurityAttribute.isin, "nz1", SecurityAttribute.country, "NZ"));
-    Security nz2 = new Security(
-        SecurityAttribute.mapOf(SecurityAttribute.isin, "nz2", SecurityAttribute.country, "NZ"));
+    Security us1 =
+        new Security(
+            SecurityAttribute.mapOf(
+                SecurityAttribute.isin, "us1", SecurityAttribute.country, "US"));
+    Security us2 =
+        new Security(
+            SecurityAttribute.mapOf(
+                SecurityAttribute.isin, "us2", SecurityAttribute.country, "US"));
+    Security us3 =
+        new Security(
+            SecurityAttribute.mapOf(
+                SecurityAttribute.isin, "us3", SecurityAttribute.country, "US"));
+    Security nz1 =
+        new Security(
+            SecurityAttribute.mapOf(
+                SecurityAttribute.isin, "nz1", SecurityAttribute.country, "NZ"));
+    Security nz2 =
+        new Security(
+            SecurityAttribute.mapOf(
+                SecurityAttribute.isin, "nz2", SecurityAttribute.country, "NZ"));
     Security nullCountry = new Security(SecurityAttribute.mapOf(SecurityAttribute.isin, "null"));
-    Map<SecurityKey, Security> securities = List.of(us1, us2, us3, nz1, nz2, nullCountry).stream()
-        .collect(Collectors.toMap(s -> s.getKey(), s -> s));
+    Map<SecurityKey, Security> securities =
+        List.of(us1, us2, us3, nz1, nz2, nullCountry).stream()
+            .collect(Collectors.toMap(s -> s.getKey(), s -> s));
 
     DistinctSecurityAttributeValuesAggregator<String> aggregator =
         new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country);
@@ -55,8 +64,9 @@ public class DistinctSecurityAttributeValuesAggregatorTest {
     DistinctSecurityAttributeValuesAggregator<String> aggregator2 =
         new DistinctSecurityAttributeValuesAggregator<>(SecurityAttribute.country);
 
-    Map<SecurityKey, Security> securities1 = List.of(us1, us2, us3, nullCountry).stream()
-        .collect(Collectors.toMap(s -> s.getKey(), s -> s));
+    Map<SecurityKey, Security> securities1 =
+        List.of(us1, us2, us3, nullCountry).stream()
+            .collect(Collectors.toMap(s -> s.getKey(), s -> s));
     Map<SecurityKey, Security> securities2 =
         List.of(nz1, nz2).stream().collect(Collectors.toMap(s -> s.getKey(), s -> s));
 

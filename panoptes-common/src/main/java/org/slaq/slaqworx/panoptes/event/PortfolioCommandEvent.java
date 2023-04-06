@@ -11,16 +11,13 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
  */
 public class PortfolioCommandEvent implements PortfolioEvent {
   private final long eventId;
-  @Nonnull
-  private final PortfolioKey portfolioKey;
+  @Nonnull private final PortfolioKey portfolioKey;
 
   /**
    * Creates a new {@link PortfolioCommandEvent}.
    *
-   * @param eventId
-   *     an ID identifying the event
-   * @param portfolioKey
-   *     a {@link PortfolioKey} identifying the associated portfolio
+   * @param eventId an ID identifying the event
+   * @param portfolioKey a {@link PortfolioKey} identifying the associated portfolio
    */
   public PortfolioCommandEvent(long eventId, @Nonnull PortfolioKey portfolioKey) {
     this.eventId = eventId;

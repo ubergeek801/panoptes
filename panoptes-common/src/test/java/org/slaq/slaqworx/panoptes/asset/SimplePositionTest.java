@@ -14,9 +14,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  * @author jeremy
  */
 public class SimplePositionTest {
-  /**
-   * Tests that {@link SimplePosition}s are hashed in a reasonable way.
-   */
+  /** Tests that {@link SimplePosition}s are hashed in a reasonable way. */
   @Test
   public void testHash() {
     TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();

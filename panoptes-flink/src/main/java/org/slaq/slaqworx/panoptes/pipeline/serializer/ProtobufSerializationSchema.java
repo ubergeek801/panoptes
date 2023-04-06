@@ -21,16 +21,15 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * A convenient base class for implementing {@link KafkaSerializationSchema}e that delegate to a
  * {@link ProtobufSerializer}.
  *
- * @param <T>
- *     the type to be serialized
- *
+ * @param <T> the type to be serialized
  * @author jeremy
  */
 public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable>
-    implements KafkaSerializationSchema<T>, BeanProvider<AssetCache>, PortfolioProvider,
-    SecurityProvider {
-  @Serial
-  private static final long serialVersionUID = 1L;
+    implements KafkaSerializationSchema<T>,
+        BeanProvider<AssetCache>,
+        PortfolioProvider,
+        SecurityProvider {
+  @Serial private static final long serialVersionUID = 1L;
 
   private final String topic;
 
@@ -41,8 +40,7 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
   /**
    * Creates a new {@link ProtobufSerializationSchema} for the given topic.
    *
-   * @param topic
-   *     the topic to which this serialization schema is to be applied
+   * @param topic the topic to which this serialization schema is to be applied
    */
   protected ProtobufSerializationSchema(String topic) {
     this.topic = topic;
@@ -106,13 +104,9 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
   /**
    * Produces a serialized representation of the given element's key.
    *
-   * @param element
-   *     the element for which to provide a serialized key
-   *
+   * @param element the element for which to provide a serialized key
    * @return a serialized representation of the element's key, or {@code null} if not applicable
-   *
-   * @throws Exception
-   *     if the key could not be serialized
+   * @throws Exception if the key could not be serialized
    */
   protected abstract byte[] serializeKey(T element) throws Exception;
 }

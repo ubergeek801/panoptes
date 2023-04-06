@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class PortfolioSummaryPublisher implements BiConsumerEx<Void, PortfolioSummary> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(PortfolioSummaryPublisher.class);
 

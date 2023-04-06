@@ -41,13 +41,13 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class FixedIncomeTradePanel extends FormLayout {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(FixedIncomeTradePanel.class);
 
-  private static final ForkJoinPool roomEvaluatorExecutor = ForkJoinPoolFactory
-      .newForkJoinPool(Runtime.getRuntime().availableProcessors(), "room-evaluator");
+  private static final ForkJoinPool roomEvaluatorExecutor =
+      ForkJoinPoolFactory.newForkJoinPool(
+          Runtime.getRuntime().availableProcessors(), "room-evaluator");
 
   // TODO this isn't very "responsive"
   private static final int NUM_COLUMNS = 7;
@@ -67,10 +67,8 @@ public class FixedIncomeTradePanel extends FormLayout {
   /**
    * Creates a new {@link FixedIncomeTradePanel}.
    *
-   * @param tradeEvaluator
-   *     the {@link TradeEvaluator} to use to perform compliance evaluation
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve cached entities
+   * @param tradeEvaluator the {@link TradeEvaluator} to use to perform compliance evaluation
+   * @param assetCache the {@link AssetCache} to use to resolve cached entities
    */
   public FixedIncomeTradePanel(TradeEvaluator tradeEvaluator, AssetCache assetCache) {
     this.tradeEvaluator = tradeEvaluator;
@@ -106,65 +104,100 @@ public class FixedIncomeTradePanel extends FormLayout {
     allocations.add(allocationsLabel);
     AllocationPanel allocation = new AllocationPanel(allocations);
     allocations.add(allocation);
-    Button newAllocation = ComponentUtil.createButton("New", event -> {
-      // add a new allocation row just before the last component (allocationActions)
-      allocations.addComponentAtIndex(allocations.getComponentCount() - 1,
-          new AllocationPanel(allocations));
-    });
-    Button room = ComponentUtil.createButton("Room", event -> {
-      if (securityKey == null || tradeMarketValue == null) {
-        return;
-      }
+    Button newAllocation =
+        ComponentUtil.createButton(
+            "New",
+            event -> {
+              // add a new allocation row just before the last component (allocationActions)
+              allocations.addComponentAtIndex(
+                  allocations.getComponentCount() - 1, new AllocationPanel(allocations));
+            });
+    Button room =
+        ComponentUtil.createButton(
+            "Room",
+            event -> {
+              if (securityKey == null || tradeMarketValue == null) {
+                return;
+              }
 
-      UI ui = getUI().get();
-      ui.access(() -> {
-        // disable the button while a request is running
-        event.getSource().setEnabled(false);
-      });
+              UI ui = getUI().get();
+              ui.access(
+                  () -> {
+                    // disable the button while a request is running
+                    event.getSource().setEnabled(false);
+                  });
 
-      allocationIndex = 1;
-      numPortfolios = assetCache.getPortfolioCache().size();
-      numRemaining = numPortfolios;
-      Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
-      startTime = System.currentTimeMillis();
+              allocationIndex = 1;
+              numPortfolios = assetCache.getPortfolioCache().size();
+              numRemaining = numPortfolios;
+              Set<PortfolioKey> portfolioKeys = assetCache.getPortfolioCache().keySet();
+              startTime = System.currentTimeMillis();
 
-      roomEvaluatorExecutor.submit(() -> portfolioKeys.parallelStream().forEach(portfolioKey -> {
-        try {
-          PortfolioSummary portfolio = assetCache.getPortfolioCache()
-              .executeOnKey(portfolioKey, new PortfolioSummarizer(new EvaluationContext()));
-          if (portfolio.isAbstract()) {
-            // don't evaluate benchmarks
-            updateNumRemaining(event);
-            return;
-          }
+              roomEvaluatorExecutor.submit(
+                  () ->
+                      portfolioKeys.parallelStream()
+                          .forEach(
+                              portfolioKey -> {
+                                try {
+                                  PortfolioSummary portfolio =
+                                      assetCache
+                                          .getPortfolioCache()
+                                          .executeOnKey(
+                                              portfolioKey,
+                                              new PortfolioSummarizer(new EvaluationContext()));
+                                  if (portfolio.isAbstract()) {
+                                    // don't evaluate benchmarks
+                                    updateNumRemaining(event);
+                                    return;
+                                  }
 
-          tradeEvaluator.evaluateRoom(portfolioKey, securityKey, tradeMarketValue.doubleValue())
-              .thenAcceptAsync(r -> ui.access(() -> {
-                try {
-                  BigDecimal roomMarketValue = BigDecimal.valueOf(r);
-                  if (roomMarketValue.compareTo(BigDecimal.ZERO) != 0) {
-                    AllocationPanel allocationPanel = new AllocationPanel(allocations);
-                    // add at the next position
-                    allocations.addComponentAtIndex(allocationIndex++, allocationPanel);
-                    allocationPanel.portfolioIdField.setValue(portfolioKey.getId());
-                    allocationPanel.portfolioNameField.setValue(portfolio.name());
-                    allocationPanel.amountField.setValue(tradePrice == null ? null :
-                        roomMarketValue.setScale(4, RoundingMode.HALF_EVEN)
-                            .divide(tradePrice, RoundingMode.HALF_EVEN));
-                    allocationPanel.marketValueField
-                        .setValue(roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
-                  }
-                } finally {
-                  updateNumRemaining(event);
-                }
-              }), roomEvaluatorExecutor);
-        } catch (Exception e) {
-          // FIXME deal with InterruptedException/ExecutionException
-          LOG.error("could not evaluate room for Portfolio {}", portfolioKey, e);
-          return;
-        }
-      }));
-    });
+                                  tradeEvaluator
+                                      .evaluateRoom(
+                                          portfolioKey, securityKey, tradeMarketValue.doubleValue())
+                                      .thenAcceptAsync(
+                                          r ->
+                                              ui.access(
+                                                  () -> {
+                                                    try {
+                                                      BigDecimal roomMarketValue =
+                                                          BigDecimal.valueOf(r);
+                                                      if (roomMarketValue.compareTo(BigDecimal.ZERO)
+                                                          != 0) {
+                                                        AllocationPanel allocationPanel =
+                                                            new AllocationPanel(allocations);
+                                                        // add at the next position
+                                                        allocations.addComponentAtIndex(
+                                                            allocationIndex++, allocationPanel);
+                                                        allocationPanel.portfolioIdField.setValue(
+                                                            portfolioKey.getId());
+                                                        allocationPanel.portfolioNameField.setValue(
+                                                            portfolio.name());
+                                                        allocationPanel.amountField.setValue(
+                                                            tradePrice == null
+                                                                ? null
+                                                                : roomMarketValue
+                                                                    .setScale(
+                                                                        4, RoundingMode.HALF_EVEN)
+                                                                    .divide(
+                                                                        tradePrice,
+                                                                        RoundingMode.HALF_EVEN));
+                                                        allocationPanel.marketValueField.setValue(
+                                                            roomMarketValue.setScale(
+                                                                4, RoundingMode.HALF_EVEN));
+                                                      }
+                                                    } finally {
+                                                      updateNumRemaining(event);
+                                                    }
+                                                  }),
+                                          roomEvaluatorExecutor);
+                                } catch (Exception e) {
+                                  // FIXME deal with InterruptedException/ExecutionException
+                                  LOG.error(
+                                      "could not evaluate room for Portfolio {}", portfolioKey, e);
+                                  return;
+                                }
+                              }));
+            });
     // Room will be enabled when an Asset ID is entered
     room.setEnabled(false);
 
@@ -176,12 +209,18 @@ public class FixedIncomeTradePanel extends FormLayout {
 
     add(allocations, NUM_COLUMNS);
 
-    Button submit = ComponentUtil.createButton("Submit", event -> {
-      // FIXME implement Submit button listener
-    });
-    Button cancel = ComponentUtil.createButton("Cancel", event -> {
-      // FIXME implement Cancel button listener
-    });
+    Button submit =
+        ComponentUtil.createButton(
+            "Submit",
+            event -> {
+              // FIXME implement Submit button listener
+            });
+    Button cancel =
+        ComponentUtil.createButton(
+            "Cancel",
+            event -> {
+              // FIXME implement Cancel button listener
+            });
     HorizontalLayout actions = new HorizontalLayout();
     actions.add(submit, cancel);
     submit.getStyle().set("margin-right", "0.3em");
@@ -189,58 +228,66 @@ public class FixedIncomeTradePanel extends FormLayout {
 
     // add event listeners
 
-    amountField.addValueChangeListener(event -> {
-      tradeAmount = event.getValue();
-      updateTradeMarketValue();
-    });
+    amountField.addValueChangeListener(
+        event -> {
+          tradeAmount = event.getValue();
+          updateTradeMarketValue();
+        });
 
-    priceField.addValueChangeListener(event -> {
-      tradePrice = event.getValue();
-      updateTradeMarketValue();
-    });
+    priceField.addValueChangeListener(
+        event -> {
+          tradePrice = event.getValue();
+          updateTradeMarketValue();
+        });
 
-    assetIdTextField.addValueChangeListener(event -> {
-      if (event.getValue() == null) {
-        securityKey = null;
-        assetIdTextField.setErrorMessage("not found");
-        assetIdTextField.setInvalid(true);
-        room.setEnabled(false);
-        return;
-      }
+    assetIdTextField.addValueChangeListener(
+        event -> {
+          if (event.getValue() == null) {
+            securityKey = null;
+            assetIdTextField.setErrorMessage("not found");
+            assetIdTextField.setInvalid(true);
+            room.setEnabled(false);
+            return;
+          }
 
-      securityKey = new SecurityKey(event.getValue());
-      assetIdTextField.setInvalid(false);
-      BigDecimal price = priceField.getValue();
-      if (price == null) {
-        priceField.setValue(null);
-      } else {
-        priceField.setValue(price);
-        tradeMarketValueField
-            .setValue(price.multiply(amountField.getValue()).setScale(4, RoundingMode.HALF_EVEN));
-      }
-      room.setEnabled(true);
-    });
+          securityKey = new SecurityKey(event.getValue());
+          assetIdTextField.setInvalid(false);
+          BigDecimal price = priceField.getValue();
+          if (price == null) {
+            priceField.setValue(null);
+          } else {
+            priceField.setValue(price);
+            tradeMarketValueField.setValue(
+                price.multiply(amountField.getValue()).setScale(4, RoundingMode.HALF_EVEN));
+          }
+          room.setEnabled(true);
+        });
   }
 
   /**
    * Updates the number of portfolios remaining to be updated.
    *
-   * @param event
-   *     an event from the source component to be updated
+   * @param event an event from the source component to be updated
    */
   protected void updateNumRemaining(ComponentEvent<Button> event) {
-    getUI().get().access(() -> {
-      if (--numRemaining == 0) {
-        LOG.info("found room in {}/{} Portfolios in {} ms", allocationIndex - 1, numPortfolios,
-            System.currentTimeMillis() - startTime);
-        event.getSource().setText("Room");
-        event.getSource().setEnabled(true);
-      } else {
-        if (numRemaining % 10 == 0) {
-          event.getSource().setText(numRemaining + " to process");
-        }
-      }
-    });
+    getUI()
+        .get()
+        .access(
+            () -> {
+              if (--numRemaining == 0) {
+                LOG.info(
+                    "found room in {}/{} Portfolios in {} ms",
+                    allocationIndex - 1,
+                    numPortfolios,
+                    System.currentTimeMillis() - startTime);
+                event.getSource().setText("Room");
+                event.getSource().setEnabled(true);
+              } else {
+                if (numRemaining % 10 == 0) {
+                  event.getSource().setText(numRemaining + " to process");
+                }
+              }
+            });
   }
 
   /**
@@ -262,8 +309,7 @@ public class FixedIncomeTradePanel extends FormLayout {
    * actions that can be taken on that allocation.
    */
   class AllocationPanel extends HorizontalLayout {
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     private final TextField portfolioIdField;
     private final TextField portfolioNameField;
@@ -275,8 +321,7 @@ public class FixedIncomeTradePanel extends FormLayout {
     /**
      * Creates a new {@link AllocationPanel} with the given parent.
      *
-     * @param parent
-     *     the parent of the {@link AllocationPanel} component
+     * @param parent the parent of the {@link AllocationPanel} component
      */
     AllocationPanel(HasComponents parent) {
       portfolioIdField = ComponentUtil.createTextField("Portfolio ID");
@@ -298,50 +343,67 @@ public class FixedIncomeTradePanel extends FormLayout {
       marketValueField.setPrefixComponent(new Icon(VaadinIcon.DOLLAR));
       add(marketValueField);
 
-      Button room = ComponentUtil.createButton("Room", event -> {
-        if (portfolio == null || securityKey == null || tradeMarketValue == null) {
-          return;
-        }
+      Button room =
+          ComponentUtil.createButton(
+              "Room",
+              event -> {
+                if (portfolio == null || securityKey == null || tradeMarketValue == null) {
+                  return;
+                }
 
-        try {
-          BigDecimal roomMarketValue = BigDecimal.valueOf(tradeEvaluator
-              .evaluateRoom(portfolio.getKey(), securityKey, tradeMarketValue.doubleValue()).get());
-          marketValueField.setValue(roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
-          amountField.setValue(tradePrice == null ? null :
-              roomMarketValue.divide(tradePrice, RoundingMode.HALF_EVEN)
-                  .setScale(4, RoundingMode.HALF_EVEN));
-        } catch (InterruptedException | ExecutionException e) {
-          // FIXME deal with InterruptedException/ExecutionException
-        }
-      });
+                try {
+                  BigDecimal roomMarketValue =
+                      BigDecimal.valueOf(
+                          tradeEvaluator
+                              .evaluateRoom(
+                                  portfolio.getKey(), securityKey, tradeMarketValue.doubleValue())
+                              .get());
+                  marketValueField.setValue(roomMarketValue.setScale(4, RoundingMode.HALF_EVEN));
+                  amountField.setValue(
+                      tradePrice == null
+                          ? null
+                          : roomMarketValue
+                              .divide(tradePrice, RoundingMode.HALF_EVEN)
+                              .setScale(4, RoundingMode.HALF_EVEN));
+                } catch (InterruptedException | ExecutionException e) {
+                  // FIXME deal with InterruptedException/ExecutionException
+                }
+              });
       // Room will be enabled when a Portfolio ID is entered
       room.setEnabled(false);
       add(room);
 
-      add(ComponentUtil.createButton("Delete", event -> {
-        parent.remove(this);
-      }));
+      add(
+          ComponentUtil.createButton(
+              "Delete",
+              event -> {
+                parent.remove(this);
+              }));
 
       setWidthFull();
 
       // add event listeners
 
-      portfolioIdField.addValueChangeListener(event -> {
-        // FIXME use a proper version
-        portfolio = assetCache.getPortfolioCache()
-            .executeOnKey(new PortfolioKey(portfolioIdField.getValue(), 1),
-                new PortfolioSummarizer(new EvaluationContext()));
-        if (portfolio == null) {
-          portfolioIdField.setErrorMessage("not found");
-          portfolioIdField.setInvalid(true);
-          room.setEnabled(false);
-          return;
-        }
+      portfolioIdField.addValueChangeListener(
+          event -> {
+            // FIXME use a proper version
+            portfolio =
+                assetCache
+                    .getPortfolioCache()
+                    .executeOnKey(
+                        new PortfolioKey(portfolioIdField.getValue(), 1),
+                        new PortfolioSummarizer(new EvaluationContext()));
+            if (portfolio == null) {
+              portfolioIdField.setErrorMessage("not found");
+              portfolioIdField.setInvalid(true);
+              room.setEnabled(false);
+              return;
+            }
 
-        portfolioIdField.setInvalid(false);
-        portfolioNameField.setValue(portfolio.name());
-        room.setEnabled(true);
-      });
+            portfolioIdField.setInvalid(false);
+            portfolioNameField.setValue(portfolio.name());
+            room.setEnabled(true);
+          });
     }
   }
 }

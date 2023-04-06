@@ -16,18 +16,19 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
  * A holding of some amount of a particular {@link Security} by some {@link Portfolio}. A {@link
  * Position} may be durable (e.g. sourced from a database/cache) or ephemeral (e.g. supplied by a
  * proposed {@link Trade} or even a unit test).
- * <p>
- * {@link Position}s are inherently hierarchical on a number of dimensions:
+ *
+ * <p>{@link Position}s are inherently hierarchical on a number of dimensions:
+ *
  * <ul>
- * <li>The {@link Security} held in a {@link Position} of a {@link Portfolio} may itself represent
- * another {@link Portfolio} with its own {@link Position}s. Relative to the "parent"
- * {@link Portfolio}, these "child" {@link Position}s are known as "lookthrough" {@link Position}s.
- * Note that lookthrough may be recursive, forming (what is assumed to be) a directed acyclic graph
- * of {@link Position} holdings.</li>
- * <li>In an investment {@link Portfolio}, the {@link Position}s are aggregations of
- * {@link Transaction}s on the same {@link Security} occurring on that {@link Portfolio} over time.
- * Each {@link Transaction} produces a {@link TaxLot}, which is merely a direct (non-aggregate)
- * {@link Position} in the {@link Security}.</li>
+ *   <li>The {@link Security} held in a {@link Position} of a {@link Portfolio} may itself represent
+ *       another {@link Portfolio} with its own {@link Position}s. Relative to the "parent" {@link
+ *       Portfolio}, these "child" {@link Position}s are known as "lookthrough" {@link Position}s.
+ *       Note that lookthrough may be recursive, forming (what is assumed to be) a directed acyclic
+ *       graph of {@link Position} holdings.
+ *   <li>In an investment {@link Portfolio}, the {@link Position}s are aggregations of {@link
+ *       Transaction}s on the same {@link Security} occurring on that {@link Portfolio} over time.
+ *       Each {@link Transaction} produces a {@link TaxLot}, which is merely a direct
+ *       (non-aggregate) {@link Position} in the {@link Security}.
  * </ul>
  *
  * @author jeremy
@@ -45,25 +46,22 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * This is merely a convenience method to avoid an intermediate call to {@link
    * #getSecurity(EvaluationContext)}.
    *
-   * @param <T>
-   *     the expected type of the attribute value
-   * @param attribute
-   *     the {@link SecurityAttribute} identifying the attribute
-   * @param isRequired
-   *     {@code true} if a return value is required, {@code false otherwise}
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which the attribute value is being retrieved
-   *
+   * @param <T> the expected type of the attribute value
+   * @param attribute the {@link SecurityAttribute} identifying the attribute
+   * @param isRequired {@code true} if a return value is required, {@code false otherwise}
+   * @param evaluationContext the {@link EvaluationContext} in which the attribute value is being
+   *     retrieved
    * @return the value of the given attribute, or {@code null} if not assigned and {@code
    *     isRequired} is {@code false}
-   *
-   * @throws NoDataException
-   *     if the attribute value is not assigned and {@code isRequired} is {@code true}
+   * @throws NoDataException if the attribute value is not assigned and {@code isRequired} is {@code
+   *     true}
    */
-  default <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute, boolean isRequired,
+  default <T> T getAttributeValue(
+      @Nonnull SecurityAttribute<T> attribute,
+      boolean isRequired,
       @Nonnull EvaluationContext evaluationContext) {
-    return getSecurity(evaluationContext).getEffectiveAttributeValue(attribute, isRequired,
-        evaluationContext);
+    return getSecurity(evaluationContext)
+        .getEffectiveAttributeValue(attribute, isRequired, evaluationContext);
   }
 
   /**
@@ -71,30 +69,24 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
    * This is merely a convenience method to avoid an intermediate call to {@link
    * #getSecurity(EvaluationContext)}.
    *
-   * @param <T>
-   *     the expected type of the attribute value
-   * @param attribute
-   *     the {@link SecurityAttribute} identifying the attribute
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which the attribute value is being retrieved
-   *
+   * @param <T> the expected type of the attribute value
+   * @param attribute the {@link SecurityAttribute} identifying the attribute
+   * @param evaluationContext the {@link EvaluationContext} in which the attribute value is being
+   *     retrieved
    * @return the value of the given attribute
-   *
-   * @throws NoDataException
-   *     if the requested attribute has no assigned value
+   * @throws NoDataException if the requested attribute has no assigned value
    */
   @Nonnull
-  default <T> T getAttributeValue(@Nonnull SecurityAttribute<T> attribute,
-      @Nonnull EvaluationContext evaluationContext) {
+  default <T> T getAttributeValue(
+      @Nonnull SecurityAttribute<T> attribute, @Nonnull EvaluationContext evaluationContext) {
     return getAttributeValue(attribute, true, evaluationContext);
   }
 
   /**
    * Obtains the lookthrough {@link Position}s of this {@link Position} as a {@link Stream}.
    *
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which the {@link Position}s are being obtained
-   *
+   * @param evaluationContext the {@link EvaluationContext} in which the {@link Position}s are being
+   *     obtained
    * @return a {@link Stream} of this {@link Position}'s lookthrough {@link Position}s, or the
    *     {@link Position} itself if not applicable
    */
@@ -102,8 +94,8 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
   default Stream<? extends Position> getLookthroughPositions(
       @Nonnull EvaluationContext evaluationContext) {
     PortfolioKey lookthroughPortfolioKey =
-        getSecurity(evaluationContext).getEffectiveAttributeValue(SecurityAttribute.portfolio,
-            false, evaluationContext);
+        getSecurity(evaluationContext)
+            .getEffectiveAttributeValue(SecurityAttribute.portfolio, false, evaluationContext);
     if (lookthroughPortfolioKey == null) {
       // lookthrough not applicable
       return Stream.of(this);
@@ -116,8 +108,9 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
     // Position's amount in fund) / (total amount of fund). Each Position of the held Portfolio is
     // mapped to a ScaledPosition using this multiplier.
     double portfolioAmount = getAttributeValue(SecurityAttribute.amount, evaluationContext);
-    return lookthroughPortfolio.getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH),
-        evaluationContext).map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
+    return lookthroughPortfolio
+        .getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH), evaluationContext)
+        .map(p -> new ScaledPosition(p, getAmount() / portfolioAmount));
   }
 
   @Override
@@ -128,9 +121,7 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
   /**
    * Obtains the {@link Security} held by this {@link Position}.
    *
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which an evaluation is taking place
-   *
+   * @param evaluationContext the {@link EvaluationContext} in which an evaluation is taking place
    * @return the {@link Security} held by this {@link Position}
    */
   @Nonnull
@@ -139,8 +130,7 @@ public interface Position extends Keyed<PositionKey>, MarketValued, ProtobufSeri
   }
 
   /**
-   * Obtains the {@link SecurityKey} identifying the {@link Security} held by this {@link
-   * Position}.
+   * Obtains the {@link SecurityKey} identifying the {@link Security} held by this {@link Position}.
    *
    * @return the key of the {@link Security} held by this {@link Position}
    */

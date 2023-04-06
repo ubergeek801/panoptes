@@ -21,16 +21,15 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  */
 public class SerializerUtil {
   private static final ObjectMapper defaultJsonMapper =
-      new ObjectMapper().registerModule(new JavaTimeModule())
+      new ObjectMapper()
+          .registerModule(new JavaTimeModule())
           .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
           .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
           .configure(DeserializationFeature.USE_LONG_FOR_INTS, true);
 
   private static final JdkSerializer defaultJdkSerializer = new JdkSerializer();
 
-  /**
-   * Creates a new {@link SerializerUtil}. Restricted to enforce class utility semantics.
-   */
+  /** Creates a new {@link SerializerUtil}. Restricted to enforce class utility semantics. */
   private SerializerUtil() {
     // nothing to do
   }
@@ -38,13 +37,9 @@ public class SerializerUtil {
   /**
    * Serializes the given {@link SecurityAttribute}s values to JSON.
    *
-   * @param attributes
-   *     the {@link SecurityAttribute}s to be serialized
-   *
+   * @param attributes the {@link SecurityAttribute}s to be serialized
    * @return a JSON representation of the {@link SecurityAttribute}s
-   *
-   * @throws JsonProcessingException
-   *     if the attributes could not be serialized
+   * @throws JsonProcessingException if the attributes could not be serialized
    */
   public static String attributesToJson(Map<SecurityAttribute<?>, ? super Object> attributes)
       throws JsonProcessingException {
@@ -55,15 +50,10 @@ public class SerializerUtil {
    * Attempts to coerce the given value into the type specified by the given {@link
    * SecurityAttribute}.
    *
-   * @param attribute
-   *     the attribute indicating the type to coerce the value to
-   * @param value
-   *     the value to be coerced
-   *
+   * @param attribute the attribute indicating the type to coerce the value to
+   * @param value the value to be coerced
    * @return the coerced value
-   *
-   * @throws RuntimeException
-   *     if the value could not be coerced
+   * @throws RuntimeException if the value could not be coerced
    */
   public static <T> T coerce(SecurityAttribute<T> attribute, Object value) {
     if (value == null) {
@@ -99,8 +89,8 @@ public class SerializerUtil {
       } else if (Temporal.class.isAssignableFrom(attributeType)) {
         // probably one of the java.time classes; give it a try
         if (value instanceof String) {
-          return (T) SerializerUtil.defaultJsonMapper()
-              .readValue("\"" + value + "\"", attributeType);
+          return (T)
+              SerializerUtil.defaultJsonMapper().readValue("\"" + value + "\"", attributeType);
         }
       }
 
@@ -133,9 +123,7 @@ public class SerializerUtil {
   /**
    * Deserializes the given JSON to a {@link Map} of {@link SecurityAttribute} values.
    *
-   * @param jsonAttributes
-   *     a JSON representation of the attributes to be deserialized
-   *
+   * @param jsonAttributes a JSON representation of the attributes to be deserialized
    * @return a {@link Map} correlating a {@link SecurityAttribute} to its value
    */
   public static Map<SecurityAttribute<?>, ? super Object> jsonToAttributes(String jsonAttributes) {
@@ -156,7 +144,8 @@ public class SerializerUtil {
 
     // now coerce the values into their expected types based on the corresponding
     // SecurityAttributes
-    return jsonMap.entrySet().stream().collect(
-        Collectors.toMap(Entry::getKey, e -> SerializerUtil.coerce(e.getKey(), e.getValue())));
+    return jsonMap.entrySet().stream()
+        .collect(
+            Collectors.toMap(Entry::getKey, e -> SerializerUtil.coerce(e.getKey(), e.getValue())));
   }
 }

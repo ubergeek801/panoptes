@@ -19,8 +19,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  */
 @MicronautTest
 public class AssetCacheTest {
-  @Inject
-  private AssetCache assetCache;
+  @Inject private AssetCache assetCache;
 
   /**
    * Tests that the various methods for obtaining distinct values of certain security attributes
@@ -40,37 +39,76 @@ public class AssetCacheTest {
     String sector2 = "sector2";
     String sector3 = "sector3";
 
-    Map<SecurityAttribute<?>, ? super Object> attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "test1", SecurityAttribute.country, country1,
-            SecurityAttribute.currency, currency1, SecurityAttribute.region, region1,
-            SecurityAttribute.sector, sector1);
+    Map<SecurityAttribute<?>, ? super Object> attributes =
+        SecurityAttribute.mapOf(
+            SecurityAttribute.isin,
+            "test1",
+            SecurityAttribute.country,
+            country1,
+            SecurityAttribute.currency,
+            currency1,
+            SecurityAttribute.region,
+            region1,
+            SecurityAttribute.sector,
+            sector1);
     Security security = new Security(attributes);
     securityMap.put(security.getKey(), security);
 
-    attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "test2", SecurityAttribute.country, country1,
-            SecurityAttribute.currency, currency1, SecurityAttribute.region, region1,
-            SecurityAttribute.sector, sector2);
+    attributes =
+        SecurityAttribute.mapOf(
+            SecurityAttribute.isin,
+            "test2",
+            SecurityAttribute.country,
+            country1,
+            SecurityAttribute.currency,
+            currency1,
+            SecurityAttribute.region,
+            region1,
+            SecurityAttribute.sector,
+            sector2);
     security = new Security(attributes);
     securityMap.put(security.getKey(), security);
 
-    attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "test3", SecurityAttribute.country, country2,
-            SecurityAttribute.currency, currency2, SecurityAttribute.region, region1,
-            SecurityAttribute.sector, sector2);
+    attributes =
+        SecurityAttribute.mapOf(
+            SecurityAttribute.isin,
+            "test3",
+            SecurityAttribute.country,
+            country2,
+            SecurityAttribute.currency,
+            currency2,
+            SecurityAttribute.region,
+            region1,
+            SecurityAttribute.sector,
+            sector2);
     security = new Security(attributes);
     securityMap.put(security.getKey(), security);
 
-    attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "test4", SecurityAttribute.country, country2,
-            SecurityAttribute.currency, currency2, SecurityAttribute.region, region1,
-            SecurityAttribute.sector, sector3);
+    attributes =
+        SecurityAttribute.mapOf(
+            SecurityAttribute.isin,
+            "test4",
+            SecurityAttribute.country,
+            country2,
+            SecurityAttribute.currency,
+            currency2,
+            SecurityAttribute.region,
+            region1,
+            SecurityAttribute.sector,
+            sector3);
     security = new Security(attributes);
     securityMap.put(security.getKey(), security);
 
-    attributes = SecurityAttribute
-        .mapOf(SecurityAttribute.isin, "test5", SecurityAttribute.country, country2,
-            SecurityAttribute.currency, currency2, SecurityAttribute.region, region1);
+    attributes =
+        SecurityAttribute.mapOf(
+            SecurityAttribute.isin,
+            "test5",
+            SecurityAttribute.country,
+            country2,
+            SecurityAttribute.currency,
+            currency2,
+            SecurityAttribute.region,
+            region1);
     security = new Security(attributes);
     securityMap.put(security.getKey(), security);
 

@@ -19,8 +19,7 @@ public class EligibilityResolver {
    * Creates a new {@link EligibilityResolver} that uses the given {@link EligibilityListProvider}
    * to resolve resources such as eligibility lists.
    *
-   * @param eligibilityListProvider
-   *     the {@link EligibilityListProvider} to use
+   * @param eligibilityListProvider the {@link EligibilityListProvider} to use
    */
   public EligibilityResolver(EligibilityListProvider eligibilityListProvider) {
     this.eligibilityListProvider = eligibilityListProvider;
@@ -30,11 +29,8 @@ public class EligibilityResolver {
    * Determines whether the given {@link Security} is a member of the specified country list, that
    * is, the value of the security's {@code country} attribute appears in the list.
    *
-   * @param security
-   *     the {@link Security} to test
-   * @param listName
-   *     the name of the list on which to test membership
-   *
+   * @param security the {@link Security} to test
+   * @param listName the name of the list on which to test membership
    * @return {@code true} if the security's {@code country} appears in the specified country list,
    *     {@code false} otherwise
    */
@@ -49,11 +45,8 @@ public class EligibilityResolver {
    * Determines whether the given {@link Security} is a member of the specified issuer list, that
    * is, the value of the security's {@code issuer} attribute appears in the list.
    *
-   * @param security
-   *     the {@link Security} to test
-   * @param listName
-   *     the name of the list on which to test membership
-   *
+   * @param security the {@link Security} to test
+   * @param listName the name of the list on which to test membership
    * @return {@code true} if the security's {@code issuer} appears in the specified issuer list,
    *     {@code false} otherwise
    */
@@ -68,11 +61,8 @@ public class EligibilityResolver {
    * Determines whether the given {@link Security} is a member of the specified security list, that
    * is, the value of the security's {@code cusip} or {@code isin} attribute appears in the list.
    *
-   * @param security
-   *     the {@link Security} to test
-   * @param listName
-   *     the name of the list on which to test membership
-   *
+   * @param security the {@link Security} to test
+   * @param listName the name of the list on which to test membership
    * @return {@code true} if the security's {@code cusip} or {@code isin} appears in the specified
    *     security list, {@code false} otherwise
    */

@@ -10,17 +10,16 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
  * investment. The interpretation of the list items is specific to the list type; for example, a
  * security eligibility list might contain CUSIPs.
  *
- * @param name
- *     a short name used to identify the list
- * @param type
- *     the type of entity identified by each item on the list
- * @param description
- *     a description of the list and/or its purpose
- * @param items
- *     the items comprising the list
+ * @param name a short name used to identify the list
+ * @param type the type of entity identified by each item on the list
+ * @param description a description of the list and/or its purpose
+ * @param items the items comprising the list
  */
-public record EligibilityList(@Nonnull String name, @Nonnull ListType type,
-                              @Nonnull String description, @Nonnull Set<String> items)
+public record EligibilityList(
+    @Nonnull String name,
+    @Nonnull ListType type,
+    @Nonnull String description,
+    @Nonnull Set<String> items)
     implements ProtobufSerializable {
   // trivial implementation
 }

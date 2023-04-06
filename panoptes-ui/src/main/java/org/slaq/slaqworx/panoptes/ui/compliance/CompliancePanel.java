@@ -27,10 +27,9 @@ public class CompliancePanel extends VerticalLayout {
   /**
    * Creates a new {@link CompliancePanel}.
    *
-   * @param portfolioEvaluator
-   *     the {@link PortfolioEvaluator} to use to perform compliance evaluation
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve cached entities
+   * @param portfolioEvaluator the {@link PortfolioEvaluator} to use to perform compliance
+   *     evaluation
+   * @param assetCache the {@link AssetCache} to use to resolve cached entities
    */
   public CompliancePanel(PortfolioEvaluator portfolioEvaluator, AssetCache assetCache) {
     HorizontalLayout portfolioSelectionPanel = new HorizontalLayout();
@@ -47,22 +46,25 @@ public class CompliancePanel extends VerticalLayout {
 
     // add event listeners
 
-    portfolioIdField.addValueChangeListener(event -> {
-      // FIXME use a proper version
-      PortfolioKey portfolioKey = new PortfolioKey(portfolioIdField.getValue(), 1);
-      portfolio = assetCache.getPortfolioCache()
-          .executeOnKey(portfolioKey, new PortfolioSummarizer(new EvaluationContext()));
-      if (portfolio == null) {
-        portfolioIdField.setErrorMessage("not found");
-        portfolioIdField.setInvalid(true);
-        run.setEnabled(false);
-        return;
-      }
+    portfolioIdField.addValueChangeListener(
+        event -> {
+          // FIXME use a proper version
+          PortfolioKey portfolioKey = new PortfolioKey(portfolioIdField.getValue(), 1);
+          portfolio =
+              assetCache
+                  .getPortfolioCache()
+                  .executeOnKey(portfolioKey, new PortfolioSummarizer(new EvaluationContext()));
+          if (portfolio == null) {
+            portfolioIdField.setErrorMessage("not found");
+            portfolioIdField.setInvalid(true);
+            run.setEnabled(false);
+            return;
+          }
 
-      portfolioIdField.setInvalid(false);
-      portfolioNameField.setValue(portfolio.name());
-      run.setEnabled(true);
-    });
+          portfolioIdField.setInvalid(false);
+          portfolioNameField.setValue(portfolio.name());
+          run.setEnabled(true);
+        });
 
     portfolioSelectionPanel.setWidthFull();
     add(portfolioSelectionPanel);
@@ -70,13 +72,14 @@ public class CompliancePanel extends VerticalLayout {
     resultPanel.setSizeFull();
     add(resultPanel);
 
-    run.addClickListener(event -> {
-      if (portfolio == null) {
-        return;
-      }
+    run.addClickListener(
+        event -> {
+          if (portfolio == null) {
+            return;
+          }
 
-      resultPanel.setResult(
-          portfolioEvaluator.evaluate(portfolio.getKey(), new EvaluationContext()).join());
-    });
+          resultPanel.setResult(
+              portfolioEvaluator.evaluate(portfolio.getKey(), new EvaluationContext()).join());
+        });
   }
 }

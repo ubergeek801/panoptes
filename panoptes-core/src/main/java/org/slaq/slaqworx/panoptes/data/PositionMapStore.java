@@ -30,23 +30,23 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
    * Creates a new {@link PositionMapStore}. Restricted because instances of this class should be
    * created through the {@link HazelcastMapStoreFactory}.
    *
-   * @param transactionManager
-   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
-   * @param jdbi
-   *     the {@link Jdbi} instance through which to access the database
+   * @param transactionManager the {@link TransactionManager} to use for {@code loadAllKeys()}
+   * @param jdbi the {@link Jdbi} instance through which to access the database
    */
-  protected PositionMapStore(SynchronousTransactionManager<Connection> transactionManager,
-      Jdbi jdbi) {
+  protected PositionMapStore(
+      SynchronousTransactionManager<Connection> transactionManager, Jdbi jdbi) {
     super(transactionManager, jdbi);
   }
 
   @Override
   @Transactional
   public void delete(PositionKey key) {
-    getJdbi().withHandle(handle -> {
-      handle.execute("delete from portfolio_position where position_id = ?", key.id());
-      return handle.execute("delete from " + getTableName() + " where id = ?", key.id());
-    });
+    getJdbi()
+        .withHandle(
+            handle -> {
+              handle.execute("delete from portfolio_position where position_id = ?", key.id());
+              return handle.execute("delete from " + getTableName() + " where id = ?", key.id());
+            });
   }
 
   @Override
@@ -87,10 +87,12 @@ public class PositionMapStore extends HazelcastMapStore<PositionKey, Position> {
 
   @Override
   protected String getStoreSql() {
-    return "insert into " + getTableName() + """
+    return "insert into "
+        + getTableName()
+        + """
          (id, amount, security_id, partition_id)
          values (?, ?, ?, 0)
-         on conflict on constraint position_pk do update 
+         on conflict on constraint position_pk do update
           set amount = excluded.amount, security_id = excluded.security_id
         """;
   }

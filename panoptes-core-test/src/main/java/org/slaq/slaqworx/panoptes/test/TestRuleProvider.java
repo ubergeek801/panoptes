@@ -25,9 +25,7 @@ public class TestRuleProvider implements RuleProvider {
 
   private final HashMap<RuleKey, Rule> ruleMap = new HashMap<>();
 
-  /**
-   * Creates a new {@link TestRuleProvider}. Restricted to enforce singleton semantics.
-   */
+  /** Creates a new {@link TestRuleProvider}. Restricted to enforce singleton semantics. */
   protected TestRuleProvider() {
     // nothing to do
   }
@@ -35,30 +33,27 @@ public class TestRuleProvider implements RuleProvider {
   /**
    * Creates and caches a {@link ConcentrationRule} with the given parameters.
    *
-   * @param assetCache
-   *     the {@link AssetCache} in which to cache the created {@link Rule}
-   * @param key
-   *     the unique key of this {@link Rule}, or {@code null} to generate one
-   * @param description
-   *     the {@link Rule} description
-   * @param positionFilter
-   *     the filter to be applied to {@link Position}s to determine concentration
-   * @param lowerLimit
-   *     the lower limit of acceptable concentration values
-   * @param upperLimit
-   *     the upper limit of acceptable concentration values
-   * @param groupClassifier
-   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
-   *     implement {@link GroupAggregator}
-   *
+   * @param assetCache the {@link AssetCache} in which to cache the created {@link Rule}
+   * @param key the unique key of this {@link Rule}, or {@code null} to generate one
+   * @param description the {@link Rule} description
+   * @param positionFilter the filter to be applied to {@link Position}s to determine concentration
+   * @param lowerLimit the lower limit of acceptable concentration values
+   * @param upperLimit the upper limit of acceptable concentration values
+   * @param groupClassifier the (possibly {@code null}) {@link EvaluationGroupClassifier} to use,
+   *     which may also implement {@link GroupAggregator}
    * @return a {@link ConcentrationRule} with the specified configuration
    */
-  public static ConcentrationRule createTestConcentrationRule(AssetCache assetCache, RuleKey key,
-      String description, Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit,
-      Double upperLimit, EvaluationGroupClassifier groupClassifier) {
+  public static ConcentrationRule createTestConcentrationRule(
+      AssetCache assetCache,
+      RuleKey key,
+      String description,
+      Predicate<PositionEvaluationContext> positionFilter,
+      Double lowerLimit,
+      Double upperLimit,
+      EvaluationGroupClassifier groupClassifier) {
     ConcentrationRule rule =
-        new ConcentrationRule(key, description, positionFilter, lowerLimit, upperLimit,
-            groupClassifier);
+        new ConcentrationRule(
+            key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
     assetCache.getRuleCache().set(rule.getKey(), rule);
 
     return rule;
@@ -67,33 +62,35 @@ public class TestRuleProvider implements RuleProvider {
   /**
    * Creates and caches a {@link WeightedAverageRule} with the given parameters.
    *
-   * @param assetCache
-   *     the {@link AssetCache} in which to cache the created {@link Rule}
-   * @param key
-   *     the unique key of this {@link Rule}, or {@code null} to generate one
-   * @param description
-   *     the {@link Rule} description
-   * @param positionFilter
-   *     the filter to be applied to {@link Position}s to determine concentration
-   * @param calculationAttribute
-   *     the {@link SecurityAttribute} on which to calculate
-   * @param lowerLimit
-   *     the lower limit of acceptable concentration values
-   * @param upperLimit
-   *     the upper limit of acceptable concentration values
-   * @param groupClassifier
-   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
-   *     implement {@link GroupAggregator}
-   *
+   * @param assetCache the {@link AssetCache} in which to cache the created {@link Rule}
+   * @param key the unique key of this {@link Rule}, or {@code null} to generate one
+   * @param description the {@link Rule} description
+   * @param positionFilter the filter to be applied to {@link Position}s to determine concentration
+   * @param calculationAttribute the {@link SecurityAttribute} on which to calculate
+   * @param lowerLimit the lower limit of acceptable concentration values
+   * @param upperLimit the upper limit of acceptable concentration values
+   * @param groupClassifier the (possibly {@code null}) {@link EvaluationGroupClassifier} to use,
+   *     which may also implement {@link GroupAggregator}
    * @return a {@link WeightedAverageRule} with the specified configuration
    */
-  public static WeightedAverageRule<Double> createTestWeightedAverageRule(AssetCache assetCache,
-      RuleKey key, String description, Predicate<PositionEvaluationContext> positionFilter,
-      SecurityAttribute<Double> calculationAttribute, Double lowerLimit, Double upperLimit,
+  public static WeightedAverageRule<Double> createTestWeightedAverageRule(
+      AssetCache assetCache,
+      RuleKey key,
+      String description,
+      Predicate<PositionEvaluationContext> positionFilter,
+      SecurityAttribute<Double> calculationAttribute,
+      Double lowerLimit,
+      Double upperLimit,
       EvaluationGroupClassifier groupClassifier) {
     WeightedAverageRule<Double> rule =
-        new WeightedAverageRule<>(key, description, positionFilter, calculationAttribute,
-            lowerLimit, upperLimit, groupClassifier);
+        new WeightedAverageRule<>(
+            key,
+            description,
+            positionFilter,
+            calculationAttribute,
+            lowerLimit,
+            upperLimit,
+            groupClassifier);
     assetCache.getRuleCache().set(rule.getKey(), rule);
 
     return rule;
@@ -117,27 +114,25 @@ public class TestRuleProvider implements RuleProvider {
    * Creates a new {@link ConcentrationRule} with the given key, description, filter, lower and
    * upper limit.
    *
-   * @param key
-   *     the unique key of the {@link Rule}, or {@code null} to generate one
-   * @param description
-   *     the {@link Rule} description
-   * @param positionFilter
-   *     the filter to be applied to {@link Position}s to determine concentration
-   * @param lowerLimit
-   *     the lower limit of acceptable concentration values
-   * @param upperLimit
-   *     the upper limit of acceptable concentration values
-   * @param groupClassifier
-   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
-   *     implement {@link GroupAggregator}
-   *
+   * @param key the unique key of the {@link Rule}, or {@code null} to generate one
+   * @param description the {@link Rule} description
+   * @param positionFilter the filter to be applied to {@link Position}s to determine concentration
+   * @param lowerLimit the lower limit of acceptable concentration values
+   * @param upperLimit the upper limit of acceptable concentration values
+   * @param groupClassifier the (possibly {@code null}) {@link EvaluationGroupClassifier} to use,
+   *     which may also implement {@link GroupAggregator}
    * @return a {@link Rule} with the specified configuration
    */
-  public Rule newConcentrationRule(RuleKey key, String description,
-      Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit,
+  public Rule newConcentrationRule(
+      RuleKey key,
+      String description,
+      Predicate<PositionEvaluationContext> positionFilter,
+      Double lowerLimit,
+      Double upperLimit,
       EvaluationGroupClassifier groupClassifier) {
-    Rule rule = new ConcentrationRule(key, description, positionFilter, lowerLimit, upperLimit,
-        groupClassifier);
+    Rule rule =
+        new ConcentrationRule(
+            key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
     ruleMap.put(rule.getKey(), rule);
 
     return rule;

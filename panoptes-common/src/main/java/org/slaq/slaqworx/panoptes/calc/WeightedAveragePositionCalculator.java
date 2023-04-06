@@ -16,9 +16,7 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  * A {@link PositionCalculator} that determines the weighted average of a {@link Position}
  * collection with respect to some {@link SecurityAttribute}.
  *
- * @param <T>
- *     the type on which the calculator operates
- *
+ * @param <T> the type on which the calculator operates
  * @author jeremy
  */
 public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> {
@@ -26,8 +24,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
    * Creates a new {@link WeightedAveragePositionCalculator} which calculates on the given
    * attribute.
    *
-   * @param calculationAttribute
-   *     the attribute on which to calculate
+   * @param calculationAttribute the attribute on which to calculate
    */
   public WeightedAveragePositionCalculator(SecurityAttribute<T> calculationAttribute) {
     super(calculationAttribute);
@@ -38,9 +35,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
     return positions.collect(new WeightedAveragePositionCollector());
   }
 
-  /**
-   * Accumulates the weighted and raw sums from the visited {@link Position}s.
-   */
+  /** Accumulates the weighted and raw sums from the visited {@link Position}s. */
   private static class AmountAccumulator {
     double weightedAttributeValue = 0;
     double marketValue = 0;
@@ -54,9 +49,7 @@ public class WeightedAveragePositionCalculator<T> extends PositionCalculator<T> 
    */
   private class WeightedAveragePositionCollector
       implements Collector<PositionEvaluationContext, AmountAccumulator, Double> {
-    /**
-     * Creates a new {@link WeightedAveragePositionCollector}.
-     */
+    /** Creates a new {@link WeightedAveragePositionCollector}. */
     public WeightedAveragePositionCollector() {
       // nothing to do
     }

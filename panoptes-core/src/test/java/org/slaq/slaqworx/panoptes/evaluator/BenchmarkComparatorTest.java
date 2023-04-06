@@ -28,23 +28,34 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
 public class BenchmarkComparatorTest {
   private final TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
 
-  /**
-   * Tests that benchmark-relative {@link ConcentrationRule} comparison behaves as expected.
-   */
+  /** Tests that benchmark-relative {@link ConcentrationRule} comparison behaves as expected. */
   @Test
   public void testCompare_benchmarkRelativeConcentration() {
     EvaluationContext context = TestUtil.defaultTestEvaluationContext();
 
     // the Rule tests that the concentration of currency = BRL is between 95% and 105% of the
     // benchmark
-    ConcentrationRule rule = new ConcentrationRule(null, "test rule",
-        c -> "BRL".equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
-        0.95, 1.05, null);
+    ConcentrationRule rule =
+        new ConcentrationRule(
+            null,
+            "test rule",
+            c ->
+                "BRL"
+                    .equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
+            0.95,
+            1.05,
+            null);
 
-    Security brlSecurity = securityProvider.newSecurity("brl",
-        SecurityAttribute.mapOf(SecurityAttribute.currency, "BRL", SecurityAttribute.price, 1d));
-    Security nzdSecurity = securityProvider.newSecurity("nzd",
-        SecurityAttribute.mapOf(SecurityAttribute.currency, "NZD", SecurityAttribute.price, 1d));
+    Security brlSecurity =
+        securityProvider.newSecurity(
+            "brl",
+            SecurityAttribute.mapOf(
+                SecurityAttribute.currency, "BRL", SecurityAttribute.price, 1d));
+    Security nzdSecurity =
+        securityProvider.newSecurity(
+            "nzd",
+            SecurityAttribute.mapOf(
+                SecurityAttribute.currency, "NZD", SecurityAttribute.price, 1d));
 
     // create a benchmark with 50% concentration in BRL
     HashSet<Position> benchmarkPositions = new HashSet<>();
@@ -116,9 +127,16 @@ public class BenchmarkComparatorTest {
 
     // the Rule tests that the concentration of currency = BRL is at least 95% of the
     // benchmark
-    rule = new ConcentrationRule(null, "test rule",
-        c -> "BRL".equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
-        0.95, null, null);
+    rule =
+        new ConcentrationRule(
+            null,
+            "test rule",
+            c ->
+                "BRL"
+                    .equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
+            0.95,
+            null,
+            null);
 
     // create a portfolio with 0% concentration in BRL
     positions = new HashSet<>();
@@ -143,14 +161,22 @@ public class BenchmarkComparatorTest {
     finalResult = new BenchmarkComparator().compare(baseResult, benchmarkResult, rule);
 
     // any concentration is at least zero, so should pass
-    assertTrue(finalResult.isPassed(),
+    assertTrue(
+        finalResult.isPassed(),
         "portfolio with any concentration should have passed: " + finalResult);
 
     // the Rule tests that the concentration of currency = BRL is at most 105% of the
     // benchmark
-    rule = new ConcentrationRule(null, "test rule",
-        c -> "BRL".equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
-        null, 1.05, null);
+    rule =
+        new ConcentrationRule(
+            null,
+            "test rule",
+            c ->
+                "BRL"
+                    .equals(c.getPosition().getAttributeValue(SecurityAttribute.currency, context)),
+            null,
+            1.05,
+            null);
 
     baseResult = new RuleEvaluator(rule, portfolio, context).call();
     benchmarkResult = new RuleEvaluator(rule, benchmark2, context).call();

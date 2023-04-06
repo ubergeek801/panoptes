@@ -23,11 +23,8 @@ import org.slf4j.LoggerFactory;
  * {@code loadAll()} and {@code storeAll()} (using SQL {@code IN} clauses for the former and JDBC
  * batching for the latter).
  *
- * @param <K>
- *     the entity key type
- * @param <V>
- *     the entity value type
- *
+ * @param <K> the entity key type
+ * @param <V> the entity value type
  * @author jeremy
  */
 public abstract class HazelcastMapStore<K, V extends Keyed<K>>
@@ -40,13 +37,11 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   /**
    * Creates a new {@link HazelcastMapStore} which uses the given {@link Jdbi} instance.
    *
-   * @param transactionManager
-   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
-   * @param jdbi
-   *     the {@link Jdbi} instance to use for database operations
+   * @param transactionManager the {@link TransactionManager} to use for {@code loadAllKeys()}
+   * @param jdbi the {@link Jdbi} instance to use for database operations
    */
-  protected HazelcastMapStore(SynchronousTransactionManager<Connection> transactionManager,
-      Jdbi jdbi) {
+  protected HazelcastMapStore(
+      SynchronousTransactionManager<Connection> transactionManager, Jdbi jdbi) {
     this.transactionManager = transactionManager;
     this.jdbi = jdbi;
   }
@@ -82,8 +77,9 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
       }
       queryString.append("(");
       Object[] keyComponents = getKeyComponents(key);
-      for (int keyComponentIndex = 0; keyComponentIndex < keyComponents.length;
-           keyComponentIndex++) {
+      for (int keyComponentIndex = 0;
+          keyComponentIndex < keyComponents.length;
+          keyComponentIndex++) {
         if (keyComponentIndex > 0) {
           queryString.append(", ");
         }
@@ -95,20 +91,23 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
     }
     queryString.append(")");
 
-    return jdbi.withHandle(handle -> {
-      Query query = handle.createQuery(queryString.toString());
-      for (int i = 0; i < parameters.size(); i++) {
-        query.bind(i, parameters.get(i));
-      }
-      return query.map(this).stream().collect(Collectors.toMap(Keyed::getKey, v -> v));
-    });
+    return jdbi.withHandle(
+        handle -> {
+          Query query = handle.createQuery(queryString.toString());
+          for (int i = 0; i < parameters.size(); i++) {
+            query.bind(i, parameters.get(i));
+          }
+          return query.map(this).stream().collect(Collectors.toMap(Keyed::getKey, v -> v));
+        });
   }
 
   @Override
   public Iterable<K> loadAllKeys() {
     // Hazelcast will close the iterator when complete, so we need to leave the transaction and
     // Jdbi open during the meantime (KeyIterable will take care of cleanup)
-    return new KeyIterable<>(transactionManager, jdbi,
+    return new KeyIterable<>(
+        transactionManager,
+        jdbi,
         "select " + String.join(",", getKeyColumnNames()) + " from " + getTableName(),
         getKeyMapper());
   }
@@ -124,11 +123,12 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   public void storeAll(Map<K, V> map) {
     preStoreAll(map);
 
-    jdbi.withHandle(handle -> {
-      PreparedBatch batch = handle.prepareBatch(getStoreSql());
-      map.values().forEach(v -> bindValues(batch, v));
-      return batch.execute();
-    });
+    jdbi.withHandle(
+        handle -> {
+          PreparedBatch batch = handle.prepareBatch(getStoreSql());
+          map.values().forEach(v -> bindValues(batch, v));
+          return batch.execute();
+        });
 
     postStoreAll(map);
   }
@@ -137,10 +137,8 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
    * Binds the values to be inserted/updated for the given value, as part of a batch store operation
    * (with SQL provided by {@code getStoreSql()}.
    *
-   * @param batch
-   *     the {@link PreparedBatch} on which to bind the values
-   * @param value
-   *     the entity value for which to bind the values
+   * @param batch the {@link PreparedBatch} on which to bind the values
+   * @param value the entity value for which to bind the values
    */
   protected abstract void bindValues(PreparedBatch batch, V value);
 
@@ -163,9 +161,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   /**
    * Obtains the component values that comprise the given key.
    *
-   * @param key
-   *     the key from which to extract component values
-   *
+   * @param key the key from which to extract component values
    * @return the component values as an {@link Object} array
    */
   protected abstract Object[] getKeyComponents(K key);
@@ -203,8 +199,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   /**
    * Invoked following {@code storeAll()}.
    *
-   * @param map
-   *     a {@link Map} of entity key to entity value, of entities being stored
+   * @param map a {@link Map} of entity key to entity value, of entities being stored
    */
   protected void postStoreAll(Map<K, V> map) {
     // default is to do nothing
@@ -213,8 +208,7 @@ public abstract class HazelcastMapStore<K, V extends Keyed<K>>
   /**
    * Invoked prior to {@code storeAll()}.
    *
-   * @param map
-   *     a {@link Map} of entity key to entity value, of entities being stored
+   * @param map a {@link Map} of entity key to entity value, of entities being stored
    */
   protected void preStoreAll(Map<K, V> map) {
     // default is to do nothing

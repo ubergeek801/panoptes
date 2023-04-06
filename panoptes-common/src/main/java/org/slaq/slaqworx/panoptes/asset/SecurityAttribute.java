@@ -14,14 +14,11 @@ import org.slaq.slaqworx.panoptes.rule.ValueProvider;
  * Identifies a particular attribute of a {@link Security}. Implements {@link Serializable} for
  * convenience of implementing cluster-friendly {@link Security} filters.
  *
- * @param <T>
- *     the type which values of this attribute implement
- *
+ * @param <T> the type which values of this attribute implement
  * @author jeremy
  */
 public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Map<String, SecurityAttribute<?>> attributesByName =
       new HashMap<>(100, 0.5f);
@@ -73,29 +70,23 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
     }
   }
 
-  @Nonnull
-  private final String name;
+  @Nonnull private final String name;
   private final int index;
-  @Nonnull
-  private final Class<T> type;
+  @Nonnull private final Class<T> type;
   private final ValueProvider<T> valueProvider;
 
   /**
    * Creates a new {@link SecurityAttribute} with the given name and index. Restricted to enforce
    * use of the {@code #of()} factory methods.
    *
-   * @param name
-   *     the unique name of the {@link SecurityAttribute}
-   * @param index
-   *     the index of the {@link SecurityAttribute} in an attributes array
-   * @param type
-   *     the {@link Class} of the value type
-   * @param valueProvider
-   *     a {@link ValueProvider} capable of interpreting {@link SecurityAttribute} values, or {@code
-   *     null} if not applicable
+   * @param name the unique name of the {@link SecurityAttribute}
+   * @param index the index of the {@link SecurityAttribute} in an attributes array
+   * @param type the {@link Class} of the value type
+   * @param valueProvider a {@link ValueProvider} capable of interpreting {@link SecurityAttribute}
+   *     values, or {@code null} if not applicable
    */
-  private SecurityAttribute(@Nonnull String name, int index, @Nonnull Class<T> type,
-      ValueProvider<T> valueProvider) {
+  private SecurityAttribute(
+      @Nonnull String name, int index, @Nonnull Class<T> type, ValueProvider<T> valueProvider) {
     this.name = name;
     this.index = index;
     this.type = type;
@@ -105,513 +96,472 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   /**
    * Type-safely creates a {@link Map} of a single {@link SecurityAttribute}.
    *
-   * @param <A>
-   *     the {@link SecurityAttribute} type
-   * @param attribute
-   *     the {@link SecurityAttribute}
-   * @param value
-   *     the attribute value
-   *
+   * @param <A> the {@link SecurityAttribute} type
+   * @param attribute the {@link SecurityAttribute}
+   * @param value the attribute value
    * @return a {@link Map} containing the specified attribute
    */
   @Nonnull
-  public static <A> Map<SecurityAttribute<?>, Object> mapOf(@Nonnull SecurityAttribute<A> attribute,
-      @Nonnull A value) {
+  public static <A> Map<SecurityAttribute<?>, Object> mapOf(
+      @Nonnull SecurityAttribute<A> attribute, @Nonnull A value) {
     return Map.of(attribute, value);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2) {
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2) {
     return Map.of(attribute1, value1, attribute2, value2);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3) {
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4) {
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4) {
     return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param <E>
-   *     the fifth {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   * @param attribute5
-   *     the fifth {@link SecurityAttribute}
-   * @param value5
-   *     the fifth attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param <E> the fifth {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
+   * @param attribute5 the fifth {@link SecurityAttribute}
+   * @param value5 the fifth attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D, E> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
-      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5) {
-    return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
-        attribute5, value5);
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5,
+      @Nonnull E value5) {
+    return Map.of(
+        attribute1,
+        value1,
+        attribute2,
+        value2,
+        attribute3,
+        value3,
+        attribute4,
+        value4,
+        attribute5,
+        value5);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param <E>
-   *     the fifth {@link SecurityAttribute} type
-   * @param <F>
-   *     the sixth {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   * @param attribute5
-   *     the fifth {@link SecurityAttribute}
-   * @param value5
-   *     the fifth attribute value
-   * @param attribute6
-   *     the sixth {@link SecurityAttribute}
-   * @param value6
-   *     the sixth attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param <E> the fifth {@link SecurityAttribute} type
+   * @param <F> the sixth {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
+   * @param attribute5 the fifth {@link SecurityAttribute}
+   * @param value5 the fifth attribute value
+   * @param attribute6 the sixth {@link SecurityAttribute}
+   * @param value6 the sixth attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D, E, F> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
-      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
-      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6) {
-    return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
-        attribute5, value5, attribute6, value6);
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5,
+      @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6,
+      @Nonnull F value6) {
+    return Map.of(
+        attribute1,
+        value1,
+        attribute2,
+        value2,
+        attribute3,
+        value3,
+        attribute4,
+        value4,
+        attribute5,
+        value5,
+        attribute6,
+        value6);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param <E>
-   *     the fifth {@link SecurityAttribute} type
-   * @param <F>
-   *     the sixth {@link SecurityAttribute} type
-   * @param <G>
-   *     the seventh {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   * @param attribute5
-   *     the fifth {@link SecurityAttribute}
-   * @param value5
-   *     the fifth attribute value
-   * @param attribute6
-   *     the sixth {@link SecurityAttribute}
-   * @param value6
-   *     the sixth attribute value
-   * @param attribute7
-   *     the seventh {@link SecurityAttribute}
-   * @param value7
-   *     the seventh attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param <E> the fifth {@link SecurityAttribute} type
+   * @param <F> the sixth {@link SecurityAttribute} type
+   * @param <G> the seventh {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
+   * @param attribute5 the fifth {@link SecurityAttribute}
+   * @param value5 the fifth attribute value
+   * @param attribute6 the sixth {@link SecurityAttribute}
+   * @param value6 the sixth attribute value
+   * @param attribute7 the seventh {@link SecurityAttribute}
+   * @param value7 the seventh attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D, E, F, G> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
-      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
-      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
-      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7) {
-    return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
-        attribute5, value5, attribute6, value6, attribute7, value7);
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5,
+      @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6,
+      @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7,
+      @Nonnull G value7) {
+    return Map.of(
+        attribute1,
+        value1,
+        attribute2,
+        value2,
+        attribute3,
+        value3,
+        attribute4,
+        value4,
+        attribute5,
+        value5,
+        attribute6,
+        value6,
+        attribute7,
+        value7);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param <E>
-   *     the fifth {@link SecurityAttribute} type
-   * @param <F>
-   *     the sixth {@link SecurityAttribute} type
-   * @param <G>
-   *     the seventh {@link SecurityAttribute} type
-   * @param <H>
-   *     the eighth {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   * @param attribute5
-   *     the fifth {@link SecurityAttribute}
-   * @param value5
-   *     the fifth attribute value
-   * @param attribute6
-   *     the sixth {@link SecurityAttribute}
-   * @param value6
-   *     the sixth attribute value
-   * @param attribute7
-   *     the seventh {@link SecurityAttribute}
-   * @param value7
-   *     the seventh attribute value
-   * @param attribute8
-   *     the eighth {@link SecurityAttribute}
-   * @param value8
-   *     the eighth attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param <E> the fifth {@link SecurityAttribute} type
+   * @param <F> the sixth {@link SecurityAttribute} type
+   * @param <G> the seventh {@link SecurityAttribute} type
+   * @param <H> the eighth {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
+   * @param attribute5 the fifth {@link SecurityAttribute}
+   * @param value5 the fifth attribute value
+   * @param attribute6 the sixth {@link SecurityAttribute}
+   * @param value6 the sixth attribute value
+   * @param attribute7 the seventh {@link SecurityAttribute}
+   * @param value7 the seventh attribute value
+   * @param attribute8 the eighth {@link SecurityAttribute}
+   * @param value8 the eighth attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D, E, F, G, H> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
-      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
-      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
-      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7,
-      @Nonnull SecurityAttribute<H> attribute8, @Nonnull H value8) {
-    return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
-        attribute5, value5, attribute6, value6, attribute7, value7, attribute8, value8);
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5,
+      @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6,
+      @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7,
+      @Nonnull G value7,
+      @Nonnull SecurityAttribute<H> attribute8,
+      @Nonnull H value8) {
+    return Map.of(
+        attribute1,
+        value1,
+        attribute2,
+        value2,
+        attribute3,
+        value3,
+        attribute4,
+        value4,
+        attribute5,
+        value5,
+        attribute6,
+        value6,
+        attribute7,
+        value7,
+        attribute8,
+        value8);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param <E>
-   *     the fifth {@link SecurityAttribute} type
-   * @param <F>
-   *     the sixth {@link SecurityAttribute} type
-   * @param <G>
-   *     the seventh {@link SecurityAttribute} type
-   * @param <H>
-   *     the eighth {@link SecurityAttribute} type
-   * @param <I>
-   *     the ninth {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   * @param attribute5
-   *     the fifth {@link SecurityAttribute}
-   * @param value5
-   *     the fifth attribute value
-   * @param attribute6
-   *     the sixth {@link SecurityAttribute}
-   * @param value6
-   *     the sixth attribute value
-   * @param attribute7
-   *     the seventh {@link SecurityAttribute}
-   * @param value7
-   *     the seventh attribute value
-   * @param attribute8
-   *     the eighth {@link SecurityAttribute}
-   * @param value8
-   *     the eighth attribute value
-   * @param attribute9
-   *     the ninth {@link SecurityAttribute}
-   * @param value9
-   *     the ninth attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param <E> the fifth {@link SecurityAttribute} type
+   * @param <F> the sixth {@link SecurityAttribute} type
+   * @param <G> the seventh {@link SecurityAttribute} type
+   * @param <H> the eighth {@link SecurityAttribute} type
+   * @param <I> the ninth {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
+   * @param attribute5 the fifth {@link SecurityAttribute}
+   * @param value5 the fifth attribute value
+   * @param attribute6 the sixth {@link SecurityAttribute}
+   * @param value6 the sixth attribute value
+   * @param attribute7 the seventh {@link SecurityAttribute}
+   * @param value7 the seventh attribute value
+   * @param attribute8 the eighth {@link SecurityAttribute}
+   * @param value8 the eighth attribute value
+   * @param attribute9 the ninth {@link SecurityAttribute}
+   * @param value9 the ninth attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D, E, F, G, H, I> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
-      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
-      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
-      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7,
-      @Nonnull SecurityAttribute<H> attribute8, @Nonnull H value8,
-      @Nonnull SecurityAttribute<I> attribute9, @Nonnull I value9) {
-    return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
-        attribute5, value5, attribute6, value6, attribute7, value7, attribute8, value8, attribute9,
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5,
+      @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6,
+      @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7,
+      @Nonnull G value7,
+      @Nonnull SecurityAttribute<H> attribute8,
+      @Nonnull H value8,
+      @Nonnull SecurityAttribute<I> attribute9,
+      @Nonnull I value9) {
+    return Map.of(
+        attribute1,
+        value1,
+        attribute2,
+        value2,
+        attribute3,
+        value3,
+        attribute4,
+        value4,
+        attribute5,
+        value5,
+        attribute6,
+        value6,
+        attribute7,
+        value7,
+        attribute8,
+        value8,
+        attribute9,
         value9);
   }
 
   /**
    * Type-safely creates a {@link Map} of {@link SecurityAttribute}s.
    *
-   * @param <A>
-   *     the first {@link SecurityAttribute} type
-   * @param <B>
-   *     the second {@link SecurityAttribute} type
-   * @param <C>
-   *     the third {@link SecurityAttribute} type
-   * @param <D>
-   *     the fourth {@link SecurityAttribute} type
-   * @param <E>
-   *     the fifth {@link SecurityAttribute} type
-   * @param <F>
-   *     the sixth {@link SecurityAttribute} type
-   * @param <G>
-   *     the seventh {@link SecurityAttribute} type
-   * @param <H>
-   *     the eighth {@link SecurityAttribute} type
-   * @param <I>
-   *     the ninth {@link SecurityAttribute} type
-   * @param <J>
-   *     the tenth {@link SecurityAttribute} type
-   * @param attribute1
-   *     the first {@link SecurityAttribute}
-   * @param value1
-   *     the first attribute value
-   * @param attribute2
-   *     the second {@link SecurityAttribute}
-   * @param value2
-   *     the second attribute value
-   * @param attribute3
-   *     the third {@link SecurityAttribute}
-   * @param value3
-   *     the third attribute value
-   * @param attribute4
-   *     the fourth {@link SecurityAttribute}
-   * @param value4
-   *     the fourth attribute value
-   * @param attribute5
-   *     the fifth {@link SecurityAttribute}
-   * @param value5
-   *     the fifth attribute value
-   * @param attribute6
-   *     the sixth {@link SecurityAttribute}
-   * @param value6
-   *     the sixth attribute value
-   * @param attribute7
-   *     the seventh {@link SecurityAttribute}
-   * @param value7
-   *     the seventh attribute value
-   * @param attribute8
-   *     the eighth {@link SecurityAttribute}
-   * @param value8
-   *     the eighth attribute value
-   * @param attribute9
-   *     the ninth {@link SecurityAttribute}
-   * @param value9
-   *     the ninth attribute value
-   * @param attribute10
-   *     the tenth {@link SecurityAttribute}
-   * @param value10
-   *     the tenth attribute value
-   *
+   * @param <A> the first {@link SecurityAttribute} type
+   * @param <B> the second {@link SecurityAttribute} type
+   * @param <C> the third {@link SecurityAttribute} type
+   * @param <D> the fourth {@link SecurityAttribute} type
+   * @param <E> the fifth {@link SecurityAttribute} type
+   * @param <F> the sixth {@link SecurityAttribute} type
+   * @param <G> the seventh {@link SecurityAttribute} type
+   * @param <H> the eighth {@link SecurityAttribute} type
+   * @param <I> the ninth {@link SecurityAttribute} type
+   * @param <J> the tenth {@link SecurityAttribute} type
+   * @param attribute1 the first {@link SecurityAttribute}
+   * @param value1 the first attribute value
+   * @param attribute2 the second {@link SecurityAttribute}
+   * @param value2 the second attribute value
+   * @param attribute3 the third {@link SecurityAttribute}
+   * @param value3 the third attribute value
+   * @param attribute4 the fourth {@link SecurityAttribute}
+   * @param value4 the fourth attribute value
+   * @param attribute5 the fifth {@link SecurityAttribute}
+   * @param value5 the fifth attribute value
+   * @param attribute6 the sixth {@link SecurityAttribute}
+   * @param value6 the sixth attribute value
+   * @param attribute7 the seventh {@link SecurityAttribute}
+   * @param value7 the seventh attribute value
+   * @param attribute8 the eighth {@link SecurityAttribute}
+   * @param value8 the eighth attribute value
+   * @param attribute9 the ninth {@link SecurityAttribute}
+   * @param value9 the ninth attribute value
+   * @param attribute10 the tenth {@link SecurityAttribute}
+   * @param value10 the tenth attribute value
    * @return a {@link Map} containing the specified attributes
    */
   @Nonnull
   public static <A, B, C, D, E, F, G, H, I, J> Map<SecurityAttribute<?>, Object> mapOf(
-      @Nonnull SecurityAttribute<A> attribute1, @Nonnull A value1,
-      @Nonnull SecurityAttribute<B> attribute2, @Nonnull B value2,
-      @Nonnull SecurityAttribute<C> attribute3, @Nonnull C value3,
-      @Nonnull SecurityAttribute<D> attribute4, @Nonnull D value4,
-      @Nonnull SecurityAttribute<E> attribute5, @Nonnull E value5,
-      @Nonnull SecurityAttribute<F> attribute6, @Nonnull F value6,
-      @Nonnull SecurityAttribute<G> attribute7, @Nonnull G value7,
-      @Nonnull SecurityAttribute<H> attribute8, @Nonnull H value8,
-      @Nonnull SecurityAttribute<I> attribute9, @Nonnull I value9,
-      @Nonnull SecurityAttribute<J> attribute10, @Nonnull J value10) {
-    return Map.of(attribute1, value1, attribute2, value2, attribute3, value3, attribute4, value4,
-        attribute5, value5, attribute6, value6, attribute7, value7, attribute8, value8, attribute9,
-        value9, attribute10, value10);
+      @Nonnull SecurityAttribute<A> attribute1,
+      @Nonnull A value1,
+      @Nonnull SecurityAttribute<B> attribute2,
+      @Nonnull B value2,
+      @Nonnull SecurityAttribute<C> attribute3,
+      @Nonnull C value3,
+      @Nonnull SecurityAttribute<D> attribute4,
+      @Nonnull D value4,
+      @Nonnull SecurityAttribute<E> attribute5,
+      @Nonnull E value5,
+      @Nonnull SecurityAttribute<F> attribute6,
+      @Nonnull F value6,
+      @Nonnull SecurityAttribute<G> attribute7,
+      @Nonnull G value7,
+      @Nonnull SecurityAttribute<H> attribute8,
+      @Nonnull H value8,
+      @Nonnull SecurityAttribute<I> attribute9,
+      @Nonnull I value9,
+      @Nonnull SecurityAttribute<J> attribute10,
+      @Nonnull J value10) {
+    return Map.of(
+        attribute1,
+        value1,
+        attribute2,
+        value2,
+        attribute3,
+        value3,
+        attribute4,
+        value4,
+        attribute5,
+        value5,
+        attribute6,
+        value6,
+        attribute7,
+        value7,
+        attribute8,
+        value8,
+        attribute9,
+        value9,
+        attribute10,
+        value10);
   }
 
   /**
    * Obtains the {@link SecurityAttribute} corresponding to the given index, if it exists. For most
    * purposes, the name should be used, as indices may change over time.
    *
-   * @param index
-   *     the index of the {@link SecurityAttribute} to obtain
-   *
+   * @param index the index of the {@link SecurityAttribute} to obtain
    * @return the {@link SecurityAttribute} corresponding to the given index, or {@code null} if it
    *     does not exist
    */
@@ -622,9 +572,7 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   /**
    * Obtains the {@link SecurityAttribute} corresponding to the given name, if it exists.
    *
-   * @param name
-   *     the name of the {@link SecurityAttribute} to obtain
-   *
+   * @param name the name of the {@link SecurityAttribute} to obtain
    * @return the {@link SecurityAttribute} corresponding to the given name, or {@code null} if it
    *     does not exist
    */
@@ -636,27 +584,23 @@ public class SecurityAttribute<T> implements Comparable<SecurityAttribute<?>>, S
   /**
    * Obtains (or creates) a {@link SecurityAttribute} with the given name and value type.
    *
-   * @param <T>
-   *     the value type of the {@link SecurityAttribute}
-   * @param name
-   *     the unique name of the {@link SecurityAttribute}
-   * @param index
-   *     the index of the {@link SecurityAttribute} in an attributes array
-   * @param type
-   *     the {@link Class} of the value type
-   * @param valueProvider
-   *     a {@link ValueProvider} capable of interpreting {@link SecurityAttribute} values, or {@code
-   *     null} if not applicable
-   *
+   * @param <T> the value type of the {@link SecurityAttribute}
+   * @param name the unique name of the {@link SecurityAttribute}
+   * @param index the index of the {@link SecurityAttribute} in an attributes array
+   * @param type the {@link Class} of the value type
+   * @param valueProvider a {@link ValueProvider} capable of interpreting {@link SecurityAttribute}
+   *     values, or {@code null} if not applicable
    * @return an existing {@link SecurityAttribute} if already defined, otherwise a new {@link
    *     SecurityAttribute}
    */
   @Nonnull
-  public static <T> SecurityAttribute<T> of(@Nonnull String name, int index, @Nonnull Class<T> type,
-      ValueProvider<T> valueProvider) {
-    @SuppressWarnings("unchecked") SecurityAttribute<T> attribute =
-        (SecurityAttribute<T>) attributesByName.computeIfAbsent(name,
-            n -> new SecurityAttribute<>(name, index, type, valueProvider));
+  public static <T> SecurityAttribute<T> of(
+      @Nonnull String name, int index, @Nonnull Class<T> type, ValueProvider<T> valueProvider) {
+    @SuppressWarnings("unchecked")
+    SecurityAttribute<T> attribute =
+        (SecurityAttribute<T>)
+            attributesByName.computeIfAbsent(
+                name, n -> new SecurityAttribute<>(name, index, type, valueProvider));
     attributesByIndex.put(index, attribute);
 
     return attribute;

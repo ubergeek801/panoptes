@@ -9,7 +9,8 @@ import org.slaq.slaqworx.panoptes.asset.EligibilityList;
  */
 public class EligibilityListSerializer extends HazelcastStreamSerializer<EligibilityList> {
   /**
-   * Creates a new {@link EligibilityListSerializer}. Hazelcast requires a public default constructor.
+   * Creates a new {@link EligibilityListSerializer}. Hazelcast requires a public default
+   * constructor.
    */
   public EligibilityListSerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.EligibilityListSerializer());

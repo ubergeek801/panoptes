@@ -45,8 +45,7 @@ public class Bootstrapper {
   /**
    * Creates a {@link Bootstrapper} that publishes using the given {@link KafkaProducer}.
    *
-   * @param kafkaProducer
-   *     the {@link KafkaProducer} with which to publish events to Kafka
+   * @param kafkaProducer the {@link KafkaProducer} with which to publish events to Kafka
    */
   protected Bootstrapper(KafkaProducer kafkaProducer) {
     this.kafkaProducer = kafkaProducer;
@@ -55,15 +54,17 @@ public class Bootstrapper {
   /**
    * Executes the {@link Bootstrapper} application.
    *
-   * @param args
-   *     the program arguments (unused)
-   *
-   * @throws Exception
-   *     if any error occurs
+   * @param args the program arguments (unused)
+   * @throws Exception if any error occurs
    */
   public static void main(String[] args) throws Exception {
-    try (ApplicationContext appContext = Micronaut.build(args).mainClass(Bootstrapper.class)
-        .environments("bootstrap", "offline").args(args).build().start()) {
+    try (ApplicationContext appContext =
+        Micronaut.build(args)
+            .mainClass(Bootstrapper.class)
+            .environments("bootstrap", "offline")
+            .args(args)
+            .build()
+            .start()) {
       Bootstrapper bootstrapper = appContext.getBean(Bootstrapper.class);
       bootstrapper.bootstrap();
     }
@@ -72,8 +73,7 @@ public class Bootstrapper {
   /**
    * Bootstraps the appropriate seed data via Kafka.
    *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   public void bootstrap() throws IOException {
     bootstrapEligibilityLists();
@@ -86,8 +86,7 @@ public class Bootstrapper {
   /**
    * Bootstraps the seed benchmark data.
    *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   protected void bootstrapBenchmarks() throws IOException {
     // simply publish all known benchmarks to Kafka
@@ -95,33 +94,43 @@ public class Bootstrapper {
         PimcoBenchmarkDataSource.getInstance().getBenchmarkMap();
 
     LOG.info("publishing {} benchmarks", benchmarks.size());
-    benchmarks.entrySet().parallelStream().forEach(
-        (e -> kafkaProducer.publishBenchmarkEvent(e.getKey(),
-            new PortfolioDataEvent(e.getValue()))));
+    benchmarks.entrySet().parallelStream()
+        .forEach(
+            (e ->
+                kafkaProducer.publishBenchmarkEvent(
+                    e.getKey(), new PortfolioDataEvent(e.getValue()))));
     LOG.info("published benchmarks");
   }
 
   /**
    * Bootstraps the seed eligibility list data.
    *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   protected void bootstrapEligibilityLists() throws IOException {
     LOG.info("generating eligibility lists");
     // collect distinct values of various attributes
     Map<SecurityKey, Security> securities = PimcoBenchmarkDataSource.getInstance().getSecurityMap();
     List<String> countries =
-        securities.values().stream().map(s -> s.getAttributeValue(SecurityAttribute.country, false))
-            .filter(Objects::nonNull).distinct().collect(Collectors.toCollection(ArrayList::new));
+        securities.values().stream()
+            .map(s -> s.getAttributeValue(SecurityAttribute.country, false))
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toCollection(ArrayList::new));
     LOG.info("{} distinct countries", countries.size());
     List<String> cusips =
-        securities.values().stream().map(s -> s.getAttributeValue(SecurityAttribute.cusip, false))
-            .filter(Objects::nonNull).distinct().collect(Collectors.toCollection(ArrayList::new));
+        securities.values().stream()
+            .map(s -> s.getAttributeValue(SecurityAttribute.cusip, false))
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toCollection(ArrayList::new));
     LOG.info("{} distinct CUSIPs", cusips.size());
     List<String> issuers =
-        securities.values().stream().map(s -> s.getAttributeValue(SecurityAttribute.issuer, false))
-            .filter(Objects::nonNull).distinct().collect(Collectors.toCollection(ArrayList::new));
+        securities.values().stream()
+            .map(s -> s.getAttributeValue(SecurityAttribute.issuer, false))
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toCollection(ArrayList::new));
     LOG.info("{} distinct issuers", issuers.size());
 
     // generate some random eligibility lists
@@ -133,8 +142,8 @@ public class Bootstrapper {
         countryList.add(countries.get(random.nextInt(countries.size())));
       }
       eligibilityLists.add(
-          new EligibilityList("country" + i, ListType.COUNTRY, "generated country list " + i,
-              countryList));
+          new EligibilityList(
+              "country" + i, ListType.COUNTRY, "generated country list " + i, countryList));
 
       Set<String> cusipList = new HashSet<>(1000);
       int numCusips = 20 + random.nextInt(981);
@@ -142,8 +151,8 @@ public class Bootstrapper {
         cusipList.add(cusips.get(random.nextInt(cusips.size())));
       }
       eligibilityLists.add(
-          new EligibilityList("cusip" + i, ListType.SECURITY, "generated security list " + i,
-              cusipList));
+          new EligibilityList(
+              "cusip" + i, ListType.SECURITY, "generated security list " + i, cusipList));
 
       Set<String> issuerList = new HashSet<>(200);
       int numIssuers = 20 + random.nextInt(181);
@@ -151,8 +160,8 @@ public class Bootstrapper {
         issuerList.add(issuers.get(random.nextInt(issuers.size())));
       }
       eligibilityLists.add(
-          new EligibilityList("issuer" + i, ListType.ISSUER, "generated issuer list " + i,
-              issuerList));
+          new EligibilityList(
+              "issuer" + i, ListType.ISSUER, "generated issuer list " + i, issuerList));
     }
 
     LOG.info("publishing {} eligibility lists", eligibilityLists.size());
@@ -165,9 +174,7 @@ public class Bootstrapper {
    * Bootstraps the seed portfolio data.
    *
    * @return the {@link DummyPortfolioMapLoader} used to bootstrap the portfolios
-   *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   protected DummyPortfolioMapLoader bootstrapPortfolios() throws IOException {
     // generate the portfolios
@@ -193,8 +200,7 @@ public class Bootstrapper {
   /**
    * Bootstraps the seed security data.
    *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   protected void bootstrapSecurities() throws IOException {
     // simply publish all known securities to Kafka
@@ -208,8 +214,8 @@ public class Bootstrapper {
   /**
    * Bootstraps the seed trade data.
    *
-   * @param portfolioMapLoader
-   *     the {@link DummyPortfolioMapLoader} which was previously used to bootstrap portfolios
+   * @param portfolioMapLoader the {@link DummyPortfolioMapLoader} which was previously used to
+   *     bootstrap portfolios
    */
   protected void bootstrapTrades(DummyPortfolioMapLoader portfolioMapLoader) {
     // simply publish all known trades to Kafka

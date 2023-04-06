@@ -20,9 +20,7 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  */
 public class PortfolioEvaluationInputSerializer
     implements ProtobufSerializer<PortfolioEvaluationInput> {
-  /**
-   * Creates a new {@link PortfolioEvaluationInputSerializer}.
-   */
+  /** Creates a new {@link PortfolioEvaluationInputSerializer}. */
   public PortfolioEvaluationInputSerializer() {
     // nothing to do
   }
@@ -33,8 +31,9 @@ public class PortfolioEvaluationInputSerializer
 
     EvaluationSource evaluationSource = inputMsg.getEvaluationSource();
 
-    PortfolioKey portfolioKey = new PortfolioKey(inputMsg.getPortfolioKey().getId(),
-        inputMsg.getPortfolioKey().getVersion());
+    PortfolioKey portfolioKey =
+        new PortfolioKey(
+            inputMsg.getPortfolioKey().getId(), inputMsg.getPortfolioKey().getVersion());
 
     Set<Rule> rules =
         inputMsg.getRuleList().stream().map(RuleSerializer::convert).collect(Collectors.toSet());
@@ -54,7 +53,8 @@ public class PortfolioEvaluationInputSerializer
     portfolioKeyBuilder.setVersion(input.getPortfolioKey().getVersion());
     inputBuilder.setPortfolioKey(portfolioKeyBuilder.build());
 
-    input.getRules()
+    input
+        .getRules()
         .forEach(r -> inputBuilder.addRule(RuleSerializer.convert((ConfigurableRule) r)));
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();

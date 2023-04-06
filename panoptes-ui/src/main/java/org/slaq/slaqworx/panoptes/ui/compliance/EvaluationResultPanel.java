@@ -23,8 +23,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final NumberFormat valueNumberFormat;
 
@@ -41,71 +40,75 @@ public class EvaluationResultPanel extends TreeGrid<EvaluationResultRow> {
   /**
    * Creates a new {@link EvaluationResultPanel}.
    *
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve cached entities
+   * @param assetCache the {@link AssetCache} to use to resolve cached entities
    */
   public EvaluationResultPanel(AssetCache assetCache) {
     this.assetCache = assetCache;
 
-    addHierarchyColumn(EvaluationResultRow::getRuleDescription).setAutoWidth(true)
+    addHierarchyColumn(EvaluationResultRow::getRuleDescription)
+        .setAutoWidth(true)
         .setHeader("Rule");
     addColumn(EvaluationResultRow::getGroup).setAutoWidth(true).setHeader("Group");
     addColumn(new NumberRenderer<>(EvaluationResultRow::getValue, valueNumberFormat))
-        .setAutoWidth(true).setHeader("Value");
+        .setAutoWidth(true)
+        .setHeader("Value");
     addColumn(new NumberRenderer<>(EvaluationResultRow::getBenchmarkValue, valueNumberFormat))
-        .setAutoWidth(true).setHeader("Benchmark");
+        .setAutoWidth(true)
+        .setHeader("Benchmark");
     addColumn(EvaluationResultRow::getThreshold).setAutoWidth(true).setHeader("Threshold");
     addColumn(r -> r.isPassed() ? "Pass" : "Fail").setAutoWidth(true).setHeader("Result");
 
-    dataProvider = new AbstractBackEndHierarchicalDataProvider<>() {
-      @Serial
-      private static final long serialVersionUID = 1L;
+    dataProvider =
+        new AbstractBackEndHierarchicalDataProvider<>() {
+          @Serial private static final long serialVersionUID = 1L;
 
-      @Override
-      public int getChildCount(HierarchicalQuery<EvaluationResultRow, Void> query) {
-        if (query.getParent() == null) {
-          return portfolioResults.size();
-        }
-        return query.getParent().getChildCount();
-      }
+          @Override
+          public int getChildCount(HierarchicalQuery<EvaluationResultRow, Void> query) {
+            if (query.getParent() == null) {
+              return portfolioResults.size();
+            }
+            return query.getParent().getChildCount();
+          }
 
-      @Override
-      public boolean hasChildren(EvaluationResultRow item) {
-        if (item == null) {
-          return !portfolioResults.isEmpty();
-        }
-        return item.getChildCount() > 0;
-      }
+          @Override
+          public boolean hasChildren(EvaluationResultRow item) {
+            if (item == null) {
+              return !portfolioResults.isEmpty();
+            }
+            return item.getChildCount() > 0;
+          }
 
-      @Override
-      public boolean isInMemory() {
-        return true;
-      }
+          @Override
+          public boolean isInMemory() {
+            return true;
+          }
 
-      @Override
-      protected Stream<EvaluationResultRow> fetchChildrenFromBackEnd(
-          HierarchicalQuery<EvaluationResultRow, Void> query) {
-        if (query.getParent() == null) {
-          return portfolioResults.stream();
-        }
-        return query.getParent().getChildren();
-      }
-    };
+          @Override
+          protected Stream<EvaluationResultRow> fetchChildrenFromBackEnd(
+              HierarchicalQuery<EvaluationResultRow, Void> query) {
+            if (query.getParent() == null) {
+              return portfolioResults.stream();
+            }
+            return query.getParent().getChildren();
+          }
+        };
     setDataProvider(dataProvider);
   }
 
   /**
    * Sets the result to be displayed by this panel.
    *
-   * @param evaluationResult
-   *     a {@link Map} of {@link RuleKey}-related {@link EvaluationResult}s to be displayed
+   * @param evaluationResult a {@link Map} of {@link RuleKey}-related {@link EvaluationResult}s to
+   *     be displayed
    */
   public void setResult(Map<RuleKey, EvaluationResult> evaluationResult) {
     Comparator<? super EvaluationResultRow> comparator =
         Comparator.comparing(EvaluationResultRow::getRuleDescription);
     portfolioResults =
-        evaluationResult.entrySet().stream().map(e -> new PortfolioRuleResultAdapter(e, assetCache))
-            .sorted(comparator).collect(Collectors.toList());
+        evaluationResult.entrySet().stream()
+            .map(e -> new PortfolioRuleResultAdapter(e, assetCache))
+            .sorted(comparator)
+            .collect(Collectors.toList());
 
     dataProvider.refreshAll();
   }

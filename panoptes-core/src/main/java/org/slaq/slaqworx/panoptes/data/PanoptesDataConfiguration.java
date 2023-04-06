@@ -36,9 +36,8 @@ public class PanoptesDataConfiguration {
    * scenarios, which shouldn't use a {@link DataSource} at all (and the dummy will fail if usage is
    * attempted).
    *
-   * @param datasourceConfiguration
-   *     the {@link DatasourceConfiguration} for which to provide a dummy {@link DataSource}
-   *
+   * @param datasourceConfiguration the {@link DatasourceConfiguration} for which to provide a dummy
+   *     {@link DataSource}
    * @return a dummy {@link DataSource}
    */
   @Context

@@ -6,9 +6,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 /**
  * A key used to reference {@link Security} entities.
  *
- * @param id
- *     the ID to assign to the key
- *
+ * @param id the ID to assign to the key
  * @author jeremy
  */
 public record SecurityKey(@Nonnull String id)

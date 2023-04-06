@@ -11,9 +11,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * A convenient base class to adapt a {@link ProtobufSerializer} to a Kafka {@link Deserializer} and
  * {@link Serializer}.
  *
- * @param <T>
- *     the type to be (de)serialized
- *
+ * @param <T> the type to be (de)serialized
  * @author jeremy
  */
 public abstract class KafkaSerializer<T extends ProtobufSerializable>
@@ -23,8 +21,7 @@ public abstract class KafkaSerializer<T extends ProtobufSerializable>
   /**
    * Creates a new {@link KafkaSerializer} which delegates to the given {@link ProtobufSerializer}.
    *
-   * @param protobufSerializer
-   *     the {@link ProtobufSerializer} to which to delegate
+   * @param protobufSerializer the {@link ProtobufSerializer} to which to delegate
    */
   protected KafkaSerializer(ProtobufSerializer<T> protobufSerializer) {
     this.protobufSerializer = protobufSerializer;

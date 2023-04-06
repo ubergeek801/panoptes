@@ -26,9 +26,8 @@ public interface EvaluationGroupClassifier {
   /**
    * Classifies the specified {@link Position} into an {@link EvaluationGroup}.
    *
-   * @param positionContext
-   *     a {@link PositionEvaluationContext} specifying the {@link Position} to be classified
-   *
+   * @param positionContext a {@link PositionEvaluationContext} specifying the {@link Position} to
+   *     be classified
    * @return the {@link EvaluationGroup} to be applied to the {@link Position}
    */
   @Nonnull
@@ -39,10 +38,8 @@ public interface EvaluationGroupClassifier {
   /**
    * Classifies the specified {@link Position} into an {@link EvaluationGroup}.
    *
-   * @param positionContextSupplier
-   *     a {@link Supplier} providing a {@link PositionEvaluationContext} specifying the {@link
-   *     Position} to be classified
-   *
+   * @param positionContextSupplier a {@link Supplier} providing a {@link PositionEvaluationContext}
+   *     specifying the {@link Position} to be classified
    * @return the {@link EvaluationGroup} to be applied to the {@link Position}
    */
   @Nonnull

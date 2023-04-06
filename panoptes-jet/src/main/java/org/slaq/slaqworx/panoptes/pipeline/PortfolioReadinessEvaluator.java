@@ -22,15 +22,15 @@ import org.slaq.slaqworx.panoptes.event.TransactionEvent;
  * @author jeremy
  */
 public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /**
    * Provides a {@link TriFunction} to handle {@link PortfolioEvent}s, which are keyed/partitioned.
    *
    * @return the {@link PortfolioEvent} handling function
    */
-  public TriFunction<PortfolioTracker, PortfolioKey, PortfolioEvent, Traverser<PortfolioKey>> portfolioEventHandler() {
+  public TriFunction<PortfolioTracker, PortfolioKey, PortfolioEvent, Traverser<PortfolioKey>>
+      portfolioEventHandler() {
     return (t, k, e) -> handlePortfolioEvent(t, e);
   }
 
@@ -39,13 +39,12 @@ public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>
    *
    * @return the {@link Security} event handling function
    */
-  public TriFunction<PortfolioTracker, PortfolioKey, Security, Traverser<PortfolioKey>> securityHandler() {
+  public TriFunction<PortfolioTracker, PortfolioKey, Security, Traverser<PortfolioKey>>
+      securityHandler() {
     return (t, k, s) -> handleSecurityEvent(t, s.getKey());
   }
 
-  /**
-   * Creates a new {@link PortfolioReadinessEvaluator}.
-   */
+  /** Creates a new {@link PortfolioReadinessEvaluator}. */
   public PortfolioReadinessEvaluator() {
     // nothing to do
   }
@@ -59,16 +58,13 @@ public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>
   /**
    * Handles a portfolio event.
    *
-   * @param portfolioTracker
-   *     a {@link PortfolioTracker} that manages the portfolio readiness state
-   * @param portfolioEvent
-   *     an event containing portfolio constituent data
-   *
+   * @param portfolioTracker a {@link PortfolioTracker} that manages the portfolio readiness state
+   * @param portfolioEvent an event containing portfolio constituent data
    * @return a {@link Traverser} which emits {@link PortfolioKey}s ready to be evaluated
    */
   @Nonnull
-  protected Traverser<PortfolioKey> handlePortfolioEvent(@Nonnull PortfolioTracker portfolioTracker,
-      @Nonnull PortfolioEvent portfolioEvent) {
+  protected Traverser<PortfolioKey> handlePortfolioEvent(
+      @Nonnull PortfolioTracker portfolioTracker, @Nonnull PortfolioEvent portfolioEvent) {
     boolean isPortfolioProcessable;
     PortfolioKey portfolioKey;
     if (portfolioEvent instanceof PortfolioCommandEvent) {
@@ -102,16 +98,14 @@ public class PortfolioReadinessEvaluator implements SupplierEx<PortfolioTracker>
   /**
    * Handles a security event.
    *
-   * @param portfolioTracker
-   *     a {@link PortfolioTracker} that manages the portfolio readiness state
-   * @param securityKey
-   *     a key identifying the {@link Security} update information obtained from the event
-   *
+   * @param portfolioTracker a {@link PortfolioTracker} that manages the portfolio readiness state
+   * @param securityKey a key identifying the {@link Security} update information obtained from the
+   *     event
    * @return a {@link Traverser} which emits {@link PortfolioKey}s ready to be evaluated
    */
   @Nonnull
-  protected Traverser<PortfolioKey> handleSecurityEvent(PortfolioTracker portfolioTracker,
-      @Nonnull SecurityKey securityKey) {
+  protected Traverser<PortfolioKey> handleSecurityEvent(
+      PortfolioTracker portfolioTracker, @Nonnull SecurityKey securityKey) {
     PortfolioTracker.encounterSecurity(securityKey);
 
     // since securities are broadcast, they can arrive before a portfolio is encountered

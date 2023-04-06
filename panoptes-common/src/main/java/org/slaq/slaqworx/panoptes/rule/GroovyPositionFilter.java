@@ -26,17 +26,14 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   private static final Pattern eligibilityListPattern =
       Pattern.compile("s\\.in(Country|Issuer|Security)List\\(\"(\\w+)\"\\)");
   private static final Pattern expressionTranslationPattern = Pattern.compile("s\\.(\\w+)");
-  @Nonnull
-  private final String expression;
-  @Nonnull
-  private final Predicate<PositionEvaluationContext> groovyFilter;
+  @Nonnull private final String expression;
+  @Nonnull private final Predicate<PositionEvaluationContext> groovyFilter;
 
   /**
    * Creates a new {@link GroovyPositionFilter} using the given Groovy expression. Restricted
    * because instances of this class should be obtained through the {@code of()} factory method.
    *
-   * @param expression
-   *     a Groovy expression suitable for use as a {@link Position} filter
+   * @param expression a Groovy expression suitable for use as a {@link Position} filter
    */
   private GroovyPositionFilter(@Nonnull String expression) {
     this.expression = expression;
@@ -64,8 +61,11 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
       // invocation
       String matchedSubstring = securityExpressionMatcher.group(1);
       SecurityAttribute<?> matchedAttribute = SecurityAttribute.of(matchedSubstring);
-      String replacement = "s." + (matchedAttribute == null ? matchedSubstring :
-          "getEffectiveAttributeValue(" + matchedAttribute.getIndex() + ", ctx)");
+      String replacement =
+          "s."
+              + (matchedAttribute == null
+                  ? matchedSubstring
+                  : "getEffectiveAttributeValue(" + matchedAttribute.getIndex() + ", ctx)");
       securityExpressionMatcher.appendReplacement(translatedExpression, replacement);
     }
     securityExpressionMatcher.appendTail(translatedExpression);
@@ -82,8 +82,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     }
 
     try {
-      @SuppressWarnings("unchecked") Constructor<Predicate<PositionEvaluationContext>>
-          filterClassConstructor =
+      @SuppressWarnings("unchecked")
+      Constructor<Predicate<PositionEvaluationContext>> filterClassConstructor =
           (Constructor<Predicate<PositionEvaluationContext>>) filterClass.getConstructor();
       groovyFilter = filterClassConstructor.newInstance();
     } catch (Exception e) {
@@ -95,9 +95,7 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
   /**
    * Obtains a {@link GroovyPositionFilter} corresponding to the given filter expression.
    *
-   * @param expression
-   *     the expression for which to obtain a filter
-   *
+   * @param expression the expression for which to obtain a filter
    * @return a {@link GroovyPositionFilter} compiled from the given expression, or {@code null} if
    *     the expression is empty
    */
@@ -134,12 +132,9 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
    * Translates the given expression to an equivalent Groovy class definition, implementing a {@link
    * Predicate}.
    *
-   * @param expression
-   *     the expression to be translated to a class definition
-   * @param isCompileStatic
-   *     {@code true} if the translated class should be annotated with {@code
+   * @param expression the expression to be translated to a class definition
+   * @param isCompileStatic {@code true} if the translated class should be annotated with {@code
    *     groovy.transform.CompileStatic}, {@code false} otherwise
-   *
    * @return a {@link String} containing a Groovy class definition
    */
   @Nonnull
@@ -154,7 +149,8 @@ public class GroovyPositionFilter implements Predicate<PositionEvaluationContext
     if (isCompileStatic) {
       classDef.append("@groovy.transform.CompileStatic\n");
     }
-    classDef.append("""
+    classDef.append(
+        """
         class GroovyFilter implements Predicate<PositionEvaluationContext> {
          boolean test(PositionEvaluationContext pctx) {
           EvaluationContext ctx = pctx.evaluationContext

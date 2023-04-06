@@ -20,38 +20,39 @@ public class RingbufferSource {
   /**
    * Creates a {@link StreamSource} with the specified configuration.
    *
-   * @param name
-   *     the name of this source
-   * @param ringbufferName
-   *     the name of the {@link Ringbuffer} from which to read
-   * @param <T>
-   *     the type of item to be read from the {@link Ringbuffer}
-   *
+   * @param name the name of this source
+   * @param ringbufferName the name of the {@link Ringbuffer} from which to read
+   * @param <T> the type of item to be read from the {@link Ringbuffer}
    * @return a {@link StreamSource}
    */
-  public static <T> StreamSource<T> buildRingbufferSource(@Nonnull String name,
-      @Nonnull String ringbufferName) {
-    return SourceBuilder.stream(name, context -> new RingbufferSourceContext<T>(
-        context.hazelcastInstance().getRingbuffer(ringbufferName)))
+  public static <T> StreamSource<T> buildRingbufferSource(
+      @Nonnull String name, @Nonnull String ringbufferName) {
+    return SourceBuilder.stream(
+            name,
+            context ->
+                new RingbufferSourceContext<T>(
+                    context.hazelcastInstance().getRingbuffer(ringbufferName)))
         .fillBufferFn(new RingbufferBufferFiller<>())
         .createSnapshotFn(RingbufferSourceContext::getCurrentSequence)
-        .restoreSnapshotFn((context, saved) -> context.setCurrentSequence(saved.get(0))).build();
+        .restoreSnapshotFn((context, saved) -> context.setCurrentSequence(saved.get(0)))
+        .build();
   }
 
   /**
    * A fill-buffer function which fills the given {@link SourceBuilder.SourceBuffer} with data from
    * a {@link Ringbuffer}.
    *
-   * @param <T>
-   *     the type of data contained in the {@link Ringbuffer}
+   * @param <T> the type of data contained in the {@link Ringbuffer}
    */
   private static class RingbufferBufferFiller<T>
       implements BiConsumerEx<RingbufferSourceContext<T>, SourceBuilder.SourceBuffer<T>> {
     @Override
-    public void acceptEx(RingbufferSourceContext<T> context,
-        SourceBuilder.SourceBuffer<T> sourceBuffer) {
-      CompletionStage<ReadResultSet<T>> futureReadResults = context.getRingbuffer()
-          .readManyAsync(context.getCurrentSequence(), 0, Integer.MAX_VALUE, null);
+    public void acceptEx(
+        RingbufferSourceContext<T> context, SourceBuilder.SourceBuffer<T> sourceBuffer) {
+      CompletionStage<ReadResultSet<T>> futureReadResults =
+          context
+              .getRingbuffer()
+              .readManyAsync(context.getCurrentSequence(), 0, Integer.MAX_VALUE, null);
       ReadResultSet<T> readResults = futureReadResults.toCompletableFuture().join();
       context.setCurrentSequence(readResults.getNextSequenceToReadFrom());
       readResults.forEach(sourceBuffer::add);
@@ -62,20 +63,17 @@ public class RingbufferSource {
    * Encapsulates the context needed to operate a {@link RingbufferSource}. Supports fault tolerance
    * by allowing the current ringbuffer sequence to be read and set.
    *
-   * @param <T>
-   *     the type of data contained in the {@link Ringbuffer}
+   * @param <T> the type of data contained in the {@link Ringbuffer}
    */
   private static class RingbufferSourceContext<T> {
-    @Nonnull
-    private final Ringbuffer<T> ringbuffer;
+    @Nonnull private final Ringbuffer<T> ringbuffer;
     private long currentSequence;
 
     /**
      * Creates a new {@link RingbufferSourceContext} which reads from the given {@link Ringbuffer}
      * starting at its head.
      *
-     * @param ringbuffer
-     *     the {@link Ringbuffer} from which to source events
+     * @param ringbuffer the {@link Ringbuffer} from which to source events
      */
     public RingbufferSourceContext(@Nonnull Ringbuffer<T> ringbuffer) {
       this.ringbuffer = ringbuffer;

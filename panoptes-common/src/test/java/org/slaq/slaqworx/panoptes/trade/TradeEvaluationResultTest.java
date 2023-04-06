@@ -22,9 +22,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Impact;
  * @author jeremy
  */
 public class TradeEvaluationResultTest {
-  /**
-   * Tests that {@code addImpacts()} behaves as expected.
-   */
+  /** Tests that {@code addImpacts()} behaves as expected. */
   @Test
   public void testAddImpacts() {
     TradeKey tradeKey = new TradeKey("trade1");
@@ -43,8 +41,8 @@ public class TradeEvaluationResultTest {
     EvaluationResult rule1Results =
         new EvaluationResult(rule1Key, Map.of(evalGroup1, PASS), Map.of(evalGroup2, PASS));
     EvaluationResult rule2Results =
-        new EvaluationResult(rule2Key, Map.of(evalGroup1, PASS, evalGroup2, PASS),
-            Map.of(evalGroup2, PASS));
+        new EvaluationResult(
+            rule2Key, Map.of(evalGroup1, PASS, evalGroup2, PASS), Map.of(evalGroup2, PASS));
 
     Map<RuleKey, EvaluationResult> ruleResults =
         Map.of(rule1Key, rule1Results, rule2Key, rule2Results);
@@ -73,9 +71,7 @@ public class TradeEvaluationResultTest {
     assertFalse(tradeResult.isCompliant(), "pass->fail should be compliant");
   }
 
-  /**
-   * Tests that {@code equals()} behaves as expected.
-   */
+  /** Tests that {@code equals()} behaves as expected. */
   @Test
   public void testEquals() {
     TradeKey tradeKey = new TradeKey("trade1");
@@ -110,9 +106,7 @@ public class TradeEvaluationResultTest {
     assertNotEquals(null, result1, "result should not equals() null");
   }
 
-  /**
-   * Tests that {@code isCompliant()} behaves as expected.
-   */
+  /** Tests that {@code isCompliant()} behaves as expected. */
   @Test
   public void testIsCompliant() {
     TradeKey tradeKey = new TradeKey("trade1");
@@ -131,8 +125,8 @@ public class TradeEvaluationResultTest {
     assertTrue(result.isCompliant(), "result with only positive Impacts should be compliant");
 
     result.addImpact(portfolioKey, rule1Key, evalGroup2, Impact.NEUTRAL);
-    assertTrue(result.isCompliant(),
-        "result with only positive and neutral Impacts should be compliant");
+    assertTrue(
+        result.isCompliant(), "result with only positive and neutral Impacts should be compliant");
 
     result.addImpact(portfolioKey, rule2Key, evalGroup1, Impact.UNKNOWN);
     assertFalse(result.isCompliant(), "result with an unknown Impact should not be compliant");
@@ -141,9 +135,7 @@ public class TradeEvaluationResultTest {
     assertFalse(result.isCompliant(), "result with a negative Impact should not be compliant");
   }
 
-  /**
-   * Tests that {@code merge()} behaves as expected.
-   */
+  /** Tests that {@code merge()} behaves as expected. */
   @Test
   public void testMerge() {
     TradeKey tradeKey = new TradeKey("trade1");

@@ -28,12 +28,9 @@ import org.slaq.slaqworx.panoptes.rule.RulesProvider;
  */
 public class EvaluationRequestGenerator
     implements SupplierEx<EvaluationRequestGenerator.EvaluationRequestGeneratorState> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  /**
-   * Creates a new {@link EvaluationRequestGenerator}.
-   */
+  /** Creates a new {@link EvaluationRequestGenerator}. */
   public EvaluationRequestGenerator() {
     // nothing to do
   }
@@ -44,8 +41,12 @@ public class EvaluationRequestGenerator
    * @return the {@link PortfolioEvaluationInput} handling function
    */
   @Nonnull
-  public TriFunction<EvaluationRequestGeneratorState, PortfolioKey, PortfolioKey,
-      Traverser<PortfolioEvaluationInput>> evaluationEventHandler() {
+  public TriFunction<
+          EvaluationRequestGeneratorState,
+          PortfolioKey,
+          PortfolioKey,
+          Traverser<PortfolioEvaluationInput>>
+      evaluationEventHandler() {
     return (s, k, e) -> handleEvaluationEvent(s, e);
   }
 
@@ -55,8 +56,12 @@ public class EvaluationRequestGenerator
    * @return the rule event handling function
    */
   @Nonnull
-  public TriFunction<EvaluationRequestGeneratorState, PortfolioKey, Tuple3<EvaluationSource,
-      PortfolioKey, Rule>, Traverser<PortfolioEvaluationInput>> ruleEventHandler() {
+  public TriFunction<
+          EvaluationRequestGeneratorState,
+          PortfolioKey,
+          Tuple3<EvaluationSource, PortfolioKey, Rule>,
+          Traverser<PortfolioEvaluationInput>>
+      ruleEventHandler() {
     return (s, k, e) -> handleRuleEvent(s, e);
   }
 
@@ -70,11 +75,8 @@ public class EvaluationRequestGenerator
    * Handles a portfolio evaluation event; if there are known rules associated with the specified
    * portfolio, a {@link PortfolioEvaluationInput} is emitted.
    *
-   * @param processState
-   *     the state associated with the given key
-   * @param portfolioKey
-   *     a key identifying the portfolio to be evaluated
-   *
+   * @param processState the state associated with the given key
+   * @param portfolioKey a key identifying the portfolio to be evaluated
    * @return a {@link Traverser} which emits a {@link PortfolioEvaluationInput} if appropriate
    */
   @Nonnull
@@ -88,19 +90,16 @@ public class EvaluationRequestGenerator
     }
 
     return Traversers.singleton(
-        new PortfolioEvaluationInput(processState.getEvaluationSource(), portfolioKey,
-            processState));
+        new PortfolioEvaluationInput(
+            processState.getEvaluationSource(), portfolioKey, processState));
   }
 
   /**
    * Handles a rule event; if there is a known portfolio associated with the rule, a {@link
    * PortfolioEvaluationInput} is emitted.
    *
-   * @param processState
-   *     the state associated with the given key
-   * @param rule
-   *     a rule to be evaluated
-   *
+   * @param processState the state associated with the given key
+   * @param rule a rule to be evaluated
    * @return a {@link Traverser} which emits a {@link PortfolioEvaluationInput} if appropriate
    */
   @Nonnull
@@ -114,8 +113,11 @@ public class EvaluationRequestGenerator
       return Traversers.empty();
     }
 
-    return Traversers.singleton(new PortfolioEvaluationInput(processState.getEvaluationSource(),
-        processState.getPortfolioKey(), () -> Stream.of(rule.f2())));
+    return Traversers.singleton(
+        new PortfolioEvaluationInput(
+            processState.getEvaluationSource(),
+            processState.getPortfolioKey(),
+            () -> Stream.of(rule.f2())));
   }
 
   /**
@@ -124,8 +126,7 @@ public class EvaluationRequestGenerator
    * @author jeremy
    */
   static class EvaluationRequestGeneratorState implements RulesProvider, Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     private EvaluationSource evaluationSource;
     private PortfolioKey portfolioKey;

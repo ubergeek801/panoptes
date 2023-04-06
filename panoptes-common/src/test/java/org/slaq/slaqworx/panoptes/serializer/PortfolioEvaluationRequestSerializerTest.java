@@ -21,8 +21,7 @@ public class PortfolioEvaluationRequestSerializerTest {
   /**
    * Tests that (de)serialization works as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testSerialization() throws Exception {
@@ -41,16 +40,21 @@ public class PortfolioEvaluationRequestSerializerTest {
     PortfolioEvaluationRequest deserialized = serializer.read(buffer);
 
     assertEquals(request, deserialized, "deserialized value should equals() original value");
-    assertEquals(request.getPortfolioKey(), deserialized.getPortfolioKey(),
+    assertEquals(
+        request.getPortfolioKey(),
+        deserialized.getPortfolioKey(),
         "deserialized value should have same Portfolio key as original");
 
     // note that EvaluationContext.equals() uses identity semantics, so an equals() test is
     // inappropriate
-    assertEquals(evaluationContext.getEvaluationMode(),
+    assertEquals(
+        evaluationContext.getEvaluationMode(),
         deserialized.getEvaluationContext().getEvaluationMode(),
         "deserialized EvaluationContext should have evaluation mode equal to original");
 
-    assertEquals(request.getTransaction(), deserialized.getTransaction(),
+    assertEquals(
+        request.getTransaction(),
+        deserialized.getTransaction(),
         "deserialized value should have transaction equal to original");
 
     // perform same test but with null Transaction
@@ -61,9 +65,12 @@ public class PortfolioEvaluationRequestSerializerTest {
     deserialized = serializer.read(buffer);
 
     assertEquals(request, deserialized, "deserialized value should equals() original value");
-    assertEquals(request.getPortfolioKey(), deserialized.getPortfolioKey(),
+    assertEquals(
+        request.getPortfolioKey(),
+        deserialized.getPortfolioKey(),
         "deserialized value should have same Portfolio key as original");
-    assertEquals(evaluationContext.getEvaluationMode(),
+    assertEquals(
+        evaluationContext.getEvaluationMode(),
         deserialized.getEvaluationContext().getEvaluationMode(),
         "deserialized EvaluationContext should have evaluation mode equal to original");
 

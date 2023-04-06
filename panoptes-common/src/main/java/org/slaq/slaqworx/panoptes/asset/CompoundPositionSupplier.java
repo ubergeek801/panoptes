@@ -11,14 +11,12 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  * @author jeremy
  */
 public class CompoundPositionSupplier implements PositionSupplier {
-  @Nonnull
-  private final PositionSupplier[] suppliers;
+  @Nonnull private final PositionSupplier[] suppliers;
 
   /**
    * Creates a new {@link CompoundPositionSupplier} concatenating the given suppliers.
    *
-   * @param suppliers
-   *     the suppliers to be concatenated
+   * @param suppliers the suppliers to be concatenated
    */
   public CompoundPositionSupplier(@Nonnull PositionSupplier... suppliers) {
     this.suppliers = suppliers;

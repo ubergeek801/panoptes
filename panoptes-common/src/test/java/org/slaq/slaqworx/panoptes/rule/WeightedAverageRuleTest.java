@@ -14,9 +14,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  * @author jeremy
  */
 public class WeightedAverageRuleTest {
-  /**
-   * Tests that {@code evaluate()} behaves as expected.
-   */
+  /** Tests that {@code evaluate()} behaves as expected. */
   @Test
   public void testEvaluate() {
     // Referring to TestUtil.p1, the weighted average of moovyRating should be be (132_500 /
@@ -29,7 +27,8 @@ public class WeightedAverageRuleTest {
     assertFalse(result.isPassed(), "rule with 89 lower limit should have failed");
 
     rule = new WeightedAverageRule<>(null, "test", null, TestUtil.moovyRating, 88d, null, null);
-    assertTrue(rule.evaluate(TestUtil.p1, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
+    assertTrue(
+        rule.evaluate(TestUtil.p1, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
         "rule with 88 lower limit should have passed");
 
     // TestUtil.p1 should have an average duration of 4.0
@@ -42,13 +41,12 @@ public class WeightedAverageRuleTest {
 
     rule =
         new WeightedAverageRule<>(null, "test", null, SecurityAttribute.duration, null, 4d, null);
-    assertTrue(rule.evaluate(TestUtil.p1, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
+    assertTrue(
+        rule.evaluate(TestUtil.p1, null, TestUtil.defaultTestEvaluationContext()).isPassed(),
         "rule with 4.0 upper limit should have passed");
   }
 
-  /**
-   * Tests that {@code getParameterDescription()} behaves as expected.
-   */
+  /** Tests that {@code getParameterDescription()} behaves as expected. */
   @Test
   public void testGetParameterDescription() {
     WeightedAverageRule<?> rule =

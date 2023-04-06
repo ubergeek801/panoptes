@@ -29,14 +29,16 @@ import java.util.Map;
 public class PanoptesApplicationPanel extends AppLayout implements AppShellConfigurator {
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Creates a new {@link PanoptesApplicationPanel}.
-   */
+  /** Creates a new {@link PanoptesApplicationPanel}. */
   protected PanoptesApplicationPanel() {
     Icon applicationIcon = new Icon(VaadinIcon.EYE);
     Span applicationTitle = new Span("Panoptes");
-    applicationTitle.getStyle().set("font-weight", "bold").set("font-size", "120%")
-        .set("padding-left", "0.3em").set("padding-right", "0.3em");
+    applicationTitle
+        .getStyle()
+        .set("font-weight", "bold")
+        .set("font-size", "120%")
+        .set("padding-left", "0.3em")
+        .set("padding-right", "0.3em");
     Span applicationTagline = new Span("watchful portfolio compliance");
     applicationTagline.getStyle().set("font-style", "italic").set("font-size", "80%");
     Span applicationInfo = new Span();
@@ -53,7 +55,10 @@ public class PanoptesApplicationPanel extends AppLayout implements AppShellConfi
     aboutApplicationIcon.setSize("5em");
     aboutApplicationIcon.getStyle().set("position", "relative").set("top", "-0.9em");
     Span aboutApplicationTitle = new Span("Panoptes");
-    aboutApplicationTitle.getStyle().set("font-weight", "bold").set("font-size", "300%")
+    aboutApplicationTitle
+        .getStyle()
+        .set("font-weight", "bold")
+        .set("font-size", "300%")
         .set("padding-left", "0.3em");
     Span aboutApplicationInfo = new Span();
     aboutApplicationInfo.add(aboutApplicationIcon, aboutApplicationTitle);
@@ -70,9 +75,10 @@ public class PanoptesApplicationPanel extends AppLayout implements AppShellConfi
     Tabs tabs = new Tabs(complianceTab, aboutTab);
     Map<Tab, Component> tabPageMap = Map.of(complianceTab, compliancePanel, aboutTab, aboutPanel);
     tabs.setOrientation(Tabs.Orientation.VERTICAL);
-    tabs.addSelectedChangeListener(e -> {
-      setContent(tabPageMap.get(e.getSelectedTab()));
-    });
+    tabs.addSelectedChangeListener(
+        e -> {
+          setContent(tabPageMap.get(e.getSelectedTab()));
+        });
     addToDrawer(tabs);
     tabs.setSelectedTab(complianceTab);
   }

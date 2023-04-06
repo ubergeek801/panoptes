@@ -25,8 +25,7 @@ public class PortfolioUpdater {
   /**
    * Creates a {@link PortfolioUpdater} that publishes using the given {@link KafkaProducer}.
    *
-   * @param kafkaProducer
-   *     the {@link KafkaProducer} with which to publish events to Kafka
+   * @param kafkaProducer the {@link KafkaProducer} with which to publish events to Kafka
    */
   protected PortfolioUpdater(KafkaProducer kafkaProducer) {
     this.kafkaProducer = kafkaProducer;
@@ -35,23 +34,23 @@ public class PortfolioUpdater {
   /**
    * Executes the {@link PortfolioUpdater} application.
    *
-   * @param args
-   *     the program arguments (unused)
-   *
-   * @throws Exception
-   *     if any error occurs
+   * @param args the program arguments (unused)
+   * @throws Exception if any error occurs
    */
   public static void main(String[] args) throws Exception {
-    try (ApplicationContext appContext = Micronaut.build(args).mainClass(PortfolioUpdater.class)
-        .environments("portfolio-update", "offline").args(args).build().start()) {
+    try (ApplicationContext appContext =
+        Micronaut.build(args)
+            .mainClass(PortfolioUpdater.class)
+            .environments("portfolio-update", "offline")
+            .args(args)
+            .build()
+            .start()) {
       PortfolioUpdater updater = appContext.getBean(PortfolioUpdater.class);
       updater.updatePortfolios();
     }
   }
 
-  /**
-   * Publishes random portfolio updates to Kafka.
-   */
+  /** Publishes random portfolio updates to Kafka. */
   public void updatePortfolios() {
     HashSet<PortfolioKey> portfolioKeys = new HashSet<>(800 * 2);
     for (int i = 1; i <= 800; i++) {
@@ -68,8 +67,11 @@ public class PortfolioUpdater {
 
       long[] eventId = new long[] {System.currentTimeMillis()};
       LOG.info("publishing {} portfolios", randomPortfolios.size());
-      randomPortfolios.parallelStream().forEach(
-          p -> kafkaProducer.publishPortfolioEvent(p, new PortfolioCommandEvent(eventId[0]++, p)));
+      randomPortfolios.parallelStream()
+          .forEach(
+              p ->
+                  kafkaProducer.publishPortfolioEvent(
+                      p, new PortfolioCommandEvent(eventId[0]++, p)));
     }
 
     LOG.info("published portfolios");

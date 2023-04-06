@@ -30,10 +30,8 @@ public class PanoptesApp {
   /**
    * Obtains the {@link ApplicationContext} singleton.
    *
-   * @param args
-   *     the program arguments with which to initialize the {@link ApplicationContext}; ignored (and
-   *     may be empty) if the context has already been created
-   *
+   * @param args the program arguments with which to initialize the {@link ApplicationContext};
+   *     ignored (and may be empty) if the context has already been created
    * @return the {@link ApplicationContext}
    */
   public static ApplicationContext getApplicationContext(String... args) {
@@ -47,10 +45,8 @@ public class PanoptesApp {
   /**
    * Obtains the {@link AssetCache} from the application context.
    *
-   * @param args
-   *     the program arguments with which to initialize the {@link ApplicationContext}; ignored (and
-   *     may be empty) if the context has already been created
-   *
+   * @param args the program arguments with which to initialize the {@link ApplicationContext};
+   *     ignored (and may be empty) if the context has already been created
    * @return the {@link AssetCache} singleton
    */
   public static AssetCache getAssetCache(String... args) {
@@ -60,8 +56,7 @@ public class PanoptesApp {
   /**
    * Executes the Panoptes application.
    *
-   * @param args
-   *     the program arguments
+   * @param args the program arguments
    */
   public static void main(String[] args) {
     try (ApplicationContext appContext = createApplicationContext(args)) {
@@ -80,9 +75,7 @@ public class PanoptesApp {
   /**
    * Creates the Micronaut {@link ApplicationContext}.
    *
-   * @param args
-   *     the program arguments with which to initialize the {@link ApplicationContext}
-   *
+   * @param args the program arguments with which to initialize the {@link ApplicationContext}
    * @return the {@link ApplicationContext}
    */
   protected static ApplicationContext createApplicationContext(String... args) {

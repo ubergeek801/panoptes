@@ -25,8 +25,7 @@ public class PortfolioSerializerTest {
   /**
    * Tests that (de)serialization works as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testSerialization() throws Exception {
@@ -37,11 +36,17 @@ public class PortfolioSerializerTest {
     Portfolio deserialized = serializer.read(buffer);
 
     assertEquals(portfolio, deserialized, "deserialized value should equals() original value");
-    assertEquals(portfolio.getBenchmarkKey(), deserialized.getBenchmarkKey(),
+    assertEquals(
+        portfolio.getBenchmarkKey(),
+        deserialized.getBenchmarkKey(),
         "deserialized value should have same benchmark key as original");
-    assertEquals(portfolio.getName(), deserialized.getName(),
+    assertEquals(
+        portfolio.getName(),
+        deserialized.getName(),
         "deserialized value should have same name as original");
-    assertEquals(portfolio.getPositions().count(), deserialized.getPositions().count(),
+    assertEquals(
+        portfolio.getPositions().count(),
+        deserialized.getPositions().count(),
         "deserialized Portfolio should have same number of Positions as original");
 
     Comparator<Position> positionComparator = (Comparator.comparing(p -> p.getKey().id()));
@@ -60,32 +65,57 @@ public class PortfolioSerializerTest {
       Position position = positionIter.next();
       Position deserializedPosition = deserializedPositionIter.next();
 
-      assertEquals(position, deserializedPosition,
-          "deserialized Position should equals() original");
-      assertEquals(position.getKey(), deserializedPosition.getKey(),
+      assertEquals(
+          position, deserializedPosition, "deserialized Position should equals() original");
+      assertEquals(
+          position.getKey(),
+          deserializedPosition.getKey(),
           "deserialized Position should have same key as original");
-      assertEquals(position.getAmount(), deserializedPosition.getAmount(), TestUtil.EPSILON,
+      assertEquals(
+          position.getAmount(),
+          deserializedPosition.getAmount(),
+          TestUtil.EPSILON,
           "deserialized Position should have same amount as original");
-      assertEquals(position.getSecurityKey(), deserializedPosition.getSecurityKey(),
+      assertEquals(
+          position.getSecurityKey(),
+          deserializedPosition.getSecurityKey(),
           "deserialized Position should have same SecurityKey as original");
     }
 
     Set<Position> positions = TestUtil.p1Positions;
-    Rule testRule = TestRuleProvider.getInstance().newConcentrationRule(null, "test rule",
-        GroovyPositionFilter.of("s.region == 'Emerging Markets'"), null, 0.1, null);
+    Rule testRule =
+        TestRuleProvider.getInstance()
+            .newConcentrationRule(
+                null,
+                "test rule",
+                GroovyPositionFilter.of("s.region == 'Emerging Markets'"),
+                null,
+                0.1,
+                null);
     Collection<Rule> rules = Set.of(testRule);
-    portfolio = new Portfolio(new PortfolioKey("test", 31337), "Test Portfolio", positions,
-        new PortfolioKey("benchmark", 1), rules);
+    portfolio =
+        new Portfolio(
+            new PortfolioKey("test", 31337),
+            "Test Portfolio",
+            positions,
+            new PortfolioKey("benchmark", 1),
+            rules);
 
     buffer = serializer.write(portfolio);
     deserialized = serializer.read(buffer);
 
     assertEquals(portfolio, deserialized, "deserialized value should equals() original value");
-    assertEquals(portfolio.getBenchmarkKey(), deserialized.getBenchmarkKey(),
+    assertEquals(
+        portfolio.getBenchmarkKey(),
+        deserialized.getBenchmarkKey(),
         "deserialized value should have same benchmark key as original");
-    assertEquals(portfolio.getName(), deserialized.getName(),
+    assertEquals(
+        portfolio.getName(),
+        deserialized.getName(),
         "deserialized value should have same name as original");
-    assertEquals(portfolio.getRules().count(), deserialized.getRules().count(),
+    assertEquals(
+        portfolio.getRules().count(),
+        deserialized.getRules().count(),
         "deserialized Portfolio should have same number of Rules as original");
 
     Iterator<Rule> ruleIter = portfolio.getRules().iterator();
@@ -95,9 +125,13 @@ public class PortfolioSerializerTest {
       Rule deserializedRule = deserializedRuleIter.next();
 
       assertEquals(rule, deserializedRule, "deserialized Rule should equals() original");
-      assertEquals(rule.getKey(), deserializedRule.getKey(),
+      assertEquals(
+          rule.getKey(),
+          deserializedRule.getKey(),
           "deserialized Rule should have same key as original");
-      assertEquals(rule.getDescription(), deserializedRule.getDescription(),
+      assertEquals(
+          rule.getDescription(),
+          deserializedRule.getDescription(),
           "deserialized Rule should have same description as original");
       // TODO compare classifiers and aggregators
     }

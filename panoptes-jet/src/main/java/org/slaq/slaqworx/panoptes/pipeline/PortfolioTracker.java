@@ -18,8 +18,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  * @author jeremy
  */
 public class PortfolioTracker implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final HashSet<SecurityKey> encounteredSecurities = new HashSet<>();
 
@@ -27,9 +26,7 @@ public class PortfolioTracker implements Serializable {
   private Set<SecurityKey> unsatisfiedSecurities;
   private Set<SecurityKey> heldSecurities;
 
-  /**
-   * Creates a new {@link PortfolioTracker}.
-   */
+  /** Creates a new {@link PortfolioTracker}. */
   protected PortfolioTracker() {
     // nothing to do
   }
@@ -43,9 +40,7 @@ public class PortfolioTracker implements Serializable {
   /**
    * Applies the given security to the tracked portfolio, evaluating related rules if appropriate.
    *
-   * @param security
-   *     a key identifying the security currently being encountered
-   *
+   * @param security a key identifying the security currently being encountered
    * @return {@code true} if evaluation should proceed to the next stage, {@code false} otherwise
    */
   public boolean applySecurity(@Nonnull SecurityKey security) {
@@ -71,14 +66,16 @@ public class PortfolioTracker implements Serializable {
   /**
    * Registers the given portfolio for tracking in the current process state.
    *
-   * @param portfolio
-   *     the {@link Portfolio} to be tracked
+   * @param portfolio the {@link Portfolio} to be tracked
    */
   public void trackPortfolio(@Nonnull Portfolio portfolio) {
     this.portfolioKey = portfolio.getPortfolioKey();
     // determine which securities have yet to be encountered
-    heldSecurities = portfolio.getPositions().map(Position::getSecurityKey)
-        .collect(Collectors.toCollection(HashSet::new));
+    heldSecurities =
+        portfolio
+            .getPositions()
+            .map(Position::getSecurityKey)
+            .collect(Collectors.toCollection(HashSet::new));
     unsatisfiedSecurities = new HashSet<>(heldSecurities);
     synchronized (encounteredSecurities) {
       unsatisfiedSecurities.removeAll(encounteredSecurities);
@@ -100,13 +97,10 @@ public class PortfolioTracker implements Serializable {
    * provided) and whether the currently encountered security (if any) is held, and performs a
    * compliance evaluation if so.
    *
-   * @param portfolioKey
-   *     the key identifying the portfolio being processed; if {@code null}, then nothing will be
-   *     done
-   * @param currentSecurity
-   *     a key identifying the security being encountered, or {@code null} if a portfolio is being
-   *     encountered
-   *
+   * @param portfolioKey the key identifying the portfolio being processed; if {@code null}, then
+   *     nothing will be done
+   * @param currentSecurity a key identifying the security being encountered, or {@code null} if a
+   *     portfolio is being encountered
    * @return {@code true} if evaluation should proceed to the next stage, {@code false} otherwise
    */
   protected boolean evaluateReadiness(PortfolioKey portfolioKey, SecurityKey currentSecurity) {

@@ -65,15 +65,14 @@ public class PanoptesCacheCommonConfiguration {
   }
 
   /**
-   * Provides a Hazelcast {@link ExecutorConfig} suitable for executing computations on the
-   * cluster.
+   * Provides a Hazelcast {@link ExecutorConfig} suitable for executing computations on the cluster.
    *
    * @return a Hazelcast {@link ExecutorConfig}
    */
   @Singleton
   protected ExecutorConfig clusterExecutorConfig() {
-    return new ExecutorConfig(AssetCache.CLUSTER_EXECUTOR_NAME,
-        ForkJoinPool.getCommonPoolParallelism());
+    return new ExecutorConfig(
+        AssetCache.CLUSTER_EXECUTOR_NAME, ForkJoinPool.getCommonPoolParallelism());
   }
 
   /**
@@ -86,53 +85,81 @@ public class PanoptesCacheCommonConfiguration {
   protected SerializationConfig serializationConfig() {
     SerializationConfig config = new SerializationConfig();
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new EligibilityListSerializer())
+        new SerializerConfig()
+            .setImplementation(new EligibilityListSerializer())
             .setTypeClass(EligibilityList.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new EvaluationContextSerializer())
+        new SerializerConfig()
+            .setImplementation(new EvaluationContextSerializer())
             .setTypeClass(EvaluationContext.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new EvaluationResultSerializer())
+        new SerializerConfig()
+            .setImplementation(new EvaluationResultSerializer())
             .setTypeClass(EvaluationResult.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new PortfolioEvaluationRequestSerializer())
+        new SerializerConfig()
+            .setImplementation(new PortfolioEvaluationRequestSerializer())
             .setTypeClass(PortfolioEvaluationRequest.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new PortfolioKeySerializer())
+        new SerializerConfig()
+            .setImplementation(new PortfolioKeySerializer())
             .setTypeClass(PortfolioKey.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new PortfolioSerializer())
-        .setTypeClass(Portfolio.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new PortfolioSummarizerSerializer())
+        new SerializerConfig()
+            .setImplementation(new PortfolioSerializer())
+            .setTypeClass(Portfolio.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new PortfolioSummarizerSerializer())
             .setTypeClass(PortfolioSummarizer.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new PortfolioSummarySerializer())
+        new SerializerConfig()
+            .setImplementation(new PortfolioSummarySerializer())
             .setTypeClass(PortfolioSummary.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new PositionKeySerializer())
-        .setTypeClass(PositionKey.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new PositionSerializer())
-        .setTypeClass(Position.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new RoomEvaluationRequestSerializer())
+        new SerializerConfig()
+            .setImplementation(new PositionKeySerializer())
+            .setTypeClass(PositionKey.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new PositionSerializer())
+            .setTypeClass(Position.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new RoomEvaluationRequestSerializer())
             .setTypeClass(RoomEvaluationRequest.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleKeySerializer())
-        .setTypeClass(RuleKey.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleSerializer())
-        .setTypeClass(ConfigurableRule.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new RuleSummarySerializer())
-        .setTypeClass(RuleSummary.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new SecurityKeySerializer())
-        .setTypeClass(SecurityKey.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new SecuritySerializer())
-        .setTypeClass(Security.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new TradeEvaluationRequestSerializer())
+        new SerializerConfig()
+            .setImplementation(new RuleKeySerializer())
+            .setTypeClass(RuleKey.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new RuleSerializer())
+            .setTypeClass(ConfigurableRule.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new RuleSummarySerializer())
+            .setTypeClass(RuleSummary.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new SecurityKeySerializer())
+            .setTypeClass(SecurityKey.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new SecuritySerializer())
+            .setTypeClass(Security.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new TradeEvaluationRequestSerializer())
             .setTypeClass(TradeEvaluationRequest.class));
     config.addSerializerConfig(
-        new SerializerConfig().setImplementation(new TradeEvaluationResultSerializer())
+        new SerializerConfig()
+            .setImplementation(new TradeEvaluationResultSerializer())
             .setTypeClass(TradeEvaluationResult.class));
-    config.addSerializerConfig(new SerializerConfig().setImplementation(new TradeKeySerializer())
-        .setTypeClass(TradeKey.class));
+    config.addSerializerConfig(
+        new SerializerConfig()
+            .setImplementation(new TradeKeySerializer())
+            .setTypeClass(TradeKey.class));
     config.addSerializerConfig(
         new SerializerConfig().setImplementation(new TradeSerializer()).setTypeClass(Trade.class));
 

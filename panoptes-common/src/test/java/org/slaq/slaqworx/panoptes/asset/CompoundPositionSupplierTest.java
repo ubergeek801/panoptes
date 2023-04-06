@@ -13,9 +13,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  * @author jeremy
  */
 public class CompoundPositionSupplierTest {
-  /**
-   * Tests that {@link PositionSupplier} concatenation behaves as expected.
-   */
+  /** Tests that {@link PositionSupplier} concatenation behaves as expected. */
   @Test
   public void testConcat() {
     PortfolioKey portfolioKey = new PortfolioKey("test", 1);
@@ -29,11 +27,15 @@ public class CompoundPositionSupplierTest {
     List<Position> positions = concat.getPositions().collect(Collectors.toList());
     assertEquals(7, positions.size(), "number of Positions should equal sum of Position set sizes");
 
-    assertEquals(portfolioKey, concat.getPortfolioKey(),
+    assertEquals(
+        portfolioKey,
+        concat.getPortfolioKey(),
         "Portfolio key should equal that of the Portfolios");
 
     // total market value should be 1000 + 500 + 500 + 1000 + 500 + 1000 + 200 = 4700
-    assertEquals(4700, concat.getMarketValue(TestUtil.defaultTestEvaluationContext()),
+    assertEquals(
+        4700,
+        concat.getMarketValue(TestUtil.defaultTestEvaluationContext()),
         "total market value should equal sum of Position sets");
   }
 }

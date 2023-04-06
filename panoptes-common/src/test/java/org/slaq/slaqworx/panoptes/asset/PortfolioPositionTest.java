@@ -16,9 +16,7 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
  * @author jeremy
  */
 public class PortfolioPositionTest {
-  /**
-   * Tests that {@link PortfolioPosition#getTaxLots()} behaves as expected.
-   */
+  /** Tests that {@link PortfolioPosition#getTaxLots()} behaves as expected. */
   @Test
   public void getTaxLots() {
     Security security = TestUtil.s1;
@@ -43,9 +41,7 @@ public class PortfolioPositionTest {
     assertTrue(positionTaxLots.containsKey(t4Key), "expected TaxLots to contain t4Key");
   }
 
-  /**
-   * Tests that {@link PortfolioPosition#getAmount()} behaves as expected.
-   */
+  /** Tests that {@link PortfolioPosition#getAmount()} behaves as expected. */
   @Test
   public void testGetAmount() {
     Security security = TestUtil.s1;
@@ -60,9 +56,7 @@ public class PortfolioPositionTest {
     assertEquals(200, position.getAmount(), "unexpected net Position amount");
   }
 
-  /**
-   * Tests that {@link PortfolioPosition#getSecurityKey()} behaves as expected.
-   */
+  /** Tests that {@link PortfolioPosition#getSecurityKey()} behaves as expected. */
   @Test
   public void testGetSecurityKey() {
     Security security = TestUtil.s1;

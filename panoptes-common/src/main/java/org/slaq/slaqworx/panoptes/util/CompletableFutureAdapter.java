@@ -7,9 +7,7 @@ import java.util.concurrent.CompletableFuture;
  * An adapter that exposes a result made available through a Hazelcast {@link ExecutionCallback} as
  * a {@link CompletableFuture}.
  *
- * @param <T>
- *     the type of value being supplied
- *
+ * @param <T> the type of value being supplied
  * @author jeremy
  */
 public class CompletableFutureAdapter<T> extends CompletableFuture<T>

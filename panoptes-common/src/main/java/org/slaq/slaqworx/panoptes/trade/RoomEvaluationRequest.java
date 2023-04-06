@@ -27,16 +27,14 @@ public class RoomEvaluationRequest
   /**
    * Creates a new {@link RoomEvaluationRequest} with the given parameters.
    *
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} in which room is to be found
-   * @param securityKey
-   *     the {@link SecurityKey} identifying the {@link Security} for which to find room in the
-   *     specified {@link Portfolio}
-   * @param targetValue
-   *     the target (maximum) amount of room to find
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} in which room is
+   *     to be found
+   * @param securityKey the {@link SecurityKey} identifying the {@link Security} for which to find
+   *     room in the specified {@link Portfolio}
+   * @param targetValue the target (maximum) amount of room to find
    */
-  public RoomEvaluationRequest(PortfolioKey portfolioKey, SecurityKey securityKey,
-      double targetValue) {
+  public RoomEvaluationRequest(
+      PortfolioKey portfolioKey, SecurityKey securityKey, double targetValue) {
     this.portfolioKey = portfolioKey;
     this.securityKey = securityKey;
     this.targetValue = targetValue;
@@ -53,8 +51,7 @@ public class RoomEvaluationRequest
   }
 
   /**
-   * Obtains the {@link PortfolioKey} identifying the {@link Portfolio} for which to calculate
-   * room.
+   * Obtains the {@link PortfolioKey} identifying the {@link Portfolio} for which to calculate room.
    *
    * @return a {@link PortfolioKey}
    */

@@ -23,15 +23,14 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
  *
  * @author jeremy
  */
-public class BenchmarkComparator extends
-    KeyedCoProcessFunction<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
-        RuleEvaluationResult> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class BenchmarkComparator
+    extends KeyedCoProcessFunction<
+        PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult, RuleEvaluationResult> {
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final ValueStateDescriptor<RuleEvaluationResult>
       PORTFOLIO_RESULT_STATE_DESCRIPTOR =
-      new ValueStateDescriptor<>("portfolioResult", RuleEvaluationResult.class);
+          new ValueStateDescriptor<>("portfolioResult", RuleEvaluationResult.class);
   private static final ValueStateDescriptor<EvaluationResult> BENCHMARK_RESULT_STATE_DESCRIPTOR =
       new ValueStateDescriptor<>("benchmarkResult", EvaluationResult.class);
 
@@ -40,9 +39,7 @@ public class BenchmarkComparator extends
   // contains the benchmark's rule results for the keyed benchmark and rule
   private transient ValueState<EvaluationResult> benchmarkResultState;
 
-  /**
-   * Creates a new {@link BenchmarkComparator}.
-   */
+  /** Creates a new {@link BenchmarkComparator}. */
   public BenchmarkComparator() {
     // nothing to do
   }
@@ -54,10 +51,17 @@ public class BenchmarkComparator extends
   }
 
   @Override
-  public void processElement1(RuleEvaluationResult portfolioResult,
-      KeyedCoProcessFunction<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
-          RuleEvaluationResult>.Context context,
-      Collector<RuleEvaluationResult> out) throws Exception {
+  public void processElement1(
+      RuleEvaluationResult portfolioResult,
+      KeyedCoProcessFunction<
+                  PortfolioRuleKey,
+                  RuleEvaluationResult,
+                  RuleEvaluationResult,
+                  RuleEvaluationResult>
+              .Context
+          context,
+      Collector<RuleEvaluationResult> out)
+      throws Exception {
     // the element being processed is a portfolio rule evaluation result
 
     // if the portfolio does not have a benchmark or if the rule does not support benchmarks,
@@ -84,10 +88,17 @@ public class BenchmarkComparator extends
   }
 
   @Override
-  public void processElement2(RuleEvaluationResult benchmarkResult,
-      KeyedCoProcessFunction<PortfolioRuleKey, RuleEvaluationResult, RuleEvaluationResult,
-          RuleEvaluationResult>.Context context,
-      Collector<RuleEvaluationResult> out) throws Exception {
+  public void processElement2(
+      RuleEvaluationResult benchmarkResult,
+      KeyedCoProcessFunction<
+                  PortfolioRuleKey,
+                  RuleEvaluationResult,
+                  RuleEvaluationResult,
+                  RuleEvaluationResult>
+              .Context
+          context,
+      Collector<RuleEvaluationResult> out)
+      throws Exception {
     // the element being processed is a benchmark rule evaluation result
 
     // store the benchmark result in the process state
@@ -108,23 +119,27 @@ public class BenchmarkComparator extends
    * Compares the base portfolio result and corresponding benchmark result and publishes the
    * comparison result to the given collector.
    *
-   * @param out
-   *     the {@link Collector} to which to publish the comparison result
-   * @param baseResult
-   *     the rule evaluation result from the base portfolio
-   * @param benchmarkResult
-   *     the rule evaluation result from the corresponding benchmark
+   * @param out the {@link Collector} to which to publish the comparison result
+   * @param baseResult the rule evaluation result from the base portfolio
+   * @param benchmarkResult the rule evaluation result from the corresponding benchmark
    */
-  protected void processPortfolioResult(Collector<RuleEvaluationResult> out,
-      RuleEvaluationResult baseResult, EvaluationResult benchmarkResult) {
+  protected void processPortfolioResult(
+      Collector<RuleEvaluationResult> out,
+      RuleEvaluationResult baseResult,
+      EvaluationResult benchmarkResult) {
     EvaluationResult benchmarkComparisonResult =
-        new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator().compare(
-            baseResult.evaluationResult(), benchmarkResult, baseResult);
+        new org.slaq.slaqworx.panoptes.evaluator.BenchmarkComparator()
+            .compare(baseResult.evaluationResult(), benchmarkResult, baseResult);
 
     RuleEvaluationResult finalResult =
-        new RuleEvaluationResult(baseResult.eventId(), baseResult.portfolioKey(),
-            baseResult.benchmarkKey(), EvaluationSource.BENCHMARK_COMPARISON,
-            baseResult.isBenchmarkSupported(), baseResult.lowerLimit(), baseResult.upperLimit(),
+        new RuleEvaluationResult(
+            baseResult.eventId(),
+            baseResult.portfolioKey(),
+            baseResult.benchmarkKey(),
+            EvaluationSource.BENCHMARK_COMPARISON,
+            baseResult.isBenchmarkSupported(),
+            baseResult.lowerLimit(),
+            baseResult.upperLimit(),
             benchmarkComparisonResult);
     out.collect(finalResult);
   }

@@ -24,9 +24,7 @@ import java.util.concurrent.Executor;
  * @author jeremy
  */
 public class DummyConnection implements Connection {
-  /**
-   * Creates a new {@link DummyConnection}.
-   */
+  /** Creates a new {@link DummyConnection}. */
   public DummyConnection() {
     // nothing to do
   }
@@ -87,8 +85,8 @@ public class DummyConnection implements Connection {
   }
 
   @Override
-  public Statement createStatement(int resultSetType, int resultSetConcurrency,
-      int resultSetHoldability) {
+  public Statement createStatement(
+      int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
     return null;
   }
 
@@ -228,8 +226,8 @@ public class DummyConnection implements Connection {
   }
 
   @Override
-  public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
-      int resultSetHoldability) {
+  public CallableStatement prepareCall(
+      String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
     return null;
   }
 
@@ -244,14 +242,14 @@ public class DummyConnection implements Connection {
   }
 
   @Override
-  public PreparedStatement prepareStatement(String sql, int resultSetType,
-      int resultSetConcurrency) {
+  public PreparedStatement prepareStatement(
+      String sql, int resultSetType, int resultSetConcurrency) {
     return null;
   }
 
   @Override
-  public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
-      int resultSetHoldability) {
+  public PreparedStatement prepareStatement(
+      String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
     return null;
   }
 

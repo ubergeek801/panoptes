@@ -14,17 +14,20 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  * A {@link LimitRule} which stipulates limits on {@link Portfolio} concentration in {@link
  * Security} holdings matched by a given {@link Position} filter, either in absolute terms or
  * relative to a benchmark. Examples of absolute rules include:
+ *
  * <ul>
- * <li>{@link Portfolio} holdings in a {@link Security} from the Emerging Markets region may not
- * exceed 10%
- * <li>{@link Portfolio} holdings in a US-domiciled {@link Security} must be at least 50%
+ *   <li>{@link Portfolio} holdings in a {@link Security} from the Emerging Markets region may not
+ *       exceed 10%
+ *   <li>{@link Portfolio} holdings in a US-domiciled {@link Security} must be at least 50%
  * </ul>
+ *
  * Examples of benchmark-relative rules include:
+ *
  * <ul>
- * <li>{@link Portfolio} holdings in a BRL-denominated {@link Security} must be between 95% and 105%
- * of the benchmark
- * <li>{@link Portfolio} holdings in a {@link Security} with duration < 5.0 must be less than 80% of
- * the benchmark
+ *   <li>{@link Portfolio} holdings in a BRL-denominated {@link Security} must be between 95% and
+ *       105% of the benchmark
+ *   <li>{@link Portfolio} holdings in a {@link Security} with duration < 5.0 must be less than 80%
+ *       of the benchmark
  * </ul>
  *
  * @author jeremy
@@ -34,22 +37,20 @@ public class ConcentrationRule extends LimitRule {
    * Creates a new {@link ConcentrationRule} with the given key, description, filter, lower and
    * upper limit.
    *
-   * @param key
-   *     the unique key of this {@link Rule}, or {@code null} to generate one
-   * @param description
-   *     the {@link Rule} description
-   * @param positionFilter
-   *     the filter to be applied to {@link Position}s to determine concentration
-   * @param lowerLimit
-   *     the lower limit of acceptable concentration values
-   * @param upperLimit
-   *     the upper limit of acceptable concentration values
-   * @param groupClassifier
-   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
-   *     implement {@link GroupAggregator}
+   * @param key the unique key of this {@link Rule}, or {@code null} to generate one
+   * @param description the {@link Rule} description
+   * @param positionFilter the filter to be applied to {@link Position}s to determine concentration
+   * @param lowerLimit the lower limit of acceptable concentration values
+   * @param upperLimit the upper limit of acceptable concentration values
+   * @param groupClassifier the (possibly {@code null}) {@link EvaluationGroupClassifier} to use,
+   *     which may also implement {@link GroupAggregator}
    */
-  public ConcentrationRule(RuleKey key, @Nonnull String description,
-      Predicate<PositionEvaluationContext> positionFilter, Double lowerLimit, Double upperLimit,
+  public ConcentrationRule(
+      RuleKey key,
+      @Nonnull String description,
+      Predicate<PositionEvaluationContext> positionFilter,
+      Double lowerLimit,
+      Double upperLimit,
       EvaluationGroupClassifier groupClassifier) {
     super(key, description, positionFilter, lowerLimit, upperLimit, groupClassifier);
   }
@@ -58,22 +59,21 @@ public class ConcentrationRule extends LimitRule {
    * Creates a new {@link ConcentrationRule} with the given JSON configuration, key, description,
    * filter and classifier.
    *
-   * @param jsonConfiguration
-   *     the JSON configuration specifying lower and upper limits
-   * @param key
-   *     the unique key of this {@link Rule}, or {@code null} to generate one
-   * @param description
-   *     the {@link Rule} description
-   * @param groovyFilter
-   *     a (possibly {@code null}) Groovy expression to be used as a {@link Position} filter
-   * @param groupClassifier
-   *     the (possibly {@code null}) {@link EvaluationGroupClassifier} to use, which may also
-   *     implement {@link GroupAggregator}
-   *
+   * @param jsonConfiguration the JSON configuration specifying lower and upper limits
+   * @param key the unique key of this {@link Rule}, or {@code null} to generate one
+   * @param description the {@link Rule} description
+   * @param groovyFilter a (possibly {@code null}) Groovy expression to be used as a {@link
+   *     Position} filter
+   * @param groupClassifier the (possibly {@code null}) {@link EvaluationGroupClassifier} to use,
+   *     which may also implement {@link GroupAggregator}
    * @return a {@link ConcentrationRule} with the specified configuration
    */
-  public static ConcentrationRule fromJson(@Nonnull String jsonConfiguration, RuleKey key,
-      @Nonnull String description, String groovyFilter, EvaluationGroupClassifier groupClassifier) {
+  public static ConcentrationRule fromJson(
+      @Nonnull String jsonConfiguration,
+      RuleKey key,
+      @Nonnull String description,
+      String groovyFilter,
+      EvaluationGroupClassifier groupClassifier) {
     Configuration configuration;
     try {
       configuration =
@@ -83,9 +83,13 @@ public class ConcentrationRule extends LimitRule {
       throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration, e);
     }
 
-    return new ConcentrationRule(key, description,
+    return new ConcentrationRule(
+        key,
+        description,
         (groovyFilter == null ? null : GroovyPositionFilter.of(groovyFilter)),
-        configuration.lowerLimit, configuration.upperLimit, groupClassifier);
+        configuration.lowerLimit,
+        configuration.upperLimit,
+        groupClassifier);
   }
 
   @Override
@@ -103,8 +107,8 @@ public class ConcentrationRule extends LimitRule {
   }
 
   @Override
-  protected double getValue(@Nonnull PositionSupplier positions,
-      @Nonnull EvaluationContext evaluationContext) {
+  protected double getValue(
+      @Nonnull PositionSupplier positions, @Nonnull EvaluationContext evaluationContext) {
     // ConcentrationRule works like a LimitRule in which the calculated value is scaled by the
     // total amount of the Portfolio. (Eventually this could support scaling by other aggregate
     // Portfolio attributes.) Note that this requires that the specified PositionSupplier must
@@ -116,21 +120,25 @@ public class ConcentrationRule extends LimitRule {
     // the PositionEvaluationContext. In this case we consider that fatal, as we can't reliably
     // calculate the concentration, so we introduce a second filter to rethrow the exception if
     // found, otherwise carry on.
-    Predicate<PositionEvaluationContext> exceptionThrowingFilter = (p -> {
-      Throwable e = p.getException();
-      if (e == null) {
-        return true;
-      }
+    Predicate<PositionEvaluationContext> exceptionThrowingFilter =
+        (p -> {
+          Throwable e = p.getException();
+          if (e == null) {
+            return true;
+          }
 
-      if (e instanceof RuntimeException r) {
-        throw r;
-      }
-      // TODO wrap in a better exception
-      throw new RuntimeException(e);
-    });
-    double subtotalAmount = calculator.calculate(
-        positions.getPositionsWithContext(evaluationContext).filter(getPositionFilter())
-            .filter(exceptionThrowingFilter));
+          if (e instanceof RuntimeException r) {
+            throw r;
+          }
+          // TODO wrap in a better exception
+          throw new RuntimeException(e);
+        });
+    double subtotalAmount =
+        calculator.calculate(
+            positions
+                .getPositionsWithContext(evaluationContext)
+                .filter(getPositionFilter())
+                .filter(exceptionThrowingFilter));
 
     return subtotalAmount / evaluationContext.getMarketValue(positions);
   }

@@ -21,9 +21,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
 @Singleton
 public class PortfolioEvaluationRequestSerializer
     implements ProtobufSerializer<PortfolioEvaluationRequest> {
-  /**
-   * Creates a new {@link PortfolioEvaluationRequestSerializer}.
-   */
+  /** Creates a new {@link PortfolioEvaluationRequestSerializer}. */
   public PortfolioEvaluationRequestSerializer() {
     // nothing to do
   }

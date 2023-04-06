@@ -3,8 +3,7 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.evaluator.EvaluationResult;
 
 /**
- * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link
- * EvaluationResult}.
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link EvaluationResult}.
  *
  * @author jeremy
  */

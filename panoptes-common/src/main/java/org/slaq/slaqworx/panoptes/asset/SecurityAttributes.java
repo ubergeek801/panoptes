@@ -23,30 +23,28 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
  * @author jeremy
  */
 public class SecurityAttributes implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   // while a Map is more convenient, attribute lookups are a very hot piece of code during Rule
   // evaluation, and an array lookup speeds things up by ~13%, so an ArrayList is used for lookups
-  @Nonnull
-  private final ArrayList<? super Object> attributeValues = new ArrayList<>();
+  @Nonnull private final ArrayList<? super Object> attributeValues = new ArrayList<>();
 
   private String hash;
 
   /**
    * Creates a new {@link SecurityAttributes} container of the given attributes.
    *
-   * @param attributes
-   *     a {@link Map} of {@link SecurityAttribute} to attribute value
+   * @param attributes a {@link Map} of {@link SecurityAttribute} to attribute value
    */
   public SecurityAttributes(@Nonnull Map<SecurityAttribute<?>, ? super Object> attributes) {
-    attributes.forEach((a, v) -> {
-      attributeValues.ensureCapacity(a.getIndex() + 1);
-      while (attributeValues.size() < a.getIndex() + 1) {
-        attributeValues.add(null);
-      }
-      attributeValues.set(a.getIndex(), v);
-    });
+    attributes.forEach(
+        (a, v) -> {
+          attributeValues.ensureCapacity(a.getIndex() + 1);
+          while (attributeValues.size() < a.getIndex() + 1) {
+            attributeValues.add(null);
+          }
+          attributeValues.set(a.getIndex(), v);
+        });
   }
 
   /**
@@ -58,7 +56,8 @@ public class SecurityAttributes implements Serializable {
    */
   @Nonnull
   public Map<SecurityAttribute<?>, ? super Object> asMap() {
-    return IntStream.range(0, attributeValues.size()).boxed()
+    return IntStream.range(0, attributeValues.size())
+        .boxed()
         .filter(i -> attributeValues.get(i) != null)
         .collect(Collectors.toMap(SecurityAttribute::of, attributeValues::get));
   }
@@ -83,9 +82,7 @@ public class SecurityAttributes implements Serializable {
    * Obtains the value of the specified attribute index. This form of {@code getValue()} is intended
    * for the rare cases when the index is already known.
    *
-   * @param attributeIndex
-   *     the index corresponding to the associated {@link SecurityAttribute}
-   *
+   * @param attributeIndex the index corresponding to the associated {@link SecurityAttribute}
    * @return the value of the given attribute, or {@code null} if not assigned
    */
   public Object getValue(int attributeIndex) {
@@ -100,15 +97,13 @@ public class SecurityAttributes implements Serializable {
   /**
    * Obtains the value of the specified attribute.
    *
-   * @param <T>
-   *     the expected type of the attribute value
-   * @param attribute
-   *     the {@link SecurityAttribute} identifying the attribute
-   *
+   * @param <T> the expected type of the attribute value
+   * @param attribute the {@link SecurityAttribute} identifying the attribute
    * @return the value of the given attribute, or {@code null} if not assigned
    */
   public <T> T getValue(@Nonnull SecurityAttribute<T> attribute) {
-    @SuppressWarnings("unchecked") T value = (T) getValue(attribute.getIndex());
+    @SuppressWarnings("unchecked")
+    T value = (T) getValue(attribute.getIndex());
     return value;
   }
 
@@ -172,10 +167,17 @@ public class SecurityAttributes implements Serializable {
    */
   @Nonnull
   protected SortedMap<SecurityAttribute<?>, ? super Object> asSortedMap() {
-    return IntStream.range(0, attributeValues.size()).boxed()
+    return IntStream.range(0, attributeValues.size())
+        .boxed()
         .filter(i -> attributeValues.get(i) != null)
-        .collect(Collectors.toMap(SecurityAttribute::of, attributeValues::get, (v1, v2) -> {
-          throw new RuntimeException(String.format("Duplicate key for values %s and %s", v1, v2));
-        }, () -> new TreeMap<>(SecurityAttribute::compareTo)));
+        .collect(
+            Collectors.toMap(
+                SecurityAttribute::of,
+                attributeValues::get,
+                (v1, v2) -> {
+                  throw new RuntimeException(
+                      String.format("Duplicate key for values %s and %s", v1, v2));
+                },
+                () -> new TreeMap<>(SecurityAttribute::compareTo)));
   }
 }

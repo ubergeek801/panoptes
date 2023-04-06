@@ -10,16 +10,13 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  * @author jeremy
  */
 public class TransactionEvent extends PortfolioCommandEvent {
-  @Nonnull
-  private final Transaction transaction;
+  @Nonnull private final Transaction transaction;
 
   /**
    * Creates a new {@link TransactionEvent}.
    *
-   * @param eventId
-   *     an ID identifying the event
-   * @param transaction
-   *     a {@link Transaction} to be evaluated against the specified portfolio
+   * @param eventId an ID identifying the event
+   * @param transaction a {@link Transaction} to be evaluated against the specified portfolio
    */
   public TransactionEvent(long eventId, @Nonnull Transaction transaction) {
     super(eventId, transaction.getPortfolioKey());

@@ -13,9 +13,7 @@ public interface EligibilityListProvider {
   /**
    * Obtains the eligibility list corresponding to the given name.
    *
-   * @param name
-   *     the name identifying the {@link EligibilityList} to be obtained
-   *
+   * @param name the name identifying the {@link EligibilityList} to be obtained
    * @return the eligibility list corresponding to the given key, or {@code null} if it could not be
    *     located
    */

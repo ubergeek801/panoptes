@@ -25,15 +25,13 @@ public class Trade implements ProtobufSerializable {
    * Creates a new {@link Trade} with a generated key and consisting of the given {@link
    * Transaction}s.
    *
-   * @param tradeDate
-   *     the date on which the {@link Trade} is effective
-   * @param settlementDate
-   *     the date on which the {@link Trade} settles
-   * @param transactions
-   *     the {@link Transaction}s comprising this {@link Trade}, mapped by {@link PortfolioKey}
+   * @param tradeDate the date on which the {@link Trade} is effective
+   * @param settlementDate the date on which the {@link Trade} settles
+   * @param transactions the {@link Transaction}s comprising this {@link Trade}, mapped by {@link
+   *     PortfolioKey}
    */
-  public Trade(LocalDate tradeDate, LocalDate settlementDate,
-      Map<PortfolioKey, Transaction> transactions) {
+  public Trade(
+      LocalDate tradeDate, LocalDate settlementDate, Map<PortfolioKey, Transaction> transactions) {
     this(null, tradeDate, settlementDate, transactions);
   }
 
@@ -41,16 +39,16 @@ public class Trade implements ProtobufSerializable {
    * Creates a new {@link Trade} with the given key and consisting of the given {@link
    * Transaction}s.
    *
-   * @param key
-   *     the unique key to assign to this {@link Trade}, or {@code null} to generate one
-   * @param tradeDate
-   *     the date on which the {@link Trade} is effective
-   * @param settlementDate
-   *     the date on which the {@link Trade} settles
-   * @param transactions
-   *     the {@link Transaction}s comprising this {@link Trade}, mapped by {@link PortfolioKey}
+   * @param key the unique key to assign to this {@link Trade}, or {@code null} to generate one
+   * @param tradeDate the date on which the {@link Trade} is effective
+   * @param settlementDate the date on which the {@link Trade} settles
+   * @param transactions the {@link Transaction}s comprising this {@link Trade}, mapped by {@link
+   *     PortfolioKey}
    */
-  public Trade(TradeKey key, LocalDate tradeDate, LocalDate settlementDate,
+  public Trade(
+      TradeKey key,
+      LocalDate tradeDate,
+      LocalDate settlementDate,
       Map<PortfolioKey, Transaction> transactions) {
     this.key = (key == null ? new TradeKey(null) : key);
     this.tradeDate = tradeDate;
@@ -59,7 +57,8 @@ public class Trade implements ProtobufSerializable {
 
     // Trade and TaxLot creation are a chicken-and-egg situation, so Trade is responsible for
     // updating its TaxLots at create time
-    transactions.values().stream().flatMap(Transaction::getPositions)
+    transactions.values().stream()
+        .flatMap(Transaction::getPositions)
         .forEach(a -> a.setTradeKey(this.key));
   }
 
@@ -91,9 +90,8 @@ public class Trade implements ProtobufSerializable {
   /**
    * Obtains allocations of this {@link Trade} corresponding to the specified {@link Portfolio}.
    *
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} for which to obtain allocations
-   *
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} for which to
+   *     obtain allocations
    * @return a {@link Stream} of {@link Position}s representing the allocations for the specified
    *     {@link Portfolio}
    */
@@ -137,10 +135,8 @@ public class Trade implements ProtobufSerializable {
   /**
    * Obtains the {@link Transaction} corresponding to the specified {@link Portfolio}.
    *
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} for which to obtain the
-   *     transaction
-   *
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} for which to
+   *     obtain the transaction
    * @return the {@link Transaction} corresponding to the specified {@link Portfolio}, or {@code
    *     null} if it does not exist
    */

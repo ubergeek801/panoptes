@@ -13,16 +13,14 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
  * @author jeremy
  */
 public class PortfolioPosition extends AbstractPosition {
-  @Nonnull
-  private final ArrayList<TaxLot> taxLots;
+  @Nonnull private final ArrayList<TaxLot> taxLots;
   private final double amount;
 
   /**
    * Creates a new {@link PortfolioPosition} aggregating the given {@link TaxLot}s.
    *
-   * @param taxLots
-   *     a {@link Collection} of one or more {@link TaxLot}s to be aggregated by this {@link
-   *     Position}
+   * @param taxLots a {@link Collection} of one or more {@link TaxLot}s to be aggregated by this
+   *     {@link Position}
    */
   public PortfolioPosition(@Nonnull Collection<TaxLot> taxLots) {
     this.taxLots = new ArrayList<>(taxLots);

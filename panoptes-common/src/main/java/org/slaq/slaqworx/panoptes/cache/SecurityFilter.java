@@ -17,14 +17,11 @@ import org.slaq.slaqworx.panoptes.util.SerializablePredicate;
  * @author jeremy
  */
 public class SecurityFilter implements Predicate<SecurityKey, Security> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private SerializablePredicate<SecurityAttributes> predicate;
 
-  /**
-   * Creates a new, empty {@link SecurityFilter}.
-   */
+  /** Creates a new, empty {@link SecurityFilter}. */
   public SecurityFilter() {
     // nothing to do
   }
@@ -32,11 +29,8 @@ public class SecurityFilter implements Predicate<SecurityKey, Security> {
   /**
    * Adds a filter on the given {@link SecurityAttribute} having the given value.
    *
-   * @param attribute
-   *     the {@link SecurityAttribute} on which to filter
-   * @param value
-   *     the attribute value to be included in results
-   *
+   * @param attribute the {@link SecurityAttribute} on which to filter
+   * @param value the attribute value to be included in results
    * @return this {@link SecurityFilter} instance
    */
   public SecurityFilter add(@Nonnull SecurityAttribute<String> attribute, String value) {
@@ -45,14 +39,15 @@ public class SecurityFilter implements Predicate<SecurityKey, Security> {
       return this;
     }
 
-    SerializablePredicate<SecurityAttributes> attributeFilter = (a -> {
-      String attributeValue = a.getValue(attribute);
-      if (attributeValue != null) {
-        return attributeValue.equals(value);
-      }
+    SerializablePredicate<SecurityAttributes> attributeFilter =
+        (a -> {
+          String attributeValue = a.getValue(attribute);
+          if (attributeValue != null) {
+            return attributeValue.equals(value);
+          }
 
-      return false;
-    });
+          return false;
+        });
 
     return add(attributeFilter);
   }
@@ -60,13 +55,9 @@ public class SecurityFilter implements Predicate<SecurityKey, Security> {
   /**
    * Adds a filter on the given {@link SecurityAttribute} having a value in the given range.
    *
-   * @param attribute
-   *     the {@link SecurityAttribute} on which to filter
-   * @param minValue
-   *     the minimum attribute value to be included in results
-   * @param maxValue
-   *     the maximum attribute value to be included in results
-   *
+   * @param attribute the {@link SecurityAttribute} on which to filter
+   * @param minValue the minimum attribute value to be included in results
+   * @param maxValue the maximum attribute value to be included in results
    * @return this {@link SecurityFilter} instance
    */
   public <T extends Comparable<? super T>> SecurityFilter add(
@@ -76,17 +67,18 @@ public class SecurityFilter implements Predicate<SecurityKey, Security> {
       return this;
     }
 
-    SerializablePredicate<SecurityAttributes> attributeFilter = (a -> {
-      T attributeValue = a.getValue(attribute);
-      if (attributeValue != null) {
-        boolean isMinValueMet = (minValue == null || attributeValue.compareTo(minValue) >= 0);
-        boolean isMaxValueMet = (maxValue == null || attributeValue.compareTo(maxValue) <= 0);
+    SerializablePredicate<SecurityAttributes> attributeFilter =
+        (a -> {
+          T attributeValue = a.getValue(attribute);
+          if (attributeValue != null) {
+            boolean isMinValueMet = (minValue == null || attributeValue.compareTo(minValue) >= 0);
+            boolean isMaxValueMet = (maxValue == null || attributeValue.compareTo(maxValue) <= 0);
 
-        return isMinValueMet && isMaxValueMet;
-      }
+            return isMinValueMet && isMaxValueMet;
+          }
 
-      return false;
-    });
+          return false;
+        });
 
     return add(attributeFilter);
   }
@@ -94,9 +86,7 @@ public class SecurityFilter implements Predicate<SecurityKey, Security> {
   /**
    * Adds a filter matching the given {@link SecurityAttributes} predicate.
    *
-   * @param p
-   *     the predicate to be matched
-   *
+   * @param p the predicate to be matched
    * @return this {@link SecurityFilter} instance
    */
   public SecurityFilter add(@Nonnull SerializablePredicate<SecurityAttributes> p) {

@@ -17,13 +17,9 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
 import org.slaq.slaqworx.panoptes.rule.WeightedAverageRule;
 
-/**
- * Tests the functionality of the {@link EvaluationRequestGenerator}.
- */
+/** Tests the functionality of the {@link EvaluationRequestGenerator}. */
 public class EvaluationRequestGeneratorTest {
-  /**
-   * Tests that the {@link EvaluationRequestGenerator} behaves as expected.
-   */
+  /** Tests that the {@link EvaluationRequestGenerator} behaves as expected. */
   @Test
   public void testGenerator() {
     EvaluationRequestGenerator generator = new EvaluationRequestGenerator();
@@ -33,20 +29,23 @@ public class EvaluationRequestGeneratorTest {
 
     RuleKey ruleKey = new RuleKey("test");
     WeightedAverageRule rule =
-        new WeightedAverageRule(ruleKey, "test portfolio rule", null, SecurityAttribute.duration,
-            null, null, null);
+        new WeightedAverageRule(
+            ruleKey, "test portfolio rule", null, SecurityAttribute.duration, null, null, null);
 
     // associate the rule with the portfolio
 
-    Traverser<PortfolioEvaluationInput> output = generator.handleRuleEvent(state,
-        Tuple3.tuple3(EvaluationSource.PORTFOLIO, portfolioKey, rule));
+    Traverser<PortfolioEvaluationInput> output =
+        generator.handleRuleEvent(
+            state, Tuple3.tuple3(EvaluationSource.PORTFOLIO, portfolioKey, rule));
     assertNull(output.next(), "should not have output yet");
 
     output = generator.handleEvaluationEvent(state, portfolioKey);
     PortfolioEvaluationInput item = output.next();
     assertNotNull(item, "output should have emitted portfolio event");
     assertEquals(portfolioKey, item.getPortfolioKey(), "event should have been on portfolio");
-    assertEquals(EvaluationSource.PORTFOLIO, item.getEvaluationSource(),
+    assertEquals(
+        EvaluationSource.PORTFOLIO,
+        item.getEvaluationSource(),
         "event should have had PORTFOLIO source");
     ArrayList<Rule> rules = item.getRules();
     assertEquals(1, rules.size(), "unexpected number of rules");

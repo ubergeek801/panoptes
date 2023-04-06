@@ -16,28 +16,23 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 /**
  * Aggregates {@link ValueResult}s for a single {@link Rule} evaluation.
  *
- * @param ruleKey
- *     the key indicating the {@link Rule} for which the results were produced
- * @param results
- *     a {@link Map} containing the grouped evaluation results
- * @param proposedResults
- *     a (possibly empty but never {@code null}) {@link Map} containing the grouped evaluation
- *     results of a proposed set of {@link Position}s, if requested
- *
+ * @param ruleKey the key indicating the {@link Rule} for which the results were produced
+ * @param results a {@link Map} containing the grouped evaluation results
+ * @param proposedResults a (possibly empty but never {@code null}) {@link Map} containing the
+ *     grouped evaluation results of a proposed set of {@link Position}s, if requested
  * @author jeremy
  */
-public record EvaluationResult(@Nonnull RuleKey ruleKey,
-                               @Nonnull Map<EvaluationGroup, ValueResult> results,
-                               @Nonnull Map<EvaluationGroup, ValueResult> proposedResults)
+public record EvaluationResult(
+    @Nonnull RuleKey ruleKey,
+    @Nonnull Map<EvaluationGroup, ValueResult> results,
+    @Nonnull Map<EvaluationGroup, ValueResult> proposedResults)
     implements Keyed<RuleKey>, ProtobufSerializable {
   /**
    * Creates a new {@link EvaluationResult} for the specified {@link Rule} using the given grouped
    * {@link ValueResult}s.
    *
-   * @param ruleKey
-   *     the key indicating the {@link Rule} for which the results were produced
-   * @param results
-   *     a {@link Map} containing the grouped evaluation results
+   * @param ruleKey the key indicating the {@link Rule} for which the results were produced
+   * @param results a {@link Map} containing the grouped evaluation results
    */
   public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, ValueResult> results) {
     this(ruleKey, results, null);
@@ -47,7 +42,9 @@ public record EvaluationResult(@Nonnull RuleKey ruleKey,
    * Creates a new {@link EvaluationResult} for the specified {@link Rule} using the given grouped
    * {@link ValueResult}s and proposed {@link ValueResult}s.
    */
-  public EvaluationResult(RuleKey ruleKey, Map<EvaluationGroup, ValueResult> results,
+  public EvaluationResult(
+      RuleKey ruleKey,
+      Map<EvaluationGroup, ValueResult> results,
       Map<EvaluationGroup, ValueResult> proposedResults) {
     this.ruleKey = ruleKey;
     this.results = results;
@@ -63,9 +60,7 @@ public record EvaluationResult(@Nonnull RuleKey ruleKey,
   /**
    * Obtains the proposed result corresponding to the specified group, if any.
    *
-   * @param group
-   *     the group for which to obtain proposed results
-   *
+   * @param group the group for which to obtain proposed results
    * @return a {@link ValueResult} describing the requested proposed results, or {@code null} if
    *     there were no proposed results for the specified group
    */
@@ -76,9 +71,7 @@ public record EvaluationResult(@Nonnull RuleKey ruleKey,
   /**
    * Obtains the result corresponding to the specified group, if any.
    *
-   * @param group
-   *     the group for which to obtain results
-   *
+   * @param group the group for which to obtain results
    * @return a {@link ValueResult} describing the requested results, or {@code null} if there were
    *     no results for the specified group
    */

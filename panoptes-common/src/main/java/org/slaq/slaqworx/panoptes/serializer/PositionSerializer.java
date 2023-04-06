@@ -18,9 +18,7 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
  */
 @Singleton
 public class PositionSerializer implements ProtobufSerializer<Position> {
-  /**
-   * Creates a new {@link PositionSerializer}.
-   */
+  /** Creates a new {@link PositionSerializer}. */
   public PositionSerializer() {
     // nothing to do
   }
@@ -28,9 +26,7 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
   /**
    * Converts a {@link Position} into a new {@link PositionMsg}.
    *
-   * @param position
-   *     the {@link Position} to be converted
-   *
+   * @param position the {@link Position} to be converted
    * @return a {@link PositionMsg}
    */
   public static PositionMsg convert(Position position) {
@@ -51,9 +47,7 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
   /**
    * Converts a {@link PositionMsg} into a new {@link Position}.
    *
-   * @param positionMsg
-   *     the message to be converted
-   *
+   * @param positionMsg the message to be converted
    * @return a {@link Position}
    */
   public static Position convert(PositionMsg positionMsg) {
@@ -68,9 +62,7 @@ public class PositionSerializer implements ProtobufSerializer<Position> {
   /**
    * Converts a {@link PositionMsg} into a new {@link TaxLot}.
    *
-   * @param positionMsg
-   *     the message to be converted
-   *
+   * @param positionMsg the message to be converted
    * @return a {@link TaxLot}
    */
   public static TaxLot convertTaxLot(PositionMsg positionMsg) {

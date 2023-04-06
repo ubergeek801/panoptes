@@ -33,17 +33,15 @@ public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object>
    * Creates a new {@link HazelcastMapStoreFactory}. Restricted because instances of this class
    * should be obtained from the {@link ApplicationContext}.
    *
-   * @param portfolioMapStore
-   *     the {@link MapStore} to use for the {@link Portfolio} cache
-   * @param positionMapStore
-   *     the {@link MapStore} to use for the {@link Position} cache
-   * @param ruleMapStore
-   *     the {@link MapStore} to use for the {@link Rule} cache
-   * @param securityMapStore
-   *     the {@link MapStore} to use for the {@link Security} cache
+   * @param portfolioMapStore the {@link MapStore} to use for the {@link Portfolio} cache
+   * @param positionMapStore the {@link MapStore} to use for the {@link Position} cache
+   * @param ruleMapStore the {@link MapStore} to use for the {@link Rule} cache
+   * @param securityMapStore the {@link MapStore} to use for the {@link Security} cache
    */
-  protected HazelcastMapStoreFactory(PortfolioMapStore portfolioMapStore,
-      PositionMapStore positionMapStore, RuleMapStore ruleMapStore,
+  protected HazelcastMapStoreFactory(
+      PortfolioMapStore portfolioMapStore,
+      PositionMapStore positionMapStore,
+      RuleMapStore ruleMapStore,
       SecurityMapStore securityMapStore) {
     this.portfolioMapStore = portfolioMapStore;
     this.positionMapStore = positionMapStore;
@@ -54,14 +52,14 @@ public class HazelcastMapStoreFactory implements MapStoreFactory<Object, Object>
   @Override
   public MapLoader newMapStore(String mapName, Properties properties) {
     switch (mapName) {
-    case AssetCache.PORTFOLIO_CACHE_NAME:
-      return portfolioMapStore;
-    case AssetCache.POSITION_CACHE_NAME:
-      return positionMapStore;
-    case AssetCache.RULE_CACHE_NAME:
-      return ruleMapStore;
-    case AssetCache.SECURITY_CACHE_NAME:
-      return securityMapStore;
+      case AssetCache.PORTFOLIO_CACHE_NAME:
+        return portfolioMapStore;
+      case AssetCache.POSITION_CACHE_NAME:
+        return positionMapStore;
+      case AssetCache.RULE_CACHE_NAME:
+        return ruleMapStore;
+      case AssetCache.SECURITY_CACHE_NAME:
+        return securityMapStore;
     }
 
     // TODO throw a better exception

@@ -14,8 +14,8 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 public interface PortfolioEvent extends Keyed<PortfolioKey>, ProtobufSerializable {
   /**
    * Obtains the key, if applicable, of the benchmark associated with the target portfolio.
-   * <p>
-   * FIXME it's not clear that this belongs at the PortfolioEvent level
+   *
+   * <p>FIXME it's not clear that this belongs at the PortfolioEvent level
    *
    * @return a key identifying the portfolio's benchmark, or {@code null} if there is no associated
    *     benchmark

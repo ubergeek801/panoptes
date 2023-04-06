@@ -7,13 +7,9 @@ import org.slaq.slaqworx.panoptes.util.Keyed;
 /**
  * A projection of {@link Rule} used primarily by the compliance display.
  *
- * @param key
- *     the {@link Rule} key
- * @param description
- *     the {@link Rule} description
- * @param parameterDescription
- *     a description of the {@link Rule}'s configuration parameters
- *
+ * @param key the {@link Rule} key
+ * @param description the {@link Rule} description
+ * @param parameterDescription a description of the {@link Rule}'s configuration parameters
  * @author jeremy
  */
 public record RuleSummary(RuleKey key, String description, String parameterDescription)
@@ -21,9 +17,7 @@ public record RuleSummary(RuleKey key, String description, String parameterDescr
   /**
    * Creates a new {@link RuleSummary} from the given {@link Rule}.
    *
-   * @param rule
-   *     the {@link Rule} to summarize
-   *
+   * @param rule the {@link Rule} to summarize
    * @return a {@link RuleSummary} summarizing the given {@link Rule}
    */
   @Nonnull

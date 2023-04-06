@@ -33,8 +33,7 @@ public class TradeEvaluationResult implements ProtobufSerializable {
   /**
    * Creates a new, empty {@link TradeEvaluationResult}.
    *
-   * @param tradeKey
-   *     a key identifying the {@link Trade} giving rise to this result
+   * @param tradeKey a key identifying the {@link Trade} giving rise to this result
    */
   public TradeEvaluationResult(TradeKey tradeKey) {
     this.tradeKey = tradeKey;
@@ -44,19 +43,16 @@ public class TradeEvaluationResult implements ProtobufSerializable {
    * Records an impact corresponding to the given {@link Portfolio}, {@link Rule} and {@link
    * EvaluationGroup}.
    *
-   * @param portfolioKey
-   *     a key identifying the {@link Portfolio} on which the impact occurred
-   * @param ruleKey
-   *     a key identifying the {@link Rule} for which the impact occurred
-   * @param evaluationGroup
-   *     the {@link EvaluationGroup} on which the impact occurred
-   * @param impact
-   *     the impact that was determined during evaluation
+   * @param portfolioKey a key identifying the {@link Portfolio} on which the impact occurred
+   * @param ruleKey a key identifying the {@link Rule} for which the impact occurred
+   * @param evaluationGroup the {@link EvaluationGroup} on which the impact occurred
+   * @param impact the impact that was determined during evaluation
    */
-  public void addImpact(PortfolioKey portfolioKey, RuleKey ruleKey, EvaluationGroup evaluationGroup,
-      Impact impact) {
-    Map<EvaluationGroup, Impact> groupImpactMap = ruleImpactMap
-        .computeIfAbsent(new PortfolioRuleKey(portfolioKey, ruleKey), r -> new HashMap<>());
+  public void addImpact(
+      PortfolioKey portfolioKey, RuleKey ruleKey, EvaluationGroup evaluationGroup, Impact impact) {
+    Map<EvaluationGroup, Impact> groupImpactMap =
+        ruleImpactMap.computeIfAbsent(
+            new PortfolioRuleKey(portfolioKey, ruleKey), r -> new HashMap<>());
     groupImpactMap.put(evaluationGroup, impact);
 
     // update the aggregate impact; it can only be downgraded
@@ -78,9 +74,8 @@ public class TradeEvaluationResult implements ProtobufSerializable {
    * evaluation results. Provided primarily for convenience as an accumulator for {@code
    * Stream.collect()}.
    *
-   * @param portfolioResults
-   *     a {@link Pair} consisting of a key identifying the {@link Portfolio} under evaluation, and
-   *     a {@link Map} correlating a {@link Rule}'s key with its results
+   * @param portfolioResults a {@link Pair} consisting of a key identifying the {@link Portfolio}
+   *     under evaluation, and a {@link Map} correlating a {@link Rule}'s key with its results
    */
   public void addImpacts(Pair<PortfolioKey, Map<RuleKey, EvaluationResult>> portfolioResults) {
     addImpacts(portfolioResults.getLeft(), portfolioResults.getRight());
@@ -90,17 +85,20 @@ public class TradeEvaluationResult implements ProtobufSerializable {
    * Updates this {@link TradeEvaluationResult} with impacts based on the given {@link Rule}
    * evaluation results.
    *
-   * @param portfolioKey
-   *     a key identifying the {@link Portfolio} under evaluation
-   * @param ruleResults
-   *     a {@link Map} correlating a {@link Rule}'s key with its results
+   * @param portfolioKey a key identifying the {@link Portfolio} under evaluation
+   * @param ruleResults a {@link Map} correlating a {@link Rule}'s key with its results
    */
   public void addImpacts(PortfolioKey portfolioKey, Map<RuleKey, EvaluationResult> ruleResults) {
-    ruleResults.forEach((ruleKey, groupResults) -> groupResults.proposedResults()
-        .forEach((group, proposedResult) -> {
-          ValueResult portfolioResult = groupResults.getResult(group);
-          addImpact(portfolioKey, ruleKey, group, proposedResult.compare(portfolioResult));
-        }));
+    ruleResults.forEach(
+        (ruleKey, groupResults) ->
+            groupResults
+                .proposedResults()
+                .forEach(
+                    (group, proposedResult) -> {
+                      ValueResult portfolioResult = groupResults.getResult(group);
+                      addImpact(
+                          portfolioKey, ruleKey, group, proposedResult.compare(portfolioResult));
+                    }));
   }
 
   @Override
@@ -116,9 +114,9 @@ public class TradeEvaluationResult implements ProtobufSerializable {
     }
     TradeEvaluationResult other = (TradeEvaluationResult) obj;
 
-    return aggregateImpact == other.aggregateImpact &&
-        Objects.equals(ruleImpactMap, other.ruleImpactMap) &&
-        Objects.equals(tradeKey, other.tradeKey);
+    return aggregateImpact == other.aggregateImpact
+        && Objects.equals(ruleImpactMap, other.ruleImpactMap)
+        && Objects.equals(tradeKey, other.tradeKey);
   }
 
   /**
@@ -160,9 +158,7 @@ public class TradeEvaluationResult implements ProtobufSerializable {
    * Merges the given results into this one. Provided primarily for convenience as a combiner for
    * {@code Stream.collect()}.
    *
-   * @param otherResult
-   *     the {@link TradeEvaluationResult} to be merged into this one
-   *
+   * @param otherResult the {@link TradeEvaluationResult} to be merged into this one
    * @return the merged {@link TradeEvaluationResult}
    */
   public TradeEvaluationResult merge(TradeEvaluationResult otherResult) {
@@ -170,9 +166,17 @@ public class TradeEvaluationResult implements ProtobufSerializable {
       LOG.warn("merging results for unequal TradeKeys {}, {}", tradeKey, otherResult.getTradeKey());
     }
 
-    otherResult.getImpacts().forEach((impactKey, impact) -> impact.forEach(
-        (resultKey, resultValue) -> addImpact(impactKey.portfolioKey(), impactKey.ruleKey(),
-            resultKey, resultValue)));
+    otherResult
+        .getImpacts()
+        .forEach(
+            (impactKey, impact) ->
+                impact.forEach(
+                    (resultKey, resultValue) ->
+                        addImpact(
+                            impactKey.portfolioKey(),
+                            impactKey.ruleKey(),
+                            resultKey,
+                            resultValue)));
 
     return this;
   }

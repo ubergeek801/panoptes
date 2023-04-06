@@ -12,9 +12,7 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * @author jeremy
  */
 public class ValueResultTest {
-  /**
-   * Tests that {@code compare()} behaves as expected for simple Boolean results.
-   */
+  /** Tests that {@code compare()} behaves as expected for simple Boolean results. */
   @Test
   public void testCompareBoolean() {
     ValueResult original = new ValueResult(true);
@@ -47,9 +45,7 @@ public class ValueResultTest {
     assertEquals(Impact.NEGATIVE, impact, "null->false should be a negative impact");
   }
 
-  /**
-   * Tests that {@code compare()} behaves as expected for value results.
-   */
+  /** Tests that {@code compare()} behaves as expected for value results. */
   @Test
   public void testCompareValue() {
     ValueResult original = new ValueResult(Threshold.ABOVE, 10);

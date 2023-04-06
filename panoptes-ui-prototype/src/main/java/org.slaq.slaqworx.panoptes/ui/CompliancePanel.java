@@ -15,9 +15,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Creates a new {@link CompliancePanel}.
- */
+/** Creates a new {@link CompliancePanel}. */
 public class CompliancePanel extends VerticalLayout {
   public CompliancePanel() {
     add(createTradeReviewPanel("2021000001", "30m", "1VKB8GXX", 1_000_000, 1_234_567.89));
@@ -27,8 +25,8 @@ public class CompliancePanel extends VerticalLayout {
     add(createTradeReviewPanel("2021000025", "30s", "04WJL0XX", 3_000_000, 3_456_789.01));
   }
 
-  protected FormLayout createTradeReviewPanel(String tradeId, String age, String cusip,
-      double amount, double marketValue) {
+  protected FormLayout createTradeReviewPanel(
+      String tradeId, String age, String cusip, double amount, double marketValue) {
     final int NUM_COLUMNS = 6;
     FormLayout panel = new FormLayout();
     panel.setResponsiveSteps(new FormLayout.ResponsiveStep("1em", NUM_COLUMNS));
@@ -48,18 +46,18 @@ public class CompliancePanel extends VerticalLayout {
     panel.add(cusipField);
 
     BigDecimalField amountField =
-        new BigDecimalField("amount", BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP),
-            "amount");
+        new BigDecimalField(
+            "amount", BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP), "amount");
     amountField.setReadOnly(true);
     amountField.addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
     panel.add(amountField);
 
     BigDecimalField marketValueField =
-        new BigDecimalField("mv", BigDecimal.valueOf(marketValue).setScale(2, RoundingMode.HALF_UP),
-            "mv");
+        new BigDecimalField(
+            "mv", BigDecimal.valueOf(marketValue).setScale(2, RoundingMode.HALF_UP), "mv");
     marketValueField.setReadOnly(true);
-    marketValueField
-        .addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
+    marketValueField.addThemeVariants(
+        TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
     panel.add(marketValueField);
 
     HorizontalLayout allocationSummary = new HorizontalLayout();
@@ -91,24 +89,30 @@ public class CompliancePanel extends VerticalLayout {
     allocationSummary.add(violationIcon);
     allocationSummary.add(new Span("2"));
 
-    allocationSummary
-        .setVerticalComponentAlignment(Alignment.END, compliantIcon, approvedIcon, warnIcon,
-            violationIcon);
+    allocationSummary.setVerticalComponentAlignment(
+        Alignment.END, compliantIcon, approvedIcon, warnIcon, violationIcon);
 
     VerticalLayout allocations = new VerticalLayout();
-    allocations.add(createAllocationReviewPanel(0, "1234", "Acme Inc.", "jlr", amount * 0.4,
-        marketValue * 0.4));
-    allocations.add(createAllocationReviewPanel(1, "5678", "Widgets LLC", "jlr", amount * 0.2,
-        marketValue * 0.2));
     allocations.add(
-        createAllocationReviewPanel(2, "9012", "BigCo Retirement Fund", "jlr", amount * 0.2,
-            marketValue * 0.2));
+        createAllocationReviewPanel(
+            0, "1234", "Acme Inc.", "jlr", amount * 0.4, marketValue * 0.4));
     allocations.add(
-        createAllocationReviewPanel(3, "3456", "Ivy Design Group LLC Master Investment", "jlr",
-            amount * 0.1, marketValue * 0.1));
+        createAllocationReviewPanel(
+            1, "5678", "Widgets LLC", "jlr", amount * 0.2, marketValue * 0.2));
     allocations.add(
-        createAllocationReviewPanel(4, "7890", "Sovereign Wealth Fund of Elbonia", "jlr",
-            amount * 0.1, marketValue * 0.1));
+        createAllocationReviewPanel(
+            2, "9012", "BigCo Retirement Fund", "jlr", amount * 0.2, marketValue * 0.2));
+    allocations.add(
+        createAllocationReviewPanel(
+            3,
+            "3456",
+            "Ivy Design Group LLC Master Investment",
+            "jlr",
+            amount * 0.1,
+            marketValue * 0.1));
+    allocations.add(
+        createAllocationReviewPanel(
+            4, "7890", "Sovereign Wealth Fund of Elbonia", "jlr", amount * 0.1, marketValue * 0.1));
 
     Details allocationDetails = new Details(allocationSummary, allocations);
     panel.add(allocationDetails);
@@ -117,8 +121,13 @@ public class CompliancePanel extends VerticalLayout {
     return panel;
   }
 
-  protected FormLayout createAllocationReviewPanel(int index, String portfolioId,
-      String portfolioName, String portfolioManager, double amount, double marketValue) {
+  protected FormLayout createAllocationReviewPanel(
+      int index,
+      String portfolioId,
+      String portfolioName,
+      String portfolioManager,
+      double amount,
+      double marketValue) {
     final int NUM_COLUMNS = 6;
     FormLayout panel = new FormLayout();
     if (index % 2 == 1) {
@@ -139,37 +148,51 @@ public class CompliancePanel extends VerticalLayout {
     portfolioManagerField.setReadOnly(true);
     panel.add(portfolioManagerField);
     BigDecimalField amountField =
-        new BigDecimalField("amount", BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP),
-            "amount");
+        new BigDecimalField(
+            "amount", BigDecimal.valueOf(amount).setScale(2, RoundingMode.HALF_UP), "amount");
     amountField.setReadOnly(true);
     amountField.addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
     panel.add(amountField);
 
     BigDecimalField marketValueField =
-        new BigDecimalField("mv", BigDecimal.valueOf(marketValue).setScale(2, RoundingMode.HALF_UP),
-            "mv");
+        new BigDecimalField(
+            "mv", BigDecimal.valueOf(marketValue).setScale(2, RoundingMode.HALF_UP), "mv");
     marketValueField.setReadOnly(true);
-    marketValueField
-        .addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
+    marketValueField.addThemeVariants(
+        TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_RIGHT);
     panel.add(marketValueField);
 
     Component violationReviewPanel =
-        createViolationReviewPanel(VaadinIcon.CLOSE_CIRCLE, "10012468", "Restricted issuer ACME",
-            new BigDecimal("0"), new BigDecimal("400000"), VaadinIcon.TRENDING_UP);
+        createViolationReviewPanel(
+            VaadinIcon.CLOSE_CIRCLE,
+            "10012468",
+            "Restricted issuer ACME",
+            new BigDecimal("0"),
+            new BigDecimal("400000"),
+            VaadinIcon.TRENDING_UP);
     panel.add(violationReviewPanel);
     panel.setColspan(violationReviewPanel, NUM_COLUMNS);
 
-    violationReviewPanel = createViolationReviewPanel(VaadinIcon.EXCLAMATION_CIRCLE, "10013579",
-        "Average quality must be ≥ 90 (warning threshold)", new BigDecimal("90.234"),
-        new BigDecimal("89.985"), VaadinIcon.TRENDING_DOWN);
+    violationReviewPanel =
+        createViolationReviewPanel(
+            VaadinIcon.EXCLAMATION_CIRCLE,
+            "10013579",
+            "Average quality must be ≥ 90 (warning threshold)",
+            new BigDecimal("90.234"),
+            new BigDecimal("89.985"),
+            VaadinIcon.TRENDING_DOWN);
     panel.add(violationReviewPanel);
     panel.setColspan(violationReviewPanel, NUM_COLUMNS);
 
     return panel;
   }
 
-  protected HorizontalLayout createViolationReviewPanel(VaadinIcon allocationStatusIcon,
-      String ruleId, String ruleDescription, BigDecimal preOrderValue, BigDecimal postOrderValue,
+  protected HorizontalLayout createViolationReviewPanel(
+      VaadinIcon allocationStatusIcon,
+      String ruleId,
+      String ruleDescription,
+      BigDecimal preOrderValue,
+      BigDecimal postOrderValue,
       VaadinIcon orderImpactIcon) {
     HorizontalLayout panel = new HorizontalLayout();
     panel.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
@@ -207,7 +230,7 @@ public class CompliancePanel extends VerticalLayout {
     orderIcon.setSize("1em");
     if (orderImpactIcon == VaadinIcon.TRENDING_UP) {
       color = "red";
-    } else if (orderImpactIcon == VaadinIcon.TRENDIND_DOWN) {
+    } else if (orderImpactIcon == VaadinIcon.TRENDING_DOWN) {
       color = "yellow";
     } else {
       color = "white";

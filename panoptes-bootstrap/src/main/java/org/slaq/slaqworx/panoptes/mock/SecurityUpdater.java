@@ -25,8 +25,7 @@ public class SecurityUpdater {
   /**
    * Creates a {@link SecurityUpdater} that publishes using the given {@link KafkaProducer}.
    *
-   * @param kafkaProducer
-   *     the {@link KafkaProducer} with which to publish events to Kafka
+   * @param kafkaProducer the {@link KafkaProducer} with which to publish events to Kafka
    */
   protected SecurityUpdater(KafkaProducer kafkaProducer) {
     this.kafkaProducer = kafkaProducer;
@@ -35,15 +34,17 @@ public class SecurityUpdater {
   /**
    * Executes the {@link SecurityUpdater} application.
    *
-   * @param args
-   *     the program arguments (unused)
-   *
-   * @throws Exception
-   *     if any error occurs
+   * @param args the program arguments (unused)
+   * @throws Exception if any error occurs
    */
   public static void main(String[] args) throws Exception {
-    try (ApplicationContext appContext = Micronaut.build(args).mainClass(SecurityUpdater.class)
-        .environments("security-update", "offline").args(args).build().start()) {
+    try (ApplicationContext appContext =
+        Micronaut.build(args)
+            .mainClass(SecurityUpdater.class)
+            .environments("security-update", "offline")
+            .args(args)
+            .build()
+            .start()) {
       SecurityUpdater updater = appContext.getBean(SecurityUpdater.class);
       updater.updateSecurities();
     }
@@ -52,8 +53,7 @@ public class SecurityUpdater {
   /**
    * Publishes random security updates to Kafka.
    *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   public void updateSecurities() throws IOException {
     // republish some random securities

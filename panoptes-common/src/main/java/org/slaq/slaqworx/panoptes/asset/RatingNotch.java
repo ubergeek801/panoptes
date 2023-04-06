@@ -8,8 +8,7 @@ import javax.annotation.Nonnull;
  * @author jeremy
  */
 public class RatingNotch implements Comparable<RatingNotch> {
-  @Nonnull
-  private final String symbol;
+  @Nonnull private final String symbol;
   private final double lower;
   private double middle;
   private int ordinal;
@@ -17,10 +16,8 @@ public class RatingNotch implements Comparable<RatingNotch> {
   /**
    * Creates a new {@link RatingNotch} with the given symbol and lower bound.
    *
-   * @param symbol
-   *     the rating symbol (e.g. AAA, Baa2)
-   * @param lower
-   *     the lower bound of the notch
+   * @param symbol the rating symbol (e.g. AAA, Baa2)
+   * @param lower the lower bound of the notch
    */
   public RatingNotch(@Nonnull String symbol, double lower) {
     this.symbol = symbol;
@@ -55,8 +52,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
    * Sets the (calculated) middle value of this notch. Normally should be set only by {@link
    * RatingScale} during creation.
    *
-   * @param middle
-   *     the middle value of the notch
+   * @param middle the middle value of the notch
    */
   protected void setMiddle(double middle) {
     this.middle = middle;
@@ -74,8 +70,7 @@ public class RatingNotch implements Comparable<RatingNotch> {
   /**
    * Sets the ordinal value of this notch in its assigned {@link RatingScale}.
    *
-   * @param ordinal
-   *     the ordinal/index of this notch within its {@link RatingScale}
+   * @param ordinal the ordinal/index of this notch within its {@link RatingScale}
    */
   protected void setOrdinal(int ordinal) {
     this.ordinal = ordinal;

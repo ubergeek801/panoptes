@@ -18,8 +18,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleSummary;
  */
 public class RuleSummarizer
     implements EntryProcessor<RuleKey, ConfigurableRule, RuleSummary>, ReadOnly {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   @Override
   public EntryProcessor<RuleKey, ConfigurableRule, RuleSummary> getBackupProcessor() {

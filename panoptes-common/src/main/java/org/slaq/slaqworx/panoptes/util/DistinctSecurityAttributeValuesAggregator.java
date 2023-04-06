@@ -15,9 +15,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  * {@link SecurityAttribute}, as well as a solid entry in the Impractically Long Class Names
  * Competition.
  *
- * @param <T>
- *     the value type of the {@link Security} attribute being aggregated
- *
+ * @param <T> the value type of the {@link Security} attribute being aggregated
  * @author jeremy
  */
 public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
@@ -25,17 +23,14 @@ public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
   private static final long serialVersionUID = 1L;
 
   // we use a String rather than the SecurityAttribute itself to simplify serialization
-  @Nonnull
-  private final String attributeName;
-  @Nonnull
-  private final TreeSet<T> distinctValues = new TreeSet<>();
+  @Nonnull private final String attributeName;
+  @Nonnull private final TreeSet<T> distinctValues = new TreeSet<>();
 
   /**
    * Creates a new {@link DistinctSecurityAttributeValuesAggregator} that aggregates distinct values
    * of the given {@link SecurityAttribute}.
    *
-   * @param attribute
-   *     the {@link SecurityAttribute} for which to aggregate distinct values
+   * @param attribute the {@link SecurityAttribute} for which to aggregate distinct values
    */
   public DistinctSecurityAttributeValuesAggregator(@Nonnull SecurityAttribute<T> attribute) {
     attributeName = attribute.getName();

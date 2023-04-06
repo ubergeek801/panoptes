@@ -11,9 +11,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
  * @author jeremy
  */
 public class PositionKeySerializer implements ProtobufSerializer<PositionKey> {
-  /**
-   * Creates a new {@link PositionKeySerializer}.
-   */
+  /** Creates a new {@link PositionKeySerializer}. */
   public PositionKeySerializer() {
     // nothing to do
   }

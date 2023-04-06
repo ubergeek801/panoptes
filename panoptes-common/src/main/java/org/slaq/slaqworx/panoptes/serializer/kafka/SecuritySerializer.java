@@ -8,9 +8,7 @@ import org.slaq.slaqworx.panoptes.asset.Security;
  * @author jeremy
  */
 public class SecuritySerializer extends KafkaSerializer<Security> {
-  /**
-   * Creates a new {@link SecuritySerializer}. Kafka requires a public default constructor.
-   */
+  /** Creates a new {@link SecuritySerializer}. Kafka requires a public default constructor. */
   public SecuritySerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.SecuritySerializer());
   }

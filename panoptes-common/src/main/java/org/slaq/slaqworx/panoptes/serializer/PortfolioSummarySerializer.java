@@ -15,9 +15,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.PortfolioSummaryMs
  */
 @Singleton
 public class PortfolioSummarySerializer implements ProtobufSerializer<PortfolioSummary> {
-  /**
-   * Creates a new {@link PortfolioSummarySerializer}.
-   */
+  /** Creates a new {@link PortfolioSummarySerializer}. */
   public PortfolioSummarySerializer() {
     // nothing to do
   }
@@ -37,8 +35,8 @@ public class PortfolioSummarySerializer implements ProtobufSerializer<PortfolioS
     double totalMarketValue = portfolioSummaryMsg.getTotalMarketValue();
     boolean isAbstract = portfolioSummaryMsg.getIsAbstract();
 
-    return new PortfolioSummary(key, portfolioSummaryMsg.getName(), benchmarkKey, totalMarketValue,
-        isAbstract);
+    return new PortfolioSummary(
+        key, portfolioSummaryMsg.getName(), benchmarkKey, totalMarketValue, isAbstract);
   }
 
   @Override

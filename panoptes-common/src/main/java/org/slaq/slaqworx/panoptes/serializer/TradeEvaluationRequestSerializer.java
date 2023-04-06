@@ -15,9 +15,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  */
 public class TradeEvaluationRequestSerializer
     implements ProtobufSerializer<TradeEvaluationRequest> {
-  /**
-   * Creates a new {@link TradeEvaluationRequestSerializer}.
-   */
+  /** Creates a new {@link TradeEvaluationRequestSerializer}. */
   public TradeEvaluationRequestSerializer() {
     // nothing to do
   }

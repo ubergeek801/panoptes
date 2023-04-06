@@ -11,19 +11,21 @@ import org.junit.jupiter.api.Test;
  * @author jeremy
  */
 public class EvaluationGroupTest {
-  /**
-   * Tests that {@code toString()} behaves as expected.
-   */
+  /** Tests that {@code toString()} behaves as expected. */
   @Test
   public void testToString() {
     EvaluationGroup group = EvaluationGroup.defaultGroup();
-    assertEquals(EvaluationGroup.DEFAULT_EVALUATION_GROUP_ID, group.toString(),
+    assertEquals(
+        EvaluationGroup.DEFAULT_EVALUATION_GROUP_ID,
+        group.toString(),
         "default EvaluationGroup should have default group ID");
 
     group = new EvaluationGroup("group", "key");
     // we are not too particular about the toString() content as long as it is different than
     // the default
-    assertNotEquals(EvaluationGroup.DEFAULT_EVALUATION_GROUP_ID, group.toString(),
+    assertNotEquals(
+        EvaluationGroup.DEFAULT_EVALUATION_GROUP_ID,
+        group.toString(),
         "non-default EvaluationGroup should not have default group ID");
   }
 }

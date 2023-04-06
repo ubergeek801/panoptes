@@ -11,16 +11,13 @@ import org.slaq.slaqworx.panoptes.rule.ValueResult.Threshold;
  * Adapts evaluation group-level results to a tabular representation. Its parent is typically a
  * {@link PortfolioRuleResultAdapter}.
  *
- * @param parent
- *     the parent row of this row
- * @param groupResult
- *     the {@link EvaluationGroup} and its corresponding {@link ValueResult} to be adapted to row
- *     format
- *
+ * @param parent the parent row of this row
+ * @param groupResult the {@link EvaluationGroup} and its corresponding {@link ValueResult} to be
+ *     adapted to row format
  * @author jeremy
  */
-public record GroupResultAdapter(PortfolioRuleResultAdapter parent,
-                                 Entry<EvaluationGroup, ValueResult> groupResult)
+public record GroupResultAdapter(
+    PortfolioRuleResultAdapter parent, Entry<EvaluationGroup, ValueResult> groupResult)
     implements EvaluationResultRow {
   @Override
   public Double getBenchmarkValue() {

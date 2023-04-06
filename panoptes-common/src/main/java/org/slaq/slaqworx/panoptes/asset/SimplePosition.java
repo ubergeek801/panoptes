@@ -15,17 +15,14 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  */
 public class SimplePosition extends AbstractPosition {
   private final double amount;
-  @Nonnull
-  private final SecurityKey securityKey;
+  @Nonnull private final SecurityKey securityKey;
 
   /**
    * Creates a new {@link SimplePosition} with a generated key and the specified amount and {@link
    * Security}.
    *
-   * @param amount
-   *     the amount of the {@link Security} held in this {@link Position}
-   * @param securityKey
-   *     a {@link SecurityKey} identifying the held {@link Security}
+   * @param amount the amount of the {@link Security} held in this {@link Position}
+   * @param securityKey a {@link SecurityKey} identifying the held {@link Security}
    */
   public SimplePosition(double amount, @Nonnull SecurityKey securityKey) {
     this(null, amount, securityKey);
@@ -34,12 +31,9 @@ public class SimplePosition extends AbstractPosition {
   /**
    * Creates a new {@link SimplePosition} with the specified key, amount and {@link Security}.
    *
-   * @param key
-   *     the unique key to assign to this {@link Position}, or {@code null} to generate one
-   * @param amount
-   *     the amount of the {@link Security} held in this {@link Position}
-   * @param securityKey
-   *     a {@link SecurityKey} identifying the held {@link Security}
+   * @param key the unique key to assign to this {@link Position}, or {@code null} to generate one
+   * @param amount the amount of the {@link Security} held in this {@link Position}
+   * @param securityKey a {@link SecurityKey} identifying the held {@link Security}
    */
   public SimplePosition(PositionKey key, double amount, @Nonnull SecurityKey securityKey) {
     super(key);

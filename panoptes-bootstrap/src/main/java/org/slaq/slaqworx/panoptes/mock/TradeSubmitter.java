@@ -36,8 +36,7 @@ public class TradeSubmitter {
   /**
    * Creates a {@link TradeSubmitter} that publishes using the given {@link KafkaProducer}.
    *
-   * @param kafkaProducer
-   *     the {@link KafkaProducer} with which to publish events to Kafka
+   * @param kafkaProducer the {@link KafkaProducer} with which to publish events to Kafka
    */
   protected TradeSubmitter(KafkaProducer kafkaProducer) {
     this.kafkaProducer = kafkaProducer;
@@ -46,15 +45,17 @@ public class TradeSubmitter {
   /**
    * Executes the {@link TradeSubmitter} application.
    *
-   * @param args
-   *     the program arguments (unused)
-   *
-   * @throws Exception
-   *     if any error occurs
+   * @param args the program arguments (unused)
+   * @throws Exception if any error occurs
    */
   public static void main(String[] args) throws Exception {
-    try (ApplicationContext appContext = Micronaut.build(args).mainClass(TradeSubmitter.class)
-        .environments("trade-submit", "offline").args(args).build().start()) {
+    try (ApplicationContext appContext =
+        Micronaut.build(args)
+            .mainClass(TradeSubmitter.class)
+            .environments("trade-submit", "offline")
+            .args(args)
+            .build()
+            .start()) {
       TradeSubmitter submitter = appContext.getBean(TradeSubmitter.class);
       submitter.submitTrades();
     }
@@ -63,8 +64,7 @@ public class TradeSubmitter {
   /**
    * Publishes random trades to Kafka.
    *
-   * @throws IOException
-   *     if the data could not be read
+   * @throws IOException if the data could not be read
    */
   public void submitTrades() throws IOException {
     // generated keys must match those in DummyPortfolioMapLoader
@@ -108,8 +108,8 @@ public class TradeSubmitter {
       Trade trade = new Trade(tradeDate, settlementDate, transactions);
 
       kafkaProducer.publishTrade(trade.getKey(), trade);
-      LOG.info("published trade {} with {} allocations", trade.getKey(),
-          trade.getAllocationCount());
+      LOG.info(
+          "published trade {} with {} allocations", trade.getKey(), trade.getAllocationCount());
     }
 
     LOG.info("published {} trades", numTrades);

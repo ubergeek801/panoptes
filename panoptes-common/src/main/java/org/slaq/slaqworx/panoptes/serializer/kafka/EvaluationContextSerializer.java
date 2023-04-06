@@ -9,8 +9,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  */
 public class EvaluationContextSerializer extends KafkaSerializer<EvaluationContext> {
   /**
-   * Creates a new {@link EvaluationContextSerializer}. Kafka requires a public default
-   * constructor.
+   * Creates a new {@link EvaluationContextSerializer}. Kafka requires a public default constructor.
    */
   public EvaluationContextSerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.EvaluationContextSerializer());

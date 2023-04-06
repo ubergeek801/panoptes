@@ -28,10 +28,8 @@ public class PanoptesTestApp {
   /**
    * Obtains the {@link ApplicationContext} singleton.
    *
-   * @param args
-   *     the program arguments with which to initialize the {@link ApplicationContext}; ignored (and
-   *     may be empty) if the context has already been created
-   *
+   * @param args the program arguments with which to initialize the {@link ApplicationContext};
+   *     ignored (and may be empty) if the context has already been created
    * @return the {@link ApplicationContext}
    */
   public static ApplicationContext getApplicationContext(String... args) {
@@ -45,11 +43,8 @@ public class PanoptesTestApp {
   /**
    * Executes the Panoptes application.
    *
-   * @param args
-   *     the program arguments
-   *
-   * @throws Exception
-   *     if the program could not be initialized
+   * @param args the program arguments
+   * @throws Exception if the program could not be initialized
    */
   public static void main(String[] args) throws Exception {
     try (ApplicationContext appContext = createApplicationContext(args)) {
@@ -67,13 +62,13 @@ public class PanoptesTestApp {
   /**
    * Creates the Micronaut {@link ApplicationContext}.
    *
-   * @param args
-   *     the program arguments with which to initialize the {@link ApplicationContext}
-   *
+   * @param args the program arguments with which to initialize the {@link ApplicationContext}
    * @return the {@link ApplicationContext}
    */
   protected static ApplicationContext createApplicationContext(String... args) {
-    return Micronaut.build(args).mainClass(PanoptesApp.class)
-        .environments("test-app", Environment.TEST).start();
+    return Micronaut.build(args)
+        .mainClass(PanoptesApp.class)
+        .environments("test-app", Environment.TEST)
+        .start();
   }
 }

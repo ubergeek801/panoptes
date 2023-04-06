@@ -24,10 +24,8 @@ public class TradeEvaluationRequest
   /**
    * Creates a new {@link TradeEvaluationRequest} with the given parameters.
    *
-   * @param tradeKey
-   *     the {@link TradeKey} identifying the {@link Trade} to be evaluated
-   * @param evaluationContext
-   *     the {@link EvaluationContext} under which to evaluate
+   * @param tradeKey the {@link TradeKey} identifying the {@link Trade} to be evaluated
+   * @param evaluationContext the {@link EvaluationContext} under which to evaluate
    */
   public TradeEvaluationRequest(TradeKey tradeKey, EvaluationContext evaluationContext) {
     this.tradeKey = tradeKey;

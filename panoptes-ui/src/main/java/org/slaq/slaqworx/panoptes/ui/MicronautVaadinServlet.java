@@ -20,8 +20,7 @@ public class MicronautVaadinServlet extends VaadinServlet {
   /**
    * Creates a new {@link MicronautVaadinServlet}.
    *
-   * @param applicationContext
-   *     the {@link ApplicationContext} to use to resolve beans
+   * @param applicationContext the {@link ApplicationContext} to use to resolve beans
    */
   public MicronautVaadinServlet(ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;

@@ -3,8 +3,7 @@ package org.slaq.slaqworx.panoptes.serializer.kafka;
 import org.slaq.slaqworx.panoptes.evaluator.PortfolioEvaluationRequest;
 
 /**
- * A {@link KafkaSerializer} which (de)serializes the state of a {@link
- * PortfolioEvaluationRequest}.
+ * A {@link KafkaSerializer} which (de)serializes the state of a {@link PortfolioEvaluationRequest}.
  *
  * @author jeremy
  */

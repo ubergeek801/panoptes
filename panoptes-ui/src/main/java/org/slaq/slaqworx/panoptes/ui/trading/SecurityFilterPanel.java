@@ -48,10 +48,8 @@ public class SecurityFilterPanel extends FormLayout {
   /**
    * Creates a new {@link SecurityFilterPanel}.
    *
-   * @param securityProvider
-   *     the {@link SecurityDataProvider} to use to query {@link Security} data
-   * @param assetCache
-   *     the {@link AssetCache} to use to obtain other data
+   * @param securityProvider the {@link SecurityDataProvider} to use to query {@link Security} data
+   * @param assetCache the {@link AssetCache} to use to obtain other data
    */
   public SecurityFilterPanel(SecurityDataProvider securityProvider, AssetCache assetCache) {
     this.securityProvider = securityProvider;
@@ -88,15 +86,24 @@ public class SecurityFilterPanel extends FormLayout {
     add(priceMinMaxField, 2);
 
     Button filterButton = ComponentUtil.createButton("Filter", event -> filter());
-    Button resetButton = ComponentUtil.createButton("Reset", event -> {
-      // clear the value of every child element that has a value
-      getElement().getChildren().forEach(e -> e.getComponent().ifPresent(c -> {
-        if (c instanceof HasValue) {
-          ((HasValue<?, ?>) c).clear();
-        }
-      }));
-      securityProvider.setFilter(null);
-    });
+    Button resetButton =
+        ComponentUtil.createButton(
+            "Reset",
+            event -> {
+              // clear the value of every child element that has a value
+              getElement()
+                  .getChildren()
+                  .forEach(
+                      e ->
+                          e.getComponent()
+                              .ifPresent(
+                                  c -> {
+                                    if (c instanceof HasValue) {
+                                      ((HasValue<?, ?>) c).clear();
+                                    }
+                                  }));
+              securityProvider.setFilter(null);
+            });
 
     HorizontalLayout actions = new HorizontalLayout();
     actions.add(filterButton, resetButton);
@@ -122,25 +129,38 @@ public class SecurityFilterPanel extends FormLayout {
   protected void filter() {
     SecurityFilter filter = new SecurityFilter();
 
-    filter.add(SecurityAttribute.isin, assetIdTextField.getValue())
+    filter
+        .add(SecurityAttribute.isin, assetIdTextField.getValue())
         .add(SecurityAttribute.cusip, cusipTextField.getValue())
         .add(SecurityAttribute.description, descriptionTextField.getValue())
         .add(SecurityAttribute.country, countryTextField.getValue())
         .add(SecurityAttribute.region, regionTextField.getValue())
         .add(SecurityAttribute.sector, sectorTextField.getValue())
         .add(SecurityAttribute.currency, currencyTextField.getValue())
-        .add(SecurityAttribute.coupon, toDouble(couponMinMaxField.getMinValue()),
+        .add(
+            SecurityAttribute.coupon,
+            toDouble(couponMinMaxField.getMinValue()),
             toDouble(couponMinMaxField.getMaxValue()))
-        .add(SecurityAttribute.maturityDate, maturityDateMinMaxField.getMinValue(),
+        .add(
+            SecurityAttribute.maturityDate,
+            maturityDateMinMaxField.getMinValue(),
             maturityDateMinMaxField.getMaxValue())
-        .add(SecurityAttribute.rating1Value, toDouble(ratingMinMaxField.getMinValue()),
+        .add(
+            SecurityAttribute.rating1Value,
+            toDouble(ratingMinMaxField.getMinValue()),
             toDouble(ratingMinMaxField.getMaxValue()))
-        .add(SecurityAttribute.yield, toDouble(yieldMinMaxField.getMinValue()),
+        .add(
+            SecurityAttribute.yield,
+            toDouble(yieldMinMaxField.getMinValue()),
             toDouble(yieldMinMaxField.getMaxValue()))
-        .add(SecurityAttribute.duration, toDouble(durationMinMaxField.getMinValue()),
+        .add(
+            SecurityAttribute.duration,
+            toDouble(durationMinMaxField.getMinValue()),
             toDouble(durationMinMaxField.getMaxValue()))
         .add(SecurityAttribute.issuer, issuerTextField.getValue())
-        .add(SecurityAttribute.price, toDouble(priceMinMaxField.getMinValue()),
+        .add(
+            SecurityAttribute.price,
+            toDouble(priceMinMaxField.getMinValue()),
             toDouble(priceMinMaxField.getMaxValue()));
 
     securityProvider.setFilter(filter);
@@ -149,9 +169,7 @@ public class SecurityFilterPanel extends FormLayout {
   /**
    * Converts a {@link BigDecimal} to a {@link Double}, allowing for {@code null} values.
    *
-   * @param bigDecimal
-   *     the {@link BigDecimal} value to be converted
-   *
+   * @param bigDecimal the {@link BigDecimal} value to be converted
    * @return a {@link Double} representation of the given {@link BigDecimal}, or {@code null} if
    *     given {@code null}
    */

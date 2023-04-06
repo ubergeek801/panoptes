@@ -15,9 +15,7 @@ import org.slaq.slaqworx.panoptes.trade.RoomEvaluationRequest;
  * @author jeremy
  */
 public class RoomEvaluationRequestSerializer implements ProtobufSerializer<RoomEvaluationRequest> {
-  /**
-   * Creates a new {@link RoomEvaluationRequestSerializer}.
-   */
+  /** Creates a new {@link RoomEvaluationRequestSerializer}. */
   public RoomEvaluationRequestSerializer() {
     // nothing to do
   }
@@ -26,8 +24,9 @@ public class RoomEvaluationRequestSerializer implements ProtobufSerializer<RoomE
   public RoomEvaluationRequest read(byte[] buffer) throws IOException {
     RoomEvaluationRequestMsg requestMsg = RoomEvaluationRequestMsg.parseFrom(buffer);
 
-    PortfolioKey portfolioKey = new PortfolioKey(requestMsg.getPortfolioKey().getId(),
-        requestMsg.getPortfolioKey().getVersion());
+    PortfolioKey portfolioKey =
+        new PortfolioKey(
+            requestMsg.getPortfolioKey().getId(), requestMsg.getPortfolioKey().getVersion());
     SecurityKey securityKey = new SecurityKey(requestMsg.getSecurityKey().getId());
 
     return new RoomEvaluationRequest(portfolioKey, securityKey, requestMsg.getTargetValue());

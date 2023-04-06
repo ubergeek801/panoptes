@@ -12,9 +12,7 @@ import org.slaq.slaqworx.panoptes.rule.PositionEvaluationContext;
  * @author jeremy
  */
 public class TotalMarketValuePositionCalculator extends PositionCalculator<Void> {
-  /**
-   * Creates a new {@link TotalMarketValuePositionCalculator}.
-   */
+  /** Creates a new {@link TotalMarketValuePositionCalculator}. */
   public TotalMarketValuePositionCalculator() {
     super(null);
   }

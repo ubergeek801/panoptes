@@ -13,9 +13,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  * @author jeremy
  */
 public class SecurityAttributeGroupClassifierTest {
-  /**
-   * Tests that {@code classify()} behaves as expected.
-   */
+  /** Tests that {@code classify()} behaves as expected. */
   @Test
   public void testClassify() {
     SecurityAttributeGroupClassifier classifier =
@@ -26,9 +24,13 @@ public class SecurityAttributeGroupClassifierTest {
         new PositionEvaluationContext(position, TestUtil.defaultTestEvaluationContext());
     EvaluationGroup group = classifier.classify(positionContext);
 
-    assertEquals(SecurityAttribute.country.getName(), group.aggregationKey(),
+    assertEquals(
+        SecurityAttribute.country.getName(),
+        group.aggregationKey(),
         "aggregation key should match SecurityAttribute name");
-    assertEquals(TestUtil.s1.getAttributeValue(SecurityAttribute.country), group.id(),
+    assertEquals(
+        TestUtil.s1.getAttributeValue(SecurityAttribute.country),
+        group.id(),
         "group ID should match SecurityAttribute.country value");
   }
 
@@ -44,7 +46,9 @@ public class SecurityAttributeGroupClassifierTest {
     SecurityAttributeGroupClassifier configured =
         SecurityAttributeGroupClassifier.fromJson(configuration);
 
-    assertEquals(classifier.getSecurityAttribute(), configured.getSecurityAttribute(),
+    assertEquals(
+        classifier.getSecurityAttribute(),
+        configured.getSecurityAttribute(),
         "configured classiifer should have same attribute as original");
   }
 }

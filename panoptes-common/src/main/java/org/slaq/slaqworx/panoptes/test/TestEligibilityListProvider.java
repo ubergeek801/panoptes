@@ -29,11 +29,8 @@ public class TestEligibilityListProvider implements EligibilityListProvider {
   /**
    * Makes the given eligibility list available through this provider.
    *
-   * @param name
-   *     the name of the eligibility list to provide
-   * @param members
-   *     the eligibility list members
-   *
+   * @param name the name of the eligibility list to provide
+   * @param members the eligibility list members
    * @return the provided members
    */
   public Set<String> newEligibilityList(@Nonnull String name, @Nonnull Set<String> members) {

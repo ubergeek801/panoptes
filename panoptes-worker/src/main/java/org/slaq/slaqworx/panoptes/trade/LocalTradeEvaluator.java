@@ -45,10 +45,9 @@ public class LocalTradeEvaluator implements TradeEvaluator {
   /**
    * Creates a new {@link LocalTradeEvaluator}.
    *
-   * @param evaluator
-   *     the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level evaluations
-   * @param assetCache
-   *     the {@link AssetCache} to use to resolve references
+   * @param evaluator the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level
+   *     evaluations
+   * @param assetCache the {@link AssetCache} to use to resolve references
    */
   public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator, AssetCache assetCache) {
     this(evaluator, assetCache, assetCache, assetCache);
@@ -57,17 +56,19 @@ public class LocalTradeEvaluator implements TradeEvaluator {
   /**
    * Creates a new {@link LocalTradeEvaluator}.
    *
-   * @param evaluator
-   *     the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level evaluations
-   * @param eligibilityListProvider
-   *     the {@link EligibilityListProvider} to use to obtain eligibility list information
-   * @param portfolioProvider
-   *     the {@link PortfolioProvider} to use to obtain {@link Portfolio} information
-   * @param securityProvider
-   *     the {@link SecurityProvider} to use to obtain {@link Security} information
+   * @param evaluator the {@link PortfolioEvaluator} to use to perform {@link Portfolio}-level
+   *     evaluations
+   * @param eligibilityListProvider the {@link EligibilityListProvider} to use to obtain eligibility
+   *     list information
+   * @param portfolioProvider the {@link PortfolioProvider} to use to obtain {@link Portfolio}
+   *     information
+   * @param securityProvider the {@link SecurityProvider} to use to obtain {@link Security}
+   *     information
    */
-  public LocalTradeEvaluator(@Named("local") PortfolioEvaluator evaluator,
-      EligibilityListProvider eligibilityListProvider, PortfolioProvider portfolioProvider,
+  public LocalTradeEvaluator(
+      @Named("local") PortfolioEvaluator evaluator,
+      EligibilityListProvider eligibilityListProvider,
+      PortfolioProvider portfolioProvider,
       SecurityProvider securityProvider) {
     this.evaluator = evaluator;
     this.eligibilityListProvider = eligibilityListProvider;
@@ -76,35 +77,52 @@ public class LocalTradeEvaluator implements TradeEvaluator {
   }
 
   @Override
-  public CompletableFuture<TradeEvaluationResult> evaluate(Trade trade,
-      EvaluationContext evaluationContext) throws ExecutionException, InterruptedException {
+  public CompletableFuture<TradeEvaluationResult> evaluate(
+      Trade trade, EvaluationContext evaluationContext)
+      throws ExecutionException, InterruptedException {
     LOG.info("evaluating trade {} with {} allocations", trade.getKey(), trade.getAllocationCount());
     // evaluate the impact on each Portfolio
-    return CompletableFuture.completedFuture(AssetCache.getLocalExecutor().submit(
-        () -> trade.getTransactions().entrySet().parallelStream().map(portfolioTransactionEntry -> {
-          PortfolioKey portfolioKey = portfolioTransactionEntry.getKey();
-          Transaction transaction = portfolioTransactionEntry.getValue();
+    return CompletableFuture.completedFuture(
+        AssetCache.getLocalExecutor()
+            .submit(
+                () ->
+                    trade.getTransactions().entrySet().parallelStream()
+                        .map(
+                            portfolioTransactionEntry -> {
+                              PortfolioKey portfolioKey = portfolioTransactionEntry.getKey();
+                              Transaction transaction = portfolioTransactionEntry.getValue();
 
-          try {
-            Map<RuleKey, EvaluationResult> ruleResults =
-                evaluator.evaluate(portfolioKey, transaction, evaluationContext.copy()).get();
+                              try {
+                                Map<RuleKey, EvaluationResult> ruleResults =
+                                    evaluator
+                                        .evaluate(
+                                            portfolioKey, transaction, evaluationContext.copy())
+                                        .get();
 
-            return Pair.of(portfolioKey, ruleResults);
-          } catch (Exception e) {
-            // FIXME throw a better exception
-            throw new RuntimeException("could not evaluate trade", e);
-          }
-        }).collect(() -> new TradeEvaluationResult(trade.getKey()),
-            TradeEvaluationResult::addImpacts, TradeEvaluationResult::merge)).get());
+                                return Pair.of(portfolioKey, ruleResults);
+                              } catch (Exception e) {
+                                // FIXME throw a better exception
+                                throw new RuntimeException("could not evaluate trade", e);
+                              }
+                            })
+                        .collect(
+                            () -> new TradeEvaluationResult(trade.getKey()),
+                            TradeEvaluationResult::addImpacts,
+                            TradeEvaluationResult::merge))
+            .get());
   }
 
   @Override
-  public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-      double targetValue) throws ExecutionException, InterruptedException {
+  public CompletableFuture<Double> evaluateRoom(
+      PortfolioKey portfolioKey, SecurityKey securityKey, double targetValue)
+      throws ExecutionException, InterruptedException {
     // first try the minimum allocation to quickly eliminate Portfolios with no room at all
 
     EvaluationContext evaluationContext =
-        new EvaluationContext(eligibilityListProvider, securityProvider, portfolioProvider,
+        new EvaluationContext(
+            eligibilityListProvider,
+            securityProvider,
+            portfolioProvider,
             EvaluationMode.SHORT_CIRCUIT_EVALUATION);
 
     double minCompliantValue = MIN_ALLOCATION;
@@ -152,25 +170,22 @@ public class LocalTradeEvaluator implements TradeEvaluator {
    * Tests for the requested amount of room in the given {@link Security} for the given {@link
    * Portfolio}.
    *
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} in which to find room
-   * @param securityKey
-   *     the {@link SecurityKey} identifying the {@link Security} name for which to find room
-   * @param targetValue
-   *     the desired investment amount, as USD market value
-   * @param evaluationContext
-   *     the {@link EvaluationContext} under which to perform the evaluation
-   *
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} in which to find
+   *     room
+   * @param securityKey the {@link SecurityKey} identifying the {@link Security} name for which to
+   *     find room
+   * @param targetValue the desired investment amount, as USD market value
+   * @param evaluationContext the {@link EvaluationContext} under which to perform the evaluation
    * @return a {@link CompletableFuture} {@link TradeEvaluationResult} indicating the result of the
    *     evaluation
-   *
-   * @throws ExecutionException
-   *     if the calculation could not be processed
-   * @throws InterruptedException
-   *     if the {@link Thread} was interrupted during processing
+   * @throws ExecutionException if the calculation could not be processed
+   * @throws InterruptedException if the {@link Thread} was interrupted during processing
    */
-  protected CompletableFuture<TradeEvaluationResult> testRoom(PortfolioKey portfolioKey,
-      SecurityKey securityKey, double targetValue, EvaluationContext evaluationContext)
+  protected CompletableFuture<TradeEvaluationResult> testRoom(
+      PortfolioKey portfolioKey,
+      SecurityKey securityKey,
+      double targetValue,
+      EvaluationContext evaluationContext)
       throws ExecutionException, InterruptedException {
     TaxLot trialAllocation = new TaxLot(targetValue, securityKey);
     Transaction trialTransaction = new Transaction(portfolioKey, List.of(trialAllocation));

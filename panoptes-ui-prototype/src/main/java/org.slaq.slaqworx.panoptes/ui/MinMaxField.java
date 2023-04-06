@@ -13,9 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * Encapsulates a label and pair of input fields to specify a minimum and maximum value for a field
  * (e.g. to specify a filter range).
  *
- * @param <V>
- *     the value type of the contained fields
- *
+ * @param <V> the value type of the contained fields
  * @author jeremy
  */
 public class MinMaxField<V> extends CustomField<Pair<V, V>> {
@@ -28,12 +26,9 @@ public class MinMaxField<V> extends CustomField<Pair<V, V>> {
    * Creates a {@link MinMaxField}, consisting of the given components, to display and/or input
    * minimum and maximum values for some attribute.
    *
-   * @param labelText
-   *     the name of the attribute for which the values apply
-   * @param min
-   *     a {@link Component} containing the minimum value
-   * @param max
-   *     a {@link Component} containing the maximum value
+   * @param labelText the name of the attribute for which the values apply
+   * @param min a {@link Component} containing the minimum value
+   * @param max a {@link Component} containing the maximum value
    */
   public MinMaxField(String labelText, Component min, Component max) {
     HorizontalLayout outerLayout = new HorizontalLayout();
@@ -65,9 +60,7 @@ public class MinMaxField<V> extends CustomField<Pair<V, V>> {
     add(outerLayout);
   }
 
-  /**
-   * Clears the current input field values.
-   */
+  /** Clears the current input field values. */
   @Override
   public void clear() {
     min.clear();

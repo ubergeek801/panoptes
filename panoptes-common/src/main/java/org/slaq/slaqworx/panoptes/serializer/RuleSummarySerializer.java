@@ -13,9 +13,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleSummary;
  * @author jeremy
  */
 public class RuleSummarySerializer implements ProtobufSerializer<RuleSummary> {
-  /**
-   * Creates a new {@link RuleSummarySerializer}.
-   */
+  /** Creates a new {@link RuleSummarySerializer}. */
   public RuleSummarySerializer() {
     // nothing to do
   }
@@ -25,8 +23,8 @@ public class RuleSummarySerializer implements ProtobufSerializer<RuleSummary> {
     RuleSummaryMsg ruleMsg = RuleSummaryMsg.parseFrom(buffer);
     IdKeyMsg keyMsg = ruleMsg.getKey();
 
-    return new RuleSummary(new RuleKey(keyMsg.getId()), ruleMsg.getDescription(),
-        ruleMsg.getParameterDescription());
+    return new RuleSummary(
+        new RuleKey(keyMsg.getId()), ruleMsg.getDescription(), ruleMsg.getParameterDescription());
   }
 
   @Override

@@ -23,9 +23,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  * @author jeremy
  */
 class CacheBootstrap {
-  /**
-   * Creates a new {@link CacheBootstrap}. Restricted to enforce class utility semantics.
-   */
+  /** Creates a new {@link CacheBootstrap}. Restricted to enforce class utility semantics. */
   private CacheBootstrap() {
     // nothing to do
   }
@@ -33,9 +31,7 @@ class CacheBootstrap {
   /**
    * Obtains the eligibility cache from the given {@link HazelcastInstance}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} from which to obtain the cache
-   *
+   * @param hazelcastInstance the {@link HazelcastInstance} from which to obtain the cache
    * @return the eligibility cache
    */
   @Nonnull
@@ -47,9 +43,7 @@ class CacheBootstrap {
   /**
    * Obtains the {@link Portfolio} cache from the given {@link HazelcastInstance}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} from which to obtain the cache
-   *
+   * @param hazelcastInstance the {@link HazelcastInstance} from which to obtain the cache
    * @return the {@link Portfolio} cache
    */
   @Nonnull
@@ -61,9 +55,7 @@ class CacheBootstrap {
   /**
    * Obtains the {@link Position} cache from the given {@link HazelcastInstance}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} from which to obtain the cache
-   *
+   * @param hazelcastInstance the {@link HazelcastInstance} from which to obtain the cache
    * @return the {@link Position} cache
    */
   @Nonnull
@@ -75,9 +67,7 @@ class CacheBootstrap {
   /**
    * Obtains the {@link Rule} cache from the given {@link HazelcastInstance}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} from which to obtain the cache
-   *
+   * @param hazelcastInstance the {@link HazelcastInstance} from which to obtain the cache
    * @return the {@link Rule} cache
    */
   @Nonnull
@@ -89,9 +79,7 @@ class CacheBootstrap {
   /**
    * Obtains the {@link Security} cache from the given {@link HazelcastInstance}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} from which to obtain the cache
-   *
+   * @param hazelcastInstance the {@link HazelcastInstance} from which to obtain the cache
    * @return the {@link Security} cache
    */
   @Nonnull
@@ -103,9 +91,7 @@ class CacheBootstrap {
   /**
    * Obtains the {@link Trade} cache from the given {@link HazelcastInstance}.
    *
-   * @param hazelcastInstance
-   *     the {@link HazelcastInstance} from which to obtain the cache
-   *
+   * @param hazelcastInstance the {@link HazelcastInstance} from which to obtain the cache
    * @return the {@link Trade} cache
    */
   @Nonnull

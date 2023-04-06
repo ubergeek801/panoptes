@@ -20,20 +20,14 @@ import org.jdbi.v3.core.result.ResultIterator;
  * Hazelcast promises to call {@code close()} when it completes iterating through the results, at
  * which time the open transaction is completed and the {@link Jdbi} handle is closed.
  *
- * @param <K>
- *     the type of the keys to be loaded
- *
+ * @param <K> the type of the keys to be loaded
  * @author jeremy
  */
 public class KeyIterable<K> implements ResultIterable<K>, Closeable {
-  @Nonnull
-  private final SynchronousTransactionManager<Connection> transactionManager;
-  @Nonnull
-  private final Jdbi jdbi;
-  @Nonnull
-  private final String query;
-  @Nonnull
-  private final RowMapper<K> keyMapper;
+  @Nonnull private final SynchronousTransactionManager<Connection> transactionManager;
+  @Nonnull private final Jdbi jdbi;
+  @Nonnull private final String query;
+  @Nonnull private final RowMapper<K> keyMapper;
 
   private TransactionStatus<Connection> transaction;
   private Handle jdbiHandle;
@@ -41,17 +35,16 @@ public class KeyIterable<K> implements ResultIterable<K>, Closeable {
   /**
    * Creates a new {@link KeyIterable}.
    *
-   * @param transactionManager
-   *     the {@link TransactionManager} to use for {@code loadAllKeys()}
-   * @param jdbi
-   *     the {@link Jdbi} instance to use for database operations
-   * @param query
-   *     the key retrieval query to be used
-   * @param keyMapper
-   *     the {@link RowMapper} to be used to map key results
+   * @param transactionManager the {@link TransactionManager} to use for {@code loadAllKeys()}
+   * @param jdbi the {@link Jdbi} instance to use for database operations
+   * @param query the key retrieval query to be used
+   * @param keyMapper the {@link RowMapper} to be used to map key results
    */
-  public KeyIterable(@Nonnull SynchronousTransactionManager<Connection> transactionManager,
-      @Nonnull Jdbi jdbi, @Nonnull String query, @Nonnull RowMapper<K> keyMapper) {
+  public KeyIterable(
+      @Nonnull SynchronousTransactionManager<Connection> transactionManager,
+      @Nonnull Jdbi jdbi,
+      @Nonnull String query,
+      @Nonnull RowMapper<K> keyMapper) {
     this.transactionManager = transactionManager;
     this.jdbi = jdbi;
     this.query = query;

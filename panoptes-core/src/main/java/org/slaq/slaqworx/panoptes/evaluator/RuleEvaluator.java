@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * optionally a set of benchmark {@link Position}s). The results are grouped by the {@link
  * EvaluationGroupClassifier} defined by the {@link Rule}; there is always at least one group
  * (unless the input set of {@link Position}s is empty).
- * <p>
- * Given that a {@link RuleEvaluator} requires a {@link EvaluationContext} at construction time, the
- * evaluator can only be used for that context. {@link RuleEvaluator} creation is meant to be
+ *
+ * <p>Given that a {@link RuleEvaluator} requires a {@link EvaluationContext} at construction time,
+ * the evaluator can only be used for that context. {@link RuleEvaluator} creation is meant to be
  * inexpensive, however, so a new one can be created for each evaluation session.
  *
  * @author jeremy
@@ -46,26 +46,22 @@ import org.slf4j.LoggerFactory;
 public class RuleEvaluator implements Callable<EvaluationResult> {
   private static final Logger LOG = LoggerFactory.getLogger(RuleEvaluator.class);
 
-  @Nonnull
-  private final Rule rule;
-  @Nonnull
-  private final PositionSupplier portfolioPositions;
+  @Nonnull private final Rule rule;
+  @Nonnull private final PositionSupplier portfolioPositions;
   private final PositionSupplier proposedPositions;
-  @Nonnull
-  private final EvaluationContext evaluationContext;
+  @Nonnull private final EvaluationContext evaluationContext;
 
   /**
    * Creates a new {@link RuleEvaluator} to evaluate the given {@link Rule} against the given {@link
    * Position}s.
    *
-   * @param rule
-   *     the {@link Rule} to be evaluated
-   * @param portfolioPositions
-   *     the {@link Position}s against which to evaluate the {@link Rule}
-   * @param evaluationContext
-   *     the context in which the {@link Rule} is to be evaluated
+   * @param rule the {@link Rule} to be evaluated
+   * @param portfolioPositions the {@link Position}s against which to evaluate the {@link Rule}
+   * @param evaluationContext the context in which the {@link Rule} is to be evaluated
    */
-  public RuleEvaluator(@Nonnull Rule rule, @Nonnull PositionSupplier portfolioPositions,
+  public RuleEvaluator(
+      @Nonnull Rule rule,
+      @Nonnull PositionSupplier portfolioPositions,
       @Nonnull EvaluationContext evaluationContext) {
     this(rule, portfolioPositions, null, evaluationContext);
   }
@@ -74,18 +70,18 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
    * Creates a new {@link RuleEvaluator} to evaluate the given {@link Rule} against the given {@link
    * Position}s.
    *
-   * @param rule
-   *     the {@link Rule} to be evaluated
-   * @param portfolioPositions
-   *     the {@link Position}s against which to evaluate the {@link Rule}
-   * @param proposedPositions
-   *     the (possibly {@code null}) proposed {@link Position}s (e.g. by a proposed {@link Trade} to
-   *     be combined with the {@link Portfolio} {@link Position}s in a separate evaluation
-   * @param evaluationContext
-   *     the context in which the {@link Rule} is to be evaluated
+   * @param rule the {@link Rule} to be evaluated
+   * @param portfolioPositions the {@link Position}s against which to evaluate the {@link Rule}
+   * @param proposedPositions the (possibly {@code null}) proposed {@link Position}s (e.g. by a
+   *     proposed {@link Trade} to be combined with the {@link Portfolio} {@link Position}s in a
+   *     separate evaluation
+   * @param evaluationContext the context in which the {@link Rule} is to be evaluated
    */
-  public RuleEvaluator(@Nonnull Rule rule, @Nonnull PositionSupplier portfolioPositions,
-      PositionSupplier proposedPositions, @Nonnull EvaluationContext evaluationContext) {
+  public RuleEvaluator(
+      @Nonnull Rule rule,
+      @Nonnull PositionSupplier portfolioPositions,
+      PositionSupplier proposedPositions,
+      @Nonnull EvaluationContext evaluationContext) {
     this.rule = rule;
     this.portfolioPositions = portfolioPositions;
     this.proposedPositions = proposedPositions;
@@ -96,8 +92,12 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
 
   @Override
   public EvaluationResult call() {
-    LOG.debug("evaluating Rule {} (\"{}\") over {} Positions for Portfolio {}", rule.getKey(),
-        rule.getDescription(), portfolioPositions.size(), portfolioPositions.getPortfolioKey());
+    LOG.debug(
+        "evaluating Rule {} (\"{}\") over {} Positions for Portfolio {}",
+        rule.getKey(),
+        rule.getDescription(),
+        portfolioPositions.size(),
+        portfolioPositions.getPortfolioKey());
 
     // group the Positions of the Portfolio into classifications according to the Rule's
     // GroupClassifier
@@ -142,56 +142,56 @@ public class RuleEvaluator implements Callable<EvaluationResult> {
   /**
    * Classifies the given {@link Position}s according to the {@link Rule}'s classifier.
    *
-   * @param positions
-   *     the {@link Position}s to be classified
-   * @param portfolioMarketValue
-   *     the (possibly {@code null} portfolio market value to use
-   *
+   * @param positions the {@link Position}s to be classified
+   * @param portfolioMarketValue the (possibly {@code null} portfolio market value to use
    * @return a {@link Map} associating each distinct classification group to the {@link Position}s
    *     comprising the group
    */
   @Nonnull
-  protected Map<EvaluationGroup, PositionSupplier> classify(@Nonnull PositionSupplier positions,
-      Double portfolioMarketValue) {
+  protected Map<EvaluationGroup, PositionSupplier> classify(
+      @Nonnull PositionSupplier positions, Double portfolioMarketValue) {
     Predicate<PositionEvaluationContext> positionFilter = rule.getPositionFilter();
     if (positionFilter == null) {
       positionFilter = (p -> true);
     }
 
-    return positions.getPositionsWithContext(evaluationContext).filter(positionFilter).collect(
-        Collectors.groupingBy(p -> rule.getGroupClassifier().classify(p),
-            new PositionSupplierCollector(positions.getPortfolioKey(), portfolioMarketValue)));
+    return positions
+        .getPositionsWithContext(evaluationContext)
+        .filter(positionFilter)
+        .collect(
+            Collectors.groupingBy(
+                p -> rule.getGroupClassifier().classify(p),
+                new PositionSupplierCollector(positions.getPortfolioKey(), portfolioMarketValue)));
   }
 
   /**
    * Evaluates the given {@link Position}s.
    *
-   * @param evaluatedPositions
-   *     the {@link Position}s to be evaluated
-   *
+   * @param evaluatedPositions the {@link Position}s to be evaluated
    * @return the {@link Rule} evaluation results grouped by {@link EvaluationGroup}
    */
   @Nonnull
-  protected Map<EvaluationGroup, ValueResult> evaluate(@Nonnull
-      Map<EvaluationGroup, PositionSupplier> evaluatedPositions) {
-    return evaluatedPositions.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> {
-      EvaluationGroup evaluationGroup = e.getKey();
-      PositionSupplier portfolioPositions = e.getValue();
+  protected Map<EvaluationGroup, ValueResult> evaluate(
+      @Nonnull Map<EvaluationGroup, PositionSupplier> evaluatedPositions) {
+    return evaluatedPositions.entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Entry::getKey,
+                e -> {
+                  EvaluationGroup evaluationGroup = e.getKey();
+                  PositionSupplier portfolioPositions = e.getValue();
 
-      return rule.evaluate(portfolioPositions, evaluationGroup, evaluationContext);
-    }));
+                  return rule.evaluate(portfolioPositions, evaluationGroup, evaluationContext);
+                }));
   }
 
   /**
    * A {@link Collector} that operates on a {@link Stream} of {@link Position}s to collect into a
    * new {@link PositionSupplier}, using a {@link Collection} as an accumulator.
    *
-   * @param portfolioKey
-   *     the (possibly {@code null} key of the associated {@link Portfolio}
-   * @param portfolioMarketValue
-   *     the (possibly {@code null} portfolio market value to specify on the created {@link
-   *     PositionSupplier}
-   *
+   * @param portfolioKey the (possibly {@code null} key of the associated {@link Portfolio}
+   * @param portfolioMarketValue the (possibly {@code null} portfolio market value to specify on the
+   *     created {@link PositionSupplier}
    * @author jeremy
    */
   private record PositionSupplierCollector(PortfolioKey portfolioKey, Double portfolioMarketValue)

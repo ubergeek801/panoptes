@@ -8,9 +8,7 @@ import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
  * @author jeremy
  */
 public class PortfolioKeySerializer extends KafkaSerializer<PortfolioKey> {
-  /**
-   * Creates a new {@link PortfolioKeySerializer}. Kafka requires a public default constructor.
-   */
+  /** Creates a new {@link PortfolioKeySerializer}. Kafka requires a public default constructor. */
   public PortfolioKeySerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.PortfolioKeySerializer());
   }

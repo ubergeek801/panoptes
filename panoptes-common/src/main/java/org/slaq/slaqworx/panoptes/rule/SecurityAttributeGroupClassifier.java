@@ -15,15 +15,13 @@ import org.slaq.slaqworx.panoptes.util.JsonConfigurable;
  */
 public class SecurityAttributeGroupClassifier
     implements EvaluationGroupClassifier, JsonConfigurable {
-  @Nonnull
-  private final SecurityAttribute<?> securityAttribute;
+  @Nonnull private final SecurityAttribute<?> securityAttribute;
 
   /**
    * Creates a new {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based
    * on the specified {@link SecurityAttribute}.
    *
-   * @param securityAttribute
-   *     the {@link SecurityAttribute} on which to classify {@link Position}s
+   * @param securityAttribute the {@link SecurityAttribute} on which to classify {@link Position}s
    */
   public SecurityAttributeGroupClassifier(@Nonnull SecurityAttribute<?> securityAttribute) {
     this.securityAttribute = securityAttribute;
@@ -33,10 +31,8 @@ public class SecurityAttributeGroupClassifier
    * Creates a new {@link SecurityAttributeGroupClassifier} which classifies {@link Position}s based
    * on the {@link SecurityAttribute} specified in the JSON configuration.
    *
-   * @param jsonConfiguration
-   *     a JSON configuration specifying the {@link SecurityAttribute} on which to classify {@link
-   *     Position}s
-   *
+   * @param jsonConfiguration a JSON configuration specifying the {@link SecurityAttribute} on which
+   *     to classify {@link Position}s
    * @return a {@link SecurityAttributeGroupClassifier} with the specified configuration
    */
   @Nonnull
@@ -59,8 +55,10 @@ public class SecurityAttributeGroupClassifier
       @Nonnull Supplier<PositionEvaluationContext> positionContextSupplier) {
     PositionEvaluationContext positionContext = positionContextSupplier.get();
 
-    Object attributeValue = positionContext.getPosition()
-        .getAttributeValue(securityAttribute, false, positionContext.getEvaluationContext());
+    Object attributeValue =
+        positionContext
+            .getPosition()
+            .getAttributeValue(securityAttribute, false, positionContext.getEvaluationContext());
     // TODO maybe implement special handling for null attribute values
     return new EvaluationGroup(String.valueOf(attributeValue), securityAttribute.getName());
   }
@@ -88,9 +86,7 @@ public class SecurityAttributeGroupClassifier
     return securityAttribute;
   }
 
-  /**
-   * Mirrors the structure of the JSON configuration.
-   */
+  /** Mirrors the structure of the JSON configuration. */
   static record Configuration(@Nonnull String attribute) {
     // trivial
   }

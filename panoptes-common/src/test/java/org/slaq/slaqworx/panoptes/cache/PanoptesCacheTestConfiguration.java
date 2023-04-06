@@ -28,9 +28,7 @@ public class PanoptesCacheTestConfiguration {
   /**
    * Provides a {@link HazelcastInstance} suitable for a unit test environment.
    *
-   * @param serializationConfig
-   *     the {@link SerializationConfig} to use for the cache
-   *
+   * @param serializationConfig the {@link SerializationConfig} to use for the cache
    * @return a {@link HazelcastInstance}
    */
   @Bean(preDestroy = "shutdown")

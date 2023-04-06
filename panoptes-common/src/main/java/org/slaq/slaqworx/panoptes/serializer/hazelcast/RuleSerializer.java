@@ -10,9 +10,7 @@ import org.slaq.slaqworx.panoptes.rule.Rule;
  * @author jeremy
  */
 public class RuleSerializer extends HazelcastStreamSerializer<ConfigurableRule> {
-  /**
-   * Creates a new {@link RuleSerializer}. Hazelcast requires a public default constructor.
-   */
+  /** Creates a new {@link RuleSerializer}. Hazelcast requires a public default constructor. */
   public RuleSerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.RuleSerializer());
   }

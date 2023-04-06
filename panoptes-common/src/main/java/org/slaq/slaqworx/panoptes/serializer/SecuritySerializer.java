@@ -18,9 +18,7 @@ import org.slaq.slaqworx.panoptes.util.SerializerUtil;
  * @author jeremy
  */
 public class SecuritySerializer implements ProtobufSerializer<Security> {
-  /**
-   * Creates a new {@link SecuritySerializer}.
-   */
+  /** Creates a new {@link SecuritySerializer}. */
   public SecuritySerializer() {
     // nothing to do
   }
@@ -28,20 +26,18 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
   /**
    * Converts a {@link SecurityAttributes} instance into a new {@link SecurityMsg}.
    *
-   * @param securityAttributes
-   *     the {@link SecurityAttributes} to be converted
-   *
+   * @param securityAttributes the {@link SecurityAttributes} to be converted
    * @return a {@link SecurityMsg}
    */
   public static SecurityMsg convert(SecurityAttributes securityAttributes) {
     SecurityMsg.Builder securityBuilder = SecurityMsg.newBuilder();
-    for (Entry<SecurityAttribute<?>, Object> attributeEntry : securityAttributes.asMap()
-        .entrySet()) {
+    for (Entry<SecurityAttribute<?>, Object> attributeEntry :
+        securityAttributes.asMap().entrySet()) {
       SecurityAttribute<?> attribute = attributeEntry.getKey();
       Object value = attributeEntry.getValue();
       try {
-        securityBuilder.putAttributes(attribute.getName(),
-            SerializerUtil.defaultJsonMapper().writeValueAsString(value));
+        securityBuilder.putAttributes(
+            attribute.getName(), SerializerUtil.defaultJsonMapper().writeValueAsString(value));
       } catch (JsonProcessingException e) {
         // FIXME throw a better exception
         throw new RuntimeException(
@@ -56,23 +52,27 @@ public class SecuritySerializer implements ProtobufSerializer<Security> {
    * Converts a {@link SecurityMsg} into a new {@link Map} relating each {@link SecurityAttribute}
    * to its corresponding value.
    *
-   * @param securityMsg
-   *     the message to be converted
-   *
+   * @param securityMsg the message to be converted
    * @return a {@link Map} relating each {@link SecurityAttribute} to its corresponding value
    */
   public static Map<SecurityAttribute<?>, ? super Object> convert(SecurityMsg securityMsg) {
     Map<String, String> msgAttributes = securityMsg.getAttributesMap();
-    Map<SecurityAttribute<?>, ? super Object> attributes = msgAttributes.entrySet().stream()
-        .collect(Collectors.toMap(e -> SecurityAttribute.of(e.getKey()), e -> {
-          try {
-            return SerializerUtil.coerce(SecurityAttribute.of(e.getKey()),
-                SerializerUtil.defaultJsonMapper().readValue(e.getValue(), String.class));
-          } catch (IOException ex) {
-            // FIXME throw a better exception
-            throw new RuntimeException(ex);
-          }
-        }));
+    Map<SecurityAttribute<?>, ? super Object> attributes =
+        msgAttributes.entrySet().stream()
+            .collect(
+                Collectors.toMap(
+                    e -> SecurityAttribute.of(e.getKey()),
+                    e -> {
+                      try {
+                        return SerializerUtil.coerce(
+                            SecurityAttribute.of(e.getKey()),
+                            SerializerUtil.defaultJsonMapper()
+                                .readValue(e.getValue(), String.class));
+                      } catch (IOException ex) {
+                        // FIXME throw a better exception
+                        throw new RuntimeException(ex);
+                      }
+                    }));
 
     return attributes;
   }

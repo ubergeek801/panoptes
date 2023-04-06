@@ -16,8 +16,7 @@ public class PortfolioSummarySerializerTest {
   /**
    * Tests that (de)serialization works as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testSerialization() throws Exception {
@@ -29,15 +28,23 @@ public class PortfolioSummarySerializerTest {
     byte[] buffer = serializer.write(portfolioSummary);
     PortfolioSummary deserialized = serializer.read(buffer);
 
-    assertEquals(portfolioSummary, deserialized,
-        "deserialized value should equals() original value");
-    assertEquals(portfolioSummary.benchmarkKey(), deserialized.benchmarkKey(),
+    assertEquals(
+        portfolioSummary, deserialized, "deserialized value should equals() original value");
+    assertEquals(
+        portfolioSummary.benchmarkKey(),
+        deserialized.benchmarkKey(),
         "deserialized value should have same benchmark key as original");
-    assertEquals(portfolioSummary.name(), deserialized.name(),
+    assertEquals(
+        portfolioSummary.name(),
+        deserialized.name(),
         "deserialized value should have same name as original");
-    assertEquals(portfolioSummary.totalMarketValue(), deserialized.totalMarketValue(),
+    assertEquals(
+        portfolioSummary.totalMarketValue(),
+        deserialized.totalMarketValue(),
         "deserialized Portfolio should have same total market value as original");
-    assertEquals(portfolioSummary.isAbstract(), deserialized.isAbstract(),
+    assertEquals(
+        portfolioSummary.isAbstract(),
+        deserialized.isAbstract(),
         "deserialized Portfolio should have same abstract flag as original");
   }
 }

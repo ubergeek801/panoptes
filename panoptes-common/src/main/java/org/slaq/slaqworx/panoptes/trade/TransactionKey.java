@@ -14,8 +14,7 @@ public class TransactionKey implements ProtobufSerializable {
   /**
    * Creates a new {@link TransactionKey} with the given ID.
    *
-   * @param id
-   *     the ID to assign to the key, or {@code null} to generate one
+   * @param id the ID to assign to the key, or {@code null} to generate one
    */
   public TransactionKey(String id) {
     this.id = (id == null ? IdVersionKey.generateId() : id);

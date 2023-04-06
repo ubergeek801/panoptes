@@ -14,9 +14,7 @@ import org.slaq.slaqworx.panoptes.rule.EvaluationContext;
  */
 @Singleton
 public class PortfolioSummarizerSerializer implements ProtobufSerializer<PortfolioSummarizer> {
-  /**
-   * Creates a new {@link PortfolioSummarizerSerializer}.
-   */
+  /** Creates a new {@link PortfolioSummarizerSerializer}. */
   public PortfolioSummarizerSerializer() {
     // nothing to do
   }
@@ -24,18 +22,20 @@ public class PortfolioSummarizerSerializer implements ProtobufSerializer<Portfol
   /**
    * Converts an {@link PortfolioSummarizer} into a new {@link EvaluationContextMsg}.
    *
-   * @param portfolioSummarizer
-   *     the {@link PortfolioSummarizer} to be converted
-   *
+   * @param portfolioSummarizer the {@link PortfolioSummarizer} to be converted
    * @return a {@link EvaluationContextMsg}
    */
   public static EvaluationContextMsg convert(PortfolioSummarizer portfolioSummarizer) {
     EvaluationContextMsg.Builder evaluationContextBuilder = EvaluationContextMsg.newBuilder();
-    evaluationContextBuilder
-        .setEvaluationMode(portfolioSummarizer.evaluationContext().getEvaluationMode().name());
-    portfolioSummarizer.evaluationContext().getSecurityOverrides().forEach(
-        (securityKey, attributes) -> evaluationContextBuilder
-            .putSecurityOverrides(securityKey.id(), SecuritySerializer.convert(attributes)));
+    evaluationContextBuilder.setEvaluationMode(
+        portfolioSummarizer.evaluationContext().getEvaluationMode().name());
+    portfolioSummarizer
+        .evaluationContext()
+        .getSecurityOverrides()
+        .forEach(
+            (securityKey, attributes) ->
+                evaluationContextBuilder.putSecurityOverrides(
+                    securityKey.id(), SecuritySerializer.convert(attributes)));
 
     return evaluationContextBuilder.build();
   }

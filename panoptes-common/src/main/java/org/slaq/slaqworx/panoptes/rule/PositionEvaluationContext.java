@@ -16,10 +16,8 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * @author jeremy
  */
 public class PositionEvaluationContext {
-  @Nonnull
-  private final Position position;
-  @Nonnull
-  private final EvaluationContext evaluationContext;
+  @Nonnull private final Position position;
+  @Nonnull private final EvaluationContext evaluationContext;
 
   private Throwable exception;
 
@@ -27,13 +25,11 @@ public class PositionEvaluationContext {
    * Creates a new {@link PositionEvaluationContext} comprising the given {@link Position} and
    * {@link EvaluationContext}.
    *
-   * @param position
-   *     the {@link Position} to be evaluated in the context
-   * @param evaluationContext
-   *     the context in which to evaluate the {@link Position}
+   * @param position the {@link Position} to be evaluated in the context
+   * @param evaluationContext the context in which to evaluate the {@link Position}
    */
-  public PositionEvaluationContext(@Nonnull Position position,
-      @Nonnull EvaluationContext evaluationContext) {
+  public PositionEvaluationContext(
+      @Nonnull Position position, @Nonnull EvaluationContext evaluationContext) {
     this.position = position;
     this.evaluationContext = evaluationContext;
   }
@@ -60,8 +56,7 @@ public class PositionEvaluationContext {
   /**
    * Indicates that an exception occurred during evaluation.
    *
-   * @param exception
-   *     the exception that occurred during evaluation
+   * @param exception the exception that occurred during evaluation
    */
   public void setException(Throwable exception) {
     this.exception = exception;

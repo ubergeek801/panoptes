@@ -18,9 +18,7 @@ public class PanoptesCacheClientConfiguration {
   /**
    * Provides a {@link HazelcastInstance} suitable for a cache client environment.
    *
-   * @param serializationConfig
-   *     the {@link SerializationConfig} to use for the cache
-   *
+   * @param serializationConfig the {@link SerializationConfig} to use for the cache
    * @return a {@link HazelcastInstance}
    */
   @Bean(preDestroy = "shutdown")

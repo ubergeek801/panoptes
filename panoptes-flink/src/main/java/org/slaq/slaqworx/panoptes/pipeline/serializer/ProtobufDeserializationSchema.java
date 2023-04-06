@@ -9,9 +9,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * A convenient base class for implementing {@link KafkaDeserializationSchema}e that delegate to a
  * {@link ProtobufSerializer}.
  *
- * @param <T>
- *     the type to be deserialized
- *
+ * @param <T> the type to be deserialized
  * @author jeremy
  */
 public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializable>
@@ -20,9 +18,7 @@ public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializab
 
   private transient ProtobufSerializer<T> serializer;
 
-  /**
-   * Creates a new {@link ProtobufDeserializationSchema}.
-   */
+  /** Creates a new {@link ProtobufDeserializationSchema}. */
   protected ProtobufDeserializationSchema() {
     // nothing to do
   }

@@ -4,8 +4,7 @@ import org.slaq.slaqworx.panoptes.event.TransactionEvent;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
 /**
- * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link
- * TransactionEvent}.
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link TransactionEvent}.
  *
  * @author jeremy
  */

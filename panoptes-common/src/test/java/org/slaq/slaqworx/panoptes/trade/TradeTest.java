@@ -17,9 +17,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  * @author jeremy
  */
 public class TradeTest {
-  /**
-   * Tests that {@code getAllocations()} (and related methods) behaves as expected.
-   */
+  /** Tests that {@code getAllocations()} (and related methods) behaves as expected. */
   @Test
   public void testGetAllocations() {
     TaxLot t1Lot1 = new TaxLot(1_000, TestUtil.s1.getKey());
@@ -33,7 +31,10 @@ public class TradeTest {
     Transaction transaction2 = new Transaction(TestUtil.p2.getKey(), t2Allocations);
 
     Map<PortfolioKey, Transaction> transactions =
-        Map.of(transaction1.getPortfolioKey(), transaction1, transaction2.getPortfolioKey(),
+        Map.of(
+            transaction1.getPortfolioKey(),
+            transaction1,
+            transaction2.getPortfolioKey(),
             transaction2);
 
     LocalDate date = LocalDate.now();

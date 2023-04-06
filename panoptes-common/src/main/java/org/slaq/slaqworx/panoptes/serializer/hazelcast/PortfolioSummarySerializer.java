@@ -3,8 +3,7 @@ package org.slaq.slaqworx.panoptes.serializer.hazelcast;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 
 /**
- * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link
- * PortfolioSummary}.
+ * A {@link HazelcastStreamSerializer} which (de)serializes the state of a {@link PortfolioSummary}.
  *
  * @author jeremy
  */

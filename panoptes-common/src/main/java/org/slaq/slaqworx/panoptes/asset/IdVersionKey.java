@@ -11,17 +11,14 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
  * @author jeremy
  */
 public abstract class IdVersionKey implements Comparable<IdVersionKey> {
-  @Nonnull
-  private final String id;
+  @Nonnull private final String id;
   private final long version;
 
   /**
    * Creates a new {@link IdVersionKey} with the given ID and version.
    *
-   * @param id
-   *     the ID to assign to the key, or {@code null} to generate one
-   * @param version
-   *     the version to assign to the key
+   * @param id the ID to assign to the key, or {@code null} to generate one
+   * @param version the version to assign to the key
    */
   public IdVersionKey(String id, long version) {
     this.id = (id == null ? generateId() : id);

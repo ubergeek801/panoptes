@@ -18,11 +18,9 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
    * Obtains this {@link PositionSupplier}'s {@link Position}s as a (new) {@link Stream}, applying
    * the given hierarchy options.
    *
-   * @param positionHierarchyOptions
-   *     the (possibly empty) hierarchy options to be applied
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which the {@link Position}s are being obtained
-   *
+   * @param positionHierarchyOptions the (possibly empty) hierarchy options to be applied
+   * @param evaluationContext the {@link EvaluationContext} in which the {@link Position}s are being
+   *     obtained
    * @return a {@link Stream} of {@link Position}s
    */
   @Nonnull
@@ -42,10 +40,9 @@ public interface HierarchicalPositionSupplier extends PositionSupplier {
     return positionStream;
   }
 
-  /**
-   * Enumerates the recognized hierarchies of {@link Position}s.
-   */
+  /** Enumerates the recognized hierarchies of {@link Position}s. */
   enum PositionHierarchyOption {
-    LOOKTHROUGH, TAXLOT
+    LOOKTHROUGH,
+    TAXLOT
   }
 }

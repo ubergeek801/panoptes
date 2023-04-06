@@ -15,21 +15,20 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 /**
  * A Hazelcast {@link EntryProcessor} that produces a {@link PortfolioSummary} projection for a
  * given {@link Portfolio}.
- * <p>
- * Note that although {@link EntryProcessor} is {@link Serializable}, this class expects to be
+ *
+ * <p>Note that although {@link EntryProcessor} is {@link Serializable}, this class expects to be
  * serialized using Protobuf (because the contained {@link EvaluationContext} is not {@link
  * Serializable}.
  *
- * @param evaluationContext
- *     the {@link EvaluationContext} in effect for this {@link PortfolioSummarizer}
- *
+ * @param evaluationContext the {@link EvaluationContext} in effect for this {@link
+ *     PortfolioSummarizer}
  * @author jeremy
  */
 public record PortfolioSummarizer(@Nonnull EvaluationContext evaluationContext)
-    implements EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary>, ReadOnly,
-    ProtobufSerializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+    implements EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary>,
+        ReadOnly,
+        ProtobufSerializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   @Override
   public EntryProcessor<PortfolioKey, Portfolio, PortfolioSummary> getBackupProcessor() {

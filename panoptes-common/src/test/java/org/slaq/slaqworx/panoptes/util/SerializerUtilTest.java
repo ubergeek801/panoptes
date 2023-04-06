@@ -19,9 +19,7 @@ import org.slaq.slaqworx.panoptes.test.TestUtil;
  * @author jeremy
  */
 public class SerializerUtilTest {
-  /**
-   * Tests that {@code coerce()} behaves as expected.
-   */
+  /** Tests that {@code coerce()} behaves as expected. */
   @Test
   public void testCocerce() {
     SecurityAttribute<String> stringAttribute =
@@ -40,31 +38,45 @@ public class SerializerUtilTest {
         SecurityAttribute.of("bigDecimalAttribute", 102, BigDecimal.class, null);
 
     BigDecimal coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, "31337");
-    assertEquals(new BigDecimal("31337"), coercedBigDecimal,
+    assertEquals(
+        new BigDecimal("31337"),
+        coercedBigDecimal,
         "coerced String should equal converted BigDecimal");
 
     coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, "31337.00");
-    assertEquals(new BigDecimal("31337.00"), coercedBigDecimal,
+    assertEquals(
+        new BigDecimal("31337.00"),
+        coercedBigDecimal,
         "coerced String should equal converted BigDecimal");
 
     coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337);
-    assertEquals(BigDecimal.valueOf(31337), coercedBigDecimal,
+    assertEquals(
+        BigDecimal.valueOf(31337),
+        coercedBigDecimal,
         "coerced int should equal converted BigDecimal");
 
     coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337L);
-    assertEquals(BigDecimal.valueOf(31337L), coercedBigDecimal,
+    assertEquals(
+        BigDecimal.valueOf(31337L),
+        coercedBigDecimal,
         "coerced long should equal converted BigDecimal");
 
     coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337f);
-    assertEquals(BigDecimal.valueOf(31337f), coercedBigDecimal,
+    assertEquals(
+        BigDecimal.valueOf(31337f),
+        coercedBigDecimal,
         "coerced float should equal converted BigDecimal");
 
     coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337d);
-    assertEquals(BigDecimal.valueOf(31337d), coercedBigDecimal,
+    assertEquals(
+        BigDecimal.valueOf(31337d),
+        coercedBigDecimal,
         "coerced double should equal converted BigDecimal");
 
     coercedBigDecimal = SerializerUtil.coerce(bigDecimalAttribute, 31337.1);
-    assertEquals(BigDecimal.valueOf(31337.1), coercedBigDecimal,
+    assertEquals(
+        BigDecimal.valueOf(31337.1),
+        coercedBigDecimal,
         "coerced double should equal converted BigDecimal");
 
     try {
@@ -75,9 +87,7 @@ public class SerializerUtilTest {
     }
   }
 
-  /**
-   * Tests that {@code testDefaultJdkSerializer()} behaves as expected.
-   */
+  /** Tests that {@code testDefaultJdkSerializer()} behaves as expected. */
   @Test
   public void testDefaultJdkSerializer() {
     JdkSerializer serializer = SerializerUtil.defaultJdkSerializer();
@@ -93,27 +103,38 @@ public class SerializerUtilTest {
   /**
    * Tests that {@code jsonToAttributes()} behaves as expected.
    *
-   * @throws Exception
-   *     if an unexpected error occurs
+   * @throws Exception if an unexpected error occurs
    */
   @Test
   public void testJsonToAttributes() throws Exception {
-    String json = "{\"cusip\":\"0MV4CFXX\",\"yield\":2.60,\"rating1Value\":99.1," +
-        "\"maturityDate\":\"2019-07-31\"}";
+    String json =
+        "{\"cusip\":\"0MV4CFXX\",\"yield\":2.60,\"rating1Value\":99.1,"
+            + "\"maturityDate\":\"2019-07-31\"}";
     Map<SecurityAttribute<?>, ? super Object> map = SerializerUtil.jsonToAttributes(json);
     assertEquals(4, map.size(), "unexpected map size");
     assertEquals("0MV4CFXX", map.get(SecurityAttribute.cusip), "unexpected value for cusip");
-    assertEquals(2.6, (double) map.get(SecurityAttribute.yield), TestUtil.EPSILON,
+    assertEquals(
+        2.6,
+        (double) map.get(SecurityAttribute.yield),
+        TestUtil.EPSILON,
         "unexpected value for yield");
-    assertEquals(99.1, (double) map.get(SecurityAttribute.rating1Value), TestUtil.EPSILON,
+    assertEquals(
+        99.1,
+        (double) map.get(SecurityAttribute.rating1Value),
+        TestUtil.EPSILON,
         "unexpected value for rating1Value");
-    assertEquals(LocalDate.of(2019, 7, 31), map.get(SecurityAttribute.maturityDate),
+    assertEquals(
+        LocalDate.of(2019, 7, 31),
+        map.get(SecurityAttribute.maturityDate),
         "unexpected value for maturityDate");
 
     String output = SerializerUtil.attributesToJson(map);
 
     // note the reordered keys which unfortunately makes this test slightly brittle
-    assertEquals("{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\"," +
-        "\"yield\":2.6,\"rating1Value\":99.1}", output, "unexpected JSON");
+    assertEquals(
+        "{\"cusip\":\"0MV4CFXX\",\"maturityDate\":\"2019-07-31\","
+            + "\"yield\":2.6,\"rating1Value\":99.1}",
+        output,
+        "unexpected JSON");
   }
 }

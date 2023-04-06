@@ -19,9 +19,7 @@ public interface PositionSupplier extends MarketValued {
    * "Concatenates" the given {@link PositionSupplier}s into a single logical {@link
    * PositionSupplier}.
    *
-   * @param suppliers
-   *     the {@link PositionSupplier}s to be concatenated
-   *
+   * @param suppliers the {@link PositionSupplier}s to be concatenated
    * @return a {@link PositionSupplier} representing the concatenation of the suppliers
    */
   @Nonnull
@@ -48,9 +46,7 @@ public interface PositionSupplier extends MarketValued {
    * Given an {@link EvaluationContext}, obtains this {@link PositionSupplier}'s {@link Position}s
    * as a (new) {@link Stream} of {@link PositionEvaluationContext}s.
    *
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which to perform the evaluation
-   *
+   * @param evaluationContext the {@link EvaluationContext} in which to perform the evaluation
    * @return a {@link Stream} of {@link PositionEvaluationContext}s
    */
   @Nonnull

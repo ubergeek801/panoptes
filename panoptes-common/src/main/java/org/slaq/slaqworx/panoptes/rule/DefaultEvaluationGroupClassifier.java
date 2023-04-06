@@ -11,16 +11,15 @@ import org.slaq.slaqworx.panoptes.asset.Position;
  * @author jeremy
  */
 public class DefaultEvaluationGroupClassifier implements EvaluationGroupClassifier {
-  /**
-   * Creates a new {@link DefaultEvaluationGroupClassifier}.
-   */
+  /** Creates a new {@link DefaultEvaluationGroupClassifier}. */
   public DefaultEvaluationGroupClassifier() {
     // nothing to do
   }
 
   @Nonnull
   @Override
-  public EvaluationGroup classify(@Nonnull Supplier<PositionEvaluationContext> positionContextSupplier) {
+  public EvaluationGroup classify(
+      @Nonnull Supplier<PositionEvaluationContext> positionContextSupplier) {
     return EvaluationGroup.defaultGroup();
   }
 }

@@ -18,13 +18,11 @@ public class MicronautVaadinInstantiator extends DefaultInstantiator {
   /**
    * Creates a new {@link MicronautVaadinInstantiator}.
    *
-   * @param vaadinService
-   *     the {@link VaadinService} to initialize the parent instantiator with
-   * @param applicationContext
-   *     the {@link ApplicationContext} to use to resolve beans
+   * @param vaadinService the {@link VaadinService} to initialize the parent instantiator with
+   * @param applicationContext the {@link ApplicationContext} to use to resolve beans
    */
-  public MicronautVaadinInstantiator(VaadinService vaadinService,
-      ApplicationContext applicationContext) {
+  public MicronautVaadinInstantiator(
+      VaadinService vaadinService, ApplicationContext applicationContext) {
     super(vaadinService);
     this.applicationContext = applicationContext;
   }

@@ -8,9 +8,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  * @author jeremy
  */
 public class TradeKeySerializer extends HazelcastStreamSerializer<TradeKey> {
-  /**
-   * Creates a new {@link TradeKeySerializer}. Hazelcast requires a public default constructor.
-   */
+  /** Creates a new {@link TradeKeySerializer}. Hazelcast requires a public default constructor. */
   public TradeKeySerializer() {
     super(new org.slaq.slaqworx.panoptes.serializer.TradeKeySerializer());
   }

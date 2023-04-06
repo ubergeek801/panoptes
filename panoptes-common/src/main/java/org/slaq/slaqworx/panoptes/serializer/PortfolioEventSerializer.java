@@ -18,16 +18,13 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.TransactionMsg;
 import org.slaq.slaqworx.panoptes.trade.Transaction;
 
 /**
- * A {@link ProtobufSerializer} which (de)serializes the state of {@link PortfolioEvent}
- * subclasses.
+ * A {@link ProtobufSerializer} which (de)serializes the state of {@link PortfolioEvent} subclasses.
  *
  * @author jeremy
  */
 @Singleton
 public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEvent> {
-  /**
-   * Creates a new {@link PortfolioEventSerializer}.
-   */
+  /** Creates a new {@link PortfolioEventSerializer}. */
   public PortfolioEventSerializer() {
     // nothing to do
   }
@@ -70,8 +67,8 @@ public class PortfolioEventSerializer implements ProtobufSerializer<PortfolioEve
       transactionEventMsg.setPortfolioKey(keyBuilder.build());
       keyBuilder.setId(transactionEvent.getKey().getId());
       keyBuilder.setVersion(transactionEvent.getKey().getVersion());
-      transactionEventMsg
-          .setTransaction(TransactionSerializer.convert(transactionEvent.getTransaction()));
+      transactionEventMsg.setTransaction(
+          TransactionSerializer.convert(transactionEvent.getTransaction()));
 
       portfolioEventBuilder.setTransactionEvent(transactionEventMsg.build());
     } else if (event instanceof PortfolioCommandEvent commandEvent) {

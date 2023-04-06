@@ -14,9 +14,7 @@ public interface MarketValueProvider {
    * {@link Position}s). Once calculated, the value may be cached depending on implementation and
    * context.
    *
-   * @param holding
-   *     the holding for which to obtain the market value
-   *
+   * @param holding the holding for which to obtain the market value
    * @return the market value of the given holding
    */
   double getMarketValue(@Nonnull MarketValued holding);

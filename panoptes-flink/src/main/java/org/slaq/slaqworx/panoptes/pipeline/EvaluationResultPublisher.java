@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class EvaluationResultPublisher implements SinkFunction<RuleEvaluationResult> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
 

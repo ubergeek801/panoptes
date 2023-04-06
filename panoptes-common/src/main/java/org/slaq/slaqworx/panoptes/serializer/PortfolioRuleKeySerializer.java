@@ -15,9 +15,7 @@ import org.slaq.slaqworx.panoptes.rule.RuleKey;
  * @author jeremy
  */
 public class PortfolioRuleKeySerializer implements ProtobufSerializer<PortfolioRuleKey> {
-  /**
-   * Creates a new {@link PortfolioEventSerializer}.
-   */
+  /** Creates a new {@link PortfolioEventSerializer}. */
   public PortfolioRuleKeySerializer() {
     // nothing to do
   }

@@ -22,33 +22,37 @@ public class ClusterTradeEvaluator implements TradeEvaluator {
    * Creates a new {@link ClusterTradeEvaluator} using the given {@link AssetCache} for distributed
    * {@link Trade} evaluation.
    *
-   * @param assetCache
-   *     the {@link AssetCache} to use to obtain distributed resources
+   * @param assetCache the {@link AssetCache} to use to obtain distributed resources
    */
   protected ClusterTradeEvaluator(AssetCache assetCache) {
     this.assetCache = assetCache;
   }
 
   @Override
-  public CompletableFuture<TradeEvaluationResult> evaluate(Trade trade,
-      EvaluationContext evaluationContext) {
+  public CompletableFuture<TradeEvaluationResult> evaluate(
+      Trade trade, EvaluationContext evaluationContext) {
     // merely submit a request to the cluster executor
     CompletableFutureAdapter<TradeEvaluationResult> completableFutureAdapter =
         new CompletableFutureAdapter<>();
-    assetCache.getClusterExecutor()
-        .submit(new TradeEvaluationRequest(trade.getKey(), evaluationContext),
+    assetCache
+        .getClusterExecutor()
+        .submit(
+            new TradeEvaluationRequest(trade.getKey(), evaluationContext),
             completableFutureAdapter);
 
     return completableFutureAdapter;
   }
 
   @Override
-  public CompletableFuture<Double> evaluateRoom(PortfolioKey portfolioKey, SecurityKey securityKey,
-      double targetValue) throws ExecutionException, InterruptedException {
+  public CompletableFuture<Double> evaluateRoom(
+      PortfolioKey portfolioKey, SecurityKey securityKey, double targetValue)
+      throws ExecutionException, InterruptedException {
     // merely submit a request to the cluster executor
     CompletableFutureAdapter<Double> completableFutureAdapter = new CompletableFutureAdapter<>();
-    assetCache.getClusterExecutor()
-        .submit(new RoomEvaluationRequest(portfolioKey, securityKey, targetValue),
+    assetCache
+        .getClusterExecutor()
+        .submit(
+            new RoomEvaluationRequest(portfolioKey, securityKey, targetValue),
             completableFutureAdapter);
 
     return completableFutureAdapter;

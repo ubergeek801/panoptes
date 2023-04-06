@@ -21,9 +21,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeKey;
  * @author jeremy
  */
 public class TradeEvaluationResultSerializer implements ProtobufSerializer<TradeEvaluationResult> {
-  /**
-   * Creates a new {@link TradeEvaluationResultSerializer}.
-   */
+  /** Creates a new {@link TradeEvaluationResultSerializer}. */
   public TradeEvaluationResultSerializer() {
     // nothing to do
   }
@@ -35,18 +33,32 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
     IdKeyMsg tradeKey = evaluationResultMsg.getTradeKey();
 
     TradeEvaluationResult result = new TradeEvaluationResult(new TradeKey(tradeKey.getId()));
-    evaluationResultMsg.getPortfolioRuleImpactList().forEach(ruleImpact -> {
-      PortfolioKey portfolioKey = new PortfolioKey(ruleImpact.getPortfolioKey().getId(),
-          ruleImpact.getPortfolioKey().getVersion());
-      RuleKey ruleKey = new RuleKey(ruleImpact.getRuleKey().getId());
-      ruleImpact.getRuleImpactList().forEach(impactMsg -> {
-        String aggregationKey =
-            (impactMsg.hasAggregationKey() ? impactMsg.getAggregationKey().getValue() : null);
-        EvaluationGroup evaluationGroup = new EvaluationGroup(impactMsg.getId(), aggregationKey);
-        result.addImpact(portfolioKey, ruleKey, evaluationGroup,
-            Impact.valueOf(impactMsg.getImpact()));
-      });
-    });
+    evaluationResultMsg
+        .getPortfolioRuleImpactList()
+        .forEach(
+            ruleImpact -> {
+              PortfolioKey portfolioKey =
+                  new PortfolioKey(
+                      ruleImpact.getPortfolioKey().getId(),
+                      ruleImpact.getPortfolioKey().getVersion());
+              RuleKey ruleKey = new RuleKey(ruleImpact.getRuleKey().getId());
+              ruleImpact
+                  .getRuleImpactList()
+                  .forEach(
+                      impactMsg -> {
+                        String aggregationKey =
+                            (impactMsg.hasAggregationKey()
+                                ? impactMsg.getAggregationKey().getValue()
+                                : null);
+                        EvaluationGroup evaluationGroup =
+                            new EvaluationGroup(impactMsg.getId(), aggregationKey);
+                        result.addImpact(
+                            portfolioKey,
+                            ruleKey,
+                            evaluationGroup,
+                            Impact.valueOf(impactMsg.getImpact()));
+                      });
+            });
 
     return result;
   }
@@ -60,28 +72,32 @@ public class TradeEvaluationResultSerializer implements ProtobufSerializer<Trade
 
     resultBuilder.setTradeKey(tradeKeyBuilder);
 
-    result.getImpacts().forEach((portfolioRuleKey, impactMap) -> {
-      PortfolioRuleImpactMsg.Builder impactMsgBuilder = PortfolioRuleImpactMsg.newBuilder();
-      IdVersionKeyMsg.Builder portfolioKeyBuilder = IdVersionKeyMsg.newBuilder();
-      portfolioKeyBuilder.setId(portfolioRuleKey.portfolioKey().getId());
-      portfolioKeyBuilder.setVersion(portfolioRuleKey.portfolioKey().getVersion());
-      IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
-      ruleKeyBuilder.setId(portfolioRuleKey.ruleKey().id());
+    result
+        .getImpacts()
+        .forEach(
+            (portfolioRuleKey, impactMap) -> {
+              PortfolioRuleImpactMsg.Builder impactMsgBuilder = PortfolioRuleImpactMsg.newBuilder();
+              IdVersionKeyMsg.Builder portfolioKeyBuilder = IdVersionKeyMsg.newBuilder();
+              portfolioKeyBuilder.setId(portfolioRuleKey.portfolioKey().getId());
+              portfolioKeyBuilder.setVersion(portfolioRuleKey.portfolioKey().getVersion());
+              IdKeyMsg.Builder ruleKeyBuilder = IdKeyMsg.newBuilder();
+              ruleKeyBuilder.setId(portfolioRuleKey.ruleKey().id());
 
-      impactMsgBuilder.setPortfolioKey(portfolioKeyBuilder);
-      impactMsgBuilder.setRuleKey(ruleKeyBuilder);
-      impactMap.forEach((evaluationGroup, impact) -> {
-        RuleImpactMsg.Builder ruleImpactMsgBuilder = RuleImpactMsg.newBuilder();
-        ruleImpactMsgBuilder.setId(evaluationGroup.id());
-        String aggregationGroup = evaluationGroup.aggregationKey();
-        if (aggregationGroup != null) {
-          ruleImpactMsgBuilder.setAggregationKey(StringValue.of(aggregationGroup));
-        }
-        ruleImpactMsgBuilder.setImpact(impact.name());
-        impactMsgBuilder.addRuleImpact(ruleImpactMsgBuilder);
-      });
-      resultBuilder.addPortfolioRuleImpact(impactMsgBuilder);
-    });
+              impactMsgBuilder.setPortfolioKey(portfolioKeyBuilder);
+              impactMsgBuilder.setRuleKey(ruleKeyBuilder);
+              impactMap.forEach(
+                  (evaluationGroup, impact) -> {
+                    RuleImpactMsg.Builder ruleImpactMsgBuilder = RuleImpactMsg.newBuilder();
+                    ruleImpactMsgBuilder.setId(evaluationGroup.id());
+                    String aggregationGroup = evaluationGroup.aggregationKey();
+                    if (aggregationGroup != null) {
+                      ruleImpactMsgBuilder.setAggregationKey(StringValue.of(aggregationGroup));
+                    }
+                    ruleImpactMsgBuilder.setImpact(impact.name());
+                    impactMsgBuilder.addRuleImpact(ruleImpactMsgBuilder);
+                  });
+              resultBuilder.addPortfolioRuleImpact(impactMsgBuilder);
+            });
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     resultBuilder.build().writeTo(out);

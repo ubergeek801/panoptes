@@ -15,9 +15,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EligibilityListMsg
  */
 @Singleton
 public class EligibilityListSerializer implements ProtobufSerializer<EligibilityList> {
-  /**
-   * Creates a new {@link EligibilityListSerializer}.
-   */
+  /** Creates a new {@link EligibilityListSerializer}. */
   public EligibilityListSerializer() {
     // nothing to do
   }

@@ -18,54 +18,61 @@ import org.slaq.slaqworx.panoptes.asset.SecurityAttribute;
  */
 @MicronautTest
 public class EligibilityResolverTest {
-  @Inject
-  private AssetCache assetCache;
+  @Inject private AssetCache assetCache;
 
-  /**
-   * Tests that country list eligibility behaves as expected.
-   */
+  /** Tests that country list eligibility behaves as expected. */
   @Test
   public void testCountryList() {
     EligibilityResolver resolver = new EligibilityResolver(assetCache);
 
     Map<SecurityAttribute<?>, ? super Object> attributes =
-        Map.of(SecurityAttribute.isin, "testIsin", SecurityAttribute.cusip, "testCusip",
-            SecurityAttribute.country, "testCountry1");
+        Map.of(
+            SecurityAttribute.isin,
+            "testIsin",
+            SecurityAttribute.cusip,
+            "testCusip",
+            SecurityAttribute.country,
+            "testCountry1");
     Security security = new Security(attributes);
 
     assetCache.getEligibilityCache().set("testCountryList", Set.of("testCountry1"));
-    assertTrue(resolver.isCountryListMember(security, "testCountryList"),
+    assertTrue(
+        resolver.isCountryListMember(security, "testCountryList"),
         "security should be a member of specified list");
 
     assetCache.getEligibilityCache().set("testCountryList", Set.of("testCountry2"));
-    assertFalse(resolver.isCountryListMember(security, "testCountryList"),
+    assertFalse(
+        resolver.isCountryListMember(security, "testCountryList"),
         "security should not be a member of specified list");
   }
 
-  /**
-   * Tests that issuer list eligibility behaves as expected.
-   */
+  /** Tests that issuer list eligibility behaves as expected. */
   @Test
   public void testIssuerList() {
     EligibilityResolver resolver = new EligibilityResolver(assetCache);
 
     Map<SecurityAttribute<?>, ? super Object> attributes =
-        Map.of(SecurityAttribute.isin, "testIsin", SecurityAttribute.cusip, "testCusip",
-            SecurityAttribute.issuer, "testIssuer1");
+        Map.of(
+            SecurityAttribute.isin,
+            "testIsin",
+            SecurityAttribute.cusip,
+            "testCusip",
+            SecurityAttribute.issuer,
+            "testIssuer1");
     Security security = new Security(attributes);
 
     assetCache.getEligibilityCache().set("testIssuerList", Set.of("testIssuer1"));
-    assertTrue(resolver.isIssuerListMember(security, "testIssuerList"),
+    assertTrue(
+        resolver.isIssuerListMember(security, "testIssuerList"),
         "security should be a member of specified list");
 
     assetCache.getEligibilityCache().set("testIssuerList", Set.of("testIssuer2"));
-    assertFalse(resolver.isIssuerListMember(security, "testIssuerList"),
+    assertFalse(
+        resolver.isIssuerListMember(security, "testIssuerList"),
         "security should not be a member of specified list");
   }
 
-  /**
-   * Tests that security list eligibility behaves as expected.
-   */
+  /** Tests that security list eligibility behaves as expected. */
   @Test
   public void testSecurityList() {
     EligibilityResolver resolver = new EligibilityResolver(assetCache);
@@ -75,15 +82,18 @@ public class EligibilityResolverTest {
     Security security = new Security(attributes);
 
     assetCache.getEligibilityCache().set("testSecurityList", Set.of("testIsin1"));
-    assertTrue(resolver.isSecurityListMember(security, "testSecurityList"),
+    assertTrue(
+        resolver.isSecurityListMember(security, "testSecurityList"),
         "security should be a member of specified list");
 
     assetCache.getEligibilityCache().set("testSecurityList", Set.of("testCusip1"));
-    assertTrue(resolver.isSecurityListMember(security, "testSecurityList"),
+    assertTrue(
+        resolver.isSecurityListMember(security, "testSecurityList"),
         "security should be a member of specified list");
 
     assetCache.getEligibilityCache().set("testSecurityList", Set.of("testIsin2"));
-    assertFalse(resolver.isSecurityListMember(security, "testSecurityList"),
+    assertFalse(
+        resolver.isSecurityListMember(security, "testSecurityList"),
         "security should not be a member of specified list");
   }
 }

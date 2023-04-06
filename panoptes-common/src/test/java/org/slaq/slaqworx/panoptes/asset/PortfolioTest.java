@@ -34,12 +34,9 @@ import org.slaq.slaqworx.panoptes.trade.TaxLot;
 public class PortfolioTest {
   private final TestSecurityProvider securityProvider = TestUtil.testSecurityProvider();
   private final TestPortfolioProvider portfolioProvider = TestUtil.testPortfolioProvider();
-  @Inject
-  private AssetCache assetCache;
+  @Inject private AssetCache assetCache;
 
-  /**
-   * Tests that {@link Portfolio#getPositions()} behaves as expected for non-hierarchy requests.
-   */
+  /** Tests that {@link Portfolio#getPositions()} behaves as expected for non-hierarchy requests. */
   @Test
   public void testGetPositions() {
     Security dummySecurity =
@@ -53,7 +50,7 @@ public class PortfolioTest {
     Portfolio portfolio = new Portfolio(new PortfolioKey("p1", 1), "test", positions);
 
     try (Stream<? extends Position> stream1 = portfolio.getPositions();
-         Stream<? extends Position> stream2 = portfolio.getPositions()) {
+        Stream<? extends Position> stream2 = portfolio.getPositions()) {
       assertFalse(stream1 == stream2, "position streams should be distinct");
       assertFalse(stream1.equals(stream2), "position streams should be distinct");
       assertEquals(4, stream1.count(), "unexpected count for stream 1");
@@ -86,17 +83,38 @@ public class PortfolioTest {
     // these Securities have a Portfolio key associated and thus represent holdings in those
     // funds
     PortfolioKey p2Key = new PortfolioKey("p2", 1);
-    Security p2Security = securityProvider.newSecurity("p2Sec", SecurityAttribute
-        .mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio, p2Key,
-            SecurityAttribute.amount, 1000d));
+    Security p2Security =
+        securityProvider.newSecurity(
+            "p2Sec",
+            SecurityAttribute.mapOf(
+                SecurityAttribute.price,
+                1d,
+                SecurityAttribute.portfolio,
+                p2Key,
+                SecurityAttribute.amount,
+                1000d));
     PortfolioKey p3Key = new PortfolioKey("p3", 1);
-    Security p3Security = securityProvider.newSecurity("p3Sec", SecurityAttribute
-        .mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio, p3Key,
-            SecurityAttribute.amount, 1000d));
+    Security p3Security =
+        securityProvider.newSecurity(
+            "p3Sec",
+            SecurityAttribute.mapOf(
+                SecurityAttribute.price,
+                1d,
+                SecurityAttribute.portfolio,
+                p3Key,
+                SecurityAttribute.amount,
+                1000d));
     PortfolioKey p4Key = new PortfolioKey("p4", 1);
-    Security p4Security = securityProvider.newSecurity("p4Sec", SecurityAttribute
-        .mapOf(SecurityAttribute.price, 1d, SecurityAttribute.portfolio, p4Key,
-            SecurityAttribute.amount, 1000d));
+    Security p4Security =
+        securityProvider.newSecurity(
+            "p4Sec",
+            SecurityAttribute.mapOf(
+                SecurityAttribute.price,
+                1d,
+                SecurityAttribute.portfolio,
+                p4Key,
+                SecurityAttribute.amount,
+                1000d));
 
     // p1 is 20% p2 and 20% p3
     HashSet<Position> p1Positions = new HashSet<>();
@@ -165,8 +183,8 @@ public class PortfolioTest {
         p1.getPositions(EnumSet.of(PositionHierarchyOption.LOOKTHROUGH), evaluationContext)
             .collect(Collectors.toList());
 
-    assertEquals(7, lookthroughPositions.size(),
-        "unexpected total number of lookthrough Positions");
+    assertEquals(
+        7, lookthroughPositions.size(), "unexpected total number of lookthrough Positions");
     // this is rather tedious
     boolean is300PositionFound = false;
     boolean is60PositionFound = false;
@@ -212,12 +230,15 @@ public class PortfolioTest {
    */
   @Test
   public void testGetPositions_taxLot() {
-    Security sec1 = TestUtil.createTestSecurity(assetCache, "sec1",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
-    Security sec2 = TestUtil.createTestSecurity(assetCache, "sec2",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
-    Security sec3 = TestUtil.createTestSecurity(assetCache, "sec3",
-        SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
+    Security sec1 =
+        TestUtil.createTestSecurity(
+            assetCache, "sec1", SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
+    Security sec2 =
+        TestUtil.createTestSecurity(
+            assetCache, "sec2", SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
+    Security sec3 =
+        TestUtil.createTestSecurity(
+            assetCache, "sec3", SecurityAttribute.mapOf(SecurityAttribute.price, 100d));
 
     TaxLot p1TaxLot1 = new TaxLot(100, sec1.getKey());
     TaxLot p1TaxLot2 = new TaxLot(-50, sec1.getKey());
@@ -238,43 +259,44 @@ public class PortfolioTest {
     PortfolioPosition p3 = new PortfolioPosition(p3TaxLots);
 
     Set<Position> positions = Set.of(p1, p2, p3);
-    Portfolio portfolio = TestUtil
-        .createTestPortfolio(assetCache, null, "TaxLotTestPortfolio", positions, null,
-            Collections.emptySet());
+    Portfolio portfolio =
+        TestUtil.createTestPortfolio(
+            assetCache, null, "TaxLotTestPortfolio", positions, null, Collections.emptySet());
 
-    Map<PositionKey, ? extends Position> taxLots = portfolio
-        .getPositions(EnumSet.of(PositionHierarchyOption.TAXLOT),
-            TestUtil.defaultTestEvaluationContext())
-        .collect(Collectors.toMap(Position::getKey, t -> t));
+    Map<PositionKey, ? extends Position> taxLots =
+        portfolio
+            .getPositions(
+                EnumSet.of(PositionHierarchyOption.TAXLOT), TestUtil.defaultTestEvaluationContext())
+            .collect(Collectors.toMap(Position::getKey, t -> t));
 
-    assertEquals(p1TaxLots.size() + p2TaxLots.size() + p3TaxLots.size(), taxLots.size(),
+    assertEquals(
+        p1TaxLots.size() + p2TaxLots.size() + p3TaxLots.size(),
+        taxLots.size(),
         "size of Portfolio TaxLots should equal sum of Position TaxLots size");
     for (Position p : taxLots.values()) {
       assertTrue(p instanceof TaxLot, "each tax lot should be instanceof TaxLot");
     }
-    assertTrue(taxLots.containsKey(p1TaxLot1.getKey()),
-        "Portfolio TaxLots should contain p1TaxLot1");
-    assertTrue(taxLots.containsKey(p1TaxLot2.getKey()),
-        "Portfolio TaxLots should contain p1TaxLot2");
-    assertTrue(taxLots.containsKey(p1TaxLot3.getKey()),
-        "Portfolio TaxLots should contain p1TaxLot3");
-    assertTrue(taxLots.containsKey(p2TaxLot1.getKey()),
-        "Portfolio TaxLots should contain p2TaxLot1");
-    assertTrue(taxLots.containsKey(p2TaxLot2.getKey()),
-        "Portfolio TaxLots should contain p2TaxLot2");
-    assertTrue(taxLots.containsKey(p2TaxLot3.getKey()),
-        "Portfolio TaxLots should contain p2TaxLot3");
-    assertTrue(taxLots.containsKey(p3TaxLot1.getKey()),
-        "Portfolio TaxLots should contain p3TaxLot1");
-    assertTrue(taxLots.containsKey(p3TaxLot2.getKey()),
-        "Portfolio TaxLots should contain p3TaxLot2");
-    assertTrue(taxLots.containsKey(p3TaxLot3.getKey()),
-        "Portfolio TaxLots should contain p3TaxLot3");
+    assertTrue(
+        taxLots.containsKey(p1TaxLot1.getKey()), "Portfolio TaxLots should contain p1TaxLot1");
+    assertTrue(
+        taxLots.containsKey(p1TaxLot2.getKey()), "Portfolio TaxLots should contain p1TaxLot2");
+    assertTrue(
+        taxLots.containsKey(p1TaxLot3.getKey()), "Portfolio TaxLots should contain p1TaxLot3");
+    assertTrue(
+        taxLots.containsKey(p2TaxLot1.getKey()), "Portfolio TaxLots should contain p2TaxLot1");
+    assertTrue(
+        taxLots.containsKey(p2TaxLot2.getKey()), "Portfolio TaxLots should contain p2TaxLot2");
+    assertTrue(
+        taxLots.containsKey(p2TaxLot3.getKey()), "Portfolio TaxLots should contain p2TaxLot3");
+    assertTrue(
+        taxLots.containsKey(p3TaxLot1.getKey()), "Portfolio TaxLots should contain p3TaxLot1");
+    assertTrue(
+        taxLots.containsKey(p3TaxLot2.getKey()), "Portfolio TaxLots should contain p3TaxLot2");
+    assertTrue(
+        taxLots.containsKey(p3TaxLot3.getKey()), "Portfolio TaxLots should contain p3TaxLot3");
   }
 
-  /**
-   * Tests that {@link Portfolio#getMarketValue(EvaluationContext)}} behaves as expected.
-   */
+  /** Tests that {@link Portfolio#getMarketValue(EvaluationContext)}} behaves as expected. */
   @Test
   public void testGetMarketValue() {
     Security dummySecurity =
@@ -287,19 +309,23 @@ public class PortfolioTest {
 
     Portfolio portfolio = new Portfolio(new PortfolioKey("test", 1), "test", positions);
     // the total amount is merely the sum of the amounts (100 + 200 + 300 + 400) * 2.00 = 2000
-    assertEquals(2000, portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
-        TestUtil.EPSILON, "unexpected total amount");
+    assertEquals(
+        2000,
+        portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
+        TestUtil.EPSILON,
+        "unexpected total amount");
 
     // changing the price should change the market value
     dummySecurity =
         securityProvider.newSecurity("dummy", SecurityAttribute.mapOf(SecurityAttribute.price, 4d));
-    assertEquals(4000, portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
-        TestUtil.EPSILON, "unexpected total amount after price change");
+    assertEquals(
+        4000,
+        portfolio.getMarketValue(TestUtil.defaultTestEvaluationContext()),
+        TestUtil.EPSILON,
+        "unexpected total amount after price change");
   }
 
-  /**
-   * Tests that {@link Portfolio}s are hashed in a reasonable way.
-   */
+  /** Tests that {@link Portfolio}s are hashed in a reasonable way. */
   @Test
   public void testHash() {
     Portfolio p1 = new Portfolio(new PortfolioKey("p1", 1), "test", Collections.emptySet());

@@ -22,16 +22,14 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.EvaluationSource;
  *
  * @author jeremy
  */
-public class PortfolioRuleEvaluator extends
-    KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class PortfolioRuleEvaluator
+    extends KeyedBroadcastProcessFunction<
+        PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult> {
+  @Serial private static final long serialVersionUID = 1L;
 
   private transient PortfolioTracker portfolioTracker;
 
-  /**
-   * Creates a new {@link PortfolioRuleEvaluator}.
-   */
+  /** Creates a new {@link PortfolioRuleEvaluator}. */
   public PortfolioRuleEvaluator() {
     // nothing to do
   }
@@ -42,23 +40,32 @@ public class PortfolioRuleEvaluator extends
   }
 
   @Override
-  public void processBroadcastElement(Security security,
-      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.Context context,
-      Collector<RuleEvaluationResult> out) throws Exception {
+  public void processBroadcastElement(
+      Security security,
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>
+              .Context
+          context,
+      Collector<RuleEvaluationResult> out)
+      throws Exception {
     portfolioTracker.applySecurity(context, security, (p -> p.getRules()::iterator), out);
   }
 
   @Override
-  public void processElement(PortfolioEvent portfolioEvent,
-      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>.ReadOnlyContext context,
-      Collector<RuleEvaluationResult> out) throws Exception {
+  public void processElement(
+      PortfolioEvent portfolioEvent,
+      KeyedBroadcastProcessFunction<PortfolioKey, PortfolioEvent, Security, RuleEvaluationResult>
+              .ReadOnlyContext
+          context,
+      Collector<RuleEvaluationResult> out)
+      throws Exception {
     boolean isPortfolioProcessable;
     Portfolio portfolio;
     if (portfolioEvent instanceof PortfolioCommandEvent) {
       portfolio = portfolioTracker.getPortfolio();
       // process only if the command refers to the keyed portfolio specifically
-      isPortfolioProcessable = (portfolio != null &&
-          portfolio.getPortfolioKey().equals(portfolioEvent.getPortfolioKey()));
+      isPortfolioProcessable =
+          (portfolio != null
+              && portfolio.getPortfolioKey().equals(portfolioEvent.getPortfolioKey()));
     } else if (portfolioEvent instanceof PortfolioDataEvent) {
       portfolio = ((PortfolioDataEvent) portfolioEvent).portfolio();
       // we shouldn't be seeing benchmarks, but ignore them if we do
@@ -81,8 +88,8 @@ public class PortfolioRuleEvaluator extends
     if (isPortfolioProcessable) {
       ReadOnlyBroadcastState<SecurityKey, Security> securityState =
           context.getBroadcastState(PanoptesPipeline.SECURITY_STATE_DESCRIPTOR);
-      portfolioTracker.processPortfolio(out, portfolio, null, securityState,
-          portfolio.getRules()::iterator);
+      portfolioTracker.processPortfolio(
+          out, portfolio, null, securityState, portfolio.getRules()::iterator);
     }
   }
 }

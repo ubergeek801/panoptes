@@ -26,23 +26,21 @@ public class TestSecurityProvider implements SecurityProvider {
   }
 
   @Override
-  public Security getSecurity(@Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext) {
+  public Security getSecurity(
+      @Nonnull SecurityKey key, @Nonnull EvaluationContext evaluationContext) {
     return securityMap.get(key);
   }
 
   /**
    * Creates a new {@link Security} and makes it available through this provider.
    *
-   * @param assetId
-   *     the asset ID to assign to the {@link Security}; may be {@code null} iff attributes contains
-   *     ISIN
-   * @param attributes
-   *     the additional attributes to associate with the {@link Security}
-   *
+   * @param assetId the asset ID to assign to the {@link Security}; may be {@code null} iff
+   *     attributes contains ISIN
+   * @param attributes the additional attributes to associate with the {@link Security}
    * @return the newly created {@link Security}
    */
-  public Security newSecurity(String assetId,
-      Map<SecurityAttribute<?>, ? super Object> attributes) {
+  public Security newSecurity(
+      String assetId, Map<SecurityAttribute<?>, ? super Object> attributes) {
     if (assetId != null) {
       attributes = new HashMap<>(attributes);
       attributes.put(SecurityAttribute.isin, assetId);

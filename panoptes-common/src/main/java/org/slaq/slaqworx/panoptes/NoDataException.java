@@ -11,18 +11,15 @@ import org.slaq.slaqworx.panoptes.asset.Security;
  * @author jeremy
  */
 public class NoDataException extends RuntimeException {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  @Nonnull
-  private final String attributeName;
+  @Nonnull private final String attributeName;
 
   /**
    * Creates a new {@link NoDataException} indicating that a {@link Security} attribute with the
    * given name was unavailable.
    *
-   * @param attributeName
-   *     the attribute name that was not found
+   * @param attributeName the attribute name that was not found
    */
   public NoDataException(@Nonnull String attributeName) {
     this.attributeName = attributeName;

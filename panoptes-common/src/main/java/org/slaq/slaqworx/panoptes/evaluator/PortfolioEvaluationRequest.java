@@ -20,27 +20,26 @@ import org.slaq.slaqworx.panoptes.util.ApplicationContextAware;
  * @author jeremy
  */
 public class PortfolioEvaluationRequest
-    implements Callable<Map<RuleKey, EvaluationResult>>, ApplicationContextAware,
-    ProtobufSerializable {
-  @Nonnull
-  private final PortfolioKey portfolioKey;
+    implements Callable<Map<RuleKey, EvaluationResult>>,
+        ApplicationContextAware,
+        ProtobufSerializable {
+  @Nonnull private final PortfolioKey portfolioKey;
   private final Transaction transaction;
-  @Nonnull
-  private final EvaluationContext evaluationContext;
+  @Nonnull private final EvaluationContext evaluationContext;
 
   private ApplicationContext applicationContext;
 
   /**
    * Creates a new {@link PortfolioEvaluationRequest} with the given parameters.
    *
-   * @param portfolioKey
-   *     the {@link PortfolioKey} identifying the {@link Portfolio} to be evaluated
-   * @param transaction
-   *     the (possibly {@code null} {@link Transaction} to be evaluated with the {@link Portfolio}
-   * @param evaluationContext
-   *     the {@link EvaluationContext} under which to evaluate
+   * @param portfolioKey the {@link PortfolioKey} identifying the {@link Portfolio} to be evaluated
+   * @param transaction the (possibly {@code null} {@link Transaction} to be evaluated with the
+   *     {@link Portfolio}
+   * @param evaluationContext the {@link EvaluationContext} under which to evaluate
    */
-  public PortfolioEvaluationRequest(@Nonnull PortfolioKey portfolioKey, Transaction transaction,
+  public PortfolioEvaluationRequest(
+      @Nonnull PortfolioKey portfolioKey,
+      Transaction transaction,
       @Nonnull EvaluationContext evaluationContext) {
     this.portfolioKey = portfolioKey;
     this.transaction = transaction;

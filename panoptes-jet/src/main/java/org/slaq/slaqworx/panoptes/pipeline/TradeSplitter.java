@@ -16,13 +16,13 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  * @author jeremy
  */
 public class TradeSplitter implements FunctionEx<Trade, Traverser<PortfolioEvent>> {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   @Override
   public Traverser<PortfolioEvent> applyEx(Trade trade) {
     // FIXME create a proper event ID
-    return Traversers.traverseStream(trade.getTransactions().values().stream()
-        .map(t -> new TransactionEvent(System.currentTimeMillis(), t)));
+    return Traversers.traverseStream(
+        trade.getTransactions().values().stream()
+            .map(t -> new TransactionEvent(System.currentTimeMillis(), t)));
   }
 }

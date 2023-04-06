@@ -11,9 +11,7 @@ import org.slaq.slaqworx.panoptes.proto.PanoptesSerialization.IdKeyMsg;
  * @author jeremy
  */
 public class SecurityKeySerializer implements ProtobufSerializer<SecurityKey> {
-  /**
-   * Creates a new {@link SecurityKeySerializer}.
-   */
+  /** Creates a new {@link SecurityKeySerializer}. */
   public SecurityKeySerializer() {
     // nothing to do
   }

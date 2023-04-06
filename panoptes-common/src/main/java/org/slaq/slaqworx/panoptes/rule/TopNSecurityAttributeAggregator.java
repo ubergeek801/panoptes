@@ -31,10 +31,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
    * Creates a new {@link TopNSecurityAttributeAggregator} which aggregates {@link Position}s on the
    * given {@link SecurityAttribute}.
    *
-   * @param securityAttribute
-   *     the {@link SecurityAttribute} on which to aggregate {@link Position}s
-   * @param count
-   *     the number of groups to collect into the "top n" metagroup
+   * @param securityAttribute the {@link SecurityAttribute} on which to aggregate {@link Position}s
+   * @param count the number of groups to collect into the "top n" metagroup
    */
   public TopNSecurityAttributeAggregator(SecurityAttribute<?> securityAttribute, int count) {
     super(securityAttribute);
@@ -45,9 +43,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
    * Creates a new {@link TopNSecurityAttributeAggregator} which aggregates {@link Position}s on the
    * {@link SecurityAttribute} specified in the JSON configuration.
    *
-   * @param jsonConfiguration
-   *     a JSON configuration specifying the {@link SecurityAttribute} on which to aggregate {@link
-   *     Position}s
+   * @param jsonConfiguration a JSON configuration specifying the {@link SecurityAttribute} on which
+   *     to aggregate {@link Position}s
    */
   @Nonnull
   public static TopNSecurityAttributeAggregator fromJson(@Nonnull String jsonConfiguration) {
@@ -60,8 +57,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
       throw new RuntimeException("could not parse JSON configuration " + jsonConfiguration, e);
     }
 
-    return new TopNSecurityAttributeAggregator(SecurityAttribute.of(configuration.attribute),
-        configuration.count);
+    return new TopNSecurityAttributeAggregator(
+        SecurityAttribute.of(configuration.attribute), configuration.count);
   }
 
   @Override
@@ -80,7 +77,8 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     // if we already have fewer groups than the desired, then just collect it all
     if (classifiedPositions.size() <= count) {
       filteredClassifiedPositions.putAll(classifiedPositions);
-      classifiedPositions.values()
+      classifiedPositions
+          .values()
           .forEach(positions -> positions.getPositions().forEach(aggregatePositions::add));
     } else {
       // create a list of PositionSuppliers and sort it by total amount, descending; also
@@ -89,12 +87,15 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
           new ArrayList<>(classifiedPositions.size());
       IdentityHashMap<PositionSupplier, EvaluationGroup> supplierGroupMap =
           new IdentityHashMap<>(classifiedPositions.size());
-      classifiedPositions.forEach((g, positions) -> {
-        sortedClassifiedPositions.add(positions);
-        supplierGroupMap.put(positions, g);
-      });
-      sortedClassifiedPositions.sort((s1, s2) -> Double
-          .compare(evaluationContext.getMarketValue(s2), evaluationContext.getMarketValue(s1)));
+      classifiedPositions.forEach(
+          (g, positions) -> {
+            sortedClassifiedPositions.add(positions);
+            supplierGroupMap.put(positions, g);
+          });
+      sortedClassifiedPositions.sort(
+          (s1, s2) ->
+              Double.compare(
+                  evaluationContext.getMarketValue(s2), evaluationContext.getMarketValue(s1)));
 
       // collect the first "count" PositionSuppliers into a single supplier, and also into the
       // filtered map
@@ -109,9 +110,12 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     PositionSupplier aPositionSupplier = classifiedPositions.values().iterator().next();
 
     filteredClassifiedPositions.put(
-        new EvaluationGroup("top(" + count + "," + getSecurityAttribute().getName() + ")",
+        new EvaluationGroup(
+            "top(" + count + "," + getSecurityAttribute().getName() + ")",
             getSecurityAttribute().getName()),
-        new PositionSet<>(aggregatePositions, aPositionSupplier.getPortfolioKey(),
+        new PositionSet<>(
+            aggregatePositions,
+            aPositionSupplier.getPortfolioKey(),
             evaluationContext.getMarketValue(aPositionSupplier)));
 
     return filteredClassifiedPositions;
@@ -130,9 +134,7 @@ public class TopNSecurityAttributeAggregator extends SecurityAttributeGroupClass
     }
   }
 
-  /**
-   * Mirrors the JSON configuration.
-   */
+  /** Mirrors the JSON configuration. */
   static record Configuration(@Nonnull String attribute, int count) {
     // trivial
   }

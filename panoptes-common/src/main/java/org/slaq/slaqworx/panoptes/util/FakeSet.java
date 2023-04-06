@@ -12,9 +12,7 @@ import java.util.Set;
  * user's responsibility to ensure either that the provided collection has the necessary uniqueness
  * characteristics, or that uniqueness is unimportant for the usage at hand.
  *
- * @param <E>
- *     the type of element contained by this set
- *
+ * @param <E> the type of element contained by this set
  * @author jeremy
  */
 public class FakeSet<E> extends AbstractCollection<E> implements Set<E> {
@@ -23,8 +21,7 @@ public class FakeSet<E> extends AbstractCollection<E> implements Set<E> {
   /**
    * Creates a new {@link FakeSet} that wraps the given {@link Collection}.
    *
-   * @param collection
-   *     the collection to wrap
+   * @param collection the collection to wrap
    */
   public FakeSet(Collection<E> collection) {
     this.collection = collection;

@@ -13,11 +13,8 @@ public interface SecurityProvider {
   /**
    * Obtains the {@link Security} corresponding to the given ID.
    *
-   * @param key
-   *     the key identifying the {@link Security} to be obtained
-   * @param evaluationContext
-   *     the {@link EvaluationContext} in which an evaluation is occurring
-   *
+   * @param key the key identifying the {@link Security} to be obtained
+   * @param evaluationContext the {@link EvaluationContext} in which an evaluation is occurring
    * @return the {@link Security} corresponding to the given key, or {@code null} if it could not be
    *     located
    */
