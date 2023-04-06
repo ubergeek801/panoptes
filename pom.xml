@@ -1,168 +1,169 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				xmlns="http://maven.apache.org/POM/4.0.0"
-				xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.slaq.slaqworx</groupId>
-	<artifactId>panoptes</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+  <groupId>org.slaq.slaqworx</groupId>
+  <artifactId>panoptes</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-	<name>panoptes</name>
-	<url>https://github.com/ubergeek801/panoptes</url>
+  <name>panoptes</name>
+  <url>https://github.com/ubergeek801/panoptes</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>17</java.version>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>17</java.version>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
 
-		<hazelcast.version>5.3.0-SNAPSHOT</hazelcast.version>
-		<micronaut.version>3.8.8</micronaut.version>
-	</properties>
+    <hazelcast.version>5.3.0-SNAPSHOT</hazelcast.version>
+    <micronaut.version>3.8.8</micronaut.version>
+  </properties>
 
-	<modules>
-		<module>panoptes-bootstrap</module>
-		<module>panoptes-common</module>
-		<module>panoptes-core</module>
-		<module>panoptes-core-test</module>
-		<module>panoptes-flink</module>
-		<module>panoptes-jet</module>
-		<module>panoptes-ui</module>
-		<module>panoptes-ui-prototype</module>
-		<module>panoptes-worker</module>
-	</modules>
+  <modules>
+    <module>panoptes-bootstrap</module>
+    <module>panoptes-common</module>
+    <module>panoptes-core</module>
+    <module>panoptes-core-test</module>
+    <module>panoptes-flink</module>
+    <module>panoptes-jet</module>
+    <module>panoptes-ui</module>
+    <module>panoptes-ui-prototype</module>
+    <module>panoptes-worker</module>
+  </modules>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<!-- create Docker images for applications -->
-				<plugin>
-					<groupId>com.google.cloud.tools</groupId>
-					<artifactId>jib-maven-plugin</artifactId>
-					<version>3.3.1</version>
-				</plugin>
-				<!-- enable Micronaut-related Maven actions -->
-				<plugin>
-					<groupId>io.micronaut.build</groupId>
-					<artifactId>micronaut-maven-plugin</artifactId>
-					<version>3.5.3</version>
-				</plugin>
-				<!-- process the Micronaut annotations -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.11.0</version>
-					<configuration>
-						<compilerArgs>
-							<arg>-parameters</arg>
-						</compilerArgs>
-						<annotationProcessorPaths>
-							<path>
-								<groupId>io.micronaut</groupId>
-								<artifactId>micronaut-inject-java</artifactId>
-								<version>${micronaut.version}</version>
-							</path>
-							<path>
-								<groupId>io.micronaut.data</groupId>
-								<artifactId>micronaut-data-processor</artifactId>
-								<version>3.9.7</version>
-							</path>
-						</annotationProcessorPaths>
-					</configuration>
-				</plugin>
-				<!-- use a Surefire plugin recent enough for JUnit Jupiter -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0</version>
-				</plugin>
-				<!-- produce build-info to include in application packages -->
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-					<version>3.0.5</version>
-				</plugin>
-				<!-- produce git-info to include in application packages -->
-				<plugin>
-					<groupId>io.github.git-commit-id</groupId>
-					<artifactId>git-commit-id-maven-plugin</artifactId>
-					<version>5.0.0</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- create Docker images for applications -->
+        <plugin>
+          <groupId>com.google.cloud.tools</groupId>
+          <artifactId>jib-maven-plugin</artifactId>
+          <version>3.3.1</version>
+        </plugin>
+        <!-- enable Micronaut-related Maven actions -->
+        <plugin>
+          <groupId>io.micronaut.build</groupId>
+          <artifactId>micronaut-maven-plugin</artifactId>
+          <version>3.5.3</version>
+        </plugin>
+        <!-- process the Micronaut annotations -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.11.0</version>
+          <configuration>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>io.micronaut</groupId>
+                <artifactId>micronaut-inject-java</artifactId>
+                <version>${micronaut.version}</version>
+              </path>
+              <path>
+                <groupId>io.micronaut.data</groupId>
+                <artifactId>micronaut-data-processor</artifactId>
+                <version>3.9.7</version>
+              </path>
+            </annotationProcessorPaths>
+          </configuration>
+        </plugin>
+        <!-- use a Surefire plugin recent enough for JUnit Jupiter -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.0.0</version>
+        </plugin>
+        <!-- produce build-info to include in application packages -->
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>3.0.5</version>
+        </plugin>
+        <!-- produce git-info to include in application packages -->
+        <plugin>
+          <groupId>io.github.git-commit-id</groupId>
+          <artifactId>git-commit-id-maven-plugin</artifactId>
+          <version>5.0.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
 
-		<plugins>
-			<plugin>
-				<groupId>com.diffplug.spotless</groupId>
-				<artifactId>spotless-maven-plugin</artifactId>
-				<version>2.35.0</version>
-				<configuration>
-					<formats>
-						<format>
-							<includes>
-								<include>*.md</include>
-								<include>*.proto</include>
-								<include>.gitignore</include>
-								<include>pom.xml</include>
-							</includes>
-							<trimTrailingWhitespace/>
-							<endWithNewline/>
-							<indent>
-								<tabs>true</tabs>
-								<spacesPerTab>2</spacesPerTab>
-							</indent>
-						</format>
-					</formats>
-					<java>
-						<googleJavaFormat>
-							<version>1.16.0</version>
-							<style>GOOGLE</style>
-							<reflowLongStrings>true</reflowLongStrings>
-						</googleJavaFormat>
-						<importOrder />
-						<removeUnusedImports />
-						<formatAnnotations />
-					</java>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>apply</goal>
-						</goals>
-						<phase>compile</phase>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.35.0</version>
+        <configuration>
+          <formats>
+            <format>
+              <includes>
+                <include>*.md</include>
+                <include>*.proto</include>
+                <include>*.proto</include>
+                <include>*.xml</include>
+                <include>*.yaml</include>
+              </includes>
+              <trimTrailingWhitespace/>
+              <endWithNewline/>
+              <indent>
+                <spaces>true</spaces>
+                <spacesPerTab>2</spacesPerTab>
+              </indent>
+            </format>
+          </formats>
+          <java>
+            <googleJavaFormat>
+              <version>1.16.0</version>
+              <style>GOOGLE</style>
+              <reflowLongStrings>true</reflowLongStrings>
+            </googleJavaFormat>
+            <importOrder />
+            <removeUnusedImports />
+            <formatAnnotations />
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>1.4.6</version>
-			</dependency>
-			<dependency>
-				<groupId>com.hazelcast</groupId>
-				<artifactId>hazelcast</artifactId>
-				<version>${hazelcast.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.micronaut</groupId>
-				<artifactId>micronaut-bom</artifactId>
-				<version>${micronaut.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>3.12.0</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.4.6</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast</artifactId>
+        <version>${hazelcast.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.micronaut</groupId>
+        <artifactId>micronaut-bom</artifactId>
+        <version>${micronaut.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.12.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>
