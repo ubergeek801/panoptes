@@ -15,8 +15,7 @@
   <name>panoptes-flink</name>
 
   <properties>
-    <flink.version>1.17.0</flink.version>
-    <flink.scala.binary.version>2.12</flink.scala.binary.version>
+    <flink.version>1.17.1</flink.version>
   </properties>
 
   <build>

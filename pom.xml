@@ -19,7 +19,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
 
     <hazelcast.version>5.3.0-SNAPSHOT</hazelcast.version>
-    <micronaut.version>3.8.9</micronaut.version>
+    <micronaut.version>3.9.3</micronaut.version>
   </properties>
 
   <modules>
@@ -41,13 +41,13 @@
         <plugin>
           <groupId>com.google.cloud.tools</groupId>
           <artifactId>jib-maven-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.3.2</version>
         </plugin>
         <!-- enable Micronaut-related Maven actions -->
         <plugin>
           <groupId>io.micronaut.build</groupId>
           <artifactId>micronaut-maven-plugin</artifactId>
-          <version>3.5.3</version>
+          <version>3.5.4</version>
         </plugin>
         <!-- process the Micronaut annotations -->
         <plugin>
@@ -76,19 +76,19 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.2</version>
         </plugin>
         <!-- produce build-info to include in application packages -->
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>3.0.5</version>
+          <version>3.1.0</version>
         </plugin>
         <!-- produce git-info to include in application packages -->
         <plugin>
           <groupId>io.github.git-commit-id</groupId>
           <artifactId>git-commit-id-maven-plugin</artifactId>
-          <version>5.0.0</version>
+          <version>6.0.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -141,10 +141,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- need 1.2.x until Micronaut et al move to slf4j2 -->
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.6</version>
+        <version>1.2.12</version>
       </dependency>
       <dependency>
         <groupId>com.hazelcast</groupId>
