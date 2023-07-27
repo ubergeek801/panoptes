@@ -115,7 +115,7 @@
       </plugin>
       <!-- enable Micronaut-related Maven actions -->
       <plugin>
-        <groupId>io.micronaut.build</groupId>
+        <groupId>io.micronaut.maven</groupId>
         <artifactId>micronaut-maven-plugin</artifactId>
       </plugin>
       <!-- set the desired environment when running unit tests -->

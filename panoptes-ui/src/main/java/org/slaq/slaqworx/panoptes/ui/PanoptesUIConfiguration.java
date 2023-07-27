@@ -14,7 +14,7 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.ee10.webapp.WebInfConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebXmlConfiguration;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 /**
  * A Micronaut {@link Factory} that provides {@link Bean}s related to the experimental Vaadin user
@@ -47,7 +47,8 @@ public class PanoptesUIConfiguration {
     WebAppContext context = new WebAppContext();
     context.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "false");
     context.setContextPath("/");
-    context.setBaseResource(Resource.newResource(getClass().getClassLoader().getResource("ui")));
+    context.setBaseResource(
+        ResourceFactory.root().newResource(getClass().getClassLoader().getResource("ui")));
     // TODO determine whether an equivalent is needed
     // context.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
     context.setConfigurationDiscovered(true);

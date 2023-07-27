@@ -16,7 +16,7 @@
 
   <properties>
     <jetty.version>12.0.0.beta3</jetty.version>
-    <vaadin.version>24.1.1</vaadin.version>
+    <vaadin.version>24.1.4</vaadin.version>
   </properties>
 
   <build>
@@ -37,7 +37,7 @@
       </plugin>
       <!-- enable Micronaut-related Maven actions -->
       <plugin>
-        <groupId>io.micronaut.build</groupId>
+        <groupId>io.micronaut.maven</groupId>
         <artifactId>micronaut-maven-plugin</artifactId>
         <configuration>
           <mainClass>org.slaq.slaqworx.panoptes.PanoptesUI</mainClass>
