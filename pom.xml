@@ -67,7 +67,7 @@
               <path>
                 <groupId>io.micronaut.data</groupId>
                 <artifactId>micronaut-data-processor</artifactId>
-                <version>4.0.2</version>
+                <version>4.0.4</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
