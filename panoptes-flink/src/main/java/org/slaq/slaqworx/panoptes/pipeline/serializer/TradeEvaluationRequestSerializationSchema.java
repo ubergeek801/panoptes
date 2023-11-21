@@ -2,6 +2,7 @@ package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
 import io.micronaut.context.BeanProvider;
 import java.io.IOException;
+import java.io.Serial;
 import org.slaq.slaqworx.panoptes.cache.AssetCache;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 import org.slaq.slaqworx.panoptes.serializer.TradeEvaluationRequestSerializer;
@@ -10,7 +11,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 
 public class TradeEvaluationRequestSerializationSchema
     extends ProtobufSerializationSchema<TradeEvaluationRequest> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final TradeKeySerializer keySerializer;
 

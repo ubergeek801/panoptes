@@ -6,12 +6,11 @@ import io.micronaut.context.annotation.Property;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Properties;
+import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.PortfolioRuleKey;
@@ -100,21 +99,21 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@link SourceFunction} to source benchmark data from Kafka.
+   * Configures and provides a {@link KafkaSource} to source benchmark data from Kafka.
    *
-   * @return a {@link SourceFunction}
+   * @return a {@link KafkaSource}
    */
   @Singleton
   @Named(BENCHMARK_SOURCE)
-  protected SourceFunction<PortfolioEvent> benchmarkSource() {
+  protected KafkaSource<PortfolioEvent> benchmarkSource() {
     LOG.info("using {} as benchmark topic", benchmarkTopic);
 
-    FlinkKafkaConsumer<PortfolioEvent> consumer =
-        new FlinkKafkaConsumer<>(
-            benchmarkTopic, new PortfolioEventDeserializationSchema(), kafkaProperties);
-    consumer.setStartFromEarliest();
-
-    return consumer;
+    return KafkaSource.<PortfolioEvent>builder()
+        .setTopics(benchmarkTopic)
+        .setDeserializer(new PortfolioEventDeserializationSchema())
+        .setProperties(kafkaProperties)
+        .setStartingOffsets(OffsetsInitializer.earliest())
+        .build();
   }
 
   /**
@@ -170,111 +169,109 @@ public class PanoptesPipelineConfig {
   }
 
   /**
-   * Configures and provides a {@link SourceFunction} to source portfolio evaluation requests from
+   * Configures and provides a {@link KafkaSource} to source portfolio evaluation requests from
    * Kafka.
    *
-   * @return a {@link SourceFunction}
+   * @return a {@link KafkaSource}
    */
   @Singleton
   @Named(PORTFOLIO_EVALUATION_REQUEST_SOURCE)
-  protected SourceFunction<PortfolioEvaluationRequest> portfolioEvaluationRequestSource() {
+  protected KafkaSource<PortfolioEvaluationRequest> portfolioEvaluationRequestSource() {
     LOG.info("using {} as portfolioEvaluationRequest topic", portfolioEvaluationRequestTopic);
 
-    return new FlinkKafkaConsumer<>(
-        portfolioEvaluationRequestTopic,
-        new PortfolioEvaluationRequestDeserializationSchema(),
-        kafkaProperties);
+    return KafkaSource.<PortfolioEvaluationRequest>builder()
+        .setTopics(portfolioEvaluationRequestTopic)
+        .setDeserializer(new PortfolioEvaluationRequestDeserializationSchema())
+        .setProperties(kafkaProperties)
+        .build();
   }
 
   /**
-   * Configures and provides a {@link SinkFunction} to publish portfolio evaluation results to
-   * Kafka.
+   * Configures and provides a {@link KafkaSink} to publish portfolio evaluation results to Kafka.
    *
-   * @return a {@link SinkFunction}
+   * @return a {@link KafkaSink}
    */
   @Singleton
   @Named(PORTFOLIO_EVALUATION_RESULT_SINK)
-  protected SinkFunction<EvaluationResult> portfolioEvaluationResultSink() {
+  protected KafkaSink<EvaluationResult> portfolioEvaluationResultSink() {
     LOG.info("using {} as portfolioEvaluationResult topic", portfolioEvaluationResultTopic);
 
-    FlinkKafkaProducer<EvaluationResult> producer =
-        new FlinkKafkaProducer<>(
-            portfolioEvaluationResultTopic,
-            new EvaluationResultSerializationSchema(portfolioEvaluationResultTopic),
-            kafkaProperties,
-            Semantic.AT_LEAST_ONCE);
-    producer.setWriteTimestampToKafka(true);
-
-    return producer;
+    return KafkaSink.<EvaluationResult>builder()
+        .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+        .setKafkaProducerConfig(kafkaProperties)
+        .setRecordSerializer(
+            new EvaluationResultSerializationSchema(portfolioEvaluationResultTopic))
+        .build();
   }
 
   /**
-   * Configures and provides a {@link SourceFunction} to source portfolio data from Kafka.
+   * Configures and provides a {@link KafkaSource} to source portfolio data from Kafka.
    *
-   * @return a {@link SourceFunction}
+   * @return a {@link KafkaSource}
    */
   @Singleton
   @Named(PORTFOLIO_SOURCE)
-  protected SourceFunction<PortfolioEvent> portfolioSource() {
+  protected KafkaSource<PortfolioEvent> portfolioSource() {
     LOG.info("using {} as portfolio topic", portfolioTopic);
 
-    FlinkKafkaConsumer<PortfolioEvent> consumer =
-        new FlinkKafkaConsumer<>(
-            portfolioTopic, new PortfolioEventDeserializationSchema(), kafkaProperties);
-    consumer.setStartFromEarliest();
-
-    return consumer;
+    return KafkaSource.<PortfolioEvent>builder()
+        .setTopics(portfolioTopic)
+        .setDeserializer(new PortfolioEventDeserializationSchema())
+        .setProperties(kafkaProperties)
+        .setStartingOffsets(OffsetsInitializer.earliest())
+        .build();
   }
 
   /**
-   * Configures and provides a {@link SourceFunction} to source security data from Kafka.
+   * Configures and provides a {@link KafkaSource} to source security data from Kafka.
    *
-   * @return a {@link SourceFunction}
+   * @return a {@link KafkaSource}
    */
   @Singleton
   @Named(SECURITY_SOURCE)
-  protected SourceFunction<Security> securitySource() {
+  protected KafkaSource<Security> securitySource() {
     LOG.info("using {} as security topic", securityTopic);
 
-    FlinkKafkaConsumer<Security> consumer =
-        new FlinkKafkaConsumer<>(
-            securityTopic, new SecurityDeserializationSchema(), kafkaProperties);
-    consumer.setStartFromEarliest();
-
-    return consumer;
+    return KafkaSource.<Security>builder()
+        .setTopics(securityTopic)
+        .setDeserializer(new SecurityDeserializationSchema())
+        .setProperties(kafkaProperties)
+        .setStartingOffsets(OffsetsInitializer.earliest())
+        .build();
   }
 
   /**
-   * Configures and provides a {@link SinkFunction} to publish trade evaluation results to Kafka.
+   * Configures and provides a {@link KafkaSink} to publish trade evaluation results to Kafka.
    *
-   * @return a {@link SinkFunction}
+   * @return a {@link KafkaSink}
    */
   @Singleton
   @Named(TRADE_EVALUATION_RESULT_SINK)
-  protected SinkFunction<TradeEvaluationResult> tradeEvaluationResultSink() {
+  protected KafkaSink<TradeEvaluationResult> tradeEvaluationResultSink() {
     LOG.info("using {} as tradeEvaluationResult topic", tradeEvaluationResultTopic);
 
-    FlinkKafkaProducer<TradeEvaluationResult> producer =
-        new FlinkKafkaProducer<>(
-            tradeEvaluationResultTopic,
-            new TradeEvaluationResultSerializationSchema(tradeEvaluationResultTopic),
-            kafkaProperties,
-            Semantic.AT_LEAST_ONCE);
-    producer.setWriteTimestampToKafka(true);
-
-    return producer;
+    return KafkaSink.<TradeEvaluationResult>builder()
+        .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+        .setKafkaProducerConfig(kafkaProperties)
+        .setRecordSerializer(
+            new TradeEvaluationResultSerializationSchema(tradeEvaluationResultTopic))
+        .build();
   }
 
   /**
-   * Configures and provides a {@link SourceFunction} to source trades from Kafka.
+   * Configures and provides a {@link KafkaSource} to source trades from Kafka.
    *
-   * @return a {@link SourceFunction}
+   * @return a {@link KafkaSource}
    */
   @Singleton
   @Named(TRADE_SOURCE)
-  protected SourceFunction<Trade> tradeSource() {
+  protected KafkaSource<Trade> tradeSource() {
     LOG.info("using {} as trade topic", tradeTopic);
 
-    return new FlinkKafkaConsumer<>(tradeTopic, new TradeDeserializationSchema(), kafkaProperties);
+    return KafkaSource.<Trade>builder()
+        .setTopics(tradeTopic)
+        .setDeserializer(new TradeDeserializationSchema())
+        .setProperties(kafkaProperties)
+        .build();
   }
 }

@@ -3,6 +3,7 @@ package org.slaq.slaqworx.panoptes.pipeline.serializer;
 import io.micronaut.context.BeanProvider;
 import java.io.Serial;
 import javax.annotation.Nonnull;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -25,7 +26,7 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * @author jeremy
  */
 public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable>
-    implements KafkaSerializationSchema<T>,
+    implements KafkaRecordSerializationSchema<T>,
         BeanProvider<AssetCache>,
         PortfolioProvider,
         SecurityProvider {
@@ -67,7 +68,8 @@ public abstract class ProtobufSerializationSchema<T extends ProtobufSerializable
   }
 
   @Override
-  public ProducerRecord<byte[], byte[]> serialize(T element, Long timestamp) {
+  public ProducerRecord<byte[], byte[]> serialize(
+      T element, KafkaSinkContext context, Long timestamp) {
     try {
       byte[] serializedKey = serializeKey(element);
       byte[] serializedElement = getSerializer().write(element);

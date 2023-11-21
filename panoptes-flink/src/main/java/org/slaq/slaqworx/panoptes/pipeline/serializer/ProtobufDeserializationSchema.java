@@ -1,6 +1,10 @@
 package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
+import java.io.IOException;
+import java.io.Serial;
+import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
+import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
@@ -13,8 +17,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
  * @author jeremy
  */
 public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializable>
-    implements KafkaDeserializationSchema<T> {
-  private static final long serialVersionUID = 1L;
+    implements KafkaRecordDeserializationSchema<T> {
+  @Serial private static final long serialVersionUID = 1L;
 
   private transient ProtobufSerializer<T> serializer;
 
@@ -24,13 +28,10 @@ public abstract class ProtobufDeserializationSchema<T extends ProtobufSerializab
   }
 
   @Override
-  public T deserialize(ConsumerRecord<byte[], byte[]> record) throws Exception {
-    return getSerializer().read(record.value());
-  }
-
-  @Override
-  public boolean isEndOfStream(T nextElement) {
-    return false;
+  public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<T> out)
+      throws IOException {
+    T deserialized = getSerializer().read(record.value());
+    out.collect(deserialized);
   }
 
   /**

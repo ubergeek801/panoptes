@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline.serializer;
 
+import java.io.Serial;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 import org.slaq.slaqworx.panoptes.serializer.TradeEvaluationRequestSerializer;
@@ -7,7 +8,7 @@ import org.slaq.slaqworx.panoptes.trade.TradeEvaluationRequest;
 
 public class TradeEvaluationRequestDeserializationSchema
     extends ProtobufDeserializationSchema<TradeEvaluationRequest> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public TradeEvaluationRequestDeserializationSchema() {
     // nothing to do

@@ -2,16 +2,17 @@ package org.slaq.slaqworx.panoptes.pipeline;
 
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
 import org.slaq.slaqworx.panoptes.asset.Security;
 import org.slaq.slaqworx.panoptes.asset.SecurityKey;
@@ -44,13 +45,13 @@ public class PanoptesPipeline {
   public static final MapStateDescriptor<SecurityKey, Security> SECURITY_STATE_DESCRIPTOR =
       new MapStateDescriptor<>("securityBroadcast", SECURITY_KEY_TYPE_INFO, SECURITY_TYPE_INFO);
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
-  private final SourceFunction<PortfolioEvent> benchmarkKafkaSource;
-  private final SourceFunction<PortfolioEvent> portfolioKafkaSource;
-  private final SourceFunction<PortfolioEvaluationRequest> portfolioRequestSource;
-  private final SinkFunction<EvaluationResult> portfolioResultSink;
-  private final SourceFunction<Security> securityKafkaSource;
-  private final SourceFunction<Trade> tradeKafkaSource;
-  private final SinkFunction<TradeEvaluationResult> tradeResultSink;
+  private final KafkaSource<PortfolioEvent> benchmarkKafkaSource;
+  private final KafkaSource<PortfolioEvent> portfolioKafkaSource;
+  private final KafkaSource<PortfolioEvaluationRequest> portfolioRequestSource;
+  private final KafkaSink<EvaluationResult> portfolioResultSink;
+  private final KafkaSource<Security> securityKafkaSource;
+  private final KafkaSource<Trade> tradeKafkaSource;
+  private final KafkaSink<TradeEvaluationResult> tradeResultSink;
 
   private final StreamExecutionEnvironment env;
 
@@ -58,28 +59,28 @@ public class PanoptesPipeline {
    * Creates a new {@link PanoptesPipeline} using the given resources. Restricted because this class
    * should be instantiated through Micronaut.
    *
-   * @param benchmarkKafkaSource a {@link SourceFunction} producing benchmark-related events
-   * @param portfolioKafkaSource a {@link SourceFunction} producing portfolio-related events
-   * @param portfolioRequestSource a {@link SourceFunction} producing portfolio evaluation requests
-   * @param portfolioResultSink a {@link SinkFunction} consuming portfolio evaluation results
-   * @param securityKafkaSource a {@link SourceFunction} producing security-related events
-   * @param tradeSource a {@link SourceFunction} producing trade evaluation requests
-   * @param tradeResultSink a {@link SinkFunction} consuming trade evaluation results
+   * @param benchmarkKafkaSource a {@link KafkaSource} producing benchmark-related events
+   * @param portfolioKafkaSource a {@link KafkaSource} producing portfolio-related events
+   * @param portfolioRequestSource a {@link KafkaSource} producing portfolio evaluation requests
+   * @param portfolioResultSink a {@link KafkaSink} consuming portfolio evaluation results
+   * @param securityKafkaSource a {@link KafkaSource} producing security-related events
+   * @param tradeSource a {@link KafkaSource} producing trade evaluation requests
+   * @param tradeResultSink a {@link KafkaSink} consuming trade evaluation results
    * @param flinkEnvironment the Flink execution environment to use
    */
   protected PanoptesPipeline(
       @Named(PanoptesPipelineConfig.BENCHMARK_SOURCE)
-          SourceFunction<PortfolioEvent> benchmarkKafkaSource,
+          KafkaSource<PortfolioEvent> benchmarkKafkaSource,
       @Named(PanoptesPipelineConfig.PORTFOLIO_SOURCE)
-          SourceFunction<PortfolioEvent> portfolioKafkaSource,
+          KafkaSource<PortfolioEvent> portfolioKafkaSource,
       @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_REQUEST_SOURCE)
-          SourceFunction<PortfolioEvaluationRequest> portfolioRequestSource,
+          KafkaSource<PortfolioEvaluationRequest> portfolioRequestSource,
       @Named(PanoptesPipelineConfig.PORTFOLIO_EVALUATION_RESULT_SINK)
-          SinkFunction<EvaluationResult> portfolioResultSink,
-      @Named(PanoptesPipelineConfig.SECURITY_SOURCE) SourceFunction<Security> securityKafkaSource,
-      @Named(PanoptesPipelineConfig.TRADE_SOURCE) SourceFunction<Trade> tradeSource,
+          KafkaSink<EvaluationResult> portfolioResultSink,
+      @Named(PanoptesPipelineConfig.SECURITY_SOURCE) KafkaSource<Security> securityKafkaSource,
+      @Named(PanoptesPipelineConfig.TRADE_SOURCE) KafkaSource<Trade> tradeSource,
       @Named(PanoptesPipelineConfig.TRADE_EVALUATION_RESULT_SINK)
-          SinkFunction<TradeEvaluationResult> tradeResultSink,
+          KafkaSink<TradeEvaluationResult> tradeResultSink,
       StreamExecutionEnvironment flinkEnvironment) {
     this.benchmarkKafkaSource = benchmarkKafkaSource;
     this.portfolioKafkaSource = portfolioKafkaSource;
@@ -101,13 +102,15 @@ public class PanoptesPipeline {
     LOG.info("initializing pipeline");
 
     // obtain securities from Kafka and broadcast
-    SingleOutputStreamOperator<Security> securitySource =
-        env.addSource(securityKafkaSource).name("securitySource").uid("securitySource");
+    DataStream<Security> securitySource =
+        env.fromSource(securityKafkaSource, WatermarkStrategy.noWatermarks(), "securitySource")
+            .uid("securitySource");
     BroadcastStream<Security> securityStream = securitySource.broadcast(SECURITY_STATE_DESCRIPTOR);
 
     // obtain trades from Kafka
-    SingleOutputStreamOperator<Trade> tradeSource =
-        env.addSource(tradeKafkaSource).name("tradeSource").uid("tradeSource");
+    DataStream<Trade> tradeSource =
+        env.fromSource(tradeKafkaSource, WatermarkStrategy.noWatermarks(), "tradeSource")
+            .uid("tradeSource");
     // split each trade into its constituent transactions
     KeyedStream<PortfolioEvent, PortfolioKey> transactionStream =
         tradeSource
@@ -118,8 +121,9 @@ public class PanoptesPipeline {
 
     // obtain portfolio (event)s from Kafka, union with transaction events, connect with
     // securities and feed into a portfolio rule evaluator
-    SingleOutputStreamOperator<PortfolioEvent> portfolioSource =
-        env.addSource(portfolioKafkaSource).name("portfolioSource").uid("portfolioSource");
+    DataStream<PortfolioEvent> portfolioSource =
+        env.fromSource(portfolioKafkaSource, WatermarkStrategy.noWatermarks(), "portfolioSource")
+            .uid("portfolioSource");
     SingleOutputStreamOperator<RuleEvaluationResult> portfolioResultStream =
         portfolioSource
             .union(transactionStream)
@@ -133,8 +137,7 @@ public class PanoptesPipeline {
     // benchmark rule evaluator (this evaluator only evaluates benchmarks, but collects rules
     // from the non-benchmark portfolios)
     DataStream<PortfolioEvent> benchmarkSource =
-        env.addSource(benchmarkKafkaSource)
-            .name("benchmarkSource")
+        env.fromSource(benchmarkKafkaSource, WatermarkStrategy.noWatermarks(), "benchmarkSource")
             .uid("benchmarkSource")
             .union(portfolioSource);
     SingleOutputStreamOperator<RuleEvaluationResult> benchmarkResultStream =
