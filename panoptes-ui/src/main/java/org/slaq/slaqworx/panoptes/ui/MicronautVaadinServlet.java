@@ -5,6 +5,7 @@ import com.vaadin.flow.server.ServiceException;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 import io.micronaut.context.ApplicationContext;
+import java.io.Serial;
 
 /**
  * A {@link VaadinServlet} that uses a Micronaut {@link ApplicationContext} to perform dependency
@@ -13,7 +14,7 @@ import io.micronaut.context.ApplicationContext;
  * @author jeremy
  */
 public class MicronautVaadinServlet extends VaadinServlet {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final ApplicationContext applicationContext;
 

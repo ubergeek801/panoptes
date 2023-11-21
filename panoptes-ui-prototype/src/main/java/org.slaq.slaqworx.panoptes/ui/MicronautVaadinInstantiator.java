@@ -4,6 +4,7 @@ import com.vaadin.flow.di.DefaultInstantiator;
 import com.vaadin.flow.di.Instantiator;
 import com.vaadin.flow.server.VaadinService;
 import io.micronaut.context.ApplicationContext;
+import java.io.Serial;
 
 /**
  * A Vaadin {@link Instantiator} that performs Micronaut injection.
@@ -11,7 +12,7 @@ import io.micronaut.context.ApplicationContext;
  * @author jeremy
  */
 public class MicronautVaadinInstantiator extends DefaultInstantiator {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final ApplicationContext applicationContext;
 

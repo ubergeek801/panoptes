@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.io.Serial;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.util.Collector;
 import org.slaq.slaqworx.panoptes.event.PortfolioEvent;
@@ -14,7 +15,7 @@ import org.slaq.slaqworx.panoptes.trade.Transaction;
  * @author jeremy
  */
 public class TradeSplitter implements FlatMapFunction<Trade, PortfolioEvent> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   @Override
   public void flatMap(Trade trade, Collector<PortfolioEvent> out) {

@@ -7,6 +7,7 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import java.io.Serial;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -17,7 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author jeremy
  */
 public class MinMaxField<V> extends CustomField<Pair<V, V>> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final HasValue<?, V> min;
   private final HasValue<?, V> max;

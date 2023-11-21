@@ -1,5 +1,6 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
+import java.io.Serial;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slaq.slaqworx.panoptes.asset.PortfolioSummary;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * @author jeremy
  */
 public class PortfolioSummaryPublisher implements SinkFunction<PortfolioSummary> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipeline.class);
 

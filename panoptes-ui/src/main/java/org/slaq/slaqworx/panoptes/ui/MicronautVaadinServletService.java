@@ -5,6 +5,7 @@ import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 import io.micronaut.context.ApplicationContext;
+import java.io.Serial;
 
 /**
  * A {@link VaadinServletService} that uses a {@link MicronautVaadinInstantiator} to perform
@@ -13,7 +14,7 @@ import io.micronaut.context.ApplicationContext;
  * @author jeremy
  */
 public class MicronautVaadinServletService extends VaadinServletService {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final MicronautVaadinInstantiator instantiator;
 

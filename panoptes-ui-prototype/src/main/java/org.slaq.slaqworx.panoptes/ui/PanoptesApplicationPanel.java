@@ -15,6 +15,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import io.micronaut.context.annotation.Prototype;
+import java.io.Serial;
 import java.util.Map;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Map;
 @Theme(themeClass = Lumo.class, variant = Lumo.DARK)
 @Prototype
 public class PanoptesApplicationPanel extends AppLayout implements AppShellConfigurator {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Creates a new {@link PanoptesApplicationPanel}. */
   protected PanoptesApplicationPanel() {

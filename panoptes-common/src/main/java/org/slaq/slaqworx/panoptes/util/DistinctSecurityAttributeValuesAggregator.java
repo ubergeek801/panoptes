@@ -1,6 +1,7 @@
 package org.slaq.slaqworx.panoptes.util;
 
 import com.hazelcast.aggregation.Aggregator;
+import java.io.Serial;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
@@ -20,7 +21,7 @@ import org.slaq.slaqworx.panoptes.asset.SecurityKey;
  */
 public class DistinctSecurityAttributeValuesAggregator<T extends Comparable<T>>
     implements Aggregator<Map.Entry<SecurityKey, Security>, SortedSet<T>> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   // we use a String rather than the SecurityAttribute itself to simplify serialization
   @Nonnull private final String attributeName;

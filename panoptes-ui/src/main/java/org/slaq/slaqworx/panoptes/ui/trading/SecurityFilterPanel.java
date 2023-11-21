@@ -8,6 +8,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.slaq.slaqworx.panoptes.asset.Security;
@@ -24,7 +25,7 @@ import org.slaq.slaqworx.panoptes.ui.MinMaxField;
  * @author jeremy
  */
 public class SecurityFilterPanel extends FormLayout {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final int NUM_COLUMNS = 7; // TODO this isn't very "responsive"
 
