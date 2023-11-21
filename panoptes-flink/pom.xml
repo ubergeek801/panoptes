@@ -15,7 +15,9 @@
   <name>panoptes-flink</name>
 
   <properties>
-    <flink.version>1.17.1</flink.version>
+    <flink.base.version>1.18</flink.base.version>
+    <flink.version>${flink.base.version}.0</flink.version>
+    <flink.kafka.version>3.0.1-${flink.base.version}</flink.kafka.version>
   </properties>
 
   <build>
@@ -165,7 +167,7 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-connector-kafka</artifactId>
-      <version>${flink.version}</version>
+      <version>${flink.kafka.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>

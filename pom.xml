@@ -18,8 +18,10 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
 
-    <hazelcast.version>5.3.0-SNAPSHOT</hazelcast.version>
-    <micronaut.version>4.0.6</micronaut.version>
+    <hazelcast.version>5.4.0-SNAPSHOT</hazelcast.version>
+    <micronaut.version>4.2.0</micronaut.version>
+    <!-- usually but not always same as micronaut.version -->
+    <micronaut.plugin.version>4.1.0</micronaut.plugin.version>
   </properties>
 
   <modules>
@@ -47,7 +49,7 @@
         <plugin>
           <groupId>io.micronaut.maven</groupId>
           <artifactId>micronaut-maven-plugin</artifactId>
-          <version>${micronaut.version}</version>
+          <version>${micronaut.plugin.version}</version>
         </plugin>
         <!-- process the Micronaut annotations -->
         <plugin>
@@ -67,7 +69,7 @@
               <path>
                 <groupId>io.micronaut.data</groupId>
                 <artifactId>micronaut-data-processor</artifactId>
-                <version>4.0.4</version>
+                <version>4.3.1</version>
               </path>
             </annotationProcessorPaths>
           </configuration>
