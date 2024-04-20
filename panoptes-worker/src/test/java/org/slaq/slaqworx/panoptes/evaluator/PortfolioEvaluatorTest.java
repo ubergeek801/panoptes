@@ -462,17 +462,19 @@ public class PortfolioEvaluatorTest {
             (group, result) -> {
               switch (group.id()) {
                 case "ISSFOO" ->
-                // this concentration alone (30%) is enough to exceed the rule limit (25%)
-                assertFalse(result.isPassed(), "top 2 issuer rule should have failed for ISSFOO");
+                    // this concentration alone (30%) is enough to exceed the rule limit (25%)
+                    assertFalse(
+                        result.isPassed(), "top 2 issuer rule should have failed for ISSFOO");
                 case "ISSBAR", "ISSBAZ", "ISSABC", "ISSDEF", "ISSGHI" ->
-                // these concentrations are 20% or less so should pass
-                assertTrue(
-                    result.isPassed(), "top 2 issuer rule should have passed for " + group.id());
+                    // these concentrations are 20% or less so should pass
+                    assertTrue(
+                        result.isPassed(),
+                        "top 2 issuer rule should have passed for " + group.id());
                 default ->
-                // the aggregate is 50% so should fail
-                assertFalse(
-                    result.isPassed(),
-                    "top 2 issuer rule should have failed for aggregate group " + group.id());
+                    // the aggregate is 50% so should fail
+                    assertFalse(
+                        result.isPassed(),
+                        "top 2 issuer rule should have failed for aggregate group " + group.id());
               }
             });
 
@@ -482,14 +484,15 @@ public class PortfolioEvaluatorTest {
             (group, result) -> {
               switch (group.id()) {
                 case "ISSFOO", "ISSBAR", "ISSBAZ", "ISSABC", "ISSDEF", "ISSGHI" ->
-                // none of the concentrations are above 30% so should pass the 75% limit
-                assertTrue(
-                    result.isPassed(), "top 3 issuer rule should have passed for " + group.id());
+                    // none of the concentrations are above 30% so should pass the 75% limit
+                    assertTrue(
+                        result.isPassed(),
+                        "top 3 issuer rule should have passed for " + group.id());
                 default ->
-                // the aggregate is 70% so should pass
-                assertTrue(
-                    result.isPassed(),
-                    "top 3 issuer rule should have passed for aggregate group " + group.id());
+                    // the aggregate is 70% so should pass
+                    assertTrue(
+                        result.isPassed(),
+                        "top 3 issuer rule should have passed for aggregate group " + group.id());
               }
             });
 
@@ -499,14 +502,15 @@ public class PortfolioEvaluatorTest {
             (group, result) -> {
               switch (group.id()) {
                 case "ISSFOO", "ISSBAR", "ISSBAZ", "ISSABC", "ISSDEF", "ISSGHI" ->
-                // none of the concentrations are above 30% so should pass the 99.9% limit
-                assertTrue(
-                    result.isPassed(), "top 3 issuer rule should have passed for " + group.id());
+                    // none of the concentrations are above 30% so should pass the 99.9% limit
+                    assertTrue(
+                        result.isPassed(),
+                        "top 3 issuer rule should have passed for " + group.id());
                 default ->
-                // since there are fewer than 10 issuers, the aggregate is 100% so should fail
-                assertFalse(
-                    result.isPassed(),
-                    "top 10 issuer rule should have failed for aggregate group " + group.id());
+                    // since there are fewer than 10 issuers, the aggregate is 100% so should fail
+                    assertFalse(
+                        result.isPassed(),
+                        "top 10 issuer rule should have failed for aggregate group " + group.id());
               }
             });
   }

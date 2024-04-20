@@ -94,11 +94,11 @@ public class SecurityMapStore extends HazelcastMapStore<SecurityKey, Security> {
     return "insert into "
         + getTableName()
         + """
-         (id, hash, attributes, partition_id)
-         values (?, ?, ?::json, 0)
-         on conflict on constraint security_pk do update
-          set hash = excluded.hash, attributes = excluded.attributes
-        """;
+           (id, hash, attributes, partition_id)
+           values (?, ?, ?::json, 0)
+           on conflict on constraint security_pk do update
+            set hash = excluded.hash, attributes = excluded.attributes
+          """;
   }
 
   @Override

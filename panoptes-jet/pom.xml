@@ -48,13 +48,13 @@
             </goals>
             <configuration>
               <from>
-                <!-- 17-35 -->
+                <!-- 17.0.8-7 -->
                 <image>
-                  bellsoft/liberica-openjre-alpine-musl@sha256:026a92d84cc8e3ae36b5360c83c80eea6d04669ea943aab7df487c0ee5e7b635
+                  bellsoft/liberica-openjre-alpine-musl@sha256:35b986cf1c3ce9480483ab43b84188bbfdab43884c1cce5a540af602402381db
                 </image>
               </from>
               <to>
-                <image>uberkube01.slaq.org:5000/slaqworx/panoptes-jet:amd64</image>
+                <image>uberkube00.slaq.org:5000/slaqworx/panoptes-jet:amd64</image>
               </to>
             </configuration>
           </execution>
@@ -66,13 +66,13 @@
             </goals>
             <configuration>
               <from>
-                <!-- 17-35 -->
+                <!-- 17.0.8-7 -->
                 <image>
-                  bellsoft/liberica-openjre-alpine-musl@sha256:3c26fa1cba9e9c95eb49d01a1c1312a9845f9a186ba0c3f119bc85fb8255689c
+                  bellsoft/liberica-openjre-alpine-musl@sha256:f97aa5756ed9b9418cf5fb18eeb3e5d471f912a75a9a007510b93cbc0aa07b8f
                 </image>
               </from>
               <to>
-                <image>uberkube01.slaq.org:5000/slaqworx/panoptes-jet:arm64</image>
+                <image>uberkube00.slaq.org:5000/slaqworx/panoptes-jet:arm64</image>
               </to>
             </configuration>
           </execution>

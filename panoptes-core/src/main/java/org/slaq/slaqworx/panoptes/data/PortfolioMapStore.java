@@ -162,12 +162,12 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
     return "insert into "
         + getTableName()
         + """
-         (id, version, name, benchmark_id, benchmark_version, partition_id)
-         values (?, ?, ?, ?, ?, 0)
-         on conflict on constraint portfolio_pk do update
-          set name = excluded.name, benchmark_id = excluded.benchmark_id,
-            benchmark_version = excluded.benchmark_version
-        """;
+           (id, version, name, benchmark_id, benchmark_version, partition_id)
+           values (?, ?, ?, ?, ?, 0)
+           on conflict on constraint portfolio_pk do update
+            set name = excluded.name, benchmark_id = excluded.benchmark_id,
+              benchmark_version = excluded.benchmark_version
+          """;
   }
 
   @Override
@@ -186,10 +186,10 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                 PreparedBatch batch =
                     handle.prepareBatch(
                         """
-            insert into portfolio_position (portfolio_id, portfolio_version, position_id)
-            values (?, ?, ?)
-            on conflict on constraint portfolio_position_pk ignore");
-            """);
+insert into portfolio_position (portfolio_id, portfolio_version, position_id)
+values (?, ?, ?)
+on conflict on constraint portfolio_position_pk ignore");
+""");
                 portfolio
                     .getPositions()
                     .forEach(
@@ -206,10 +206,10 @@ public class PortfolioMapStore extends HazelcastMapStore<PortfolioKey, Portfolio
                 PreparedBatch batch =
                     handle.prepareBatch(
                         """
-            insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)
-            values (?, ?, ?)
-            on conflict on constraint portfolio_rule_pk ignore
-            """);
+                        insert into portfolio_rule (portfolio_id, portfolio_version, rule_id)
+                        values (?, ?, ?)
+                        on conflict on constraint portfolio_rule_pk ignore
+                        """);
                 portfolio
                     .getRules()
                     .forEach(

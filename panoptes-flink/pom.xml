@@ -16,8 +16,8 @@
 
   <properties>
     <flink.base.version>1.18</flink.base.version>
-    <flink.version>${flink.base.version}.0</flink.version>
-    <flink.kafka.version>3.0.1-${flink.base.version}</flink.kafka.version>
+    <flink.version>${flink.base.version}.1</flink.version>
+    <flink.kafka.version>3.1.0-${flink.base.version}</flink.kafka.version>
   </properties>
 
   <build>
@@ -163,6 +163,11 @@
       <artifactId>flink-clients</artifactId>
       <version>${flink.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-base</artifactId>
+      <version>${flink.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>

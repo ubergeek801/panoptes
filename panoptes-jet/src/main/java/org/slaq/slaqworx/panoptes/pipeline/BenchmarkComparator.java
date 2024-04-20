@@ -84,8 +84,8 @@ public class BenchmarkComparator
         switch (event.source()) {
           case BENCHMARK -> handleBenchmarkResultEvent(event);
           case PORTFOLIO -> handlePortfolioResultEvent(event);
-          default -> throw new IllegalArgumentException(
-              "cannot handle EventSource " + event.source());
+          default ->
+              throw new IllegalArgumentException("cannot handle EventSource " + event.source());
         };
 
     return (result == null ? Traversers.empty() : Traversers.singleton(result));
@@ -195,7 +195,7 @@ public class BenchmarkComparator
    * benchmark ID key, the most recent portfolio rule result encountered (if any) as well as the
    * most recent benchmark rule result encountered (if any).
    */
-  static class BenchmarkComparatorState implements Serializable {
+  public static class BenchmarkComparatorState implements Serializable {
     @Serial private static final long serialVersionUID = 1L;
 
     // contains the portfolio's rule results mapped by the rule key
