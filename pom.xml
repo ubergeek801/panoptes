@@ -24,7 +24,7 @@
     <micronaut.data.processor.version>4.7.0</micronaut.data.processor.version>
     <micronaut.inject.java.version>4.4.4</micronaut.inject.java.version>
     <micronaut.maven.plugin.version>4.5.3</micronaut.maven.plugin.version>
-    <micronaut.platform.version>4.4.0</micronaut.platform.version>
+    <micronaut.platform.version>4.4.2</micronaut.platform.version>
   </properties>
 
   <modules>
