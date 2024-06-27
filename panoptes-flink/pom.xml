@@ -15,9 +15,9 @@
   <name>panoptes-flink</name>
 
   <properties>
-    <flink.base.version>1.18</flink.base.version>
+    <flink.base.version>1.19</flink.base.version>
     <flink.version>${flink.base.version}.1</flink.version>
-    <flink.kafka.version>3.1.0-${flink.base.version}</flink.kafka.version>
+    <flink.kafka.version>3.2.0-${flink.base.version}</flink.kafka.version>
   </properties>
 
   <build>

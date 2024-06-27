@@ -5,7 +5,7 @@ metadata:
   labels:
     app: panoptes
 spec:
-  replicas: 4
+  replicas: 5
   selector:
     matchLabels:
       app: panoptes
@@ -20,14 +20,16 @@ spec:
             nodeSelectorTerms:
             - matchExpressions:
               - key: kubernetes.io/hostname
-                operator: NotIn
+                operator: In
                 values:
-                - uberkube01
-                - uberkube06
-                - uberkube07
+                - uberkube20
+                - uberkube21
+                - uberkube22
+                - uberkube23
+                - uberkube24
       containers:
       - name: panoptes-jet
-        image: uberkube01.slaq.org:5000/slaqworx/panoptes-jet:arm64
+        image: uberkube00.slaq.org:5000/slaqworx/panoptes-jet:arm64
         imagePullPolicy: Always
         env:
         - name: HOST_IP

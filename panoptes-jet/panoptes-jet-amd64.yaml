@@ -18,7 +18,7 @@ spec:
         kubernetes.io/arch: amd64
       containers:
       - name: panoptes-jet
-        image: uberkube01.slaq.org:5000/slaqworx/panoptes-jet:amd64
+        image: uberkube00.slaq.org:5000/slaqworx/panoptes-jet:amd64
         imagePullPolicy: Always
         env:
         - name: HOST_IP

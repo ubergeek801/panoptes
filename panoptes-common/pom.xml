@@ -15,34 +15,26 @@
   <name>panoptes-common</name>
 
   <properties>
-    <jackson.version>2.17.0</jackson.version>
-    <protobuf.version>3.25.3</protobuf.version>
+    <jackson.version>2.17.1</jackson.version>
+    <protobuf.version>4.27.2</protobuf.version>
   </properties>
 
   <build>
     <plugins>
       <!-- compile protobuf definitions for serialization -->
       <plugin>
-        <groupId>com.github.os72</groupId>
-        <artifactId>protoc-jar-maven-plugin</artifactId>
-        <version>3.11.4</version>
+        <groupId>io.github.ascopes</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>2.2.0</version>
+        <configuration>
+          <protocVersion>${protobuf.version}</protocVersion>
+          <liteOnly>true</liteOnly>
+        </configuration>
         <executions>
           <execution>
-            <phase>generate-sources</phase>
             <goals>
-              <goal>run</goal>
+              <goal>generate</goal>
             </goals>
-            <configuration>
-              <protocVersion>${protobuf.version}</protocVersion>
-              <includeStdTypes>true</includeStdTypes>
-              <outputTargets>
-                <outputTarget>
-                  <type>java</type>
-                  <outputOptions>lite</outputOptions>
-                  <outputDirectorySuffix>protobuf</outputDirectorySuffix>
-                </outputTarget>
-              </outputTargets>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -80,18 +72,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <!-- something else seems to be pulling in 2.16.1 -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-    <!-- something else seems to be pulling in 2.16.1 -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
       <version>${jackson.version}</version>
     </dependency>
     <dependency>
