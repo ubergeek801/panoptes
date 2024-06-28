@@ -18,7 +18,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.source>${java.version}</maven.compiler.source>
 
-    <hazelcast.version>5.4.0-SNAPSHOT</hazelcast.version>
+    <hazelcast.version>5.5.0-SNAPSHOT</hazelcast.version>
     <!-- not all Micronaut dependencies are versioned together -->
     <micronaut.version>4.5.3</micronaut.version>
     <micronaut.data.processor.version>4.8.1</micronaut.data.processor.version>
