@@ -5,7 +5,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -93,13 +93,13 @@ public class ComponentUtil {
   }
 
   /**
-   * Creates a new {@link Label}.
+   * Creates a new {@link Div}.
    *
-   * @param labelText the text of the label
-   * @return a {@link Label}
+   * @param divText the text of the Div
+   * @return a {@link Div}
    */
-  public static Label createLabel(String labelText) {
-    Label label = new Label(labelText);
+  public static Div createDiv(String divText) {
+    Div label = new Div(divText);
     label.getStyle().set("font-size", "80%");
 
     return label;

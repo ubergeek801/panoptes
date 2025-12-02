@@ -55,7 +55,7 @@ public class MinMaxField<V> extends CustomField<Pair<V, V>> {
 
     outerLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
     outerLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
-    outerLayout.add(ComponentUtil.createLabel(labelText));
+    outerLayout.add(ComponentUtil.createDiv(labelText));
     outerLayout.addAndExpand(innerLayout);
 
     add(outerLayout);

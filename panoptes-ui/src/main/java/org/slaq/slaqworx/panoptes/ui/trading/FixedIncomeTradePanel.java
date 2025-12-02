@@ -5,7 +5,7 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -99,9 +99,9 @@ public class FixedIncomeTradePanel extends FormLayout {
     add(ComponentUtil.createDatePicker("Settlement Date"));
 
     VerticalLayout allocations = new VerticalLayout();
-    Label allocationsLabel = ComponentUtil.createLabel("Allocations");
-    allocationsLabel.setWidthFull();
-    allocations.add(allocationsLabel);
+    Div allocationsDiv = ComponentUtil.createDiv("Allocations");
+    allocationsDiv.setWidthFull();
+    allocations.add(allocationsDiv);
     AllocationPanel allocation = new AllocationPanel(allocations);
     allocations.add(allocation);
     Button newAllocation =
