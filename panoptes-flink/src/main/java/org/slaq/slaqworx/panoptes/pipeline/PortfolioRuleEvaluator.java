@@ -1,8 +1,8 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import java.io.Serial;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -35,7 +35,7 @@ public class PortfolioRuleEvaluator
   }
 
   @Override
-  public void open(Configuration config) {
+  public void open(OpenContext openContext) {
     portfolioTracker = new PortfolioTracker(getRuntimeContext(), EvaluationSource.PORTFOLIO);
   }
 

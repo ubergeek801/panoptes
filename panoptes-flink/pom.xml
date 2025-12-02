@@ -15,9 +15,8 @@
   <name>panoptes-flink</name>
 
   <properties>
-    <flink.base.version>1.19</flink.base.version>
-    <flink.version>${flink.base.version}.1</flink.version>
-    <flink.kafka.version>3.2.0-${flink.base.version}</flink.kafka.version>
+    <flink.version>2.1.1</flink.version>
+    <flink.kafka.version>4.0.1-2.0</flink.kafka.version>
   </properties>
 
   <build>
@@ -147,36 +146,31 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.flink</groupId>
-      <artifactId>flink-java</artifactId>
-      <version>${flink.version}</version>
+      <groupId>com.twitter</groupId>
+      <artifactId>chill-protobuf</artifactId>
+      <version>0.10.0</version>
       <exclusions>
         <exclusion>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-lang3</artifactId>
+          <groupId>com.esotericsoftware.kryo</groupId>
+          <artifactId>kryo</artifactId>
         </exclusion>
       </exclusions>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.flink</groupId>
-      <artifactId>flink-clients</artifactId>
-      <version>${flink.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-connector-base</artifactId>
       <version>${flink.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-connector-kafka</artifactId>
       <version>${flink.kafka.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-metrics-jmx</artifactId>
+      <artifactId>flink-streaming-java</artifactId>
       <version>${flink.version}</version>
       <scope>provided</scope>
     </dependency>

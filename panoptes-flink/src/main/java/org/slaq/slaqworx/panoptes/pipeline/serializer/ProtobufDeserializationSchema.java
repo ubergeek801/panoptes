@@ -3,15 +3,14 @@ package org.slaq.slaqworx.panoptes.pipeline.serializer;
 import java.io.IOException;
 import java.io.Serial;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
-import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
 /**
- * A convenient base class for implementing {@link KafkaDeserializationSchema}e that delegate to a
- * {@link ProtobufSerializer}.
+ * A convenient base class for implementing {@link KafkaRecordDeserializationSchema}e that delegate
+ * to a {@link ProtobufSerializer}.
  *
  * @param <T> the type to be deserialized
  * @author jeremy

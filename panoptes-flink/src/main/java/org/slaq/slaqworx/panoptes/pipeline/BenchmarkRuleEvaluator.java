@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
@@ -52,7 +52,7 @@ public class BenchmarkRuleEvaluator
   }
 
   @Override
-  public void open(Configuration config) {
+  public void open(OpenContext openContext) {
     portfolioTracker = new PortfolioTracker(getRuntimeContext(), EvaluationSource.BENCHMARK);
     benchmarkRulesState = getRuntimeContext().getMapState(BENCHMARK_RULES_STATE_DESCRIPTOR);
   }

@@ -20,11 +20,11 @@
 
     <hazelcast.version>5.5.0-SNAPSHOT</hazelcast.version>
     <!-- not all Micronaut dependencies are versioned together -->
-    <micronaut.version>4.5.3</micronaut.version>
-    <micronaut.data.processor.version>4.8.1</micronaut.data.processor.version>
-    <micronaut.inject.java.version>4.5.3</micronaut.inject.java.version>
-    <micronaut.maven.plugin.version>4.6.1</micronaut.maven.plugin.version>
-    <micronaut.platform.version>4.5.0</micronaut.platform.version>
+    <micronaut.version>4.10.3</micronaut.version>
+    <micronaut.data.processor.version>4.14.1</micronaut.data.processor.version>
+    <micronaut.inject.java.version>4.10.9</micronaut.inject.java.version>
+    <micronaut.maven.plugin.version>4.11.3</micronaut.maven.plugin.version>
+    <micronaut.platform.version>4.10.3</micronaut.platform.version>
   </properties>
 
   <modules>
@@ -46,7 +46,7 @@
         <plugin>
           <groupId>com.google.cloud.tools</groupId>
           <artifactId>jib-maven-plugin</artifactId>
-          <version>3.4.3</version>
+          <version>3.5.1</version>
         </plugin>
         <!-- enable Micronaut-related Maven actions -->
         <plugin>
@@ -58,7 +58,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.13.0</version>
+          <version>3.14.1</version>
           <configuration>
             <compilerArgs>
               <arg>-parameters</arg>
@@ -81,19 +81,19 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.5.4</version>
         </plugin>
         <!-- produce build-info to include in application packages -->
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>4.0.0</version>
         </plugin>
         <!-- produce git-info to include in application packages -->
         <plugin>
           <groupId>io.github.git-commit-id</groupId>
           <artifactId>git-commit-id-maven-plugin</artifactId>
-          <version>9.0.0</version>
+          <version>9.0.2</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -102,7 +102,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
-        <version>2.43.0</version>
+        <version>3.1.0</version>
         <configuration>
           <formats>
             <format>

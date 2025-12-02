@@ -160,7 +160,7 @@ public class PanoptesPipeline {
             .uid("benchmarkComparator");
 
     resultStream
-        .addSink(new EvaluationResultPublisher())
+        .sinkTo(new EvaluationResultPublisher())
         .name("evaluationResultSink")
         .uid("evaluationResultSink");
 

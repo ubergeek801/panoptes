@@ -1,9 +1,9 @@
 package org.slaq.slaqworx.panoptes.pipeline;
 
 import java.io.Serial;
+import org.apache.flink.api.common.functions.OpenContext;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.KeyedCoProcessFunction;
 import org.apache.flink.util.Collector;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -45,7 +45,7 @@ public class BenchmarkComparator
   }
 
   @Override
-  public void open(Configuration parameters) {
+  public void open(OpenContext openContext) {
     baseResultState = getRuntimeContext().getState(PORTFOLIO_RESULT_STATE_DESCRIPTOR);
     benchmarkResultState = getRuntimeContext().getState(BENCHMARK_RESULT_STATE_DESCRIPTOR);
   }

@@ -6,6 +6,7 @@ import io.micronaut.context.annotation.Property;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import java.util.Properties;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -27,17 +28,6 @@ import org.slaq.slaqworx.panoptes.pipeline.serializer.PortfolioEventDeserializat
 import org.slaq.slaqworx.panoptes.pipeline.serializer.SecurityDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeDeserializationSchema;
 import org.slaq.slaqworx.panoptes.pipeline.serializer.TradeEvaluationResultSerializationSchema;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.EvaluationResultKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioEventKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKeyKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioRuleKeyKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.PortfolioSummaryKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleEvaluationResultKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleKeyKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.RuleKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKeyKryoSerializer;
-import org.slaq.slaqworx.panoptes.pipeline.serializer.kryo.SecurityKryoSerializer;
 import org.slaq.slaqworx.panoptes.rule.ConcentrationRule;
 import org.slaq.slaqworx.panoptes.rule.MarketValueRule;
 import org.slaq.slaqworx.panoptes.rule.RuleKey;
@@ -65,6 +55,9 @@ public class PanoptesPipelineConfig {
   public static final String TRADE_EVALUATION_RESULT_SINK = "tradeEvaluationResultSink";
 
   private static final Logger LOG = LoggerFactory.getLogger(PanoptesPipelineConfig.class);
+
+  private static final String PROTOBUF_SERIALIZER_CONFIG =
+      "{ type: kryo, kryo-type: registered, class: com.twitter.chill.protobuf.ProtobufSerializer }";
 
   @Property(name = "kafka")
   private Properties kafkaProperties;
@@ -127,8 +120,8 @@ public class PanoptesPipelineConfig {
     LOG.info("using global parallelism {}", env.getParallelism());
 
     // since we deal with immutable (or effectively immutable) objects, we can reduce Flink's
-    // copying; this doesn't do much for larger machines but does help in more
-    // resource-constrained environments
+    // copying; this doesn't do much for larger machines but does help in more resource-constrained
+    // environments
     env.getConfig().enableObjectReuse();
 
     env.disableOperatorChaining();
@@ -136,34 +129,27 @@ public class PanoptesPipelineConfig {
     // in Flink, Protobuf serialization is supported via custom serializers registered with
     // Flink; we need these for any (top-level) classes passed between Flink operators, classes
     // used in operator state, etc.
-    env.getConfig()
-        .registerTypeWithKryoSerializer(
-            EvaluationResult.class, EvaluationResultKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(Portfolio.class, PortfolioKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(PortfolioEvent.class, PortfolioEventKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(PortfolioKey.class, PortfolioKeyKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(
-            PortfolioRuleKey.class, PortfolioRuleKeyKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(
-            PortfolioSummary.class, PortfolioSummaryKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(
-            RuleEvaluationResult.class, RuleEvaluationResultKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(RuleKey.class, RuleKeyKryoSerializer.class);
+    Configuration serializerConfig = new Configuration();
+    serializerConfig.setString(EvaluationResult.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(Portfolio.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(PortfolioEvent.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(PortfolioKey.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(PortfolioRuleKey.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(PortfolioSummary.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(RuleEvaluationResult.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(RuleKey.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+
     // theoretically we should just be able to register a Rule (or maybe ConfigurableRule)
     // serializer, but Flink/Kryo aren't happy unless we register the concrete rule classes
-    env.getConfig()
-        .registerTypeWithKryoSerializer(ConcentrationRule.class, RuleKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(MarketValueRule.class, RuleKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(WeightedAverageRule.class, RuleKryoSerializer.class);
-    env.getConfig().registerTypeWithKryoSerializer(Security.class, SecurityKryoSerializer.class);
-    env.getConfig()
-        .registerTypeWithKryoSerializer(SecurityKey.class, SecurityKeyKryoSerializer.class);
+    // TODO confirm this is still the case in Flink 2.0
+    serializerConfig.setString(ConcentrationRule.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(MarketValueRule.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(WeightedAverageRule.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+
+    serializerConfig.setString(Security.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+    serializerConfig.setString(SecurityKey.class.getName(), PROTOBUF_SERIALIZER_CONFIG);
+
+    env.getConfig().getSerializerConfig().configure(serializerConfig, getClass().getClassLoader());
 
     return env;
   }

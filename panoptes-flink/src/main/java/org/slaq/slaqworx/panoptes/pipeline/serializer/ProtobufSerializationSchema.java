@@ -4,7 +4,6 @@ import io.micronaut.context.BeanProvider;
 import java.io.Serial;
 import javax.annotation.Nonnull;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
-import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -19,8 +18,8 @@ import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializable;
 import org.slaq.slaqworx.panoptes.serializer.ProtobufSerializer;
 
 /**
- * A convenient base class for implementing {@link KafkaSerializationSchema}e that delegate to a
- * {@link ProtobufSerializer}.
+ * A convenient base class for implementing {@link KafkaRecordSerializationSchema}e that delegate to
+ * a {@link ProtobufSerializer}.
  *
  * @param <T> the type to be serialized
  * @author jeremy

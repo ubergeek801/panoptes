@@ -17,7 +17,6 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.util.KeyedTwoInputStreamOperatorTestHarness;
 import org.apache.flink.streaming.util.TestHarnessUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slaq.slaqworx.panoptes.asset.Portfolio;
 import org.slaq.slaqworx.panoptes.asset.PortfolioKey;
@@ -76,7 +75,6 @@ public class BenchmarkRuleEvaluatorTest {
    * @throws Exception if an unexpected failure occurs
    */
   @Test
-  @Disabled("Flink not supported until it supports Java records")
   public void testBenchmarkBeforeSecurities() throws Exception {
     String isin1 = "security1";
     Security security1 =
@@ -191,7 +189,6 @@ public class BenchmarkRuleEvaluatorTest {
    * @throws Exception if an unexpected failure occurs
    */
   @Test
-  @Disabled("Flink not supported until it supports Java records")
   public void testSecuritiesBeforeBenchmark() throws Exception {
     String isin1 = "security1";
     Security security1 =

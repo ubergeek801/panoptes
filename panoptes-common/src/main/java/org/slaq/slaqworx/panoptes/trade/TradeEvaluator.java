@@ -61,12 +61,12 @@ public interface TradeEvaluator {
    *     find room
    * @param targetValue the desired investment amount, as USD market value
    * @return a {@link CompletableFuture} {@link Double} representing the (approximate) maximum
-   *     market value of of the given {@link Security}, less than or equal to {@code targetValue},
-   *     that can be accepted by the {@link Portfolio} without violating compliance
+   *     market value of the given {@link Security}, less than or equal to {@code targetValue}, that
+   *     can be accepted by the {@link Portfolio} without violating compliance
    * @throws ExecutionException if the evaluation could not be processed
    * @throws InterruptedException if the {@link Thread} was interrupted during evaluation
    */
-  public CompletableFuture<Double> evaluateRoom(
+  CompletableFuture<Double> evaluateRoom(
       PortfolioKey portfolioKey, SecurityKey securityKey, double targetValue)
       throws ExecutionException, InterruptedException;
 }
