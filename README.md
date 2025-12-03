@@ -20,3 +20,7 @@ rating changes, etc.). While Panoptes does not yet implement the notion, it is e
 changes will be modeled as _events_ to which the system may respond by re-evaluating compliance
 rules as necessary. The most significant such event is a proposed _trade_, the compliance impact of
 which must be evaluated and feedback returned to the submitting trader (preferably in real time).
+
+## TODO
+
+* The Flink processor code has been upgraded to use Flink 2.x, but has not yet been tested.
