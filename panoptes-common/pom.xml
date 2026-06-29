@@ -15,8 +15,8 @@
   <name>panoptes-common</name>
 
   <properties>
-    <jackson.version>2.17.1</jackson.version>
-    <protobuf.version>4.27.5</protobuf.version>
+    <jackson.version>2.22.0</jackson.version>
+    <protobuf.version>4.35.1</protobuf.version>
   </properties>
 
   <build>
@@ -25,9 +25,11 @@
       <plugin>
         <groupId>io.github.ascopes</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
-        <version>4.0.3</version>
+        <version>5.1.7</version>
         <configuration>
-          <protocVersion>${protobuf.version}</protocVersion>
+          <protoc kind="binary-maven">
+            <version>${protobuf.version}</version>
+          </protoc>
           <liteOnly>true</liteOnly>
         </configuration>
         <executions>
@@ -75,9 +77,9 @@
       <version>${jackson.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>3.0.2</version>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>4.10.2</version>
     </dependency>
     <dependency>
       <groupId>com.google.protobuf</groupId>
@@ -108,7 +110,7 @@
     <dependency>
       <groupId>org.apache.groovy</groupId>
       <artifactId>groovy</artifactId>
-      <version>4.0.29</version>
+      <version>5.0.6</version>
     </dependency>
 
     <dependency>
