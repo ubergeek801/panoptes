@@ -20,7 +20,7 @@
 
     <hazelcast.version>5.7.0-SNAPSHOT</hazelcast.version>
     <!-- not all Micronaut dependencies are versioned together -->
-    <micronaut.version>5.0.2</micronaut.version>
+    <micronaut.version>5.0.3</micronaut.version>
     <micronaut.maven.plugin.version>5.0.0</micronaut.maven.plugin.version>
   </properties>
 
