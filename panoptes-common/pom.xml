@@ -15,7 +15,7 @@
   <name>panoptes-common</name>
 
   <properties>
-    <jackson.version>2.22.0</jackson.version>
+    <jackson.version>2.22.1</jackson.version>
     <protobuf.version>4.35.1</protobuf.version>
   </properties>
 
